@@ -1,0 +1,48 @@
+<article class="series" [class.is-done]="match().status === 'done'" [class.series--final]="match().id === 'final' || match().id === 'grand-final'">
+  <header class="series__head">
+    <span>{{ match().roundLabel }}</span>
+    <span class="series__status">{{ match().status === 'done' ? 'BO5' : match().scoreText }}</span>
+  </header>
+  <button
+    class="slot"
+    type="button"
+    [class.is-winner]="match().left?.isWinner"
+    [class.is-empty]="!match().left"
+    [disabled]="match().status !== 'ready'"
+    (click)="chooseSide('left')"
+  >
+    @if (match().left; as side) {
+      <span class="slot__logo">
+        <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+      </span>
+      <span class="slot__name">{{ side.abbreviation }}</span>
+      <span class="slot__score">{{ side.games ?? '' }}</span>
+    } @else {
+      <span class="slot__pending">待定</span>
+    }
+  </button>
+  <button
+    class="slot"
+    type="button"
+    [class.is-winner]="match().right?.isWinner"
+    [class.is-empty]="!match().right"
+    [disabled]="match().status !== 'ready'"
+    (click)="chooseSide('right')"
+  >
+    @if (match().right; as side) {
+      <span class="slot__logo">
+        <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+      </span>
+      <span class="slot__name">{{ side.abbreviation }}</span>
+      <span class="slot__score">{{ side.games ?? '' }}</span>
+    } @else {
+      <span class="slot__pending">待定</span>
+    }
+  </button>
+  @if (match().status === 'done') {
+    <label class="series__loser">
+      敗方小分
+      <input type="number" min="0" max="2" [value]="loserGames()" (change)="changeLoserGames($event)" />
+    </label>
+  }
+</article>

@@ -1,0 +1,109 @@
+<section class="universe-list">
+  <div class="universe-list__hero">
+    <p class="universe-list__eyebrow">Universes</p>
+    <h1 class="universe-list__heading">宇宙管理</h1>
+    <p class="universe-list__lead">
+      建立、編輯、複製、刪除與切換宇宙。每個宇宙的資料各自獨立儲存。
+    </p>
+  </div>
+
+  <form class="create-panel" [formGroup]="createForm" (ngSubmit)="createUniverse()">
+    <div class="create-panel__fields">
+      <label class="field" for="create-universe-name">
+        <span class="field__label">新宇宙名稱</span>
+        <input
+          id="create-universe-name"
+          class="field__input"
+          type="text"
+          formControlName="name"
+          maxlength="40"
+          placeholder="例如：2026 台灣電競宇宙"
+        />
+      </label>
+      <label class="field field--year" for="create-universe-year">
+        <span class="field__label">開始年份</span>
+        <select id="create-universe-year" class="field__input" formControlName="startYear">
+          @for (year of startYears; track year) {
+            <option [value]="year">{{ year }}</option>
+          }
+        </select>
+      </label>
+      <button class="btn btn--primary" type="submit">建立宇宙</button>
+    </div>
+    @if (createForm.controls.name.touched && createForm.controls.name.invalid) {
+      <p class="form-hint form-hint--error">請輸入宇宙名稱（最多 40 字）</p>
+    }
+  </form>
+
+  @if (formError(); as errorMessage) {
+    <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+  }
+
+  <ul class="universe-list__items">
+    @for (item of universes(); track item.id) {
+      <li class="universe-card" [class.is-active]="item.id === activeUniverseId()">
+        @if (editingId() === item.id) {
+          <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit(item.id)">
+            <label class="field" for="edit-universe-name">
+              <span class="field__label">宇宙名稱</span>
+              <input
+                id="edit-universe-name"
+                class="field__input"
+                type="text"
+                formControlName="name"
+                maxlength="40"
+              />
+            </label>
+            <label class="field field--year" for="edit-universe-year">
+              <span class="field__label">開始年份</span>
+              <select id="edit-universe-year" class="field__input" formControlName="startYear">
+                @for (year of startYears; track year) {
+                  <option [value]="year">{{ year }}</option>
+                }
+              </select>
+            </label>
+            <div class="edit-form__actions">
+              <button class="btn btn--primary" type="submit">儲存</button>
+              <button class="btn btn--ghost" type="button" (click)="cancelEdit()">取消</button>
+            </div>
+          </form>
+        } @else {
+          <div class="universe-card__main">
+            <div>
+              <h2 class="universe-card__name">{{ item.name }}</h2>
+              <p class="universe-card__meta">
+                開始於 {{ item.startYear }} 年 · 更新於 {{ item.updatedAt | date: 'yyyy/MM/dd HH:mm' }}
+              </p>
+            </div>
+            @if (item.id === activeUniverseId()) {
+              <span class="universe-card__badge">使用中</span>
+            }
+          </div>
+
+          <div class="universe-card__actions">
+            @if (item.id !== activeUniverseId()) {
+              <button class="btn btn--ghost" type="button" (click)="switchTo(item.id)">
+                切換
+              </button>
+            }
+            <button
+              class="btn btn--ghost"
+              type="button"
+              (click)="startEdit(item.id, item.name, item.startYear)"
+            >
+              編輯
+            </button>
+            <button class="btn btn--ghost" type="button" (click)="duplicate(item.id)">
+              複製
+            </button>
+            <button class="btn btn--danger" type="button" (click)="remove(item.id, item.name)">
+              刪除
+            </button>
+          </div>
+        }
+      </li>
+    } @empty {
+      <li class="universe-list__empty">目前沒有宇宙。先建立一個開始。</li>
+    }
+  </ul>
+</section>

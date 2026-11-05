@@ -1,0 +1,63 @@
+<section class="catalog">
+  <div class="catalog__hero">
+    <p class="catalog__eyebrow">Formats</p>
+    <h1 class="catalog__heading">賽制</h1>
+    <p class="catalog__lead">
+      @if (activeUniverse(); as universe) {
+        {{ universe.name }}。每張卡片是一份凍結模板。能開對陣的已經接上隊伍；標待確認的沒有對戰圖，不會自己補。
+      } @else {
+        請先到宇宙頁選擇或建立宇宙。對陣會用該宇宙的隊伍。
+      }
+    </p>
+  </div>
+
+  @for (group of groups; track group.id) {
+    <section class="catalog__group">
+      <h2 class="catalog__group-title">{{ group.title }}</h2>
+      <ul class="catalog__list">
+        @for (item of group.items; track item.id) {
+          <li class="format-card" [class.is-pending]="item.status === 'pending'">
+            <div class="format-card__head">
+              <p class="format-card__meta">{{ item.years }} · {{ item.league }}</p>
+              <span class="format-card__status">
+                @switch (item.status) {
+                  @case ('playable') { 可模擬 }
+                  @case ('rules') { 規則已定 }
+                  @case ('pending') { 待確認 }
+                }
+              </span>
+            </div>
+            <h3 class="format-card__name">{{ item.name }}</h3>
+            <p class="format-card__summary">{{ item.summary }}</p>
+            @if (item.points; as points) {
+              <table class="points">
+                <thead>
+                  <tr>
+                    <th>季後賽名次</th>
+                    <th>春季積分</th>
+                    <th>夏季積分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of points; track row.place) {
+                    <tr>
+                      <td>{{ row.place }}</td>
+                      <td>{{ row.spring }}</td>
+                      <td>{{ row.summer }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <p class="format-card__summary">夏季冠軍的夏季積分不另計，因為已經直通。年度積分相同時比夏季積分。</p>
+            }
+            @if (item.status === 'pending') {
+              <p class="format-card__pending">{{ item.pendingReason }}</p>
+            } @else if (item.route) {
+              <a class="format-card__link" [routerLink]="item.route">開啟對陣</a>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</section>

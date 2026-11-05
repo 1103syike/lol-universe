@@ -1,0 +1,171 @@
+<section class="playoff">
+  <a class="back-link" routerLink="/leagues">← 回到賽制</a>
+  <div class="playoff__hero">
+    <p class="playoff__eyebrow">{{ copy().eyebrow }}</p>
+    <h1 class="playoff__heading">{{ copy().heading }}</h1>
+    <p class="playoff__lead">{{ copy().lead }}</p>
+  </div>
+
+  @if (activeUniverse()) {
+    @if (!hasEnoughTeams()) {
+      <p class="playoff__empty">隊伍數量不夠排這張對陣。升降賽需要 10 支 TCS 和至少 2 支 TCL。</p>
+    } @else {
+      <div class="playoff__layout">
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">TCS 排名</h2>
+            <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
+          </div>
+          <p class="panel__note">標成晉級的名次會進這張對陣。例行賽還沒結算，可以先調順序。</p>
+          <table class="standings">
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>隊伍</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of tcsStandings(); track row.teamId) {
+                <tr [class.is-playoff]="row.inPlayoff">
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                  </td>
+                  <td>{{ row.inPlayoff ? '出賽' : '—' }}</td>
+                  <td>
+                    @if (canReorder()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCS', row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCS', row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (formatId() === 'promotion-2023') {
+          <div class="panel">
+            <h2 class="panel__title">TCL 排名</h2>
+            <table class="standings">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>隊伍</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of tclStandings(); track row.teamId) {
+                  <tr [class.is-playoff]="row.inPlayoff">
+                    <td>{{ row.rank }}</td>
+                    <td class="standings__team">
+                      <span class="standings__logo">
+                        <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                      </span>
+                      <span>{{ row.abbreviation }}</span>
+                    </td>
+                    <td>{{ row.inPlayoff ? '出賽' : '—' }}</td>
+                    <td>
+                      @if (canReorder()) {
+                        <button class="btn btn--tiny" type="button" (click)="moveSeed('TCL', row.teamId, -1)">上</button>
+                        <button class="btn btn--tiny" type="button" (click)="moveSeed('TCL', row.teamId, 1)">下</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="panel">
+            <h2 class="panel__title">賽程</h2>
+            <table class="schedule">
+              <thead>
+                <tr>
+                  <th>階段</th>
+                  <th>對戰</th>
+                  <th>比分</th>
+                  <th>狀態</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (match of schedule(); track match.id) {
+                  <tr>
+                    <td>{{ match.roundLabel }}</td>
+                    <td>{{ match.matchup }}</td>
+                    <td>{{ match.scoreText }}</td>
+                    <td>{{ match.statusLabel }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @for (line of outcomes(); track line) {
+              <p class="panel__note">{{ line }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (formatId() === 'promotion-2023') {
+        <div class="panel">
+          <h2 class="panel__title">賽程</h2>
+          <table class="schedule">
+            <thead>
+              <tr>
+                <th>階段</th>
+                <th>對戰</th>
+                <th>比分</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (match of schedule(); track match.id) {
+                <tr>
+                  <td>{{ match.roundLabel }}</td>
+                  <td>{{ match.matchup }}</td>
+                  <td>{{ match.scoreText }}</td>
+                  <td>{{ match.statusLabel }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @for (line of outcomes(); track line) {
+            <p class="panel__note">{{ line }}</p>
+          }
+        </div>
+
+        @if (!progress().pickTeamId) {
+          <div class="picker">
+            <p class="picker__title">TCL 第 1 名選擇 TCS 對手</p>
+            <div class="picker__actions">
+              @for (choice of promotionChoices(); track choice.teamId) {
+                <button class="btn btn--ghost" type="button" (click)="pickPromotionOpponent(choice.teamId)">
+                  第 {{ choice.rank }} 名 {{ choice.abbreviation }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <div class="bracket">
+        <div class="bracket__column">
+          @for (match of series(); track match.id) {
+            <app-series-card
+              [match]="match"
+              (pickWinner)="setWinner($event.seriesId, $event.teamId)"
+              (loserGamesChange)="setLoserGames($event.seriesId, $event.games)"
+            />
+          }
+        </div>
+      </div>
+    }
+  }
+</section>

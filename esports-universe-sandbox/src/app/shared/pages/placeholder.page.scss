@@ -1,0 +1,30 @@
+.placeholder {
+  max-width: 36rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.placeholder__eyebrow {
+  margin: 0 0 0.45rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.placeholder__title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.placeholder__text {
+  margin: 0.75rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.65;
+}

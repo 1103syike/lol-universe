@@ -1,0 +1,30 @@
+:host {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.team-logo__image {
+  width: min(72%, 8rem);
+  height: min(72%, 8rem);
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgb(16 24 40 / 12%));
+}
+
+.team-logo__mark {
+  display: grid;
+  place-items: center;
+  width: min(72%, 7.5rem);
+  aspect-ratio: 1;
+  border: 2px solid color-mix(in srgb, var(--mark-color) 40%, #fff);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, rgb(255 255 255 / 70%), transparent 50%),
+    color-mix(in srgb, var(--mark-color) 18%, #fff);
+  color: color-mix(in srgb, var(--mark-color) 55%, #1a1a1a);
+  font-size: clamp(0.85rem, 1.8vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+}

@@ -1,0 +1,113 @@
+<section class="coach-list">
+  <div class="coach-list__hero">
+    <p class="coach-list__eyebrow">Coaches</p>
+    <h1 class="coach-list__heading">教練管理</h1>
+    <p class="coach-list__lead">
+      @if (activeUniverse(); as universe) {
+        目前宇宙：{{ universe.name }}。每隊一位主教練。先管理基本資料，能力與薪資稍後再開。
+      } @else {
+        請先到宇宙頁選擇或建立宇宙。
+      }
+    </p>
+  </div>
+
+  @if (activeUniverse()) {
+    <form class="create-panel" [formGroup]="createForm" (ngSubmit)="createCoach()">
+      <div class="create-panel__grid">
+        <label class="field" for="coach-tag">
+          <span class="field__label">教練 ID</span>
+          <input id="coach-tag" class="field__input" type="text" formControlName="gamertag" maxlength="24" />
+        </label>
+        <label class="field" for="coach-nation">
+          <span class="field__label">
+            國籍
+            <app-flag-icon [code]="createForm.controls.nationality.value" />
+          </span>
+          <select id="coach-nation" class="field__input" formControlName="nationality">
+            @for (nation of nationalityOptions; track nation.code) {
+              <option [value]="nation.code">{{ nation.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="coach-team">
+          <span class="field__label">執教隊伍</span>
+          <select id="coach-team" class="field__input" formControlName="teamId">
+            <option value="">未執教</option>
+            @for (team of teams(); track team.id) {
+              <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="coach-birthday">
+          <span class="field__label">出生年</span>
+          <select id="coach-birthday" class="field__input" formControlName="birthdayYear">
+            @for (year of birthYears; track year) {
+              <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="coach-contract-year">
+          <span class="field__label">合約年份</span>
+          <select id="coach-contract-year" class="field__input" formControlName="contractYear">
+            @for (year of contractYears; track year) {
+              <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </label>
+        <label class="field" for="coach-expiry-year">
+          <span class="field__label">到期年份</span>
+          <select id="coach-expiry-year" class="field__input" formControlName="expiryYear">
+            @for (year of contractYears; track year) {
+              <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <button class="btn btn--primary" type="submit">新增教練</button>
+    </form>
+
+    @if (formError(); as errorMessage) {
+      <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+    }
+
+    <div class="toolbar">
+      <label class="team-filter">
+        隊伍
+        <select [value]="selectedTeamId()" (change)="setTeamFilter($any($event.target).value)">
+          <option value="ALL">全部隊伍</option>
+          <option value="FREE">未執教</option>
+          @for (team of teams(); track team.id) {
+            <option [value]="team.id">{{ team.abbreviation }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <ul class="coach-list__items">
+      @for (coach of filteredCoaches(); track coach.id) {
+        <li class="coach-card">
+          <div class="coach-card__main">
+            <div>
+              <h2 class="coach-card__name">
+                <app-flag-icon [code]="coach.nationality" />
+                {{ coach.gamertag }}
+              </h2>
+              <p class="coach-card__meta">
+                {{ teamName(coach.teamId) }} · {{ nationalityName(coach.nationality) }}
+              </p>
+            </div>
+            <div class="coach-card__actions">
+              <a class="btn btn--ghost" [routerLink]="['/coaches', coach.id]">詳情</a>
+              <button class="btn btn--danger" type="button" (click)="deleteCoach(coach.id, coach.gamertag)">
+                刪除
+              </button>
+            </div>
+          </div>
+        </li>
+      } @empty {
+        <li class="coach-list__empty">目前沒有教練。先新增一位開始。</li>
+      }
+    </ul>
+  }
+</section>

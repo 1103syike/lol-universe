@@ -1,0 +1,272 @@
+.coach-detail {
+  display: grid;
+  gap: 1.15rem;
+  max-width: 56rem;
+}
+
+.back-link {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.coach-detail__eyebrow {
+  margin: 0 0 0.45rem;
+  color: var(--color-accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.coach-detail__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+}
+
+.coach-detail__lead {
+  margin: 0.7rem 0 0;
+  color: var(--color-muted);
+}
+
+.panel {
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.panel--empty {
+  display: grid;
+  gap: 0.85rem;
+  justify-items: start;
+  color: var(--color-muted);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.panel__title {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.panel__head .panel__title,
+.panel__subtitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.panel__actions,
+.edit-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.panel__text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.panel__text--muted {
+  color: var(--color-muted);
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin: 0;
+
+  dt {
+    margin: 0 0 0.25rem;
+    color: var(--color-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.meta-grid__wide {
+  grid-column: 1 / -1;
+}
+
+.edit-form,
+.attr-edit {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.edit-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.attr-edit {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.attr-edit__row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 8rem);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.attr-edit__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meta-flag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.field__input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.specialty-picker {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.specialty-picker__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chip {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &.is-active {
+    border-color: rgb(109 63 220 / 30%);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.btn--ghost {
+  border-color: var(--color-line);
+  background: #fff;
+  color: var(--color-ink);
+}
+
+.btn--danger {
+  border-color: rgb(225 29 72 / 25%);
+  background: rgb(225 29 72 / 8%);
+  color: var(--color-danger);
+}
+
+.form-hint {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.form-hint--error {
+  color: var(--color-danger);
+}
+
+.attr-list,
+.career-list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attr-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.92rem;
+}
+
+.career-list li {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .edit-form__grid,
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attr-edit__row {
+    grid-template-columns: 1fr;
+  }
+}

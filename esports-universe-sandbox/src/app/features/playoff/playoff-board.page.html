@@ -1,0 +1,294 @@
+<section class="playoff">
+  <a class="back-link" routerLink="/leagues">← 回到賽制</a>
+  <div class="playoff__hero">
+    <p class="playoff__eyebrow">2021–2022</p>
+    <h1 class="playoff__heading">六隊單敗</h1>
+    <p class="playoff__lead">
+      @if (activeUniverse(); as universe) {
+        {{ universe.name }} · TCS 六隊單敗，全部 BO5。排名表與賽程比照聯賽維基，對陣圖用卡片往右推進。
+      } @else {
+        請先到宇宙頁選擇或建立宇宙。
+      }
+    </p>
+  </div>
+
+  @if (activeUniverse()) {
+    @if (seeds().length < 6) {
+      <p class="playoff__empty">TCS 隊伍不足 6 支，先到隊伍頁載入或建立甲級隊伍。</p>
+    } @else {
+      <div class="playoff__layout">
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">排名</h2>
+            <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
+          </div>
+          <p class="panel__note">例行賽勝敗還沒結算。目前名次可調整，用來決定季後賽種子。前 6 名進季後賽。</p>
+          <table class="standings">
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>隊伍</th>
+                <th>大分</th>
+                <th>小分</th>
+                <th>季後賽</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of standings(); track row.teamId) {
+                <tr [class.is-playoff]="row.inPlayoff">
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                    <span class="standings__name">{{ row.name }}</span>
+                  </td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>{{ row.inPlayoff ? '晉級' : '—' }}</td>
+                  <td>
+                    @if (row.inPlayoff && canReorderSeeds()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel__title">賽程</h2>
+          <table class="schedule">
+            <thead>
+              <tr>
+                <th>階段</th>
+                <th>對戰</th>
+                <th>比分</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (match of schedule(); track match.id) {
+                <tr>
+                  <td>{{ match.roundLabel }}</td>
+                  <td>{{ match.matchup }}</td>
+                  <td>{{ match.scoreText }}</td>
+                  <td>{{ match.statusLabel }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      @if (!progress().roundOneOpponentId) {
+        <div class="picker">
+          <p class="picker__title">第 3 名選擇首輪對手</p>
+          <div class="picker__actions">
+            @for (choice of roundOneChoices(); track choice.teamId) {
+              <button class="btn btn--ghost" type="button" (click)="pickRoundOneOpponent(choice.teamId)">
+                第 {{ choice.rank }} 名 {{ choice.abbreviation }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (semiChoices().length === 2 && !progress().semiOpponentId) {
+        <div class="picker">
+          <p class="picker__title">第 1 名選擇四強對手</p>
+          <div class="picker__actions">
+            @for (choice of semiChoices(); track choice.teamId) {
+              <button class="btn btn--ghost" type="button" (click)="pickSemiOpponent(choice.teamId)">
+                {{ choice.abbreviation }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="bracket">
+        <div class="bracket__column">
+          @for (match of series().slice(0, 2); track match.id) {
+            <article class="series" [class.is-done]="match.status === 'done'">
+              <header class="series__head">
+                <span>{{ match.roundLabel }}</span>
+                <span class="series__status">{{ match.status === 'done' ? 'BO5' : match.scoreText }}</span>
+              </header>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.left?.isWinner"
+                [class.is-empty]="!match.left"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.left && setWinner(match.id, match.left.teamId)"
+              >
+                @if (match.left; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.right?.isWinner"
+                [class.is-empty]="!match.right"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.right && setWinner(match.id, match.right.teamId)"
+              >
+                @if (match.right; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              @if (match.status === 'done') {
+                <label class="series__loser">
+                  敗方小分
+                  <input
+                    type="number"
+                    min="0"
+                    max="2"
+                    [value]="match.left?.isWinner ? match.right?.games : match.left?.games"
+                    (change)="setLoserGames(match.id, $event)"
+                  />
+                </label>
+              }
+            </article>
+          }
+        </div>
+
+        <div class="bracket__column">
+          @for (match of series().slice(2, 4); track match.id) {
+            <article class="series" [class.is-done]="match.status === 'done'">
+              <header class="series__head">
+                <span>{{ match.roundLabel }}</span>
+                <span class="series__status">{{ match.status === 'done' ? 'BO5' : match.scoreText }}</span>
+              </header>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.left?.isWinner"
+                [class.is-empty]="!match.left"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.left && setWinner(match.id, match.left.teamId)"
+              >
+                @if (match.left; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.right?.isWinner"
+                [class.is-empty]="!match.right"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.right && setWinner(match.id, match.right.teamId)"
+              >
+                @if (match.right; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              @if (match.status === 'done') {
+                <label class="series__loser">
+                  敗方小分
+                  <input
+                    type="number"
+                    min="0"
+                    max="2"
+                    [value]="match.left?.isWinner ? match.right?.games : match.left?.games"
+                    (change)="setLoserGames(match.id, $event)"
+                  />
+                </label>
+              }
+            </article>
+          }
+        </div>
+
+        <div class="bracket__column bracket__column--final">
+          @if (series()[4]; as match) {
+            <article class="series series--final" [class.is-done]="match.status === 'done'">
+              <header class="series__head">
+                <span>決賽</span>
+                <span class="series__status">{{ match.status === 'done' ? 'BO5' : match.scoreText }}</span>
+              </header>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.left?.isWinner"
+                [class.is-empty]="!match.left"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.left && setWinner(match.id, match.left.teamId)"
+              >
+                @if (match.left; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              <button
+                class="slot"
+                type="button"
+                [class.is-winner]="match.right?.isWinner"
+                [class.is-empty]="!match.right"
+                [disabled]="match.status !== 'ready'"
+                (click)="match.right && setWinner(match.id, match.right.teamId)"
+              >
+                @if (match.right; as side) {
+                  <span class="slot__logo">
+                    <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+                  </span>
+                  <span class="slot__name">{{ side.abbreviation }}</span>
+                  <span class="slot__score">{{ side.games ?? '' }}</span>
+                } @else {
+                  <span class="slot__pending">待定</span>
+                }
+              </button>
+              @if (match.status === 'done') {
+                <label class="series__loser">
+                  敗方小分
+                  <input
+                    type="number"
+                    min="0"
+                    max="2"
+                    [value]="match.left?.isWinner ? match.right?.games : match.left?.games"
+                    (change)="setLoserGames(match.id, $event)"
+                  />
+                </label>
+              }
+            </article>
+          }
+        </div>
+      </div>
+    }
+  }
+</section>

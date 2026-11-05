@@ -1,0 +1,165 @@
+<section class="team-list">
+  <div class="team-list__hero">
+    <p class="team-list__eyebrow">Teams</p>
+    <h1 class="team-list__heading">隊伍管理</h1>
+    <p class="team-list__lead">
+      @if (activeUniverse(); as universe) {
+        目前宇宙：{{ universe.name }}。點卡片進入詳情；主教練與選手名單會在後續階段接上。
+      } @else {
+        請先到宇宙頁選擇或建立宇宙。
+      }
+    </p>
+  </div>
+
+  @if (activeUniverse()) {
+    <form class="create-panel" [formGroup]="createForm" (ngSubmit)="createTeam()">
+      <div class="create-panel__grid">
+        <label class="field" for="team-abbreviation">
+          <span class="field__label">縮寫</span>
+          <input id="team-abbreviation" class="field__input" type="text" formControlName="abbreviation" maxlength="12" />
+        </label>
+        <label class="field" for="team-name">
+          <span class="field__label">隊伍名稱</span>
+          <input id="team-name" class="field__input" type="text" formControlName="name" maxlength="60" />
+        </label>
+        <label class="field" for="team-league">
+          <span class="field__label">聯賽層級</span>
+          <select id="team-league" class="field__input" formControlName="leagueTier">
+            @for (tier of leagueTiers; track tier) {
+              <option [value]="tier">{{ leagueTierLabels[tier] }}</option>
+            }
+          </select>
+        </label>
+        <div class="field">
+          <span class="field__label">Logo網址（可空）</span>
+          @if (isUploadedLogo(createForm.controls.logoUrl.value)) {
+            <p class="logo-status">已上傳圖片</p>
+          } @else {
+            <input
+              id="team-logo-url"
+              class="field__input"
+              type="text"
+              formControlName="logoUrl"
+              placeholder="/team-logos/gt.svg 或 https://..."
+            />
+          }
+        </div>
+        <label class="field" for="team-logo-file">
+          <span class="field__label">上傳 Logo</span>
+          <input id="team-logo-file" class="field__input" type="file" accept="image/*" (change)="onCreateLogoSelected($event)" />
+        </label>
+      </div>
+      <button class="btn btn--primary" type="submit">新增隊伍</button>
+    </form>
+
+    @if (formError(); as errorMessage) {
+      <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+    }
+    @if (seedMessage(); as message) {
+      <p class="form-hint form-hint--ok">{{ message }}</p>
+    }
+
+    <div class="toolbar">
+      <div class="filters">
+        <button
+          type="button"
+          class="chip"
+          [class.is-active]="selectedTier() === 'ALL'"
+          (click)="setTierFilter('ALL')"
+        >
+          全部 {{ teams().length }}
+        </button>
+        @for (tier of leagueTiers; track tier) {
+          <button
+            type="button"
+            class="chip"
+            [class.is-active]="selectedTier() === tier"
+            (click)="setTierFilter(tier)"
+          >
+            {{ tier }}
+          </button>
+        }
+      </div>
+
+      @if (teams().length === 0) {
+        <button class="btn btn--ghost" type="button" (click)="seedInitialTeams()">
+          載入初始隊伍
+        </button>
+      }
+    </div>
+
+    <div class="team-gallery">
+      @if (teams().length === 0) {
+        <p class="team-gallery__empty">目前沒有隊伍。可新增，或載入 TCS / TCL 初始名單。</p>
+      } @else {
+        @for (section of teamSections(); track section.tier) {
+          <section class="team-section">
+            <div class="team-section__head">
+              <h2 class="team-section__title">{{ section.tier }}</h2>
+              <p class="team-section__subtitle">{{ section.label }} · {{ section.teams.length }} 隊</p>
+            </div>
+
+            @if (section.teams.length > 0) {
+              <ul class="team-gallery__grid">
+                @for (team of section.teams; track team.id) {
+                  <li class="team-tile" [class.is-roster]="isRosterOpen(team.id)">
+                    <div class="team-tile__header">
+                      <a class="team-tile__name" [routerLink]="['/teams', team.id]">{{ team.name }}</a>
+                      <button
+                        type="button"
+                        class="team-tile__roster"
+                        [class.is-active]="isRosterOpen(team.id)"
+                        [attr.aria-label]="isRosterOpen(team.id) ? '顯示隊徽' : '顯示隊員'"
+                        [attr.aria-pressed]="isRosterOpen(team.id)"
+                        (click)="toggleRoster(team.id)"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    @if (isRosterOpen(team.id)) {
+                      <div class="team-tile__members">
+                        @if (teamPlayers(team.id).length > 0) {
+                          <ul class="member-list">
+                            @for (player of teamPlayers(team.id); track player.id) {
+                              <li class="member-list__item">
+                                <a class="member-list__name" [routerLink]="['/players', player.id]">
+                                  <app-flag-icon [code]="player.nationality" />
+                                  <span class="member-list__id">{{ player.gamertag }}</span>
+                                </a>
+                                <span class="member-list__role" [title]="positionLabels[player.position]">
+                                  <app-role-icon [position]="player.position" />
+                                </span>
+                              </li>
+                            }
+                          </ul>
+                        } @else {
+                          <p class="member-list__empty">尚無隊員</p>
+                        }
+                      </div>
+                    } @else {
+                      <a class="team-tile__body" [routerLink]="['/teams', team.id]">
+                        <div class="team-tile__logo">
+                          <app-team-logo
+                            [abbreviation]="team.abbreviation"
+                            [logoUrl]="team.logoUrl"
+                            [name]="team.name"
+                            [markColor]="markColor(team.abbreviation)"
+                          />
+                        </div>
+                      </a>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="team-section__empty">此層級尚無隊伍</p>
+            }
+          </section>
+        }
+      }
+    </div>
+  }
+</section>

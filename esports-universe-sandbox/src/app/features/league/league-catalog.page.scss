@@ -1,0 +1,126 @@
+.catalog {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.catalog__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.catalog__heading {
+  margin: 0;
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.catalog__lead {
+  max-width: 46rem;
+  margin: 0.75rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.catalog__group-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.catalog__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.format-card {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.format-card.is-pending {
+  background: #fafafa;
+}
+
+.format-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.format-card__meta,
+.format-card__summary,
+.format-card__pending {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.format-card__meta,
+.format-card__status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.format-card__status {
+  color: var(--color-accent-strong);
+}
+
+.format-card.is-pending .format-card__status {
+  color: #b45309;
+}
+
+.format-card__name {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.format-card__pending {
+  color: #9a3412;
+}
+
+.format-card__link {
+  justify-self: start;
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.points {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  th,
+  td {
+    padding: 0.35rem 0.2rem;
+    border-bottom: 1px solid var(--color-line);
+    text-align: left;
+  }
+
+  th {
+    color: var(--color-muted);
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .catalog__list {
+    grid-template-columns: 1fr;
+  }
+}

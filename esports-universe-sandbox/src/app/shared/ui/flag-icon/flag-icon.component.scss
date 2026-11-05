@@ -1,0 +1,16 @@
+:host {
+  display: inline-block;
+  width: 16px;
+  height: 11px;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.flag-icon {
+  display: block;
+  width: 16px;
+  height: 11px;
+  background-image: url('/flags/country-sprite.webp');
+  background-repeat: no-repeat;
+  background-size: 304px auto;
+}

@@ -1,0 +1,39 @@
+<header class="top-nav">
+  <div class="top-nav__inner">
+    <a class="brand" routerLink="/dashboard">
+      <span class="brand__mark">E</span>
+      <span class="brand__text">Esports Universe</span>
+    </a>
+
+    <nav class="top-nav__links" aria-label="主要導覽">
+      @for (item of navItems; track item.path) {
+        <a
+          class="top-nav__link"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <label class="universe-switcher" for="universe-select">
+      <span class="universe-switcher__label">宇宙</span>
+      @if (hasUniverses()) {
+        <select
+          id="universe-select"
+          class="universe-switcher__select"
+          (change)="onUniverseChange($event)"
+        >
+          @for (item of universes(); track item.id) {
+            <option [value]="item.id" [selected]="item.id === activeUniverseId()">
+              {{ item.name }}
+            </option>
+          }
+        </select>
+      } @else {
+        <span class="universe-switcher__empty">尚未建立</span>
+      }
+    </label>
+  </div>
+</header>

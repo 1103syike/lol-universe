@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+.series {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.series--final .series__head {
+  color: #b45309;
+}
+
+.series__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  background: #f8fafc;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  background: #fff;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &.is-winner {
+    background: #e8fbd0;
+    font-weight: 800;
+  }
+
+  &.is-empty {
+    color: var(--color-muted);
+  }
+}
+
+.slot__logo {
+  width: 1.6rem;
+  height: 1.6rem;
+  overflow: hidden;
+}
+
+.slot__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot__score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.slot__pending {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.series__loser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+
+  input {
+    width: 4rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+  }
+}

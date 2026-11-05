@@ -1,0 +1,44 @@
+<section class="dashboard">
+  <div class="dashboard__hero">
+    <p class="dashboard__eyebrow">Dashboard</p>
+    <h1 class="dashboard__heading">電競宇宙總覽</h1>
+    <p class="dashboard__lead">
+      從宇宙切換開始管理聯賽、隊伍與選手。後續模組會依階段逐步開放。
+    </p>
+  </div>
+
+  @if (activeUniverse(); as universe) {
+    <div class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">作用中宇宙</h2>
+        <span class="panel__chip">Active</span>
+      </div>
+      <dl class="meta-grid">
+        <div>
+          <dt>名稱</dt>
+          <dd>{{ universe.name }}</dd>
+        </div>
+        <div>
+          <dt>開始年份</dt>
+          <dd>{{ universe.startYear }}</dd>
+        </div>
+        <div>
+          <dt>模擬日期</dt>
+          <dd>{{ universe.currentDate }}</dd>
+        </div>
+        <div>
+          <dt>建立時間</dt>
+          <dd>{{ universe.createdAt | date: 'yyyy/MM/dd HH:mm' }}</dd>
+        </div>
+        <div>
+          <dt>宇宙數量</dt>
+          <dd>{{ universes().length }}</dd>
+        </div>
+      </dl>
+    </div>
+  } @else {
+    <div class="panel panel--empty">
+      <p>尚未選擇宇宙。請先從上方切換器選擇。</p>
+    </div>
+  }
+</section>

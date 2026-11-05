@@ -1,0 +1,276 @@
+.playoff {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.back-link {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.playoff__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.playoff__heading {
+  margin: 0;
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.playoff__lead,
+.playoff__empty,
+.panel__note {
+  margin: 0.75rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.playoff__layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel,
+.picker,
+.series {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.panel {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.panel__note {
+  margin: 0.45rem 0 0.85rem;
+  font-size: 0.82rem;
+}
+
+.standings,
+.schedule {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.standings th,
+.schedule th,
+.standings td,
+.schedule td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+}
+
+.standings th,
+.schedule th {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.standings tr.is-playoff td:first-child {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+}
+
+.standings__team {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.standings__logo,
+.slot__logo {
+  width: 1.6rem;
+  height: 1.6rem;
+  overflow: hidden;
+}
+
+.standings__name {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+}
+
+.picker__title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.picker__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bracket {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr 0.9fr;
+  gap: 1.25rem;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.bracket--wide {
+  grid-template-columns: repeat(5, minmax(11rem, 1fr));
+}
+
+.bracket__column {
+  display: grid;
+  gap: 1rem;
+}
+
+.bracket__column--final {
+  align-self: center;
+}
+
+.series {
+  display: grid;
+  overflow: hidden;
+}
+
+.series--final .series__head {
+  color: #b45309;
+}
+
+.series__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  background: #f8fafc;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.series__status {
+  letter-spacing: 0.04em;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  background: #fff;
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &.is-winner {
+    background: #e8fbd0;
+    font-weight: 800;
+  }
+
+  &.is-empty {
+    color: var(--color-muted);
+  }
+}
+
+.slot__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot__score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.slot__pending {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.series__loser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+
+  input {
+    width: 4rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn--tiny {
+  margin-right: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 980px) {
+  .playoff__layout,
+  .bracket {
+    grid-template-columns: 1fr;
+  }
+}

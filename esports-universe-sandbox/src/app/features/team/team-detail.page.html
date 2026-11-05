@@ -1,0 +1,164 @@
+<section class="team-detail">
+  <a class="back-link" routerLink="/teams">← 回到隊伍列表</a>
+
+  @if (team(); as current) {
+    <div class="team-detail__hero">
+      @if (isEditing()) {
+        <button
+          class="team-detail__logo team-detail__logo--editable"
+          type="button"
+          (click)="openLogoPicker()"
+          aria-label="更換隊伍 Logo"
+        >
+          <app-team-logo
+            [abbreviation]="editForm.controls.abbreviation.value || current.abbreviation"
+            [logoUrl]="editForm.controls.logoUrl.value || null"
+            [name]="editForm.controls.name.value || current.name"
+          />
+          <span class="team-detail__logo-hint">點擊更換</span>
+        </button>
+        <input
+          #logoFileInput
+          class="team-detail__logo-input"
+          type="file"
+          accept="image/*"
+          (change)="onLogoSelected($event)"
+        />
+      } @else {
+        <div class="team-detail__logo">
+          <app-team-logo
+            [abbreviation]="current.abbreviation"
+            [logoUrl]="current.logoUrl"
+            [name]="current.name"
+          />
+        </div>
+      }
+      <div>
+        <p class="team-detail__eyebrow">{{ current.abbreviation }}</p>
+        <h1 class="team-detail__heading">{{ current.name }}</h1>
+        <p class="team-detail__lead">
+          {{ leagueTierLabels[current.leagueTier] }} · 更新於
+          {{ current.updatedAt | date: 'yyyy/MM/dd HH:mm' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">隊伍資料</h2>
+        @if (!isEditing()) {
+          <div class="panel__actions">
+            <button class="btn btn--ghost" type="button" (click)="startEdit()">編輯</button>
+            <button class="btn btn--danger" type="button" (click)="deleteTeam()">刪除</button>
+          </div>
+        }
+      </div>
+
+      @if (isEditing()) {
+        <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()">
+          <div class="edit-form__grid">
+            <label class="field" for="edit-abbreviation">
+              <span class="field__label">縮寫</span>
+              <input id="edit-abbreviation" class="field__input" type="text" formControlName="abbreviation" maxlength="12" />
+            </label>
+            <label class="field" for="edit-name">
+              <span class="field__label">隊伍名稱</span>
+              <input id="edit-name" class="field__input" type="text" formControlName="name" maxlength="60" />
+            </label>
+            <label class="field" for="edit-league">
+              <span class="field__label">聯賽層級</span>
+              <select id="edit-league" class="field__input" formControlName="leagueTier">
+                @for (tier of leagueTiers; track tier) {
+                  <option [value]="tier">{{ leagueTierLabels[tier] }}</option>
+                }
+              </select>
+            </label>
+            <div class="field field--wide">
+              <span class="field__label">Logo 網址（可選）</span>
+              @if (isUploadedLogo(editForm.controls.logoUrl.value)) {
+                <p class="logo-status">已上傳圖片 · 也可點上方 Logo 再換</p>
+              } @else {
+                <input
+                  id="edit-logo-url"
+                  class="field__input"
+                  type="text"
+                  formControlName="logoUrl"
+                  placeholder="/team-logos/gt.svg 或 https://..."
+                />
+              }
+            </div>
+          </div>
+          @if (formError(); as errorMessage) {
+            <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+          }
+          <div class="edit-form__actions">
+            <button class="btn btn--primary" type="submit">儲存</button>
+            <button class="btn btn--ghost" type="button" (click)="cancelEdit()">取消</button>
+            <button class="btn btn--ghost" type="button" (click)="useDefaultLogo()">改用預設路徑</button>
+          </div>
+        </form>
+      } @else {
+        <dl class="meta-grid">
+          <div>
+            <dt>縮寫</dt>
+            <dd>{{ current.abbreviation }}</dd>
+          </div>
+          <div>
+            <dt>聯賽層級</dt>
+            <dd>{{ leagueTierLabels[current.leagueTier] }}</dd>
+          </div>
+          <div>
+            <dt>建立時間</dt>
+            <dd>{{ current.createdAt | date: 'yyyy/MM/dd HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt>Logo</dt>
+            <dd>{{ logoSourceLabel(current.logoUrl) }}</dd>
+          </div>
+        </dl>
+      }
+    </div>
+
+    <div class="panel">
+      <h2 class="panel__title">主教練</h2>
+      @if (coach(); as headCoach) {
+        <p class="panel__text">
+          <a [routerLink]="['/coaches', headCoach.id]">
+            {{ headCoach.gamertag }}
+          </a>
+        </p>
+      } @else {
+        <p class="panel__text panel__text--muted">尚未指派主教練。可到教練頁新增並指派到此隊。</p>
+      }
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">選手名單</h2>
+        <span class="panel__chip">{{ roster().length }} 人</span>
+      </div>
+      @if (roster().length > 0) {
+        <ul class="roster">
+          @for (player of roster(); track player.id) {
+            <li class="roster__item">
+              <a class="roster__name" [routerLink]="['/players', player.id]">
+                <app-flag-icon [code]="player.nationality" />
+                <span>{{ player.gamertag }}</span>
+              </a>
+              <span class="roster__role" [title]="positionLabels[player.position]">
+                <app-role-icon [position]="player.position" />
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="panel__text panel__text--muted">目前沒有選手。可到選手頁新增並指派到此隊。</p>
+      }
+    </div>
+  } @else {
+    <div class="panel panel--empty">
+      <p>找不到這支隊伍，可能已被刪除或屬於其他宇宙。</p>
+      <a class="btn btn--ghost" routerLink="/teams">回到列表</a>
+    </div>
+  }
+</section>

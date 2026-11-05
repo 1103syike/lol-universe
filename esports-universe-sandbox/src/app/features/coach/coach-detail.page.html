@@ -1,0 +1,135 @@
+<section class="coach-detail">
+  <a class="back-link" routerLink="/coaches">← 回到教練列表</a>
+
+  @if (coach(); as current) {
+    <div class="coach-detail__hero">
+      <p class="coach-detail__eyebrow">主教練</p>
+      <h1 class="coach-detail__heading">
+        <app-flag-icon [code]="current.nationality" />
+        {{ current.gamertag }}
+      </h1>
+      <p class="coach-detail__lead">{{ teamName(current.teamId) }}</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">基本資料</h2>
+        @if (!isEditing()) {
+          <div class="panel__actions">
+            <button class="btn btn--ghost" type="button" (click)="startEdit()">編輯</button>
+            <button class="btn btn--danger" type="button" (click)="deleteCoach()">刪除</button>
+          </div>
+        }
+      </div>
+
+      @if (isEditing()) {
+        <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()">
+          <div class="edit-form__grid">
+            <label class="field" for="edit-tag">
+              <span class="field__label">教練 ID</span>
+              <input id="edit-tag" class="field__input" type="text" formControlName="gamertag" />
+            </label>
+            <label class="field" for="edit-nation">
+              <span class="field__label">
+                國籍
+                <app-flag-icon [code]="editForm.controls.nationality.value" />
+              </span>
+              <select id="edit-nation" class="field__input" formControlName="nationality">
+                @for (nation of nationalityOptions; track nation.code) {
+                  <option [value]="nation.code">{{ nation.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="field" for="edit-team">
+              <span class="field__label">執教隊伍</span>
+              <select id="edit-team" class="field__input" formControlName="teamId">
+                <option value="">未執教</option>
+                @for (team of teams(); track team.id) {
+                  <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="field" for="edit-birthday">
+              <span class="field__label">出生年</span>
+              <select id="edit-birthday" class="field__input" formControlName="birthdayYear">
+                @for (year of birthYears; track year) {
+                  <option [value]="year">{{ year }}</option>
+                }
+              </select>
+            </label>
+            <label class="field" for="edit-start">
+              <span class="field__label">合約年份</span>
+              <select id="edit-start" class="field__input" formControlName="contractYear">
+                @for (year of contractYears; track year) {
+                  <option [value]="year">{{ year }}</option>
+                }
+              </select>
+            </label>
+            <label class="field" for="edit-end">
+              <span class="field__label">到期年份</span>
+              <select id="edit-end" class="field__input" formControlName="expiryYear">
+                @for (year of contractYears; track year) {
+                  <option [value]="year">{{ year }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          @if (formError(); as errorMessage) {
+            <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+          }
+
+          <div class="edit-form__actions">
+            <button class="btn btn--primary" type="submit">儲存</button>
+            <button class="btn btn--ghost" type="button" (click)="cancelEdit()">取消</button>
+          </div>
+        </form>
+      } @else {
+        <dl class="meta-grid">
+          <div>
+            <dt>國籍</dt>
+            <dd class="meta-flag">
+              <app-flag-icon [code]="current.nationality" />
+              {{ nationalityName(current.nationality) }}
+            </dd>
+          </div>
+          <div>
+            <dt>出生年</dt>
+            <dd>{{ yearOf(current.birthday) }}</dd>
+          </div>
+          <div>
+            <dt>執教隊伍</dt>
+            <dd>{{ teamName(current.teamId) }}</dd>
+          </div>
+          <div>
+            <dt>合約</dt>
+            <dd>{{ contractYearLabel(current.contract.startDate, current.contract.endDate) }}</dd>
+          </div>
+        </dl>
+      }
+    </div>
+
+    @if (!isEditing()) {
+      <div class="panel">
+        <h2 class="panel__title">執教生涯紀錄</h2>
+        @if (current.careerRecords.length > 0) {
+          <ul class="career-list">
+            @for (record of current.careerRecords; track record.id) {
+              <li>
+                {{ record.seasonLabel }} · {{ record.teamName }} ·
+                {{ record.wins }}W-{{ record.losses }}L（{{ record.games }} 場）
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="panel__text panel__text--muted">尚無執教紀錄。賽季模擬後會寫入這裡。</p>
+        }
+      </div>
+    }
+  } @else {
+    <div class="panel panel--empty">
+      <p>找不到這位教練，可能已被刪除或屬於其他宇宙。</p>
+      <a class="btn btn--ghost" routerLink="/coaches">回到列表</a>
+    </div>
+  }
+</section>
