@@ -1,0 +1,115 @@
+<section class="playoff">
+  <a class="back-link" routerLink="/leagues">← 回到賽制</a>
+  <div class="playoff__hero">
+    <p class="playoff__eyebrow">2025 夏 · 2026 夏</p>
+    <h1 class="playoff__heading">八隊爬山</h1>
+    <p class="playoff__lead">
+      前兩輪單敗。Legend 第 5 名打 Rise 第 2 名，第 6 名打 Rise 第 1 名。第 4、3 名第二輪加入。第 1、2 名第三輪加入，輸了掉敗部。總決賽一場 BO5。
+    </p>
+  </div>
+
+  @if (activeUniverse()) {
+    @if (seeds().length < 8) {
+      <p class="playoff__empty">TCS 隊伍不足 8 支。</p>
+    } @else {
+      <div class="playoff__layout">
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">排名</h2>
+            <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
+          </div>
+          <p class="panel__note">例行賽勝敗還沒結算。名次 1～6 是 Legend，7～8 是 Rise。開打前可以調順序。</p>
+          <table class="standings">
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>隊伍</th>
+                <th>分組</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of standings(); track row.teamId) {
+                <tr [class.is-playoff]="row.inPlayoff">
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                  </td>
+                  <td>{{ groupLabel(row.rank) }}</td>
+                  <td>
+                    @if (row.inPlayoff && canReorderSeeds()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h2 class="panel__title">賽程</h2>
+          <table class="schedule">
+            <thead>
+              <tr>
+                <th>階段</th>
+                <th>對戰</th>
+                <th>比分</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (match of schedule(); track match.id) {
+                <tr>
+                  <td>{{ match.roundLabel }}</td>
+                  <td>{{ match.matchup }}</td>
+                  <td>{{ match.scoreText }}</td>
+                  <td>{{ match.statusLabel }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (champion(); as name) {
+            <p class="panel__note">冠軍：{{ name }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="bracket bracket--hill">
+        <div class="bracket__column">
+          @for (match of openingRound(); track match.id) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+        <div class="bracket__column">
+          @for (match of secondRound(); track match.id) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+        <div class="bracket__column">
+          @for (match of thirdRound(); track match.id) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+        <div class="bracket__column">
+          @for (match of middleRound(); track match.id) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+        <div class="bracket__column">
+          @if (losersFinal(); as match) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+        <div class="bracket__column bracket__column--final">
+          @if (grandFinal(); as match) {
+            <app-series-card [match]="match" (pickWinner)="setWinner($event.seriesId, $event.teamId)" (loserGamesChange)="setLoserGames($event.seriesId, $event.games)" />
+          }
+        </div>
+      </div>
+    }
+  }
+</section>

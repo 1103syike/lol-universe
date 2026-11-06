@@ -14,9 +14,18 @@
   @if (activeUniverse()) {
     <form class="create-panel" [formGroup]="createForm" (ngSubmit)="createPlayer()">
       <div class="create-panel__grid">
+        <label class="field" for="player-team">
+          <span class="field__label">所屬隊伍</span>
+          <select id="player-team" class="field__input" formControlName="teamId">
+            <option value="">自由球員</option>
+            @for (team of teams(); track team.id) {
+              <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
+            }
+          </select>
+        </label>
         <label class="field" for="player-tag">
           <span class="field__label">選手 ID</span>
-          <input id="player-tag" class="field__input" type="text" formControlName="gamertag" maxlength="24" />
+          <input #gamertagInput id="player-tag" class="field__input" type="text" formControlName="gamertag" maxlength="24" />
         </label>
         <label class="field" for="player-nation">
           <span class="field__label">
@@ -37,19 +46,10 @@
             }
           </select>
         </label>
-        <label class="field" for="player-team">
-          <span class="field__label">所屬隊伍</span>
-          <select id="player-team" class="field__input" formControlName="teamId">
-            <option value="">自由球員</option>
-            @for (team of teams(); track team.id) {
-              <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
-            }
-          </select>
-        </label>
         <label class="field" for="player-birthday">
           <span class="field__label">出生年</span>
           <select id="player-birthday" class="field__input" formControlName="birthdayYear">
-            @for (year of birthYears; track year) {
+            @for (year of birthYears(); track year) {
               <option [value]="year">{{ year }}</option>
             }
           </select>

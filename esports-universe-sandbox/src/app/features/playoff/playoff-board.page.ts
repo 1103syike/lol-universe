@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PLAYOFF_SERIES_IDS } from '../../core/models/playoff-board.model';
 import { PlayoffBoardService } from '../../core/services/playoff-board.service';
 import { UniverseService } from '../../core/services/universe.service';
@@ -14,8 +14,15 @@ import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component
 export class PlayoffBoardPage {
   private readonly playoffBoardService = inject(PlayoffBoardService);
   private readonly universeService = inject(UniverseService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly activeUniverse = this.universeService.activeUniverse;
+  readonly league = this.playoffBoardService.activeLeague;
+
+  constructor() {
+    const league = this.route.snapshot.data['league'] === 'TCL' ? 'TCL' : 'TCS';
+    this.playoffBoardService.setLeague(league);
+  }
   readonly standings = this.playoffBoardService.standings;
   readonly seeds = this.playoffBoardService.seeds;
   readonly series = this.playoffBoardService.series;
@@ -31,7 +38,10 @@ export class PlayoffBoardPage {
     return winners;
   });
   readonly canReorderSeeds = computed(
-    () => !this.progress().roundOneOpponentId && Object.keys(this.progress().scores).length === 0,
+    () =>
+      !this.progress().seedsLocked &&
+      !this.progress().roundOneOpponentId &&
+      Object.keys(this.progress().scores).length === 0,
   );
 
   moveSeed(teamId: string, direction: -1 | 1): void {

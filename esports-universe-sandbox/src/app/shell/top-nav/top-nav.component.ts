@@ -20,13 +20,15 @@ export class TopNavComponent {
   readonly activeUniverseId = this.universeService.activeUniverseId;
   readonly hasUniverses = this.universeService.hasUniverses;
 
-  readonly navItems: NavItem[] = [
-    { label: '總覽', path: '/dashboard' },
-    { label: '宇宙', path: '/universes' },
+  readonly playItem: NavItem = { label: '總覽', path: '/dashboard' };
+  readonly clubItems: NavItem[] = [
     { label: '隊伍', path: '/teams' },
     { label: '選手', path: '/players' },
     { label: '教練', path: '/coaches' },
+  ];
+  readonly seasonItems: NavItem[] = [
     { label: '聯賽', path: '/leagues' },
+    { label: '日程', path: '/schedule' },
     { label: '比賽', path: '/matches' },
   ];
 

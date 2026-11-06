@@ -28,3 +28,28 @@ export function buildBirthYears(latest = new Date().getFullYear() - 15, earliest
   }
   return years;
 }
+
+const PLAYER_BIRTH_YEAR_START = 1998;
+const PLAYER_CONTRACT_YEAR_START = 2021;
+
+export function buildPlayerBirthYears(endYear: number): number[] {
+  const last = Math.max(endYear, PLAYER_BIRTH_YEAR_START);
+  const years: number[] = [];
+  for (let year = PLAYER_BIRTH_YEAR_START; year <= last; year += 1) {
+    years.push(year);
+  }
+  return years;
+}
+
+export function buildPlayerContractYears(endYear = new Date().getFullYear() + 10): number[] {
+  const last = Math.max(endYear, PLAYER_CONTRACT_YEAR_START);
+  const years: number[] = [];
+  for (let year = PLAYER_CONTRACT_YEAR_START; year <= last; year += 1) {
+    years.push(year);
+  }
+  return years;
+}
+
+export function defaultPlayerBirthYear(referenceYear: number): number {
+  return referenceYear - 18;
+}

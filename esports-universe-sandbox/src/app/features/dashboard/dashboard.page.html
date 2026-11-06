@@ -1,44 +1,276 @@
-<section class="dashboard">
-  <div class="dashboard__hero">
-    <p class="dashboard__eyebrow">Dashboard</p>
-    <h1 class="dashboard__heading">電競宇宙總覽</h1>
-    <p class="dashboard__lead">
-      從宇宙切換開始管理聯賽、隊伍與選手。後續模組會依階段逐步開放。
-    </p>
-  </div>
-
-  @if (activeUniverse(); as universe) {
-    <div class="panel">
-      <div class="panel__head">
-        <h2 class="panel__title">作用中宇宙</h2>
-        <span class="panel__chip">Active</span>
+<section class="home">
+  @if (activeUniverse()) {
+    <header class="home__bar">
+      <div>
+        <p class="home__kicker">{{ clockLabel() }}</p>
+        <h1 class="home__date">{{ dateText(board().today) }}</h1>
       </div>
-      <dl class="meta-grid">
-        <div>
-          <dt>名稱</dt>
-          <dd>{{ universe.name }}</dd>
+      @if (board().canFastForward && board().current; as next) {
+        <button class="jump" type="button" (click)="fastForward()">快進到 {{ shortDate(next.iso) }}</button>
+      }
+    </header>
+
+    <div class="home__main">
+    @if (board().current; as match) {
+      <article class="card" [class.card--tcl]="match.league === 'TCL'">
+        <p class="card__meta">
+          <span class="pill" [class.is-tcl]="match.league === 'TCL'">{{ match.league }}</span>
+          <span>{{ match.iso && !board().canFastForward ? '現在這場' : '下一場' }}</span>
+          <span>{{ shortDate(match.iso) }} · {{ match.kickoff }}</span>
+        </p>
+        <div class="stage">
+          <div class="club" [class.is-winner]="match.homeGames === 2">
+            <span class="club__logo">
+              <app-team-logo [abbreviation]="match.homeAbbreviation" [logoUrl]="match.homeLogoUrl" [name]="match.homeName" />
+            </span>
+            <span class="club__id">
+              <strong>{{ match.homeAbbreviation }}</strong>
+              <span class="club__meta" [class.is-tcl]="match.league === 'TCL'">#{{ match.homeRank }} ({{ match.homeRecord }})</span>
+              <small>{{ match.homeName }}</small>
+            </span>
+          </div>
+          <div class="keys">
+            <button class="score__n" type="button" [disabled]="!canScore(match)" [attr.aria-label]="match.homeAbbreviation + ' 加一局'" (click)="playGame(match, match.homeId)">{{ match.homeGames ?? 0 }}</button>
+            <span class="score__dash">–</span>
+            <button class="score__n" type="button" [disabled]="!canScore(match)" [attr.aria-label]="match.awayAbbreviation + ' 加一局'" (click)="playGame(match, match.awayId)">{{ match.awayGames ?? 0 }}</button>
+          </div>
+          <div class="club club--away" [class.is-winner]="match.awayGames === 2">
+            <span class="club__logo">
+              <app-team-logo [abbreviation]="match.awayAbbreviation" [logoUrl]="match.awayLogoUrl" [name]="match.awayName" />
+            </span>
+            <span class="club__id">
+              <strong>{{ match.awayAbbreviation }}</strong>
+              <span class="club__meta" [class.is-tcl]="match.league === 'TCL'">#{{ match.awayRank }} ({{ match.awayRecord }})</span>
+              <small>{{ match.awayName }}</small>
+            </span>
+          </div>
+          <div class="stage__rule"></div>
+          <ul class="roster">
+            @for (player of roster(match.homeId); track player.id) {
+              <li><span class="roster__role">{{ player.position }}</span><span class="roster__name">{{ player.gamertag }}</span></li>
+            } @empty {
+              <li class="is-empty">這隊還沒有選手</li>
+            }
+          </ul>
+          <ul class="roster roster--away">
+            @for (player of roster(match.awayId); track player.id) {
+              <li><span class="roster__name">{{ player.gamertag }}</span><span class="roster__role">{{ player.position }}</span></li>
+            } @empty {
+              <li class="is-empty">這隊還沒有選手</li>
+            }
+          </ul>
         </div>
-        <div>
-          <dt>開始年份</dt>
-          <dd>{{ universe.startYear }}</dd>
-        </div>
-        <div>
-          <dt>模擬日期</dt>
-          <dd>{{ universe.currentDate }}</dd>
-        </div>
-        <div>
-          <dt>建立時間</dt>
-          <dd>{{ universe.createdAt | date: 'yyyy/MM/dd HH:mm' }}</dd>
-        </div>
-        <div>
-          <dt>宇宙數量</dt>
-          <dd>{{ universes().length }}</dd>
-        </div>
-      </dl>
+      </article>
+    } @else if (postScene(); as scene) {
+      <article class="card card--post" [class.card--tcl]="scene.kind === 'series' ? scene.item.league === 'TCL' : scene.kind === 'bubble' && scene.league === 'TCL'">
+        @if (scene.kind === 'locks') {
+          <h2 class="post__title">鎖定種子</h2>
+          <p class="gate__note">兩邊種子都鎖好，才進選對手。選完才會開打。</p>
+          @for (row of scene.rows; track row.league) {
+            <section class="post__block">
+              <p class="card__meta"><span class="pill" [class.is-tcl]="row.league === 'TCL'">{{ row.league }}</span></p>
+              <ol class="gate__seeds" [class.gate__seeds--tcl]="row.league === 'TCL'">
+                @for (seed of row.seeds; track seed.teamId) {
+                  <li><span>#{{ seed.rank }}</span><strong>{{ seed.abbreviation }}</strong></li>
+                }
+              </ol>
+              <button class="jump" type="button" (click)="enterPlayoff(row.league)">鎖定 {{ row.league }}</button>
+            </section>
+          }
+        } @else if (scene.kind === 'bubble') {
+          <h2 class="post__title">{{ scene.league }} 第 6 名決定戰</h2>
+          <p class="gate__note">點你要送進季後賽的那一隊。這一場算完，才處理下一個聯賽。</p>
+          <div class="draft__pair">
+            @for (row of scene.sides; track row.teamId) {
+              <button type="button" (click)="playBubble(scene.league, row.teamId)">
+                <span class="draft__logo">
+                  <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                </span>
+                <strong>{{ row.abbreviation }}</strong>
+                <small>#{{ row.rank }} {{ row.name }}</small>
+              </button>
+            }
+          </div>
+        } @else if (scene.kind === 'picks') {
+          <h2 class="post__title">{{ scene.title }}</h2>
+          <p class="gate__note">TCL 是下午場，會先打。TCS 晚上場，現在不能先點比分。</p>
+          @for (card of scene.cards; track card.league) {
+            <section class="post__block">
+              <p class="card__meta"><span class="pill" [class.is-tcl]="card.league === 'TCL'">{{ card.league }}</span></p>
+              @if (card.done) {
+                <p class="draft__bench">已選好。{{ card.summary }}</p>
+              } @else if (card.step?.chooser && card.step?.choices?.length) {
+                <div class="draft">
+                  <div class="draft__chooser">
+                    <span class="draft__logo">
+                      <app-team-logo [abbreviation]="card.step?.chooser?.abbreviation ?? ''" [logoUrl]="card.step?.chooser?.logoUrl" [name]="card.step?.chooser?.name ?? ''" />
+                    </span>
+                    <strong>{{ card.step?.chooser?.abbreviation }}</strong>
+                    <small>#{{ card.step?.chooser?.rank }} 由他選擇</small>
+                  </div>
+                  <div class="draft__choices">
+                    <p>點一隊，只是鎖定對手。</p>
+                    <div class="draft__pair">
+                      @for (choice of card.step?.choices ?? []; track choice.teamId) {
+                        <button type="button" (click)="choosePlayoff(card.league, card.step?.pick, choice.teamId)">
+                          <span class="draft__logo">
+                            <app-team-logo [abbreviation]="choice.abbreviation" [logoUrl]="choice.logoUrl" [name]="choice.name" />
+                          </span>
+                          <strong>{{ choice.abbreviation }}</strong>
+                          <small>#{{ choice.rank }} {{ choice.name }}</small>
+                        </button>
+                      }
+                    </div>
+                    @if (card.step?.bench) {
+                      <p class="draft__bench">沒被選到的交給 #{{ card.step?.bench?.rank }} {{ card.step?.bench?.abbreviation }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </section>
+          }
+        } @else if (scene.kind === 'series') {
+          <p class="card__meta">
+            <span class="pill" [class.is-tcl]="scene.item.league === 'TCL'">{{ scene.item.league }}</span>
+            <span>{{ scene.item.match.roundLabel }}</span>
+            <span>{{ scene.item.kickoff }}</span>
+            @if (scene.item.iso) { <span>{{ shortDate(scene.item.iso) }}</span> }
+            <span>BO5，先到 3</span>
+          </p>
+          @if (scene.item.iso && !canScorePlayoff(scene.item.iso)) {
+            <button class="jump" type="button" (click)="jumpTo(scene.item.iso)">快進到 {{ shortDate(scene.item.iso) }}</button>
+          }
+          <div class="stage">
+            <div class="club" [class.is-winner]="scene.item.match.left?.games === 3">
+              <span class="club__logo">
+                <app-team-logo [abbreviation]="scene.item.match.left?.abbreviation ?? ''" [logoUrl]="scene.item.match.left?.logoUrl" [name]="scene.item.match.left?.name ?? ''" />
+              </span>
+              <span class="club__id">
+                <strong>{{ scene.item.match.left?.abbreviation }}</strong>
+                <span class="club__meta" [class.is-tcl]="scene.item.league === 'TCL'">#{{ scene.item.match.left?.seed }}</span>
+                <small>{{ scene.item.match.left?.name }}</small>
+              </span>
+            </div>
+            <div class="keys">
+              <button class="score__n" type="button" [disabled]="!canScorePlayoff(scene.item.iso) || scene.item.match.left?.games === 3 || scene.item.match.right?.games === 3" [attr.aria-label]="(scene.item.match.left?.abbreviation ?? '') + ' 加一局'" (click)="playPlayoff(scene.item.league, scene.item.match, scene.item.match.left?.teamId ?? '')">{{ scene.item.match.left?.games ?? 0 }}</button>
+              <span class="score__dash">–</span>
+              <button class="score__n" type="button" [disabled]="!canScorePlayoff(scene.item.iso) || scene.item.match.left?.games === 3 || scene.item.match.right?.games === 3" [attr.aria-label]="(scene.item.match.right?.abbreviation ?? '') + ' 加一局'" (click)="playPlayoff(scene.item.league, scene.item.match, scene.item.match.right?.teamId ?? '')">{{ scene.item.match.right?.games ?? 0 }}</button>
+            </div>
+            <div class="club club--away" [class.is-winner]="scene.item.match.right?.games === 3">
+              <span class="club__logo">
+                <app-team-logo [abbreviation]="scene.item.match.right?.abbreviation ?? ''" [logoUrl]="scene.item.match.right?.logoUrl" [name]="scene.item.match.right?.name ?? ''" />
+              </span>
+              <span class="club__id">
+                <strong>{{ scene.item.match.right?.abbreviation }}</strong>
+                <span class="club__meta" [class.is-tcl]="scene.item.league === 'TCL'">#{{ scene.item.match.right?.seed }}</span>
+                <small>{{ scene.item.match.right?.name }}</small>
+              </span>
+            </div>
+          </div>
+        } @else {
+          <h2 class="post__title">春季冠軍</h2>
+          @for (row of scene.names; track row.league) {
+            <p class="card__meta"><span class="pill" [class.is-tcl]="row.league === 'TCL'">{{ row.league }}</span><span>{{ row.winner }}</span></p>
+          }
+        }
+      </article>
+    } @else {
+      <p class="quiet">目前沒有待打的例行賽。</p>
+    }
+
+    <div class="deck">
+      <section class="card card--side">
+        <h2>接下來</h2>
+        @for (item of board().upcoming; track item.league + item.id) {
+          <p class="next">
+            <span class="next__when">{{ shortDate(item.iso) }} {{ item.kickoff }}</span>
+            <span class="pill" [class.is-tcl]="item.league === 'TCL'">{{ item.league }}</span>
+            <span class="next__vs">{{ item.homeAbbreviation }}<i>對</i>{{ item.awayAbbreviation }}</span>
+          </p>
+        } @empty {
+          @for (item of playoffUpcoming(); track item.league + item.label) {
+            <p class="next">
+              <span class="next__when">{{ item.when }}</span>
+              <span class="pill" [class.is-tcl]="item.league === 'TCL'">{{ item.league }}</span>
+              <span class="next__vs">{{ item.label }}</span>
+            </p>
+          } @empty {
+            <p class="quiet">後面沒有比賽了</p>
+          }
+        }
+      </section>
+      <section class="card card--side">
+        <h2>成績</h2>
+        <h3>TCS</h3>
+        @for (item of board().tcsResults; track item.id) {
+          <p class="result">
+            <span class="result__when">{{ shortDate(item.iso) }}</span>
+            <span>{{ item.homeAbbreviation }}</span>
+            <span class="result__score">{{ item.homeGames }}–{{ item.awayGames }}</span>
+            <span class="is-right">{{ item.awayAbbreviation }}</span>
+          </p>
+        } @empty {
+          <p class="quiet">還沒有比完的比賽</p>
+        }
+        <h3>TCL</h3>
+        @for (item of board().tclResults; track item.id) {
+          <p class="result">
+            <span class="result__when">{{ shortDate(item.iso) }}</span>
+            <span>{{ item.homeAbbreviation }}</span>
+            <span class="result__score">{{ item.homeGames }}–{{ item.awayGames }}</span>
+            <span class="is-right">{{ item.awayAbbreviation }}</span>
+          </p>
+        } @empty {
+          <p class="quiet">還沒有比完的比賽</p>
+        }
+      </section>
+    </div>
+    </div>
+
+    <div class="ranks">
+      <section class="card card--side">
+        <h2>TCS 排名</h2>
+        <ng-container *ngTemplateOutlet="standingTable; context: { rows: board().tcsTable, tone: 'tcs' }" />
+      </section>
+      <section class="card card--side card--tcl-table">
+        <h2>TCL 排名</h2>
+        <ng-container *ngTemplateOutlet="standingTable; context: { rows: board().tclTable, tone: 'tcl' }" />
+      </section>
     </div>
   } @else {
-    <div class="panel panel--empty">
-      <p>尚未選擇宇宙。請先從上方切換器選擇。</p>
-    </div>
+    <p class="quiet">先選一個宇宙。</p>
   }
 </section>
+
+<ng-template #standingTable let-rows="rows" let-tone="tone">
+  <div class="board" [class.board--tcl]="tone === 'tcl'">
+    <div class="board__head">
+      <span>#</span>
+      <span>隊伍</span>
+      <span>大場</span>
+      <span>小場</span>
+      <span>勝率</span>
+      <span>連續</span>
+    </div>
+    @for (row of rows; track row.teamId) {
+      @if (row.rank === 7) {
+        <p class="board__cut"><span>季後賽線</span></p>
+      }
+      <div class="board__row" [class.is-in]="row.inPlayoff">
+        <span class="board__rank">{{ row.rank }}</span>
+        <span class="board__team">
+          <span class="board__logo">
+            <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+          </span>
+          <strong>{{ row.abbreviation }}</strong>
+        </span>
+        <span [class.is-idle]="row.seriesWins + row.seriesLosses === 0">{{ row.seriesWins }}-{{ row.seriesLosses }}</span>
+        <span [class.is-idle]="row.gameWins + row.gameLosses === 0">{{ row.gameWins }}-{{ row.gameLosses }}</span>
+        <span [class.is-idle]="row.winRate === null">{{ winRate(row.winRate) }}</span>
+        <span [class.is-win]="row.streak > 0" [class.is-loss]="row.streak < 0" [class.is-idle]="row.streak === 0">@if (row.streak > 0) {+{{ row.streak }}}@else {{{ row.streak }}}</span>
+      </div>
+    } @empty {
+      <p class="quiet">還沒有隊伍</p>
+    }
+  </div>
+</ng-template>

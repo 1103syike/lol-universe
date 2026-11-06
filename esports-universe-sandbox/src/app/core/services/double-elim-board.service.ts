@@ -353,6 +353,7 @@ export class DoubleElimBoardService {
       roundOneOpponentId: null,
       semiOpponentId: null,
       scores: {},
+      seedsLocked: false,
     };
   }
 
@@ -371,6 +372,7 @@ export class DoubleElimBoardService {
           : null,
       semiOpponentId: stored?.semiOpponentId ?? null,
       scores: stored?.scores ?? {},
+      seedsLocked: false,
     };
   }
 

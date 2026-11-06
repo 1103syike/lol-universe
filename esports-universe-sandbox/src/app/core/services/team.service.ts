@@ -2,11 +2,13 @@ import { Injectable, computed, inject } from '@angular/core';
 import { DEFAULT_SALARY_CAP, INITIAL_TEAMS } from '../data/initial-teams';
 import type { Team, TeamInput } from '../models/team.model';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import { TeamTimelineService } from './team-timeline.service';
 import { UniverseService } from './universe.service';
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
   private readonly universeService = inject(UniverseService);
+  private readonly timeline = inject(TeamTimelineService);
 
   readonly teams = computed(() => this.universeService.activeUniverse()?.teams ?? []);
 
@@ -58,12 +60,15 @@ export class TeamService {
     this.universeService.replaceActiveUniverseTeams(
       this.teams().map((team) => (team.id === teamId ? updated : team)),
     );
+    this.timeline.recordRename(teamId, current, payload);
+    this.timeline.recordLeagueChange(teamId, current.leagueTier, payload.leagueTier);
   }
 
   deleteTeam(teamId: string): void {
     this.universeService.replaceActiveUniverseTeams(
       this.teams().filter((team) => team.id !== teamId),
     );
+    this.timeline.removeTeam(teamId);
   }
 
   seedInitialTeams(): void {

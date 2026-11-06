@@ -1,6 +1,8 @@
 export interface PlayoffScore {
   winnerTeamId: string;
   loserGames: number;
+  homeGames?: number;
+  awayGames?: number;
 }
 
 export interface PlayoffProgress {
@@ -8,6 +10,7 @@ export interface PlayoffProgress {
   roundOneOpponentId: string | null;
   semiOpponentId: string | null;
   scores: Record<string, PlayoffScore>;
+  seedsLocked: boolean;
 }
 
 export interface PlayoffSide {

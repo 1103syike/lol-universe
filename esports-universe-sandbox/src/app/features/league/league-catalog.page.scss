@@ -52,7 +52,7 @@
 }
 
 .format-card.is-pending {
-  background: #fafafa;
+  background: rgb(255 255 255 / 3%);
 }
 
 .format-card__head {
@@ -82,7 +82,7 @@
 }
 
 .format-card.is-pending .format-card__status {
-  color: #b45309;
+  color: var(--color-accent-strong);
 }
 
 .format-card__name {
@@ -91,7 +91,7 @@
 }
 
 .format-card__pending {
-  color: #9a3412;
+  color: var(--color-accent-strong);
 }
 
 .format-card__link {

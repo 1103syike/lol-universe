@@ -5,6 +5,8 @@ import { COACH_ATTRIBUTE_KEYS, isCoachAttributeKey } from '../models/coach.model
 import type { Player } from '../models/player.model';
 import { ATTRIBUTE_KEYS, isPlayerNationality } from '../models/player.model';
 import type { Team } from '../models/team.model';
+import { TEAM_TIMELINE_KINDS } from '../models/team-timeline.model';
+import type { TeamTimelineEvent } from '../models/team-timeline.model';
 import type { UniverseData, UniverseStoreSnapshot, UniverseSummary } from '../models/universe.model';
 import {
   isValidUniverseStartYear,
@@ -57,6 +59,8 @@ export class UniverseService {
       teams: this.buildInitialTeams(now),
       players: [],
       coaches: [],
+      teamEvents: [],
+      hiddenTimelineIds: [],
     };
 
     this.writeUniverse(universe);
@@ -168,7 +172,23 @@ export class UniverseService {
     this.patchActiveUniverse({ teams });
   }
 
-  patchActiveUniverse(patch: Partial<Pick<UniverseData, 'teams' | 'players' | 'coaches'>>): void {
+  setCurrentDate(isoDate: string): void {
+    const active = this.activeUniverseState();
+    if (!active || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+      return;
+    }
+    const updated: UniverseData = {
+      ...active,
+      currentDate: isoDate,
+      updatedAt: new Date().toISOString(),
+    };
+    this.writeUniverse(updated);
+    this.activeUniverseState.set(updated);
+  }
+
+  patchActiveUniverse(
+    patch: Partial<Pick<UniverseData, 'teams' | 'players' | 'coaches' | 'teamEvents' | 'hiddenTimelineIds'>>,
+  ): void {
     const active = this.activeUniverseState();
     if (!active) {
       throw new Error('尚未選擇宇宙');
@@ -216,6 +236,8 @@ export class UniverseService {
       teams: this.buildInitialTeams(now),
       players: [],
       coaches: [],
+      teamEvents: [],
+      hiddenTimelineIds: [],
     };
 
     this.writeUniverse(seed);
@@ -262,6 +284,8 @@ export class UniverseService {
       teams: teams.map((team) => this.normalizeTeam(team)),
       players: players.map((player) => this.normalizePlayer(player)),
       coaches: coaches.map((coach) => this.normalizeCoach(coach)),
+      teamEvents: this.normalizeTeamEvents(universe.teamEvents),
+      hiddenTimelineIds: this.normalizeHiddenIds(universe.hiddenTimelineIds),
     };
   }
 
@@ -277,6 +301,31 @@ export class UniverseService {
     }
 
     return DEFAULT_START_YEAR;
+  }
+
+  private normalizeHiddenIds(ids: string[] | undefined): string[] {
+    if (!Array.isArray(ids)) {
+      return [];
+    }
+    return ids.filter((id) => typeof id === 'string' && id.length > 0);
+  }
+
+  private normalizeTeamEvents(events: TeamTimelineEvent[] | undefined): TeamTimelineEvent[] {
+    if (!Array.isArray(events)) {
+      return [];
+    }
+
+    return events.filter((event) => {
+      return (
+        !!event &&
+        typeof event.id === 'string' &&
+        typeof event.teamId === 'string' &&
+        TEAM_TIMELINE_KINDS.includes(event.kind) &&
+        typeof event.date === 'string' &&
+        typeof event.recordedAt === 'string' &&
+        typeof event.summary === 'string'
+      );
+    });
   }
 
   private normalizeTeam(team: Team): Team {

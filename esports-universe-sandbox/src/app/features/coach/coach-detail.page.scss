@@ -166,7 +166,7 @@
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .specialty-picker {
@@ -184,14 +184,14 @@
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--color-line);
   border-radius: 999px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-muted);
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
 
   &.is-active {
-    border-color: rgb(109 63 220 / 30%);
+    border-color: rgb(227 179 65 / 30%);
     background: var(--color-accent-soft);
     color: var(--color-accent-strong);
   }
@@ -212,12 +212,12 @@
 
 .btn--primary {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 
 .btn--ghost {
   border-color: var(--color-line);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-ink);
 }
 

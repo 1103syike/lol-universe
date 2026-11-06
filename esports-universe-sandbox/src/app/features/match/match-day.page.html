@@ -1,0 +1,219 @@
+<section class="day">
+  @if (activeUniverse()) {
+    <div class="league-bar">
+      <div class="league-switch">
+        @for (league of leagues; track league) {
+          <button type="button" [class.is-on]="selectedLeague() === league" (click)="selectLeague(league)">{{ league }}</button>
+        }
+      </div>
+      <span class="league-bar__stage">{{ clockLabel() }}</span>
+      @if ((selectedLeague() === 'TCS' || selectedLeague() === 'TCL') && isSupported() && hasEnoughTeams() && !playoffLocked()) {
+        <strong class="league-bar__progress">{{ playedCount() }} / {{ matchCount() }}</strong>
+      }
+    </div>
+
+    @if (selectedLeague() === 'RL' || selectedLeague() === 'EA') {
+      <p class="empty">{{ otherLeagueNote() }}</p>
+    } @else if (!isSupported()) {
+      <p class="empty">這個宇宙停在 {{ year() }} 年。時間軸先從 2021 春季接起，到宇宙頁把開始年份改成 2021 或 2022。</p>
+    } @else if (!hasEnoughTeams()) {
+      <p class="empty">至少要 2 支 {{ selectedLeague() }} 才能排賽程。</p>
+    } @else if (playoffLocked()) {
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <h2 class="panel__title">例行賽已結束</h2>
+            <p class="panel__note">前 {{ playoffSpots() }} 名已鎖進六隊單敗。</p>
+          </div>
+          <div class="actions">
+            <a class="btn btn--primary" [routerLink]="playoffRoute()">打開季後賽</a>
+            <button class="btn" type="button" (click)="reopen()">回例行賽改比分</button>
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="standingsTable" />
+      </section>
+    } @else {
+      @if (rosterNotice(); as notice) {
+        @if (notice.quotaDiffers || notice.left.length > 0 || notice.joined.length > 0) {
+          <section class="banner">
+            <div>
+              <h2 class="panel__title">名單和名額</h2>
+              <p class="panel__note">
+                這季規則是 {{ notice.teamSpots }} 個 {{ selectedLeague() }} 名額。現在有 {{ notice.currentCount }} 支。
+                @if (notice.left.length > 0) {
+                  已離開這季賽程：{{ teamNames(notice.left) }}。
+                }
+                @if (notice.joined.length > 0) {
+                  新進來、還沒排進這季：{{ teamNames(notice.joined) }}。
+                }
+                @if (notice.left.length === 0 && notice.joined.length === 0) {
+                  還沒開打，賽程直接照現在的名單排。
+                }
+              </p>
+            </div>
+            @if (notice.left.length > 0 || notice.joined.length > 0) {
+              <button class="btn" type="button" (click)="reset()">用現在的名單重開</button>
+            }
+          </section>
+        }
+      }
+
+      <div class="day__layout">
+        <section class="panel panel--standings">
+          <div class="standings__head is-compact">
+            <h2 class="panel__title">排名</h2>
+            <button class="btn btn--quiet" type="button" (click)="reset()">重開</button>
+          </div>
+          <ng-container *ngTemplateOutlet="standingsTable" />
+        </section>
+
+        <section class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">第 {{ weekNumber() }} 週</h2>
+            <div class="actions">
+              <a class="btn" routerLink="/schedule">日程</a>
+              <button class="btn" type="button" (click)="previousWeek()" [disabled]="weekNumber() <= 1">上一週</button>
+              <button class="btn" type="button" (click)="nextWeek()" [disabled]="weekNumber() >= weekCount()">下一週</button>
+            </div>
+          </div>
+
+          <div class="rail">
+            @for (week of weekIndexes(); track week) {
+              <button
+                class="rail__dot"
+                type="button"
+                [class.is-current]="weekState(week) === 'current'"
+                [class.is-done]="weekState(week) === 'done'"
+                (click)="showWeek(week)"
+              >
+                {{ week }}
+              </button>
+            }
+          </div>
+
+          @for (group of fixtureGroups(); track group.title) {
+            <h3 class="round__label">{{ group.title }}</h3>
+            <div class="fixtures">
+            @for (match of group.matches; track match.id) {
+              <article class="fixture" [class.is-done]="match.status === 'done'">
+                <div class="side" [class.is-winner]="match.homeGames === 2">
+                  <button class="side__pick" type="button" (click)="setWinner(match.id, match.homeId)">
+                    <span class="side__logo">
+                      <app-team-logo [abbreviation]="match.homeAbbreviation" [logoUrl]="match.homeLogoUrl" [name]="match.homeName" />
+                    </span>
+                    <span class="side__name">
+                      <strong>{{ match.homeAbbreviation }}</strong>
+                      <small>{{ match.homeName }}</small>
+                    </span>
+                  </button>
+                  <button
+                    class="side__score"
+                    type="button"
+                    [class.is-live]="canToggleScore(match.homeGames)"
+                    (click)="toggleLoserScore(match.id, match.homeGames)"
+                  >
+                    {{ match.homeGames ?? '–' }}
+                  </button>
+                </div>
+                <div class="side side--away" [class.is-winner]="match.awayGames === 2">
+                  <button
+                    class="side__score"
+                    type="button"
+                    [class.is-live]="canToggleScore(match.awayGames)"
+                    (click)="toggleLoserScore(match.id, match.awayGames)"
+                  >
+                    {{ match.awayGames ?? '–' }}
+                  </button>
+                  <button class="side__pick" type="button" (click)="setWinner(match.id, match.awayId)">
+                    <span class="side__name">
+                      <strong>{{ match.awayAbbreviation }}</strong>
+                      <small>{{ match.awayName }}</small>
+                    </span>
+                    <span class="side__logo">
+                      <app-team-logo [abbreviation]="match.awayAbbreviation" [logoUrl]="match.awayLogoUrl" [name]="match.awayName" />
+                    </span>
+                  </button>
+                </div>
+              </article>
+            }
+            </div>
+          }
+        </section>
+      </div>
+
+      @if (bubble(); as tie) {
+        <section class="panel panel--tie">
+          <div>
+            <h2 class="panel__title">晉級加賽</h2>
+            <p class="panel__note">{{ tie.leftAbbreviation }} 和 {{ tie.rightAbbreviation }} 卡在第 {{ playoffSpots() }} 名。打一場 BO1。</p>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" (click)="setTieWinner(tie.leftId)">{{ tie.leftAbbreviation }} 勝</button>
+            <button class="btn" type="button" (click)="setTieWinner(tie.rightId)">{{ tie.rightAbbreviation }} 勝</button>
+          </div>
+        </section>
+      }
+
+      @if (coinGroups().length > 0) {
+        <section class="panel">
+          <h2 class="panel__title">同分，但不影響晉級</h2>
+          <p class="panel__note">這些隊伍都在線上或都在線下。先依隊名排，可以擲硬幣。</p>
+          @for (group of coinGroups(); track group.key) {
+            <div class="actions">
+              <span>{{ group.label }}</span>
+              <button class="btn" type="button" (click)="flipCoin(group.key)">擲硬幣</button>
+            </div>
+          }
+        </section>
+      }
+
+      @if (canAdvance()) {
+        <section class="panel panel--advance">
+          <div>
+            <h2 class="panel__title">可以進季後賽</h2>
+            <p class="panel__note">前 {{ playoffSpots() }} 名會鎖成種子，季後賽頁不能再手動調。</p>
+          </div>
+          <button class="btn btn--primary" type="button" (click)="advance()">進入春季季後賽</button>
+        </section>
+      }
+    }
+  } @else {
+    <p class="empty">先選一個宇宙。</p>
+  }
+</section>
+
+<ng-template #standingsTable>
+  <div class="table">
+    <div class="table__head">
+      <span>#</span>
+      <span>隊伍</span>
+      <span>大場</span>
+      <span>小場</span>
+      <span>勝率</span>
+      <span>連續</span>
+    </div>
+    @for (row of standings(); track row.teamId) {
+      @if (playoffSpots() > 0 && row.rank === playoffSpots() + 1) {
+        <p class="table__cut"><span>季後賽線</span></p>
+      }
+      <div class="table__row" [class.is-in]="row.inPlayoff" [class.is-out]="!row.inLeague">
+        <span class="table__rank">{{ row.rank }}</span>
+        <span class="table__team">
+          <span class="table__logo">
+            <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+          </span>
+          <span class="table__id">
+            <strong>{{ row.abbreviation }}</strong>
+            @if (!row.inLeague) {
+              <em>已不在 {{ selectedLeague() }}</em>
+            }
+          </span>
+        </span>
+        <span class="table__stat" [class.is-idle]="row.seriesWins + row.seriesLosses === 0">{{ row.seriesWins }}-{{ row.seriesLosses }}</span>
+        <span class="table__stat" [class.is-idle]="row.gameWins + row.gameLosses === 0">{{ row.gameWins }}-{{ row.gameLosses }}</span>
+        <span class="table__stat" [class.is-idle]="row.winRate === null">{{ winRateLabel(row.winRate) }}</span>
+        <span class="table__stat" [class.is-win]="row.streak > 0" [class.is-loss]="row.streak < 0" [class.is-idle]="row.streak === 0">@if (row.streak > 0) {+{{ row.streak }}}@else {{{ row.streak }}}</span>
+      </div>
+    }
+  </div>
+</ng-template>

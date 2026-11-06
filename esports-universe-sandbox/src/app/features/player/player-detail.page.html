@@ -63,7 +63,7 @@
             <label class="field" for="edit-birthday">
               <span class="field__label">出生年</span>
               <select id="edit-birthday" class="field__input" formControlName="birthdayYear">
-                @for (year of birthYears; track year) {
+                @for (year of birthYears(); track year) {
                   <option [value]="year">{{ year }}</option>
                 }
               </select>
@@ -71,7 +71,7 @@
             <label class="field" for="edit-start">
               <span class="field__label">合約年份</span>
               <select id="edit-start" class="field__input" formControlName="contractYear">
-                @for (year of contractYears; track year) {
+                @for (year of contractYears(); track year) {
                   <option [value]="year">{{ year }}</option>
                 }
               </select>
@@ -79,7 +79,7 @@
             <label class="field" for="edit-end">
               <span class="field__label">到期年份</span>
               <select id="edit-end" class="field__input" formControlName="expiryYear">
-                @for (year of contractYears; track year) {
+                @for (year of contractYears(); track year) {
                   <option [value]="year">{{ year }}</option>
                 }
               </select>

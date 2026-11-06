@@ -10,12 +10,13 @@ import {
   nationalityName,
 } from '../../core/models/player.model';
 import type { PlayerNationality, PlayerPosition } from '../../core/models/player.model';
-import { buildUniverseStartYears } from '../../core/models/universe.model';
+import { MIN_UNIVERSE_START_YEAR } from '../../core/models/universe.model';
 import { PlayerService } from '../../core/services/player.service';
 import { UniverseService } from '../../core/services/universe.service';
 import {
   birthdayFromYear,
-  buildBirthYears,
+  buildPlayerBirthYears,
+  buildPlayerContractYears,
   contractRangeFromYears,
   contractYearLabel,
   yearOf,
@@ -41,8 +42,22 @@ export class PlayerDetailPage {
   readonly positionLabels = PLAYER_POSITION_LABELS;
   readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
   readonly nationalityName = nationalityName;
-  readonly birthYears = buildBirthYears();
-  readonly contractYears = buildUniverseStartYears();
+  readonly birthYears = computed(() => {
+    const years = buildPlayerBirthYears(this.universeYear());
+    const current = yearOf(this.player()?.birthday ?? '');
+    if (current > 0 && !years.includes(current)) {
+      return [...years, current].sort((left, right) => left - right);
+    }
+    return years;
+  });
+  readonly contractYears = computed(() => {
+    const years = buildPlayerContractYears();
+    const contract = this.player()?.contract;
+    const extra = [yearOf(contract?.startDate ?? ''), yearOf(contract?.endDate ?? '')].filter(
+      (year) => year > 0 && !years.includes(year),
+    );
+    return [...years, ...extra].sort((left, right) => left - right);
+  });
   readonly yearOf = yearOf;
   readonly contractYearLabel = contractYearLabel;
 
@@ -144,6 +159,15 @@ export class PlayerDetailPage {
     } catch (error) {
       this.formError.set(error instanceof Error ? error.message : '更新失敗');
     }
+  }
+
+  private universeYear(): number {
+    const date = this.universeService.activeUniverse()?.currentDate ?? '';
+    const year = Number(date.slice(0, 4));
+    if (Number.isInteger(year) && year >= MIN_UNIVERSE_START_YEAR) {
+      return year;
+    }
+    return new Date().getFullYear();
   }
 
   deletePlayer(): void {

@@ -6,19 +6,21 @@
     </a>
 
     <nav class="top-nav__links" aria-label="主要導覽">
-      @for (item of navItems; track item.path) {
-        <a
-          class="top-nav__link"
-          [routerLink]="item.path"
-          routerLinkActive="is-active"
-        >
-          {{ item.label }}
-        </a>
-      }
+      <a class="top-nav__link top-nav__link--play" [routerLink]="playItem.path" routerLinkActive="is-active">{{ playItem.label }}</a>
+      <span class="top-nav__group">
+        @for (item of clubItems; track item.path) {
+          <a class="top-nav__link" [routerLink]="item.path" routerLinkActive="is-active">{{ item.label }}</a>
+        }
+      </span>
+      <span class="top-nav__group">
+        @for (item of seasonItems; track item.path) {
+          <a class="top-nav__link" [routerLink]="item.path" routerLinkActive="is-active">{{ item.label }}</a>
+        }
+      </span>
     </nav>
 
     <label class="universe-switcher" for="universe-select">
-      <span class="universe-switcher__label">宇宙</span>
+      <a class="universe-switcher__label" routerLink="/universes">宇宙</a>
       @if (hasUniverses()) {
         <select
           id="universe-select"

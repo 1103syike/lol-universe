@@ -164,7 +164,7 @@
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .btn {
@@ -182,12 +182,12 @@
 
 .btn--primary {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 
 .btn--ghost {
   border-color: var(--color-line);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-ink);
 }
 

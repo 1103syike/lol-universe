@@ -1,6 +1,7 @@
 import type { Coach } from './coach.model';
 import type { Player } from './player.model';
 import type { Team } from './team.model';
+import type { TeamTimelineEvent } from './team-timeline.model';
 
 export const MIN_UNIVERSE_START_YEAR = 2021;
 
@@ -38,6 +39,8 @@ export interface UniverseData {
   teams: Team[];
   players: Player[];
   coaches: Coach[];
+  teamEvents: TeamTimelineEvent[];
+  hiddenTimelineIds: string[];
 }
 
 export interface UniverseStoreSnapshot {

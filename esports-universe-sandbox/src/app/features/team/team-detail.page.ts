@@ -6,10 +6,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { LEAGUE_TIERS, LEAGUE_TIER_LABELS } from '../../core/models/league.model';
 import { PLAYER_POSITION_LABELS } from '../../core/models/player.model';
+import type { Player } from '../../core/models/player.model';
 import type { LeagueTier } from '../../core/models/league.model';
 import { CoachService } from '../../core/services/coach.service';
 import { PlayerService } from '../../core/services/player.service';
 import { TeamService } from '../../core/services/team.service';
+import { TeamTimelineService } from '../../core/services/team-timeline.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
@@ -28,6 +30,7 @@ export class TeamDetailPage {
   private readonly teamService = inject(TeamService);
   private readonly playerService = inject(PlayerService);
   private readonly coachService = inject(CoachService);
+  private readonly timelineService = inject(TeamTimelineService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly logoFileInput = viewChild<ElementRef<HTMLInputElement>>('logoFileInput');
 
@@ -41,10 +44,28 @@ export class TeamDetailPage {
   );
   readonly isEditing = signal(false);
   readonly formError = signal<string | null>(null);
+  readonly buyerName = signal('');
+  readonly timelineError = signal<string | null>(null);
+  readonly rosterError = signal<string | null>(null);
+  readonly incomingPlayerId = signal('');
+  readonly moveChoice = signal<Record<string, string>>({});
 
   readonly team = computed(() => this.teamService.getTeamById(this.teamId()));
+  readonly timeline = computed(() => this.timelineService.itemsFor(this.teamId()));
   readonly roster = computed(() => this.playerService.getPlayersByTeamId(this.teamId()));
   readonly coach = computed(() => this.coachService.getCoachByTeamId(this.teamId()));
+  readonly otherTeams = computed(() =>
+    this.teamService.teams()
+      .filter((team) => team.id !== this.teamId())
+      .slice()
+      .sort((left, right) => left.abbreviation.localeCompare(right.abbreviation)),
+  );
+  readonly movablePlayers = computed(() =>
+    this.playerService.players()
+      .filter((player) => player.teamId !== this.teamId())
+      .slice()
+      .sort((left, right) => left.gamertag.localeCompare(right.gamertag, 'zh-Hant')),
+  );
 
   readonly editForm = this.formBuilder.nonNullable.group({
     abbreviation: ['', [Validators.required, Validators.maxLength(12)]],
@@ -140,6 +161,73 @@ export class TeamDetailPage {
       this.isEditing.set(false);
     } catch (error) {
       this.formError.set(error instanceof Error ? error.message : '更新失敗');
+    }
+  }
+
+  recordAcquisition(): void {
+    this.timelineError.set(null);
+    try {
+      this.timelineService.recordAcquisition(this.teamId(), this.buyerName());
+      this.buyerName.set('');
+    } catch (error) {
+      this.timelineError.set(error instanceof Error ? error.message : '沒記上');
+    }
+  }
+
+  deleteTimelineItem(itemId: string): void {
+    this.timelineService.deleteItem(itemId);
+  }
+
+  teamAbbreviation(teamId: string | null): string {
+    if (!teamId) {
+      return '自由球員';
+    }
+    return this.teamService.getTeamById(teamId)?.abbreviation ?? '已解散';
+  }
+
+  setMoveChoice(playerId: string, event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.moveChoice.update((current) => ({ ...current, [playerId]: value }));
+  }
+
+  setIncomingPlayer(event: Event): void {
+    this.incomingPlayerId.set((event.target as HTMLSelectElement).value);
+    this.rosterError.set(null);
+  }
+
+  moveRosterPlayer(player: Player): void {
+    const choice = this.moveChoice()[player.id] ?? '';
+    if (!choice) {
+      this.rosterError.set('先選要去的隊伍');
+      return;
+    }
+
+    this.rosterError.set(null);
+    try {
+      this.playerService.movePlayer(player.id, choice === 'free' ? null : choice);
+      this.moveChoice.update((current) => {
+        const next = { ...current };
+        delete next[player.id];
+        return next;
+      });
+    } catch (error) {
+      this.rosterError.set(error instanceof Error ? error.message : '沒移成');
+    }
+  }
+
+  addRosterPlayer(): void {
+    const playerId = this.incomingPlayerId();
+    if (!playerId) {
+      this.rosterError.set('先選要進來的選手');
+      return;
+    }
+
+    this.rosterError.set(null);
+    try {
+      this.playerService.movePlayer(playerId, this.teamId());
+      this.incomingPlayerId.set('');
+    } catch (error) {
+      this.rosterError.set(error instanceof Error ? error.message : '沒移成');
     }
   }
 

@@ -12,7 +12,7 @@ const FORMAT_COPY: Record<QualifierFormatId, { eyebrow: string; heading: string;
   'worlds-2021': {
     eyebrow: '2021–2022',
     heading: '世界賽第三種子',
-    lead: '年度積分第 4 名先打第 5 名，勝者再打第 3 名。勝者是第三種子。全部 BO5。名次現在用手動排序代替積分表。',
+    lead: '第 6 名先打第 5 名，勝者再打第 4 名，再打第 3 名。最後勝者是第三種子。全部 BO5。名次現在用手動排序代替積分表。',
   },
   'worlds-2023': {
     eyebrow: '2023 起',

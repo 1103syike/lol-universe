@@ -36,6 +36,15 @@ export class TeamListPage {
   readonly seedMessage = signal<string | null>(null);
   private readonly openRosterIds = signal<ReadonlySet<string>>(new Set());
 
+  readonly allRostersOpen = computed(() => {
+    const teams = this.teams();
+    if (teams.length === 0) {
+      return false;
+    }
+    const openIds = this.openRosterIds();
+    return teams.every((team) => openIds.has(team.id));
+  });
+
   readonly teamSections = computed(() => {
     const selected = this.selectedTier();
     const teams = this.teams();
@@ -124,6 +133,14 @@ export class TeamListPage {
 
   isRosterOpen(teamId: string): boolean {
     return this.openRosterIds().has(teamId);
+  }
+
+  toggleAllRosters(): void {
+    if (this.allRostersOpen()) {
+      this.openRosterIds.set(new Set());
+      return;
+    }
+    this.openRosterIds.set(new Set(this.teams().map((team) => team.id)));
   }
 
   toggleRoster(teamId: string): void {

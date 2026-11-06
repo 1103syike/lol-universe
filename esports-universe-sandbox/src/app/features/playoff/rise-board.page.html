@@ -1,0 +1,112 @@
+<section class="playoff">
+  <a class="back-link" routerLink="/leagues">← 回到賽制</a>
+  <div class="playoff__hero">
+    <p class="playoff__eyebrow">{{ pageCopy().eyebrow }}</p>
+    <h1 class="playoff__heading">{{ pageCopy().heading }}</h1>
+    <p class="playoff__lead">{{ pageCopy().lead }}</p>
+  </div>
+
+  @if (activeUniverse()) {
+    @if (!hasEnoughTeams()) {
+      <p class="playoff__empty">需要 10 支 TCS 和至少 4 支 TCL。</p>
+    } @else {
+      <div class="playoff__layout">
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">TCS 排名</h2>
+            <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
+          </div>
+          <p class="panel__note">出賽名次才會進第一階段。TCS 在系列賽卡片左邊，表示選邊權。</p>
+          <table class="standings">
+            <tbody>
+              @for (row of tcsStandings(); track row.teamId) {
+                <tr [class.is-playoff]="row.inPlayoff">
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                  </td>
+                  <td>{{ tcsLabel(row.rank) }}</td>
+                  <td>
+                    @if (canReorder()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCS', row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCS', row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h2 class="panel__title">TCL 排名</h2>
+          <table class="standings">
+            <tbody>
+              @for (row of tclStandings(); track row.teamId) {
+                <tr [class.is-playoff]="row.inPlayoff">
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                  </td>
+                  <td>{{ row.inPlayoff ? '出賽' : '—' }}</td>
+                  <td>
+                    @if (canReorder()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCL', row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed('TCL', row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (outcomes().length > 0) {
+            <ul class="outcome-list">
+              @for (line of outcomes(); track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+
+      @if (nextPicker(); as picker) {
+        <div class="panel">
+          <h2 class="panel__title">{{ picker.abbreviation }} 選 TCS 對手</h2>
+          <div class="pick-row">
+            @for (row of pickChoices(); track row.teamId) {
+              <button class="btn" type="button" (click)="pickOpponent(row.teamId)">{{ row.abbreviation }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (stageChoices().length > 0) {
+        <div class="panel">
+          <h2 class="panel__title">敗隊第 1 名選對手</h2>
+          <div class="pick-row">
+            @for (row of stageChoices(); track row.teamId) {
+              <button class="btn" type="button" (click)="pickStageOpponent(row.teamId)">{{ row.abbreviation }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="series-grid">
+        @for (match of series(); track match.id) {
+          <app-series-card
+            [match]="match"
+            (pickWinner)="setWinner($event.seriesId, $event.teamId)"
+            (loserGamesChange)="setLoserGames($event.seriesId, $event.games)"
+          />
+        }
+      </div>
+    }
+  } @else {
+    <p class="playoff__empty">先選一個宇宙。</p>
+  }
+</section>

@@ -3,11 +3,13 @@ import type { Player, PlayerInput } from '../models/player.model';
 import type { Team } from '../models/team.model';
 import { clampGrowthRate, clampRating, createDefaultAttributes } from '../../shared/utils/create-default-attributes';
 import { ATTRIBUTE_KEYS, comparePlayersByRole, isPlayerNationality } from '../models/player.model';
+import { TeamTimelineService } from './team-timeline.service';
 import { UniverseService } from './universe.service';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
   private readonly universeService = inject(UniverseService);
+  private readonly timeline = inject(TeamTimelineService);
 
   readonly players = computed(() => this.universeService.activeUniverse()?.players ?? []);
   readonly teams = computed(() => this.universeService.activeUniverse()?.teams ?? []);
@@ -48,6 +50,12 @@ export class PlayerService {
     const players = [...this.players(), player];
     const teams = this.syncTeamRosters(this.teams(), players);
     this.universeService.patchActiveUniverse({ players, teams });
+    this.timeline.recordPlayerMove({
+      playerId: player.id,
+      gamertag: player.gamertag,
+      fromTeamId: null,
+      toTeamId: player.teamId,
+    });
 
     return player;
   }
@@ -79,12 +87,54 @@ export class PlayerService {
     const players = this.players().map((player) => (player.id === playerId ? updated : player));
     const teams = this.syncTeamRosters(this.teams(), players);
     this.universeService.patchActiveUniverse({ players, teams });
+    this.timeline.recordPlayerMove({
+      playerId,
+      gamertag: updated.gamertag,
+      fromTeamId: current.teamId,
+      toTeamId: updated.teamId,
+    });
+  }
+
+  movePlayer(playerId: string, teamId: string | null): void {
+    const current = this.getPlayerById(playerId);
+    if (!current) {
+      throw new Error('找不到選手');
+    }
+    this.assertTeamExists(teamId);
+    if (current.teamId === teamId) {
+      return;
+    }
+
+    const updated: Player = {
+      ...current,
+      teamId,
+      updatedAt: new Date().toISOString(),
+    };
+    const players = this.players().map((player) => (player.id === playerId ? updated : player));
+    const teams = this.syncTeamRosters(this.teams(), players);
+    this.universeService.patchActiveUniverse({ players, teams });
+    this.timeline.recordPlayerMove({
+      playerId,
+      gamertag: updated.gamertag,
+      fromTeamId: current.teamId,
+      toTeamId: teamId,
+    });
   }
 
   deletePlayer(playerId: string): void {
+    const current = this.getPlayerById(playerId);
     const players = this.players().filter((player) => player.id !== playerId);
     const teams = this.syncTeamRosters(this.teams(), players);
     this.universeService.patchActiveUniverse({ players, teams });
+    if (current?.teamId) {
+      this.timeline.recordPlayerMove({
+        playerId,
+        gamertag: current.gamertag,
+        fromTeamId: current.teamId,
+        toTeamId: null,
+        leftDetail: '，選手資料已刪除',
+      });
+    }
   }
 
   private syncTeamRosters(teams: Team[], players: Player[]): Team[] {

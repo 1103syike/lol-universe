@@ -5,7 +5,7 @@
     <h1 class="playoff__heading">六隊單敗</h1>
     <p class="playoff__lead">
       @if (activeUniverse(); as universe) {
-        {{ universe.name }} · TCS 六隊單敗，全部 BO5。排名表與賽程比照聯賽維基，對陣圖用卡片往右推進。
+        {{ universe.name }} · {{ league() }} 六隊單敗，全部 BO5。排名表與賽程比照聯賽維基，對陣圖用卡片往右推進。
       } @else {
         請先到宇宙頁選擇或建立宇宙。
       }
@@ -14,7 +14,7 @@
 
   @if (activeUniverse()) {
     @if (seeds().length < 6) {
-      <p class="playoff__empty">TCS 隊伍不足 6 支，先到隊伍頁載入或建立甲級隊伍。</p>
+      <p class="playoff__empty">{{ league() }} 隊伍不足 6 支，先到隊伍頁載入或建立甲級隊伍。</p>
     } @else {
       <div class="playoff__layout">
         <div class="panel">
@@ -22,7 +22,13 @@
             <h2 class="panel__title">排名</h2>
             <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
           </div>
-          <p class="panel__note">例行賽勝敗還沒結算。目前名次可調整，用來決定季後賽種子。前 6 名進季後賽。</p>
+          <p class="panel__note">
+            @if (progress().seedsLocked) {
+              種子來自本季例行賽，名次不能手動調。重開對陣只會清掉季後賽比分。
+            } @else {
+              例行賽勝敗還沒結算。目前名次可調整，用來決定季後賽種子。前 6 名進季後賽。
+            }
+          </p>
           <table class="standings">
             <thead>
               <tr>

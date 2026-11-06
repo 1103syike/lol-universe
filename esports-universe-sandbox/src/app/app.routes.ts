@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './shell/layout/layout.component';
-import { PlaceholderPage } from './shared/pages/placeholder.page';
 
 export const routes: Routes = [
   {
@@ -57,6 +56,13 @@ export const routes: Routes = [
         path: 'leagues/tcs-single',
         loadComponent: () =>
           import('./features/playoff/playoff-board.page').then((m) => m.PlayoffBoardPage),
+        data: { league: 'TCS' },
+      },
+      {
+        path: 'leagues/tcl-single',
+        loadComponent: () =>
+          import('./features/playoff/playoff-board.page').then((m) => m.PlayoffBoardPage),
+        data: { league: 'TCL' },
       },
       {
         path: 'leagues/tcs-double',
@@ -64,18 +70,63 @@ export const routes: Routes = [
           import('./features/playoff/double-elim-board.page').then((m) => m.DoubleElimBoardPage),
       },
       {
+        path: 'leagues/tcs-hill',
+        loadComponent: () =>
+          import('./features/playoff/hill-board.page').then((m) => m.HillBoardPage),
+      },
+      {
+        path: 'leagues/retention',
+        loadComponent: () =>
+          import('./features/playoff/season-board.page').then((m) => m.SeasonBoardPage),
+        data: { board: 'retention' },
+      },
+      {
+        path: 'leagues/ea',
+        loadComponent: () =>
+          import('./features/playoff/season-board.page').then((m) => m.SeasonBoardPage),
+        data: { board: 'ea' },
+      },
+      {
+        path: 'leagues/rl',
+        loadComponent: () =>
+          import('./features/playoff/season-board.page').then((m) => m.SeasonBoardPage),
+        data: { board: 'rl' },
+      },
+      {
+        path: 'leagues/rise',
+        loadComponent: () =>
+          import('./features/playoff/rise-board.page').then((m) => m.RiseBoardPage),
+        data: { board: 'rise' },
+      },
+      {
+        path: 'leagues/rise-2026',
+        loadComponent: () =>
+          import('./features/playoff/rise-board.page').then((m) => m.RiseBoardPage),
+        data: { board: 'rise-2026' },
+      },
+      {
+        path: 'leagues/tcs-slot',
+        loadComponent: () =>
+          import('./features/playoff/rise-board.page').then((m) => m.RiseBoardPage),
+        data: { board: 'slot' },
+      },
+      {
+        path: 'leagues/formosa',
+        loadComponent: () =>
+          import('./features/playoff/formosa-board.page').then((m) => m.FormosaBoardPage),
+      },
+      {
         path: 'leagues/qualifier/:formatId',
         loadComponent: () =>
           import('./features/playoff/qualifier-board.page').then((m) => m.QualifierBoardPage),
       },
       {
+        path: 'schedule',
+        loadComponent: () => import('./features/schedule/schedule.page').then((m) => m.SchedulePage),
+      },
+      {
         path: 'matches',
-        component: PlaceholderPage,
-        data: {
-          title: '比賽模擬',
-          phase: 'Phase 8',
-          description: '此頁面預留給比賽模擬與比分操作，尚未開放。',
-        },
+        loadComponent: () => import('./features/match/match-day.page').then((m) => m.MatchDayPage),
       },
     ],
   },

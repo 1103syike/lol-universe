@@ -64,11 +64,11 @@
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-ink);
 
   &:focus {
-    outline: 2px solid rgb(109 63 220 / 35%);
+    outline: 2px solid rgb(227 179 65 / 35%);
     outline-offset: 1px;
   }
 }
@@ -89,7 +89,7 @@
 .btn--primary {
   justify-self: start;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 
   &:hover {
     background: var(--color-accent-strong);
@@ -98,11 +98,11 @@
 
 .btn--ghost {
   border-color: var(--color-line);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-ink);
 
   &:hover {
-    background: #f8fafc;
+    background: rgb(255 255 255 / 5%);
   }
 }
 
@@ -111,7 +111,7 @@
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  background: #f8fafc;
+  background: rgb(255 255 255 / 5%);
   color: var(--color-muted);
   font-size: 0.9rem;
   font-weight: 600;
@@ -144,18 +144,45 @@
   gap: 0.45rem;
 }
 
+.toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+.roster-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &.is-active {
+    border-color: rgb(227 179 65 / 30%);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+  }
+}
+
 .chip {
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--color-line);
   border-radius: 999px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-muted);
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
 
   &.is-active {
-    border-color: rgb(109 63 220 / 30%);
+    border-color: rgb(227 179 65 / 30%);
     background: var(--color-accent-soft);
     color: var(--color-accent-strong);
   }
@@ -210,7 +237,7 @@
   border-radius: 0.5rem;
   color: var(--color-muted);
   font-size: 0.85rem;
-  background: #f8fafc;
+  background: rgb(255 255 255 / 5%);
 }
 
 .team-gallery__grid {
@@ -230,16 +257,16 @@
   overflow: hidden;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--color-surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    border-color: rgb(109 63 220 / 35%);
-    box-shadow: 0 4px 14px rgb(16 24 40 / 6%);
+    border-color: rgb(227 179 65 / 45%);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
   }
 
   &.is-roster {
-    border-color: rgb(109 63 220 / 45%);
+    border-color: rgb(227 179 65 / 55%);
   }
 }
 
@@ -251,7 +278,7 @@
   min-height: 2.35rem;
   padding: 0.45rem 0.55rem;
   border-bottom: 1px solid var(--color-line);
-  background: #f8fafc;
+  background: rgb(255 255 255 / 5%);
 }
 
 .team-tile__name {
@@ -294,7 +321,7 @@
   place-items: center;
   aspect-ratio: 1;
   padding: 1rem 0.75rem;
-  background: #fff;
+  background: var(--color-surface);
   text-decoration: none;
 }
 
@@ -308,7 +335,7 @@
 .team-tile__members {
   min-height: 11rem;
   padding: 0.55rem 0.65rem 0.75rem;
-  background: #f8fafc;
+  background: rgb(255 255 255 / 5%);
 }
 
 .member-list {
@@ -368,7 +395,7 @@
   padding: 1.25rem;
   border-radius: 0.5rem;
   color: var(--color-muted);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 @media (max-width: 1100px) {

@@ -120,6 +120,52 @@
     </div>
 
     <div class="panel">
+      <h2 class="panel__title">時間軸</h2>
+      <form class="acquire" (ngSubmit)="recordAcquisition()">
+        <label class="field acquire__field" for="buyer-name">
+          <span class="field__label">收購方</span>
+          <input
+            id="buyer-name"
+            class="field__input"
+            type="text"
+            [value]="buyerName()"
+            maxlength="40"
+            placeholder="例如某某電競"
+            (input)="buyerName.set($any($event.target).value)"
+          />
+        </label>
+        <button class="btn btn--primary" type="submit">記錄收購</button>
+      </form>
+      @if (timelineError(); as errorMessage) {
+        <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+      }
+      <ol class="timeline">
+        @for (item of timeline(); track item.id) {
+          <li class="timeline__item" [class.is-season]="item.isSeason">
+            <time class="timeline__date" [attr.datetime]="item.date">{{ item.date }}</time>
+            <span class="timeline__mark" aria-hidden="true"></span>
+            <div class="timeline__body">
+              <div>
+                <span class="timeline__kind">{{ item.kindLabel }}</span>
+                <p class="timeline__title">
+                  @if (item.playerId) {
+                    <a [routerLink]="['/players', item.playerId]">{{ item.title }}</a>
+                  } @else {
+                    {{ item.title }}
+                  }
+                </p>
+                @if (item.detail) {
+                  <p class="timeline__detail">{{ item.detail }}</p>
+                }
+              </div>
+              <button class="timeline__delete" type="button" (click)="deleteTimelineItem(item.id)">刪除</button>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+
+    <div class="panel">
       <h2 class="panel__title">主教練</h2>
       @if (coach(); as headCoach) {
         <p class="panel__text">
@@ -137,6 +183,22 @@
         <h2 class="panel__title">選手名單</h2>
         <span class="panel__chip">{{ roster().length }} 人</span>
       </div>
+      @if (movablePlayers().length > 0) {
+        <div class="roster-add">
+          <select class="field__input roster__select" [value]="incomingPlayerId()" (change)="setIncomingPlayer($event)">
+            <option value="">移入選手…</option>
+            @for (player of movablePlayers(); track player.id) {
+              <option [value]="player.id">{{ player.gamertag }} · {{ teamAbbreviation(player.teamId) }}</option>
+            }
+          </select>
+          <button class="btn btn--primary" type="button" (click)="addRosterPlayer()">加入這隊</button>
+        </div>
+      } @else {
+        <p class="panel__text panel__text--muted">其他隊伍和自由球員目前沒有選手。</p>
+      }
+      @if (rosterError(); as errorMessage) {
+        <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+      }
       @if (roster().length > 0) {
         <ul class="roster">
           @for (player of roster(); track player.id) {
@@ -148,11 +210,25 @@
               <span class="roster__role" [title]="positionLabels[player.position]">
                 <app-role-icon [position]="player.position" />
               </span>
+              <div class="roster__move">
+                <select
+                  class="field__input roster__select"
+                  [value]="moveChoice()[player.id] ?? ''"
+                  (change)="setMoveChoice(player.id, $event)"
+                >
+                  <option value="">移到…</option>
+                  <option value="free">自由球員</option>
+                  @for (team of otherTeams(); track team.id) {
+                    <option [value]="team.id">{{ team.abbreviation }}</option>
+                  }
+                </select>
+                <button class="btn btn--ghost" type="button" (click)="moveRosterPlayer(player)">移動</button>
+              </div>
             </li>
           }
         </ul>
       } @else {
-        <p class="panel__text panel__text--muted">目前沒有選手。可到選手頁新增並指派到此隊。</p>
+        <p class="panel__text panel__text--muted">這隊目前沒有選手。</p>
       }
     </div>
   } @else {

@@ -50,7 +50,7 @@ export class QualifierBoardService {
     if (this.formatId() === 'promotion-2023') {
       return this.tcsStandings().length >= 10 && this.tclStandings().length >= 2;
     }
-    const needed = this.formatId() === 'worlds-2021' ? 5 : 6;
+    const needed = 6;
     return this.tcsStandings().length >= needed;
   });
   readonly canReorder = computed(
@@ -146,12 +146,13 @@ export class QualifierBoardService {
 
   private buildWorlds2021(): PlayoffSeriesView[] {
     const rows = this.tcsStandings();
-    if (rows.length < 5) {
+    if (rows.length < 6) {
       return [];
     }
-    const first = this.seriesView('g1', '資格賽 1', rows[3], rows[4]);
-    const second = this.seriesView('g2', '資格賽 2', this.winningSide(first), rows[2]);
-    return [first, second];
+    const first = this.seriesView('g1', '第 6 對第 5', rows[5], rows[4]);
+    const second = this.seriesView('g2', '勝者對第 4', this.winningSide(first), rows[3]);
+    const third = this.seriesView('g3', '勝者對第 3', this.winningSide(second), rows[2]);
+    return [first, second, third];
   }
 
   private buildWorlds2023(): PlayoffSeriesView[] {
@@ -185,7 +186,7 @@ export class QualifierBoardService {
   private buildOutcomes(): string[] {
     const formatId = this.formatId();
     if (formatId === 'worlds-2021') {
-      const winner = this.winningSide(this.series().find((series) => series.id === 'g2') ?? this.emptySeries());
+      const winner = this.winningSide(this.series().find((series) => series.id === 'g3') ?? this.emptySeries());
       return winner ? [`${winner.abbreviation} 取得世界賽第三種子`] : [];
     }
     if (formatId === 'worlds-2023') {
@@ -290,7 +291,7 @@ export class QualifierBoardService {
       return formatId === 'promotion-2023' && index < 2;
     }
     if (formatId === 'worlds-2021') {
-      return index >= 2 && index <= 4;
+      return index >= 2 && index <= 5;
     }
     if (formatId === 'worlds-2023') {
       return index >= 2 && index <= 5;

@@ -1,0 +1,89 @@
+<section class="schedule">
+  @if (activeUniverse()) {
+    @if (!isSupported()) {
+      <p class="empty">這個宇宙停在 {{ year() }} 年。日程先從 2021、2022 排起。</p>
+    } @else {
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <h1 class="panel__title">{{ year() }} 年日程</h1>
+            <p class="panel__note">{{ segmentNote() }}</p>
+          </div>
+          @if (segment().kind === 'regular' && regularLabel() !== '未排') {
+            <button class="btn" type="button" (click)="clearRegular()">清除這段</button>
+          }
+        </div>
+
+        <div class="segments">
+          @for (league of leagues; track league) {
+            <button type="button" [class.is-on]="leagueId() === league" (click)="selectLeague(league)">{{ league }}</button>
+          }
+        </div>
+
+        <div class="segments">
+          @for (item of visibleSegments(); track item.id) {
+            <button type="button" [class.is-on]="segmentId() === item.id" (click)="selectSegment(item.id)">
+              {{ item.label }}
+            </button>
+          }
+        </div>
+
+        @if (segment().kind === 'regular') {
+          <p class="status">{{ leagueId() }} {{ segment().label }} {{ regularLabel() }}</p>
+        } @else {
+          <div class="series">
+            @for (item of seriesRows(); track item.id) {
+              <div class="series__row" [class.is-on]="selectedSeriesId() === item.id">
+                <button class="series__pick" type="button" (click)="selectSeries(item.id)">
+                  <strong>{{ item.label }}</strong>
+                  <span>{{ item.detail }}</span>
+                </button>
+                <span class="series__date">{{ item.date || '未排' }}</span>
+                @if (item.date) {
+                  <button class="btn" type="button" (click)="clearSeries(item.id)">清除</button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <div class="year">
+          @for (month of yearMonths(); track month.key) {
+            <article class="month">
+              <h2 class="month__title">{{ month.title }}</h2>
+              <div class="month__grid">
+                @for (weekday of weekdayLabels; track weekday) {
+                  <span class="month__weekday">{{ weekday }}</span>
+                }
+                @for (day of month.cells; track day.iso) {
+                  <button
+                    class="month__day"
+                    type="button"
+                    [class.is-out]="!day.inMonth"
+                    [class.is-rest]="day.tone === 'rest'"
+                    [class.is-spring]="day.tone === 'spring'"
+                    [class.is-summer]="day.tone === 'summer'"
+                    [class.is-playoff]="day.tone === 'playoff'"
+                    [class.is-qualifier]="day.tone === 'qualifier'"
+                    [class.is-holiday]="day.tone === 'holiday'"
+                    [class.is-promotion]="day.tone === 'promotion'"
+                    [class.is-picked]="day.isPicked"
+                    [attr.title]="dayTitle(day.marks)"
+                    (click)="pickDay(day.iso)"
+                  >
+                    <span>{{ day.label }}</span>
+                    @for (mark of day.marks; track mark.detail) {
+                      <small>{{ mark.label }}</small>
+                    }
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  } @else {
+    <p class="empty">先選一個宇宙。</p>
+  }
+</section>

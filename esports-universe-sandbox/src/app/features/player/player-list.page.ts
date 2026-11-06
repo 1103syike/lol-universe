@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -9,11 +10,17 @@ import {
   nationalityName,
 } from '../../core/models/player.model';
 import type { PlayerNationality, PlayerPosition } from '../../core/models/player.model';
+import { MIN_UNIVERSE_START_YEAR } from '../../core/models/universe.model';
 import { PlayerService } from '../../core/services/player.service';
 import { UniverseService } from '../../core/services/universe.service';
-import { buildUniverseStartYears } from '../../core/models/universe.model';
 import { createDefaultAttributes } from '../../shared/utils/create-default-attributes';
-import { birthdayFromYear, buildBirthYears, contractRangeFromYears } from '../../shared/utils/contract-year';
+import {
+  birthdayFromYear,
+  buildPlayerBirthYears,
+  buildPlayerContractYears,
+  contractRangeFromYears,
+  defaultPlayerBirthYear,
+} from '../../shared/utils/contract-year';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { calculateAge } from '../../shared/utils/player-age';
@@ -33,8 +40,9 @@ export class PlayerListPage {
   readonly positionLabels = PLAYER_POSITION_LABELS;
   readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
   readonly nationalityName = nationalityName;
-  readonly birthYears = buildBirthYears();
-  readonly contractYears = buildUniverseStartYears();
+  readonly contractYears = buildPlayerContractYears();
+  readonly birthYears = computed(() => buildPlayerBirthYears(this.universeYear()));
+  private readonly gamertagInput = viewChild<ElementRef<HTMLInputElement>>('gamertagInput');
 
   readonly activeUniverse = this.universeService.activeUniverse;
   readonly players = this.playerService.players;
@@ -64,11 +72,27 @@ export class PlayerListPage {
     gamertag: ['', [Validators.required, Validators.maxLength(24)]],
     nationality: ['TW' as PlayerNationality, Validators.required],
     position: ['MID' as PlayerPosition, Validators.required],
-    teamId: [''],
-    birthdayYear: [2004, Validators.required],
-    contractYear: [2026, Validators.required],
-    expiryYear: [2026, Validators.required],
+    teamId: [this.rememberedTeamId()],
+    birthdayYear: [defaultPlayerBirthYear(this.universeYear()), Validators.required],
+    contractYear: [2021, Validators.required],
+    expiryYear: [2021, Validators.required],
   });
+
+  constructor() {
+    this.createForm.controls.teamId.valueChanges.pipe(takeUntilDestroyed()).subscribe((teamId) => {
+      this.rememberTeam(teamId);
+    });
+
+    effect(() => {
+      const universeId = this.universeService.activeUniverseId();
+      const known = new Set(this.playerService.teams().map((team) => team.id));
+      const remembered = this.readRememberedTeam(universeId);
+      const teamId = remembered && known.has(remembered) ? remembered : '';
+      if (this.createForm.controls.teamId.value !== teamId) {
+        this.createForm.controls.teamId.setValue(teamId, { emitEvent: false });
+      }
+    });
+  }
 
   setPositionFilter(position: PlayerPosition | 'ALL'): void {
     this.selectedPosition.set(position);
@@ -130,16 +154,52 @@ export class PlayerListPage {
 
       this.createForm.reset({
         gamertag: '',
-        nationality: 'TW',
-        position: 'MID',
-        teamId: '',
-        birthdayYear: 2004,
-        contractYear: 2026,
-        expiryYear: 2026,
+        nationality: raw.nationality,
+        position: raw.position,
+        teamId: raw.teamId,
+        birthdayYear: Number(raw.birthdayYear),
+        contractYear: contractYear,
+        expiryYear: expiryYear,
       });
+      this.gamertagInput()?.nativeElement.focus();
     } catch (error) {
       this.formError.set(error instanceof Error ? error.message : '建立失敗');
     }
+  }
+
+  private universeYear(): number {
+    const date = this.activeUniverse()?.currentDate ?? '';
+    const year = Number(date.slice(0, 4));
+    if (Number.isInteger(year) && year >= MIN_UNIVERSE_START_YEAR) {
+      return year;
+    }
+    return new Date().getFullYear();
+  }
+
+  private rememberedTeamId(): string {
+    const universeId = this.universeService.activeUniverseId();
+    const remembered = this.readRememberedTeam(universeId);
+    const exists = this.playerService.teams().some((team) => team.id === remembered);
+    return exists ? remembered : '';
+  }
+
+  private rememberTeam(teamId: string): void {
+    const universeId = this.universeService.activeUniverseId();
+    if (!universeId) {
+      return;
+    }
+    sessionStorage.setItem(this.teamMemoryKey(universeId), teamId);
+  }
+
+  private readRememberedTeam(universeId: string | null): string {
+    if (!universeId) {
+      return '';
+    }
+    return sessionStorage.getItem(this.teamMemoryKey(universeId)) ?? '';
+  }
+
+  private teamMemoryKey(universeId: string): string {
+    return `eus.player-form.team.${universeId}`;
   }
 
   deletePlayer(playerId: string, name: string): void {

@@ -1,0 +1,173 @@
+<section class="playoff">
+  <a class="back-link" routerLink="/leagues">← 回到賽制</a>
+  <div class="playoff__hero">
+    <p class="playoff__eyebrow">2025</p>
+    <h1 class="playoff__heading">福爾摩沙杯</h1>
+    <p class="playoff__lead">
+      第 1、2 名是兩組隊長。剩下 8 隊蛇形選：A、B、B、A、A、B、B、A。小組打完 25 場交叉 BO5 才開 Play-In。勝者組前 3 名直接進季後賽，第 4、5 名進 Play-In。敗者組前 4 名進 Play-In，第 5 名出局。季後賽第一輪敗者淘汰。冠軍取得 2025 的 First Stand 名額。
+    </p>
+  </div>
+
+  @if (activeUniverse()) {
+    @if (!hasEnoughTeams()) {
+      <p class="playoff__empty">需要 10 支 TCS。</p>
+    } @else {
+      <div class="playoff__layout">
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">TCS 順序</h2>
+            <button class="btn btn--ghost" type="button" (click)="reset()">重開對陣</button>
+          </div>
+          <p class="panel__note">前兩名當隊長。選秀開始後就不能再調這張表。</p>
+          <table class="standings">
+            <tbody>
+              @for (row of standings(); track row.teamId) {
+                <tr>
+                  <td>{{ row.rank }}</td>
+                  <td class="standings__team">
+                    <span class="standings__logo">
+                      <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                    </span>
+                    <span>{{ row.abbreviation }}</span>
+                  </td>
+                  <td>{{ row.rank === 1 ? 'A 隊長' : row.rank === 2 ? 'B 隊長' : '選秀' }}</td>
+                  <td>
+                    @if (canReorder()) {
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="moveSeed(row.teamId, 1)">下</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel__title">選秀</h2>
+          @if (nextGroup(); as group) {
+            <p class="panel__note">下一輪輪到 {{ group }} 組。</p>
+            <div class="pick-row">
+              @for (row of draftPool(); track row.teamId) {
+                <button class="btn" type="button" (click)="pick(row.teamId)">{{ row.abbreviation }}</button>
+              }
+            </div>
+          } @else {
+            <p class="panel__note">選秀完成。A 組勝場 {{ groupWins(groupA()) }}，B 組勝場 {{ groupWins(groupB()) }}。</p>
+          }
+          @if (needsGroupTie()) {
+            <p class="panel__note">兩組勝場和小分都一樣。這會影響誰進 Play-In，選勝組當成加賽結果。</p>
+            <div class="pick-row">
+              <button class="btn" type="button" (click)="chooseGroupWinner('A')">A 組勝</button>
+              <button class="btn" type="button" (click)="chooseGroupWinner('B')">B 組勝</button>
+            </div>
+          }
+          @if (winnerGroup(); as group) {
+            <p class="panel__note">勝組是 {{ group }}。勝組前 3 名直接進季後賽。</p>
+          }
+        </div>
+      </div>
+
+      @if (groupA().length === 5) {
+        <div class="playoff__layout">
+          <div class="panel">
+            <h2 class="panel__title">A 組</h2>
+            <table class="standings">
+              <tbody>
+                @for (row of groupA(); track row.teamId) {
+                  <tr>
+                    <td>{{ row.rank }}</td>
+                    <td>{{ row.abbreviation }}</td>
+                    <td>{{ row.seriesWins }} 勝</td>
+                    <td>{{ row.gameDiff }}</td>
+                    <td>
+                      <button class="btn btn--tiny" type="button" (click)="swapRank('A', row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="swapRank('A', row.teamId, 1)">下</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h2 class="panel__title">B 組</h2>
+            <table class="standings">
+              <tbody>
+                @for (row of groupB(); track row.teamId) {
+                  <tr>
+                    <td>{{ row.rank }}</td>
+                    <td>{{ row.abbreviation }}</td>
+                    <td>{{ row.seriesWins }} 勝</td>
+                    <td>{{ row.gameDiff }}</td>
+                    <td>
+                      <button class="btn btn--tiny" type="button" (click)="swapRank('B', row.teamId, -1)">上</button>
+                      <button class="btn btn--tiny" type="button" (click)="swapRank('B', row.teamId, 1)">下</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (playoffChoices().length > 0) {
+        <div class="panel">
+          <h2 class="panel__title">勝組第 3 名選一支 Play-In 晉級隊</h2>
+          <div class="pick-row">
+            @for (row of playoffChoices(); track row.teamId) {
+              <button class="btn" type="button" (click)="pickQualifier(row.teamId)">{{ row.abbreviation }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (outcomes().length > 0) {
+        <ul class="outcome-list">
+          @for (line of outcomes(); track line) {
+            <li>{{ line }}</li>
+          }
+        </ul>
+      }
+
+      <h2 class="panel__title">小組交叉</h2>
+      <div class="series-grid">
+        @for (match of groupSeries(); track match.id) {
+          <app-series-card
+            [match]="match"
+            (pickWinner)="setWinner($event.seriesId, $event.teamId)"
+            (loserGamesChange)="setLoserGames($event.seriesId, $event.games)"
+          />
+        }
+      </div>
+
+      @if (playInSeries().length > 0) {
+        <h2 class="panel__title">Play-In</h2>
+        <div class="series-grid">
+          @for (match of playInSeries(); track match.id) {
+            <app-series-card
+              [match]="match"
+              (pickWinner)="setWinner($event.seriesId, $event.teamId)"
+              (loserGamesChange)="setLoserGames($event.seriesId, $event.games)"
+            />
+          }
+        </div>
+      }
+
+      @if (playoffSeries().length > 0) {
+        <h2 class="panel__title">季後賽</h2>
+        <div class="series-grid">
+          @for (match of playoffSeries(); track match.id) {
+            <app-series-card
+              [match]="match"
+              (pickWinner)="setWinner($event.seriesId, $event.teamId)"
+              (loserGamesChange)="setLoserGames($event.seriesId, $event.games)"
+            />
+          }
+        </div>
+      }
+    }
+  } @else {
+    <p class="playoff__empty">先選一個宇宙。</p>
+  }
+</section>
