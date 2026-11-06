@@ -20,13 +20,9 @@
           placeholder="例如：2026 台灣電競宇宙"
         />
       </label>
-      <label class="field field--year" for="create-universe-year">
+      <label class="field field--year">
         <span class="field__label">開始年份</span>
-        <select id="create-universe-year" class="field__input" formControlName="startYear">
-          @for (year of startYears; track year) {
-            <option [value]="year">{{ year }}</option>
-          }
-        </select>
+        <app-menu formControlName="startYear" [options]="yearOptions" />
       </label>
       <button class="btn btn--primary" type="submit">建立宇宙</button>
     </div>
@@ -54,13 +50,9 @@
                 maxlength="40"
               />
             </label>
-            <label class="field field--year" for="edit-universe-year">
+            <label class="field field--year">
               <span class="field__label">開始年份</span>
-              <select id="edit-universe-year" class="field__input" formControlName="startYear">
-                @for (year of startYears; track year) {
-                  <option [value]="year">{{ year }}</option>
-                }
-              </select>
+              <app-menu formControlName="startYear" [options]="yearOptions" />
             </label>
             <div class="edit-form__actions">
               <button class="btn btn--primary" type="submit">儲存</button>

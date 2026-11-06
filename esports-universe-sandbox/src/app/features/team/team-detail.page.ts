@@ -14,13 +14,15 @@ import { TeamService } from '../../core/services/team.service';
 import { TeamTimelineService } from '../../core/services/team-timeline.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
+import { MenuComponent } from '../../shared/ui/menu/menu.component';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
 import { readImageAsDataUrl } from '../../shared/utils/read-image-as-data-url';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
 
 @Component({
   selector: 'app-team-detail-page',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, FlagIconComponent, RoleIconComponent, TeamLogoComponent],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent, TeamLogoComponent],
   templateUrl: './team-detail.page.html',
   styleUrl: './team-detail.page.scss',
 })
@@ -36,6 +38,10 @@ export class TeamDetailPage {
 
   readonly leagueTiers = LEAGUE_TIERS;
   readonly leagueTierLabels = LEAGUE_TIER_LABELS;
+  readonly leagueMenu: MenuOption[] = LEAGUE_TIERS.map((tier) => ({
+    value: tier,
+    label: LEAGUE_TIER_LABELS[tier],
+  }));
   readonly positionLabels = PLAYER_POSITION_LABELS;
 
   readonly teamId = toSignal(
@@ -60,6 +66,18 @@ export class TeamDetailPage {
       .slice()
       .sort((left, right) => left.abbreviation.localeCompare(right.abbreviation)),
   );
+  readonly incomingMenu = computed((): MenuOption[] => [
+    { value: '', label: '移入選手…' },
+    ...this.movablePlayers().map((player) => ({
+      value: player.id,
+      label: `${player.gamertag} · ${this.teamAbbreviation(player.teamId)}`,
+    })),
+  ]);
+  readonly moveMenu = computed((): MenuOption[] => [
+    { value: '', label: '移到…' },
+    { value: 'free', label: '自由球員' },
+    ...this.otherTeams().map((team) => ({ value: team.id, label: team.abbreviation })),
+  ]);
   readonly movablePlayers = computed(() =>
     this.playerService.players()
       .filter((player) => player.teamId !== this.teamId())
@@ -185,13 +203,12 @@ export class TeamDetailPage {
     return this.teamService.getTeamById(teamId)?.abbreviation ?? '已解散';
   }
 
-  setMoveChoice(playerId: string, event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.moveChoice.update((current) => ({ ...current, [playerId]: value }));
+  setMoveChoice(playerId: string, teamId: string | number): void {
+    this.moveChoice.update((current) => ({ ...current, [playerId]: String(teamId) }));
   }
 
-  setIncomingPlayer(event: Event): void {
-    this.incomingPlayerId.set((event.target as HTMLSelectElement).value);
+  setIncomingPlayer(playerId: string | number): void {
+    this.incomingPlayerId.set(String(playerId));
     this.rosterError.set(null);
   }
 

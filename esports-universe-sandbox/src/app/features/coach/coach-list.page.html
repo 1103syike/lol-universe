@@ -1,113 +1,91 @@
-<section class="coach-list">
-  <div class="coach-list__hero">
-    <p class="coach-list__eyebrow">Coaches</p>
-    <h1 class="coach-list__heading">教練管理</h1>
-    <p class="coach-list__lead">
-      @if (activeUniverse(); as universe) {
-        目前宇宙：{{ universe.name }}。每隊一位主教練。先管理基本資料，能力與薪資稍後再開。
-      } @else {
-        請先到宇宙頁選擇或建立宇宙。
-      }
-    </p>
-  </div>
+<section class="desk">
+  @if (activeUniverse(); as universe) {
+    <header class="desk__bar">
+      <div>
+        <p class="desk__kicker">{{ universe.name }} · {{ filteredCoaches().length }} 人</p>
+        <h1 class="desk__title">教練席</h1>
+      </div>
+      <button class="desk__act" type="button" (click)="toggleHiring()">
+        {{ isHiring() ? '收起' : '聘任' }}
+      </button>
+    </header>
 
-  @if (activeUniverse()) {
-    <form class="create-panel" [formGroup]="createForm" (ngSubmit)="createCoach()">
-      <div class="create-panel__grid">
-        <label class="field" for="coach-tag">
-          <span class="field__label">教練 ID</span>
-          <input id="coach-tag" class="field__input" type="text" formControlName="gamertag" maxlength="24" />
+    @if (isHiring()) {
+      <form class="sign" [formGroup]="createForm" (ngSubmit)="createCoach()">
+        <label for="coach-tag">
+          ID
+          <input id="coach-tag" type="text" formControlName="gamertag" maxlength="24" />
         </label>
-        <label class="field" for="coach-nation">
-          <span class="field__label">
+        <label>
+          <span class="sign__label">
             國籍
             <app-flag-icon [code]="createForm.controls.nationality.value" />
           </span>
-          <select id="coach-nation" class="field__input" formControlName="nationality">
-            @for (nation of nationalityOptions; track nation.code) {
-              <option [value]="nation.code">{{ nation.name }}</option>
-            }
-          </select>
+          <app-menu formControlName="nationality" [options]="nationMenu" />
         </label>
-        <label class="field" for="coach-team">
-          <span class="field__label">執教隊伍</span>
-          <select id="coach-team" class="field__input" formControlName="teamId">
-            <option value="">未執教</option>
-            @for (team of teams(); track team.id) {
-              <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
-            }
-          </select>
+        <label>
+          執教
+          <app-menu formControlName="teamId" [options]="signTeamMenu()" />
         </label>
-        <label class="field" for="coach-birthday">
-          <span class="field__label">出生年</span>
-          <select id="coach-birthday" class="field__input" formControlName="birthdayYear">
-            @for (year of birthYears; track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
+        <label>
+          出生年
+          <app-menu formControlName="birthdayYear" [options]="yearOptions" />
         </label>
-        <label class="field" for="coach-contract-year">
-          <span class="field__label">合約年份</span>
-          <select id="coach-contract-year" class="field__input" formControlName="contractYear">
-            @for (year of contractYears; track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
+        <label>
+          合約起
+          <app-menu formControlName="contractYear" [options]="contractMenu" />
         </label>
-        <label class="field" for="coach-expiry-year">
-          <span class="field__label">到期年份</span>
-          <select id="coach-expiry-year" class="field__input" formControlName="expiryYear">
-            @for (year of contractYears; track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
+        <label>
+          合約迄
+          <app-menu formControlName="expiryYear" [options]="contractMenu" />
         </label>
-      </div>
-
-      <button class="btn btn--primary" type="submit">新增教練</button>
-    </form>
-
-    @if (formError(); as errorMessage) {
-      <p class="form-hint form-hint--error">{{ errorMessage }}</p>
+        <div class="sign__bar">
+          <button class="desk__act" type="submit">坐上教練席</button>
+        </div>
+        @if (formError(); as errorMessage) {
+          <p class="sign__note sign__note--bad">{{ errorMessage }}</p>
+        }
+      </form>
     }
 
-    <div class="toolbar">
-      <label class="team-filter">
-        隊伍
-        <select [value]="selectedTeamId()" (change)="setTeamFilter($any($event.target).value)">
-          <option value="ALL">全部隊伍</option>
-          <option value="FREE">未執教</option>
-          @for (team of teams(); track team.id) {
-            <option [value]="team.id">{{ team.abbreviation }}</option>
-          }
-        </select>
-      </label>
+    <div class="desk__lane">
+      <app-menu
+        variant="lane"
+        ariaLabel="依隊伍篩"
+        [value]="selectedTeamId()"
+        [options]="filterTeamMenu()"
+        (picked)="setTeamFilter($event)"
+      />
     </div>
 
-    <ul class="coach-list__items">
+    <div class="sheet sheet--staff">
+      <div class="sheet__head">
+        <span>ID</span>
+        <span>隊伍</span>
+        <span>歲</span>
+        <span>合約</span>
+      </div>
       @for (coach of filteredCoaches(); track coach.id) {
-        <li class="coach-card">
-          <div class="coach-card__main">
-            <div>
-              <h2 class="coach-card__name">
-                <app-flag-icon [code]="coach.nationality" />
-                {{ coach.gamertag }}
-              </h2>
-              <p class="coach-card__meta">
-                {{ teamName(coach.teamId) }} · {{ nationalityName(coach.nationality) }}
-              </p>
-            </div>
-            <div class="coach-card__actions">
-              <a class="btn btn--ghost" [routerLink]="['/coaches', coach.id]">詳情</a>
-              <button class="btn btn--danger" type="button" (click)="deleteCoach(coach.id, coach.gamertag)">
-                刪除
-              </button>
-            </div>
-          </div>
-        </li>
+        <a class="sheet__row" [routerLink]="['/coaches', coach.id]">
+          <span class="sheet__who">
+            <app-flag-icon [code]="coach.nationality" />
+            <span>{{ coach.gamertag }}</span>
+          </span>
+          <span>{{ teamName(coach.teamId) }}</span>
+          <span>{{ coachAge(coach.birthday) }}</span>
+          <span>{{ deal(coach.contract.startDate, coach.contract.endDate) }}</span>
+        </a>
       } @empty {
-        <li class="coach-list__empty">目前沒有教練。先新增一位開始。</li>
+        <p class="sheet__empty">教練席是空的。</p>
       }
-    </ul>
+    </div>
+  } @else {
+    <header class="desk__bar">
+      <div>
+        <p class="desk__kicker">還沒有宇宙</p>
+        <h1 class="desk__title">教練席</h1>
+      </div>
+      <a class="desk__act" routerLink="/universes">去開一個</a>
+    </header>
   }
 </section>

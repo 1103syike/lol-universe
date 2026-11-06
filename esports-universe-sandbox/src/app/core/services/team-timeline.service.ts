@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { buildDoubleRoundRobin } from '../../shared/utils/round-robin';
+import { SCHEDULE_YEARS } from '../../shared/utils/season-calendar';
 import { LEAGUE_TIER_LABELS } from '../models/league.model';
 import type { LeagueTier } from '../models/league.model';
 import type { TeamTimelineEvent, TeamTimelineItem, TeamTimelineKind } from '../models/team-timeline.model';
@@ -9,7 +10,7 @@ import { SeasonClockService } from './season-clock.service';
 import { StorageAdapter } from '../storage/storage.adapter';
 import { UniverseService } from './universe.service';
 
-const SEASON_YEARS = [2021, 2022];
+const SEASON_YEARS = SCHEDULE_YEARS;
 const WIN_GAMES = 2;
 const FINAL_SERIES_ID = 'final';
 

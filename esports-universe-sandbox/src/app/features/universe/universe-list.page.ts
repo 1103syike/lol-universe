@@ -6,10 +6,11 @@ import {
   buildUniverseStartYears,
 } from '../../core/models/universe.model';
 import { UniverseService } from '../../core/services/universe.service';
+import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
 
 @Component({
   selector: 'app-universe-list-page',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, MenuComponent],
   templateUrl: './universe-list.page.html',
   styleUrl: './universe-list.page.scss',
 })
@@ -20,6 +21,7 @@ export class UniverseListPage {
   readonly universes = this.universeService.universes;
   readonly activeUniverseId = this.universeService.activeUniverseId;
   readonly startYears = buildUniverseStartYears();
+  readonly yearOptions = yearMenu(this.startYears);
   readonly editingId = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
 

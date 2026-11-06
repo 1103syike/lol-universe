@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { PlayoffSeriesView } from '../../core/models/playoff-board.model';
 import type { SlateMatch } from '../../core/services/match-board.service';
 import { MatchBoardService } from '../../core/services/match-board.service';
@@ -62,7 +63,7 @@ type DashboardPost =
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [NgTemplateOutlet, TeamLogoComponent],
+  imports: [NgTemplateOutlet, RouterLink, TeamLogoComponent],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
 })
@@ -82,6 +83,10 @@ export class DashboardPage {
     return this.slate.roster(teamId);
   }
 
+  rosterLines(teamId: string) {
+    return this.slate.rosterLines(teamId);
+  }
+
   dateText(iso: string): string {
     return this.slate.dateText(iso);
   }
@@ -90,7 +95,16 @@ export class DashboardPage {
     return this.slate.shortDate(iso);
   }
 
+  missingLeagues(): Array<'TCS' | 'TCL'> {
+    return (['TCS', 'TCL'] as const).filter((league) => {
+      return this.season.fixturesFor(league).length > 0 && !this.calendar.springMonday(league);
+    });
+  }
+
   fastForward(): void {
+    if (this.missingLeagues().length > 0) {
+      return;
+    }
     this.slate.fastForward();
   }
 
@@ -99,7 +113,11 @@ export class DashboardPage {
   }
 
   playGame(match: SlateMatch, teamId: string): void {
+    if (this.missingLeagues().length > 0 || !this.canScore(match)) {
+      return;
+    }
     this.slate.playGame(match, teamId);
+    this.advanceToNextEvent();
   }
 
   gateLeagues(): Array<'TCS' | 'TCL'> {
@@ -258,6 +276,20 @@ export class DashboardPage {
       return;
     }
     this.playoff.addGame(league, match.id, teamId);
+    this.advanceToNextEvent();
+  }
+
+  private advanceToNextEvent(): void {
+    const today = this.board().today;
+    if (!today) {
+      return;
+    }
+    const next = [this.board().current?.iso ?? '', this.playoffQueue()[0]?.iso ?? '']
+      .filter((iso) => /^\d{4}-\d{2}-\d{2}$/.test(iso))
+      .sort()[0];
+    if (next && next > today) {
+      this.universeService.setCurrentDate(next);
+    }
   }
 
   jumpTo(iso: string): void {

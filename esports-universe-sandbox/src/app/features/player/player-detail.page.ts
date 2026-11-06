@@ -22,12 +22,14 @@ import {
   yearOf,
 } from '../../shared/utils/contract-year';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
+import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { calculateAge } from '../../shared/utils/player-age';
 
 @Component({
   selector: 'app-player-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, RoleIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent],
   templateUrl: './player-detail.page.html',
   styleUrl: './player-detail.page.scss',
 })
@@ -40,7 +42,14 @@ export class PlayerDetailPage {
 
   readonly positions = PLAYER_POSITIONS;
   readonly positionLabels = PLAYER_POSITION_LABELS;
-  readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
+  readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
+    value: nation.code,
+    label: nation.name,
+  }));
+  readonly positionMenu: MenuOption[] = PLAYER_POSITIONS.map((position) => ({
+    value: position,
+    label: PLAYER_POSITION_LABELS[position],
+  }));
   readonly nationalityName = nationalityName;
   readonly birthYears = computed(() => {
     const years = buildPlayerBirthYears(this.universeYear());
@@ -69,6 +78,15 @@ export class PlayerDetailPage {
   readonly formError = signal<string | null>(null);
 
   readonly teams = this.playerService.teams;
+  readonly birthMenu = computed(() => yearMenu(this.birthYears()));
+  readonly contractMenu = computed(() => yearMenu(this.contractYears()));
+  readonly teamMenu = computed((): MenuOption[] => [
+    { value: '', label: '自由球員' },
+    ...this.teams().map((team) => ({
+      value: team.id,
+      label: `${team.abbreviation} · ${team.name}`,
+    })),
+  ]);
   readonly currentDate = computed(() => this.universeService.activeUniverse()?.currentDate ?? '2026-01-01');
   readonly player = computed(() => this.playerService.getPlayerById(this.playerId()));
   readonly age = computed(() => {

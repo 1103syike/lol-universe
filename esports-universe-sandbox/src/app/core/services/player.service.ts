@@ -6,6 +6,8 @@ import { ATTRIBUTE_KEYS, comparePlayersByRole, isPlayerNationality } from '../mo
 import { TeamTimelineService } from './team-timeline.service';
 import { UniverseService } from './universe.service';
 
+const MAX_PLAYERS_PER_TEAM = 7;
+
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
   private readonly universeService = inject(UniverseService);
@@ -29,6 +31,7 @@ export class PlayerService {
     const payload = this.normalizeInput(input);
     this.assertUniqueGamertag(payload.gamertag);
     this.assertTeamExists(payload.teamId);
+    this.assertRosterHasRoom(payload.teamId);
 
     const now = new Date().toISOString();
     const player: Player = {
@@ -69,6 +72,9 @@ export class PlayerService {
     const payload = this.normalizeInput(input);
     this.assertUniqueGamertag(payload.gamertag, playerId);
     this.assertTeamExists(payload.teamId);
+    if (payload.teamId !== current.teamId) {
+      this.assertRosterHasRoom(payload.teamId);
+    }
 
     const updated: Player = {
       ...current,
@@ -104,6 +110,7 @@ export class PlayerService {
     if (current.teamId === teamId) {
       return;
     }
+    this.assertRosterHasRoom(teamId);
 
     const updated: Player = {
       ...current,
@@ -210,6 +217,16 @@ export class PlayerService {
 
     if (duplicated) {
       throw new Error('同一宇宙內選手 ID 不可重複');
+    }
+  }
+
+  private assertRosterHasRoom(teamId: string | null): void {
+    if (!teamId) {
+      return;
+    }
+    const count = this.players().filter((player) => player.teamId === teamId).length;
+    if (count >= MAX_PLAYERS_PER_TEAM) {
+      throw new Error('一隊最多 7 名選手');
     }
   }
 

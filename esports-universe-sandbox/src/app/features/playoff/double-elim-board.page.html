@@ -1,7 +1,7 @@
 <section class="playoff">
   <a class="back-link" routerLink="/leagues">← 回到賽制</a>
   <div class="playoff__hero">
-    <p class="playoff__eyebrow">2023–2024 · 2026 春</p>
+    <p class="playoff__eyebrow">{{ league() }} · {{ league() === 'TCL' ? '2023–2024' : '2023–2024 · 2026 春' }}</p>
     <h1 class="playoff__heading">六隊雙敗</h1>
     <p class="playoff__lead">
       首輪敗者直接淘汰。第二輪勝的進勝者組決賽，敗的先互打，再去打勝者組決賽的敗者。總決賽沒有敗部優勢，一場定冠軍。全部 BO5。
@@ -10,7 +10,7 @@
 
   @if (activeUniverse()) {
     @if (seeds().length < 6) {
-      <p class="playoff__empty">TCS 隊伍不足 6 支。</p>
+      <p class="playoff__empty">{{ league() }} 隊伍不足 6 支。</p>
     } @else {
       <div class="playoff__layout">
         <div class="panel">

@@ -65,13 +65,9 @@
               <span class="field__label">隊伍名稱</span>
               <input id="edit-name" class="field__input" type="text" formControlName="name" maxlength="60" />
             </label>
-            <label class="field" for="edit-league">
+            <label class="field">
               <span class="field__label">聯賽層級</span>
-              <select id="edit-league" class="field__input" formControlName="leagueTier">
-                @for (tier of leagueTiers; track tier) {
-                  <option [value]="tier">{{ leagueTierLabels[tier] }}</option>
-                }
-              </select>
+              <app-menu formControlName="leagueTier" [options]="leagueMenu" />
             </label>
             <div class="field field--wide">
               <span class="field__label">Logo 網址（可選）</span>
@@ -185,12 +181,13 @@
       </div>
       @if (movablePlayers().length > 0) {
         <div class="roster-add">
-          <select class="field__input roster__select" [value]="incomingPlayerId()" (change)="setIncomingPlayer($event)">
-            <option value="">移入選手…</option>
-            @for (player of movablePlayers(); track player.id) {
-              <option [value]="player.id">{{ player.gamertag }} · {{ teamAbbreviation(player.teamId) }}</option>
-            }
-          </select>
+          <app-menu
+            variant="lane"
+            ariaLabel="移入選手"
+            [value]="incomingPlayerId()"
+            [options]="incomingMenu()"
+            (picked)="setIncomingPlayer($event)"
+          />
           <button class="btn btn--primary" type="button" (click)="addRosterPlayer()">加入這隊</button>
         </div>
       } @else {
@@ -211,17 +208,13 @@
                 <app-role-icon [position]="player.position" />
               </span>
               <div class="roster__move">
-                <select
-                  class="field__input roster__select"
+                <app-menu
+                  variant="lane"
+                  ariaLabel="移到哪一隊"
                   [value]="moveChoice()[player.id] ?? ''"
-                  (change)="setMoveChoice(player.id, $event)"
-                >
-                  <option value="">移到…</option>
-                  <option value="free">自由球員</option>
-                  @for (team of otherTeams(); track team.id) {
-                    <option [value]="team.id">{{ team.abbreviation }}</option>
-                  }
-                </select>
+                  [options]="moveMenu()"
+                  (picked)="setMoveChoice(player.id, $event)"
+                />
                 <button class="btn btn--ghost" type="button" (click)="moveRosterPlayer(player)">移動</button>
               </div>
             </li>

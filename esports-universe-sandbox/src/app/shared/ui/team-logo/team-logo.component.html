@@ -1,10 +1,12 @@
 @if (!failed()) {
-  <img
-    class="team-logo__image"
-    [src]="imageSrc()"
-    [alt]="name() || abbreviation()"
-    (error)="onImageError()"
-  />
+  <span class="team-logo__plate">
+    <img
+      class="team-logo__image"
+      [src]="imageSrc()"
+      [alt]="name() || abbreviation()"
+      (error)="onImageError()"
+    />
+  </span>
 } @else {
   <div class="team-logo__mark" [style.--mark-color]="markColor()">
     {{ abbreviation() }}

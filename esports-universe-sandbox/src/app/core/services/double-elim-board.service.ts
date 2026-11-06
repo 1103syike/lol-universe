@@ -52,11 +52,20 @@ export class DoubleElimBoardService {
   private readonly storage = inject(StorageAdapter);
   private readonly universeService = inject(UniverseService);
   private readonly progressRevision = signal(0);
+  private readonly league = signal<'TCS' | 'TCL'>('TCS');
+
+  readonly activeLeague = this.league.asReadonly();
+
+  setLeague(league: 'TCS' | 'TCL'): void {
+    this.league.set(league);
+    this.progressRevision.update((value) => value + 1);
+  }
 
   readonly progress = computed(() => {
     this.progressRevision();
+    this.league();
     const universeId = this.universeService.activeUniverseId();
-    const teams = this.tcsTeams();
+    const teams = this.teams();
     if (!universeId) {
       return this.emptyProgress([]);
     }
@@ -64,7 +73,7 @@ export class DoubleElimBoardService {
   });
 
   readonly standings = computed((): PlayoffStandingRow[] => {
-    const teams = this.tcsTeams();
+    const teams = this.teams();
     const seedIds = this.progress().seedTeamIds;
     const ordered = seedIds
       .map((teamId) => teams.find((team) => team.id === teamId))
@@ -196,7 +205,7 @@ export class DoubleElimBoardService {
   }
 
   reset(): void {
-    this.writeProgress(this.emptyProgress(this.tcsTeams().map((team) => team.id)));
+    this.writeProgress(this.emptyProgress(this.teams().map((team) => team.id)));
   }
 
   private buildSeries(): PlayoffSeriesView[] {
@@ -340,9 +349,10 @@ export class DoubleElimBoardService {
     return '待定';
   }
 
-  private tcsTeams(): Team[] {
+  private teams(): Team[] {
+    const league = this.league();
     return (this.universeService.activeUniverse()?.teams ?? [])
-      .filter((team) => team.leagueTier === 'TCS')
+      .filter((team) => team.leagueTier === league)
       .slice()
       .sort((left, right) => left.abbreviation.localeCompare(right.abbreviation));
   }
@@ -386,6 +396,7 @@ export class DoubleElimBoardService {
   }
 
   private storageKey(universeId: string): string {
-    return `eus.double-elim.${universeId}`;
+    const league = this.league();
+    return league === 'TCS' ? `eus.double-elim.${universeId}` : `eus.double-elim.${league}.${universeId}`;
   }
 }

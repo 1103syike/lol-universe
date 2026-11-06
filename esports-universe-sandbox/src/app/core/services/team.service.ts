@@ -1,7 +1,9 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { DEFAULT_SALARY_CAP, INITIAL_TEAMS } from '../data/initial-teams';
+import { buildOpeningLeague } from '../data/initial-teams';
 import type { Team, TeamInput } from '../models/team.model';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import { rememberShuffledFixtures } from '../../shared/utils/opening-fixtures';
+import { StorageAdapter } from '../storage/storage.adapter';
 import { TeamTimelineService } from './team-timeline.service';
 import { UniverseService } from './universe.service';
 
@@ -9,6 +11,7 @@ import { UniverseService } from './universe.service';
 export class TeamService {
   private readonly universeService = inject(UniverseService);
   private readonly timeline = inject(TeamTimelineService);
+  private readonly storage = inject(StorageAdapter);
 
   readonly teams = computed(() => this.universeService.activeUniverse()?.teams ?? []);
 
@@ -76,21 +79,22 @@ export class TeamService {
       throw new Error('目前宇宙已有隊伍，無法載入初始名單');
     }
 
-    const now = new Date().toISOString();
-    const seeded: Team[] = INITIAL_TEAMS.map((seed) => ({
-      id: crypto.randomUUID(),
-      abbreviation: seed.abbreviation,
-      name: seed.name,
-      leagueTier: seed.leagueTier,
-      salaryCap: DEFAULT_SALARY_CAP,
-      logoUrl: seed.logoUrl,
-      coachId: null,
-      playerIds: [],
-      createdAt: now,
-      updatedAt: now,
-    }));
+    const universe = this.universeService.activeUniverse();
+    if (!universe) {
+      throw new Error('尚未選擇宇宙');
+    }
 
-    this.universeService.replaceActiveUniverseTeams(seeded);
+    const opening = buildOpeningLeague(new Date().toISOString(), universe.startYear);
+    this.universeService.patchActiveUniverse({
+      teams: opening.teams,
+      players: opening.players,
+      coaches: opening.coaches,
+    });
+    rememberShuffledFixtures(this.storage, {
+      id: universe.id,
+      startYear: universe.startYear,
+      teams: opening.teams,
+    });
   }
 
   private normalizeInput(input: TeamInput): TeamInput {

@@ -4,9 +4,19 @@ const LAST_PLAY_OFFSET = 6;
 const PLAY_DAYS_PER_WEEK = 5;
 const REGULAR_WEEKS = 9;
 
+export const SCHEDULE_YEARS = [2021, 2022, 2023, 2024, 2025, 2026] as const;
+
+export function isScheduleYear(year: number): boolean {
+  return (SCHEDULE_YEARS as readonly number[]).includes(year);
+}
+
 const LUNAR_NEW_YEAR = [
   { start: '2021-02-10', end: '2021-02-16' },
   { start: '2022-01-29', end: '2022-02-06' },
+  { start: '2023-01-20', end: '2023-01-29' },
+  { start: '2024-02-08', end: '2024-02-14' },
+  { start: '2025-01-25', end: '2025-02-02' },
+  { start: '2026-02-14', end: '2026-02-22' },
 ] as const;
 
 export interface SeasonDay {

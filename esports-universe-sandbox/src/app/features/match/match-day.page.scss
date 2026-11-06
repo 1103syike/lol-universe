@@ -378,7 +378,6 @@
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
 }
 
 .side--away .side__pick {
@@ -402,22 +401,6 @@
   font-size: 1.2rem;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  cursor: default;
-}
-
-.side__score.is-live {
-  cursor: pointer;
-}
-
-.side__score:focus,
-.side__score:focus-visible {
-  outline: none;
-}
-
-.side__score.is-live:hover,
-.side__score.is-live:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .btn {

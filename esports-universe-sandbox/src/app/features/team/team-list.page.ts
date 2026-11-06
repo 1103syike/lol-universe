@@ -10,12 +10,14 @@ import { TeamService } from '../../core/services/team.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
+import { MenuComponent } from '../../shared/ui/menu/menu.component';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
 import { readImageAsDataUrl } from '../../shared/utils/read-image-as-data-url';
 
 @Component({
   selector: 'app-team-list-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, RoleIconComponent, TeamLogoComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent, TeamLogoComponent],
   templateUrl: './team-list.page.html',
   styleUrl: './team-list.page.scss',
 })
@@ -27,11 +29,16 @@ export class TeamListPage {
 
   readonly leagueTiers = LEAGUE_TIERS;
   readonly leagueTierLabels = LEAGUE_TIER_LABELS;
+  readonly leagueMenu: MenuOption[] = LEAGUE_TIERS.map((tier) => ({
+    value: tier,
+    label: LEAGUE_TIER_LABELS[tier],
+  }));
   readonly positionLabels = PLAYER_POSITION_LABELS;
 
   readonly activeUniverse = this.universeService.activeUniverse;
   readonly teams = this.teamService.teams;
   readonly selectedTier = signal<LeagueTier | 'ALL'>('ALL');
+  readonly isFounding = signal(false);
   readonly formError = signal<string | null>(null);
   readonly seedMessage = signal<string | null>(null);
   private readonly openRosterIds = signal<ReadonlySet<string>>(new Set());
@@ -66,6 +73,10 @@ export class TeamListPage {
     salaryCap: [DEFAULT_SALARY_CAP, [Validators.required, Validators.min(1)]],
     logoUrl: [''],
   });
+
+  toggleFounding(): void {
+    this.isFounding.update((open) => !open);
+  }
 
   setTierFilter(tier: LeagueTier | 'ALL'): void {
     this.selectedTier.set(tier);

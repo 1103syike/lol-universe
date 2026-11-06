@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { RegularSeasonService, type RegularMatchView } from '../../core/services/regular-season.service';
+import { YearCalendarService } from '../../core/services/year-calendar.service';
 import { SeasonClockService } from '../../core/services/season-clock.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { LEAGUE_TIERS, type LeagueTier } from '../../core/models/league.model';
@@ -35,6 +36,7 @@ const ROUNDS_PER_WEEK = 2;
 export class MatchDayPage {
   private readonly universeService = inject(UniverseService);
   private readonly season = inject(RegularSeasonService);
+  private readonly calendar = inject(YearCalendarService);
   private readonly clock = inject(SeasonClockService);
 
   readonly activeUniverse = this.universeService.activeUniverse;
@@ -46,11 +48,9 @@ export class MatchDayPage {
   readonly matchCount = computed(() => this.season.matches().length);
   readonly roundCount = this.season.roundCount;
   readonly bubble = this.season.bubble;
-  readonly coinGroups = this.season.coinGroups;
   readonly rosterNotice = this.season.rosterNotice;
   readonly playoffSpots = this.season.playoffSpots;
   readonly hasEnoughTeams = this.season.hasEnoughTeams;
-  readonly canAdvance = this.season.canAdvance;
   readonly playoffLocked = computed(() => {
     const league = this.season.league();
     return (league === 'TCS' || league === 'TCL') && this.season.isPlayoffLocked(league);
@@ -72,6 +72,14 @@ export class MatchDayPage {
   selectLeague(league: LeagueTier): void {
     this.season.setLeague(league);
     this.weekNumber.set(this.weekOf(this.season.firstIncompleteRound()));
+  }
+
+  hasSpringSchedule(): boolean {
+    const league = this.selectedLeague();
+    if (league !== 'TCS' && league !== 'TCL') {
+      return true;
+    }
+    return Boolean(this.calendar.springMonday(league));
   }
 
   otherLeagueNote(): string {
@@ -127,8 +135,8 @@ export class MatchDayPage {
     return 'open';
   }
 
-  canToggleScore(games: number | null): boolean {
-    return games === 0 || games === 1;
+  scoreText(games: number | null): string {
+    return games === null ? '–' : String(games);
   }
 
   winRateLabel(rate: number | null): string {
@@ -191,43 +199,8 @@ export class MatchDayPage {
     this.weekNumber.update((week) => Math.min(this.weekCount(), week + 1));
   }
 
-  setWinner(seriesId: string, teamId: string): void {
-    this.season.setWinner(seriesId, teamId);
-  }
-
-  toggleLoserScore(seriesId: string, games: number | null): void {
-    if (games !== 0 && games !== 1) {
-      return;
-    }
-    this.season.setLoserGames(seriesId, games === 0 ? 1 : 0);
-  }
-
-  setTieWinner(teamId: string): void {
-    const bubble = this.bubble();
-    if (!bubble) {
-      return;
-    }
-    this.season.setTieWinner(bubble.id, teamId);
-  }
-
-  flipCoin(groupKey: string): void {
-    this.season.flipCoin(groupKey);
-  }
-
   playoffRoute(): string {
     return this.selectedLeague() === 'TCL' ? '/leagues/tcl-single' : '/leagues/tcs-single';
   }
 
-  advance(): void {
-    this.season.advanceToPlayoff();
-  }
-
-  reopen(): void {
-    this.season.reopenRegular();
-  }
-
-  reset(): void {
-    this.season.reset();
-    this.weekNumber.set(1);
-  }
 }

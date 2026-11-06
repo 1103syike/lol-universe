@@ -7,7 +7,6 @@ import {
   PLAYER_POSITIONS,
   PLAYER_POSITION_LABELS,
   comparePlayersByRole,
-  nationalityName,
 } from '../../core/models/player.model';
 import type { PlayerNationality, PlayerPosition } from '../../core/models/player.model';
 import { MIN_UNIVERSE_START_YEAR } from '../../core/models/universe.model';
@@ -19,17 +18,19 @@ import {
   buildPlayerBirthYears,
   buildPlayerContractYears,
   contractRangeFromYears,
+  contractYearLabel,
   defaultPlayerBirthYear,
 } from '../../shared/utils/contract-year';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
+import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { calculateAge } from '../../shared/utils/player-age';
 
 @Component({
   selector: 'app-player-list-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, RoleIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent],
   templateUrl: './player-list.page.html',
-  styleUrl: './player-list.page.scss',
 })
 export class PlayerListPage {
   private readonly playerService = inject(PlayerService);
@@ -38,9 +39,29 @@ export class PlayerListPage {
 
   readonly positions = PLAYER_POSITIONS;
   readonly positionLabels = PLAYER_POSITION_LABELS;
-  readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
-  readonly nationalityName = nationalityName;
+  readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
+    value: nation.code,
+    label: nation.name,
+  }));
+  readonly positionMenu: MenuOption[] = PLAYER_POSITIONS.map((position) => ({
+    value: position,
+    label: PLAYER_POSITION_LABELS[position],
+  }));
   readonly contractYears = buildPlayerContractYears();
+  readonly contractMenu = yearMenu(this.contractYears);
+  readonly birthMenu = computed(() => yearMenu(this.birthYears()));
+  readonly signTeamMenu = computed((): MenuOption[] => [
+    { value: '', label: '自由' },
+    ...this.teams().map((team) => ({
+      value: team.id,
+      label: `${team.abbreviation} · ${team.name}`,
+    })),
+  ]);
+  readonly filterTeamMenu = computed((): MenuOption[] => [
+    { value: 'ALL', label: '全部隊伍' },
+    { value: 'FREE', label: '自由' },
+    ...this.teams().map((team) => ({ value: team.id, label: team.abbreviation })),
+  ]);
   readonly birthYears = computed(() => buildPlayerBirthYears(this.universeYear()));
   private readonly gamertagInput = viewChild<ElementRef<HTMLInputElement>>('gamertagInput');
 
@@ -49,6 +70,7 @@ export class PlayerListPage {
   readonly teams = this.playerService.teams;
   readonly selectedPosition = signal<PlayerPosition | 'ALL'>('ALL');
   readonly selectedTeamId = signal<string | 'ALL' | 'FREE'>('ALL');
+  readonly isSigning = signal(false);
   readonly formError = signal<string | null>(null);
 
   readonly filteredPlayers = computed(() => {
@@ -94,23 +116,31 @@ export class PlayerListPage {
     });
   }
 
+  toggleSigning(): void {
+    this.isSigning.update((open) => !open);
+  }
+
   setPositionFilter(position: PlayerPosition | 'ALL'): void {
     this.selectedPosition.set(position);
   }
 
-  setTeamFilter(teamId: string): void {
-    this.selectedTeamId.set(teamId as string | 'ALL' | 'FREE');
+  setTeamFilter(teamId: string | number): void {
+    this.selectedTeamId.set(String(teamId) as string | 'ALL' | 'FREE');
   }
 
   teamName(teamId: string | null): string {
     if (!teamId) {
-      return '自由球員';
+      return '自由';
     }
     return this.teams().find((team) => team.id === teamId)?.abbreviation ?? '未知隊伍';
   }
 
   playerAge(birthday: string): number {
     return calculateAge(birthday, this.activeUniverse()?.currentDate ?? '2026-01-01');
+  }
+
+  deal(startDate: string, endDate: string): string {
+    return contractYearLabel(startDate, endDate);
   }
 
   createPlayer(): void {

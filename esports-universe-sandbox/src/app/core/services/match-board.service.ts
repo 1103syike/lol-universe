@@ -1,5 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { PLAYER_POSITION_LABELS } from '../models/player.model';
+import { PLAYER_POSITION_LABELS, PLAYER_POSITIONS, type PlayerPosition } from '../models/player.model';
 import { PlayerService } from './player.service';
 import { RegularSeasonService, type RegularMatchView, type RegularStanding } from './regular-season.service';
 import { UniverseService } from './universe.service';
@@ -20,6 +20,12 @@ export interface RosterSpot {
   id: string;
   position: string;
   gamertag: string;
+}
+
+export interface RosterLine {
+  position: PlayerPosition;
+  label: string;
+  players: RosterSpot[];
 }
 
 export interface MatchBoard {
@@ -43,10 +49,24 @@ export class MatchBoardService {
   readonly board = computed(() => this.buildBoard());
 
   roster(teamId: string): RosterSpot[] {
-    return this.players.getPlayersByTeamId(teamId).map((player) => ({
-      id: player.id,
-      position: PLAYER_POSITION_LABELS[player.position],
-      gamertag: player.gamertag,
+    return this.rosterLines(teamId).flatMap((line) => line.players);
+  }
+
+  rosterLines(teamId: string): RosterLine[] {
+    const byRole = new Map<PlayerPosition, RosterSpot[]>(
+      PLAYER_POSITIONS.map((position) => [position, []]),
+    );
+    for (const player of this.players.getPlayersByTeamId(teamId)) {
+      byRole.get(player.position)?.push({
+        id: player.id,
+        position: PLAYER_POSITION_LABELS[player.position],
+        gamertag: player.gamertag,
+      });
+    }
+    return PLAYER_POSITIONS.map((position) => ({
+      position,
+      label: PLAYER_POSITION_LABELS[position],
+      players: byRole.get(position) ?? [],
     }));
   }
 

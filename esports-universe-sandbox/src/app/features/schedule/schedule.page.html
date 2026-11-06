@@ -1,87 +1,74 @@
 <section class="schedule">
   @if (activeUniverse()) {
-    @if (!isSupported()) {
-      <p class="empty">這個宇宙停在 {{ year() }} 年。日程先從 2021、2022 排起。</p>
-    } @else {
-      <section class="panel">
-        <div class="panel__head">
-          <div>
-            <h1 class="panel__title">{{ year() }} 年日程</h1>
-            <p class="panel__note">{{ segmentNote() }}</p>
-          </div>
-          @if (segment().kind === 'regular' && regularLabel() !== '未排') {
-            <button class="btn" type="button" (click)="clearRegular()">清除這段</button>
-          }
-        </div>
-
-        <div class="segments">
-          @for (league of leagues; track league) {
-            <button type="button" [class.is-on]="leagueId() === league" (click)="selectLeague(league)">{{ league }}</button>
-          }
-        </div>
-
-        <div class="segments">
-          @for (item of visibleSegments(); track item.id) {
-            <button type="button" [class.is-on]="segmentId() === item.id" (click)="selectSegment(item.id)">
-              {{ item.label }}
-            </button>
-          }
-        </div>
-
-        @if (segment().kind === 'regular') {
-          <p class="status">{{ leagueId() }} {{ segment().label }} {{ regularLabel() }}</p>
-        } @else {
-          <div class="series">
-            @for (item of seriesRows(); track item.id) {
-              <div class="series__row" [class.is-on]="selectedSeriesId() === item.id">
-                <button class="series__pick" type="button" (click)="selectSeries(item.id)">
-                  <strong>{{ item.label }}</strong>
-                  <span>{{ item.detail }}</span>
-                </button>
-                <span class="series__date">{{ item.date || '未排' }}</span>
-                @if (item.date) {
-                  <button class="btn" type="button" (click)="clearSeries(item.id)">清除</button>
-                }
-              </div>
-            }
-          </div>
+    <header class="schedule__bar">
+      <div class="schedule__lead">
+        <h1 class="schedule__title">日程</h1>
+        <ul class="legend">
+          <li><i class="swatch is-tcs"></i>TCS</li>
+          <li><i class="swatch is-tcl"></i>TCL</li>
+        </ul>
+      </div>
+      <div class="years">
+        @for (item of scheduleYears; track item) {
+          <button type="button" [class.is-on]="viewYear() === item" (click)="selectYear(item)">{{ item }}</button>
         }
+      </div>
+    </header>
 
-        <div class="year">
-          @for (month of yearMonths(); track month.key) {
-            <article class="month">
-              <h2 class="month__title">{{ month.title }}</h2>
-              <div class="month__grid">
-                @for (weekday of weekdayLabels; track weekday) {
-                  <span class="month__weekday">{{ weekday }}</span>
-                }
-                @for (day of month.cells; track day.iso) {
-                  <button
-                    class="month__day"
-                    type="button"
-                    [class.is-out]="!day.inMonth"
-                    [class.is-rest]="day.tone === 'rest'"
-                    [class.is-spring]="day.tone === 'spring'"
-                    [class.is-summer]="day.tone === 'summer'"
-                    [class.is-playoff]="day.tone === 'playoff'"
-                    [class.is-qualifier]="day.tone === 'qualifier'"
-                    [class.is-holiday]="day.tone === 'holiday'"
-                    [class.is-promotion]="day.tone === 'promotion'"
-                    [class.is-picked]="day.isPicked"
-                    [attr.title]="dayTitle(day.marks)"
-                    (click)="pickDay(day.iso)"
-                  >
-                    <span>{{ day.label }}</span>
-                    @for (mark of day.marks; track mark.detail) {
-                      <small>{{ mark.label }}</small>
-                    }
-                  </button>
-                }
-              </div>
-            </article>
+    @if (shownMonth(); as month) {
+      <article class="month">
+        <div class="month__nav">
+          <button type="button" (click)="shiftMonth(-1)">上一月</button>
+          <h2 class="month__title">{{ month.title }}</h2>
+          <button type="button" (click)="shiftMonth(1)">下一月</button>
+        </div>
+        <div class="month__grid">
+          @for (weekday of weekdayLabels; track weekday) {
+            <span class="month__weekday">{{ weekday }}</span>
+          }
+          @for (day of month.cells; track day.iso) {
+            <div
+              class="month__day"
+              [class.is-out]="!day.inMonth"
+              [class.is-rest]="day.tone === 'rest'"
+              [class.is-spring]="day.shade === 'TCS' && (day.tone === 'spring' || day.tone === 'playoff' || day.tone === 'qualifier')"
+              [class.is-summer]="day.shade === 'TCL' && (day.tone === 'spring' || day.tone === 'summer' || day.tone === 'playoff')"
+              [class.is-holiday]="day.tone === 'holiday'"
+              [class.is-promotion]="day.tone === 'promotion'"
+              [class.is-event]="day.tone === 'event'"
+              [attr.title]="dayTitle(day.marks)"
+            >
+              <span>{{ day.label }}</span>
+              @for (mark of day.marks; track mark.league + mark.label + mark.matchup + $index) {
+                <small
+                  class="mark"
+                  [class.is-tcs]="mark.league === 'TCS'"
+                  [class.is-tcl]="mark.league === 'TCL'"
+                  [class.is-rest]="mark.tone === 'rest'"
+                  [class.is-holiday]="mark.tone === 'holiday'"
+                  [class.is-promotion]="mark.tone === 'promotion'"
+                  [class.is-event]="mark.tone === 'event'"
+                >
+                  {{ mark.label }}
+                  @if (mark.sides; as sides) {
+                    <span class="mark__teams">
+                      <span [class.is-win]="sides[0].won" [class.is-loss]="!sides[0].won">{{ sides[0].name }}</span>
+                      <span class="mark__score">
+                        <span [class.is-win]="sides[0].won" [class.is-loss]="!sides[0].won">{{ sides[0].score }}</span>:<span [class.is-win]="sides[1].won" [class.is-loss]="!sides[1].won">{{ sides[1].score }}</span>
+                      </span>
+                      <span [class.is-win]="sides[1].won" [class.is-loss]="!sides[1].won">{{ sides[1].name }}</span>
+                    </span>
+                  } @else if (mark.matchup) {
+                    <span class="mark__teams">{{ mark.matchup }}</span>
+                  } @else if (mark.tone !== 'rest' && mark.tone !== 'holiday' && mark.tone !== 'event') {
+                    <span class="mark__teams is-tbd">TBD</span>
+                  }
+                </small>
+              }
+            </div>
           }
         </div>
-      </section>
+      </article>
     }
   } @else {
     <p class="empty">先選一個宇宙。</p>

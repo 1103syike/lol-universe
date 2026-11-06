@@ -1,38 +1,54 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  PLAYER_NATIONALITY_OPTIONS,
-  nationalityName,
-} from '../../core/models/player.model';
+import { PLAYER_NATIONALITY_OPTIONS } from '../../core/models/player.model';
 import type { PlayerNationality } from '../../core/models/player.model';
 import { buildUniverseStartYears } from '../../core/models/universe.model';
 import { CoachService } from '../../core/services/coach.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
-import { birthdayFromYear, buildBirthYears, contractRangeFromYears } from '../../shared/utils/contract-year';
+import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
+import { birthdayFromYear, buildBirthYears, contractRangeFromYears, contractYearLabel } from '../../shared/utils/contract-year';
+import { calculateAge } from '../../shared/utils/player-age';
 import { createDefaultCoachAttributes } from '../../shared/utils/create-default-coach-attributes';
 
 @Component({
   selector: 'app-coach-list-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent],
   templateUrl: './coach-list.page.html',
-  styleUrl: './coach-list.page.scss',
 })
 export class CoachListPage {
   private readonly coachService = inject(CoachService);
   private readonly universeService = inject(UniverseService);
   private readonly formBuilder = inject(FormBuilder);
 
-  readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
-  readonly nationalityName = nationalityName;
+  readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
+    value: nation.code,
+    label: nation.name,
+  }));
   readonly birthYears = buildBirthYears(new Date().getFullYear() - 25);
   readonly contractYears = buildUniverseStartYears();
+  readonly yearOptions = yearMenu(this.birthYears);
+  readonly contractMenu = yearMenu(this.contractYears);
+  readonly signTeamMenu = computed((): MenuOption[] => [
+    { value: '', label: '空窗' },
+    ...this.teams().map((team) => ({
+      value: team.id,
+      label: `${team.abbreviation} · ${team.name}`,
+    })),
+  ]);
+  readonly filterTeamMenu = computed((): MenuOption[] => [
+    { value: 'ALL', label: '全部隊伍' },
+    { value: 'FREE', label: '空窗' },
+    ...this.teams().map((team) => ({ value: team.id, label: team.abbreviation })),
+  ]);
 
   readonly activeUniverse = this.universeService.activeUniverse;
   readonly coaches = this.coachService.coaches;
   readonly teams = this.coachService.teams;
   readonly selectedTeamId = signal<string | 'ALL' | 'FREE'>('ALL');
+  readonly isHiring = signal(false);
   readonly formError = signal<string | null>(null);
 
   readonly filteredCoaches = computed(() => {
@@ -56,13 +72,25 @@ export class CoachListPage {
     expiryYear: [2026, Validators.required],
   });
 
-  setTeamFilter(teamId: string): void {
-    this.selectedTeamId.set(teamId as string | 'ALL' | 'FREE');
+  toggleHiring(): void {
+    this.isHiring.update((open) => !open);
+  }
+
+  setTeamFilter(teamId: string | number): void {
+    this.selectedTeamId.set(String(teamId) as string | 'ALL' | 'FREE');
+  }
+
+  coachAge(birthday: string): number {
+    return calculateAge(birthday, this.activeUniverse()?.currentDate ?? '2026-01-01');
+  }
+
+  deal(startDate: string, endDate: string): string {
+    return contractYearLabel(startDate, endDate);
   }
 
   teamName(teamId: string | null): string {
     if (!teamId) {
-      return '未執教';
+      return '空窗';
     }
     return this.teams().find((team) => team.id === teamId)?.abbreviation ?? '未知隊伍';
   }

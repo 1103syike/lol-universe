@@ -5,11 +5,21 @@
   height: 100%;
 }
 
+.team-logo__plate {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 9%;
+  border-radius: 22%;
+  background: #4e5562;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+
 .team-logo__image {
-  width: min(72%, 8rem);
-  height: min(72%, 8rem);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgb(16 24 40 / 12%));
 }
 
 .team-logo__mark {

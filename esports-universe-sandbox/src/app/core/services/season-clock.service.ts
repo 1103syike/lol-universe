@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { isScheduleYear } from '../../shared/utils/season-calendar';
 import { StorageAdapter } from '../storage/storage.adapter';
 import { UniverseService } from './universe.service';
 
@@ -8,8 +9,6 @@ interface SeasonClock {
   year: number;
   phase: SeasonPhase;
 }
-
-const SUPPORTED_YEARS = [2021, 2022];
 
 @Injectable({ providedIn: 'root' })
 export class SeasonClockService {
@@ -23,7 +22,7 @@ export class SeasonClockService {
     return Number.isInteger(year) ? year : 0;
   });
 
-  readonly isSupported = computed(() => SUPPORTED_YEARS.includes(this.year()));
+  readonly isSupported = computed(() => isScheduleYear(this.year()));
 
   readonly phase = computed(() => {
     this.revision();
@@ -45,7 +44,7 @@ export class SeasonClockService {
   setPhase(phase: SeasonPhase): void {
     const universeId = this.universeService.activeUniverseId();
     const year = this.year();
-    if (!universeId || !SUPPORTED_YEARS.includes(year)) {
+    if (!universeId || !isScheduleYear(year)) {
       return;
     }
     this.storage.setItem(this.storageKey(universeId), { year, phase });

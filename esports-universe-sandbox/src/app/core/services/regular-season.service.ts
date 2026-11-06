@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import type { Team } from '../models/team.model';
 import type { LeagueTier } from '../models/league.model';
 import { buildDoubleRoundRobin } from '../../shared/utils/round-robin';
+import { shuffleIds } from '../../shared/utils/opening-fixtures';
 import { StorageAdapter } from '../storage/storage.adapter';
 import { PlayoffBoardService } from './playoff-board.service';
 import { SeasonClockService } from './season-clock.service';
@@ -409,7 +410,7 @@ export class RegularSeasonService {
   reset(): void {
     this.writeProgress({
       ...this.emptyProgress(),
-      teamIds: this.leagueTeams().map((team) => team.id),
+      teamIds: shuffleIds(this.leagueTeams().map((team) => team.id)),
       roundDates: this.progress().roundDates,
       seasonStart: this.progress().seasonStart,
     });
@@ -649,22 +650,22 @@ export class RegularSeasonService {
   }
 
   private orderFor(league: 'TCS' | 'TCL', progress: RegularProgress): string[] {
-    const current = (this.universeService.activeUniverse()?.teams ?? [])
+    if (progress.teamIds.length >= 2) {
+      return progress.teamIds;
+    }
+    return (this.universeService.activeUniverse()?.teams ?? [])
       .filter((team) => team.leagueTier === league)
       .slice()
       .sort((left, right) => left.abbreviation.localeCompare(right.abbreviation))
       .map((team) => team.id);
-    const hasScores = Object.keys(progress.scores).length > 0;
-    return hasScores && progress.teamIds.length >= 2 ? progress.teamIds : current;
   }
 
   private teamOrder(): string[] {
-    const current = this.leagueTeams().map((team) => team.id);
-    if (!this.hasScores()) {
-      return current;
-    }
     const stored = this.progress().teamIds;
-    return stored.length >= 2 ? stored : current;
+    if (stored.length >= 2) {
+      return stored;
+    }
+    return this.leagueTeams().map((team) => team.id);
   }
 
   private hasScores(): boolean {

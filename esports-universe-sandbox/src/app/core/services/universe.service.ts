@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { DEFAULT_SALARY_CAP, INITIAL_TEAMS } from '../data/initial-teams';
+import { buildOpeningLeague } from '../data/initial-teams';
 import type { Coach } from '../models/coach.model';
 import { COACH_ATTRIBUTE_KEYS, isCoachAttributeKey } from '../models/coach.model';
 import type { Player } from '../models/player.model';
@@ -15,6 +15,7 @@ import {
 import { createDefaultAttributes, clampRating } from '../../shared/utils/create-default-attributes';
 import { createDefaultCoachAttributes } from '../../shared/utils/create-default-coach-attributes';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import { rememberShuffledFixtures } from '../../shared/utils/opening-fixtures';
 import { StorageAdapter } from '../storage/storage.adapter';
 import { STORAGE_KEYS } from '../storage/storage.tokens';
 
@@ -56,14 +57,13 @@ export class UniverseService {
       updatedAt: now,
       startYear,
       currentDate: universeDateFromStartYear(startYear),
-      teams: this.buildInitialTeams(now),
-      players: [],
-      coaches: [],
+      ...buildOpeningLeague(now, startYear),
       teamEvents: [],
       hiddenTimelineIds: [],
     };
 
     this.writeUniverse(universe);
+    rememberShuffledFixtures(this.storage, universe);
     this.persistStore({
       activeUniverseId: universe.id,
       universes: [...this.storeState().universes, this.toSummary(universe)],
@@ -233,14 +233,13 @@ export class UniverseService {
       updatedAt: now,
       startYear: DEFAULT_START_YEAR,
       currentDate: universeDateFromStartYear(DEFAULT_START_YEAR),
-      teams: this.buildInitialTeams(now),
-      players: [],
-      coaches: [],
+      ...buildOpeningLeague(now, DEFAULT_START_YEAR),
       teamEvents: [],
       hiddenTimelineIds: [],
     };
 
     this.writeUniverse(seed);
+    rememberShuffledFixtures(this.storage, seed);
 
     return {
       activeUniverseId: seed.id,
@@ -390,21 +389,6 @@ export class UniverseService {
       },
       careerRecords: Array.isArray(coach.careerRecords) ? coach.careerRecords : [],
     };
-  }
-
-  private buildInitialTeams(now: string): Team[] {
-    return INITIAL_TEAMS.map((seed) => ({
-      id: crypto.randomUUID(),
-      abbreviation: seed.abbreviation,
-      name: seed.name,
-      leagueTier: seed.leagueTier,
-      salaryCap: DEFAULT_SALARY_CAP,
-      logoUrl: seed.logoUrl,
-      coachId: null,
-      playerIds: [],
-      createdAt: now,
-      updatedAt: now,
-    }));
   }
 
   private toSummary(universe: UniverseData): UniverseSummary {

@@ -68,6 +68,13 @@ export const routes: Routes = [
         path: 'leagues/tcs-double',
         loadComponent: () =>
           import('./features/playoff/double-elim-board.page').then((m) => m.DoubleElimBoardPage),
+        data: { league: 'TCS' },
+      },
+      {
+        path: 'leagues/tcl-double',
+        loadComponent: () =>
+          import('./features/playoff/double-elim-board.page').then((m) => m.DoubleElimBoardPage),
+        data: { league: 'TCL' },
       },
       {
         path: 'leagues/tcs-hill',

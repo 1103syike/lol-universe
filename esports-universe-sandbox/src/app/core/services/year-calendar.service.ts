@@ -1,8 +1,15 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { mondayOnOrBefore } from '../../shared/utils/season-calendar';
+import { isScheduleYear, mondayOnOrBefore } from '../../shared/utils/season-calendar';
 import {
   emptyPromotion,
   emptyYearPlan,
+  fixedKnockout,
+  fixedPlayoff,
+  fixedPlayoffFor,
+  fixedPromotion,
+  fixedRegular,
+  fixedSummerWindow,
+  fixedWorlds,
   type KnockoutKey,
   type PromotionPlan,
   type PromotionSplit,
@@ -33,76 +40,134 @@ export class YearCalendarService {
   private readonly clock = inject(SeasonClockService);
   private readonly revision = signal(0);
 
-  readonly plans = computed(() => {
-    this.revision();
-    const universeId = this.universeService.activeUniverseId();
-    const year = this.clock.year();
-    if (!universeId || !this.clock.isSupported()) {
-      return { TCS: emptyYearPlan(), TCL: emptyYearPlan() };
-    }
-    return this.readAll(this.storage.getItem<StoredCalendar>(this.storageKey(universeId, year)));
-  });
+  readonly plans = computed(() => this.snapshot(this.clock.year()).plans);
 
-  readonly promotion = computed(() => {
-    this.revision();
-    const universeId = this.universeService.activeUniverseId();
-    const year = this.clock.year();
-    if (!universeId || !this.clock.isSupported()) {
-      return emptyPromotion();
-    }
-    const stored = this.storage.getItem<StoredCalendar>(this.storageKey(universeId, year));
-    return {
-      spring: { ...stored?.promotion?.spring },
-      summer: { ...stored?.promotion?.summer },
-    };
-  });
+  readonly promotion = computed(() => this.snapshot(this.clock.year()).promotion);
 
   planFor(league: ScheduleLeague): YearPlan {
     return this.plans()[league];
+  }
+
+  planForYear(league: ScheduleLeague, year: number): YearPlan {
+    return this.snapshot(year).plans[league];
+  }
+
+  promotionFor(year: number): PromotionPlan {
+    return this.snapshot(year).promotion;
   }
 
   springMonday(league: ScheduleLeague): string | null {
     return this.planFor(league).springRegular;
   }
 
-  setRegular(league: ScheduleLeague, key: RegularKey, date: string): void {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  setRegular(league: ScheduleLeague, key: RegularKey, date: string, year = this.clock.year()): void {
+    if (fixedRegular(year, key) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return;
     }
-    this.write(league, { ...this.planFor(league), [key]: mondayOnOrBefore(date) });
+    const current = this.snapshot(year);
+    const plan = current.plans[league];
+    this.persist(year, { ...current.plans, [league]: { ...plan, [key]: mondayOnOrBefore(date) } }, current.promotion);
   }
 
-  clearRegular(league: ScheduleLeague, key: RegularKey): void {
-    this.write(league, { ...this.planFor(league), [key]: null });
-  }
-
-  setSeriesDate(league: ScheduleLeague, key: KnockoutKey, seriesId: string, date: string): void {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  clearRegular(league: ScheduleLeague, key: RegularKey, year = this.clock.year()): void {
+    if (fixedRegular(year, key)) {
       return;
     }
-    const plan = this.planFor(league);
-    this.write(league, { ...plan, [key]: { ...plan[key], [seriesId]: date } });
+    const current = this.snapshot(year);
+    const plan = current.plans[league];
+    this.persist(year, { ...current.plans, [league]: { ...plan, [key]: null } }, current.promotion);
   }
 
-  clearSeries(league: ScheduleLeague, key: KnockoutKey, seriesId: string): void {
-    const dates = { ...this.planFor(league)[key] };
+  setSeriesDate(league: ScheduleLeague, key: KnockoutKey, seriesId: string, date: string, year = this.clock.year()): void {
+    if (this.seriesDateIsFixed(year, key, seriesId) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return;
+    }
+    const current = this.snapshot(year);
+    const plan = current.plans[league];
+    this.persist(year, { ...current.plans, [league]: { ...plan, [key]: { ...plan[key], [seriesId]: date } } }, current.promotion);
+  }
+
+  clearSeries(league: ScheduleLeague, key: KnockoutKey, seriesId: string, year = this.clock.year()): void {
+    if (this.seriesDateIsFixed(year, key, seriesId)) {
+      return;
+    }
+    const current = this.snapshot(year);
+    const plan = current.plans[league];
+    const dates = { ...plan[key] };
     delete dates[seriesId];
-    this.write(league, { ...this.planFor(league), [key]: dates });
+    this.persist(year, { ...current.plans, [league]: { ...plan, [key]: dates } }, current.promotion);
   }
 
-  setPromotionDate(split: PromotionSplit, seriesId: string, date: string): void {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  setPromotionDate(split: PromotionSplit, seriesId: string, date: string, year = this.clock.year()): void {
+    if (fixedPromotion(year, split) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return;
     }
-    const promotion = this.promotion();
-    this.persist(this.plans(), { ...promotion, [split]: { ...promotion[split], [seriesId]: date } });
+    const current = this.snapshot(year);
+    this.persist(year, current.plans, {
+      ...current.promotion,
+      [split]: { ...current.promotion[split], [seriesId]: date },
+    });
   }
 
-  clearPromotion(split: PromotionSplit, seriesId: string): void {
-    const promotion = this.promotion();
-    const dates = { ...promotion[split] };
+  clearPromotion(split: PromotionSplit, seriesId: string, year = this.clock.year()): void {
+    if (fixedPromotion(year, split)) {
+      return;
+    }
+    const current = this.snapshot(year);
+    const dates = { ...current.promotion[split] };
     delete dates[seriesId];
-    this.persist(this.plans(), { ...promotion, [split]: dates });
+    this.persist(year, current.plans, { ...current.promotion, [split]: dates });
+  }
+
+  private seriesDateIsFixed(year: number, key: KnockoutKey, seriesId: string): boolean {
+    if (key === 'worlds') {
+      return Boolean(fixedWorlds(year)?.[seriesId]);
+    }
+    if (key === 'rise' || key === 'retention' || key === 'tcsSlot') {
+      return Boolean(fixedKnockout(year, key)?.[seriesId]);
+    }
+    if (key !== 'springPlayoff' && key !== 'summerPlayoff') {
+      return false;
+    }
+    return Boolean(fixedPlayoff(year, key)?.[seriesId]);
+  }
+
+  private snapshot(year: number): { plans: Record<ScheduleLeague, YearPlan>; promotion: PromotionPlan } {
+    this.revision();
+    const universeId = this.universeService.activeUniverseId();
+    if (!universeId || !isScheduleYear(year)) {
+      return { plans: { TCS: emptyYearPlan(), TCL: emptyYearPlan() }, promotion: emptyPromotion() };
+    }
+    const stored = this.storage.getItem<StoredCalendar>(this.storageKey(universeId, year));
+    const plans = this.readAll(stored);
+    for (const league of ['TCS', 'TCL'] as const) {
+      const spring = fixedRegular(year, 'springRegular');
+      const summer = fixedRegular(year, 'summerRegular') ?? fixedSummerWindow(year, league)?.start ?? null;
+      const springPlayoff = fixedPlayoffFor(year, 'springPlayoff', league);
+      const summerPlayoff = fixedPlayoffFor(year, 'summerPlayoff', league);
+      const worlds = fixedWorlds(year);
+      const rise = league === 'TCS' ? fixedKnockout(year, 'rise') : null;
+      const retention = league === 'TCS' ? fixedKnockout(year, 'retention') : null;
+      const tcsSlot = league === 'TCS' ? fixedKnockout(year, 'tcsSlot') : null;
+      plans[league] = {
+        ...plans[league],
+        springRegular: spring ?? plans[league].springRegular,
+        summerRegular: summer ?? plans[league].summerRegular,
+        springPlayoff: springPlayoff ?? plans[league].springPlayoff,
+        summerPlayoff: summerPlayoff ?? plans[league].summerPlayoff,
+        worlds: worlds ?? plans[league].worlds,
+        rise: rise ?? plans[league].rise,
+        retention: retention ?? plans[league].retention,
+        tcsSlot: tcsSlot ?? plans[league].tcsSlot,
+      };
+    }
+    return {
+      plans,
+      promotion: {
+        spring: fixedPromotion(year, 'spring') ?? { ...stored?.promotion?.spring },
+        summer: fixedPromotion(year, 'summer') ?? { ...stored?.promotion?.summer },
+      },
+    };
   }
 
   private readAll(stored: StoredCalendar | null): Record<ScheduleLeague, YearPlan> {
@@ -129,22 +194,16 @@ export class YearCalendarService {
       springPlayoff: { ...empty.springPlayoff, ...stored.knockouts?.springPlayoff },
       summerPlayoff: { ...empty.summerPlayoff, ...stored.knockouts?.summerPlayoff },
       worlds: { ...empty.worlds, ...stored.knockouts?.worlds },
+      rise: { ...empty.rise, ...stored.knockouts?.rise },
+      retention: { ...empty.retention, ...stored.knockouts?.retention },
+      formosa: { ...empty.formosa, ...stored.knockouts?.formosa },
+      tcsSlot: { ...empty.tcsSlot, ...stored.knockouts?.tcsSlot },
     };
   }
 
-  private write(league: ScheduleLeague, plan: YearPlan): void {
+  private persist(year: number, plans: Record<ScheduleLeague, YearPlan>, promotion: PromotionPlan): void {
     const universeId = this.universeService.activeUniverseId();
-    const year = this.clock.year();
-    if (!universeId || !this.clock.isSupported()) {
-      return;
-    }
-    this.persist({ ...this.plans(), [league]: plan }, this.promotion());
-  }
-
-  private persist(plans: Record<ScheduleLeague, YearPlan>, promotion: PromotionPlan): void {
-    const universeId = this.universeService.activeUniverseId();
-    const year = this.clock.year();
-    if (!universeId || !this.clock.isSupported()) {
+    if (!universeId || !isScheduleYear(year)) {
       return;
     }
     const record: StoredCalendar = {
@@ -168,6 +227,10 @@ export class YearCalendarService {
         springPlayoff: plan.springPlayoff,
         summerPlayoff: plan.summerPlayoff,
         worlds: plan.worlds,
+        rise: plan.rise,
+        retention: plan.retention,
+        formosa: plan.formosa,
+        tcsSlot: plan.tcsSlot,
       },
     };
   }

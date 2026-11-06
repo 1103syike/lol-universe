@@ -115,21 +115,8 @@
   text-transform: uppercase;
 }
 
-.universe-switcher__select {
-  min-width: 9.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:focus {
-    outline: 2px solid rgb(227 179 65 / 35%);
-    outline-offset: 1px;
-  }
+.universe-switcher app-menu {
+  flex: 0 0 auto;
 }
 
 .universe-switcher__empty {
@@ -154,7 +141,7 @@
     margin-left: 0;
   }
 
-  .universe-switcher__select {
+  .universe-switcher app-menu {
     flex: 1;
     min-width: 0;
   }

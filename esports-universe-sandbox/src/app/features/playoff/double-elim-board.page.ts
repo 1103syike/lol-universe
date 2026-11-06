@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DoubleElimBoardService } from '../../core/services/double-elim-board.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { SeriesCardComponent } from '../../shared/ui/series-card/series-card.component';
@@ -14,8 +14,15 @@ import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component
 export class DoubleElimBoardPage {
   private readonly board = inject(DoubleElimBoardService);
   private readonly universeService = inject(UniverseService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly activeUniverse = this.universeService.activeUniverse;
+  readonly league = this.board.activeLeague;
+
+  constructor() {
+    const league = this.route.snapshot.data['league'] === 'TCL' ? 'TCL' : 'TCS';
+    this.board.setLeague(league);
+  }
   readonly standings = this.board.standings;
   readonly seeds = this.board.seeds;
   readonly series = this.board.series;

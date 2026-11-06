@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { UniverseService } from '../../core/services/universe.service';
+import { MenuComponent } from '../../shared/ui/menu/menu.component';
 
 interface NavItem {
   label: string;
@@ -9,7 +10,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-top-nav',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MenuComponent],
   templateUrl: './top-nav.component.html',
   styleUrl: './top-nav.component.scss',
 })
@@ -19,6 +20,9 @@ export class TopNavComponent {
   readonly universes = this.universeService.universes;
   readonly activeUniverseId = this.universeService.activeUniverseId;
   readonly hasUniverses = this.universeService.hasUniverses;
+  readonly universeMenu = computed(() =>
+    this.universes().map((item) => ({ value: item.id, label: item.name })),
+  );
 
   readonly playItem: NavItem = { label: '總覽', path: '/dashboard' };
   readonly clubItems: NavItem[] = [
@@ -27,17 +31,15 @@ export class TopNavComponent {
     { label: '教練', path: '/coaches' },
   ];
   readonly seasonItems: NavItem[] = [
-    { label: '聯賽', path: '/leagues' },
     { label: '日程', path: '/schedule' },
     { label: '比賽', path: '/matches' },
   ];
 
-  onUniverseChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const universeId = select.value;
-    if (!universeId) {
+  switchUniverse(universeId: string | number): void {
+    const id = String(universeId);
+    if (!id) {
       return;
     }
-    this.universeService.switchUniverse(universeId);
+    this.universeService.switchUniverse(id);
   }
 }

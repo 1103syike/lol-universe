@@ -29,49 +29,28 @@
               <span class="field__label">教練 ID</span>
               <input id="edit-tag" class="field__input" type="text" formControlName="gamertag" />
             </label>
-            <label class="field" for="edit-nation">
+            <label class="field">
               <span class="field__label">
                 國籍
                 <app-flag-icon [code]="editForm.controls.nationality.value" />
               </span>
-              <select id="edit-nation" class="field__input" formControlName="nationality">
-                @for (nation of nationalityOptions; track nation.code) {
-                  <option [value]="nation.code">{{ nation.name }}</option>
-                }
-              </select>
+              <app-menu formControlName="nationality" [options]="nationMenu" />
             </label>
-            <label class="field" for="edit-team">
+            <label class="field">
               <span class="field__label">執教隊伍</span>
-              <select id="edit-team" class="field__input" formControlName="teamId">
-                <option value="">未執教</option>
-                @for (team of teams(); track team.id) {
-                  <option [value]="team.id">{{ team.abbreviation }} · {{ team.name }}</option>
-                }
-              </select>
+              <app-menu formControlName="teamId" [options]="teamMenu()" />
             </label>
-            <label class="field" for="edit-birthday">
+            <label class="field">
               <span class="field__label">出生年</span>
-              <select id="edit-birthday" class="field__input" formControlName="birthdayYear">
-                @for (year of birthYears; track year) {
-                  <option [value]="year">{{ year }}</option>
-                }
-              </select>
+              <app-menu formControlName="birthdayYear" [options]="yearOptions" />
             </label>
-            <label class="field" for="edit-start">
+            <label class="field">
               <span class="field__label">合約年份</span>
-              <select id="edit-start" class="field__input" formControlName="contractYear">
-                @for (year of contractYears; track year) {
-                  <option [value]="year">{{ year }}</option>
-                }
-              </select>
+              <app-menu formControlName="contractYear" [options]="contractMenu" />
             </label>
-            <label class="field" for="edit-end">
+            <label class="field">
               <span class="field__label">到期年份</span>
-              <select id="edit-end" class="field__input" formControlName="expiryYear">
-                @for (year of contractYears; track year) {
-                  <option [value]="year">{{ year }}</option>
-                }
-              </select>
+              <app-menu formControlName="expiryYear" [options]="contractMenu" />
             </label>
           </div>
 

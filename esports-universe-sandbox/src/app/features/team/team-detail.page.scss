@@ -419,11 +419,10 @@
   margin-left: auto;
 }
 
-.roster__select {
-  width: auto;
-  min-width: 8.5rem;
-  max-width: 14rem;
-  padding: 0.4rem 0.55rem;
+.roster-add app-menu,
+.roster__move app-menu {
+  width: 11rem;
+  flex: 0 0 auto;
 }
 
 .roster__name {

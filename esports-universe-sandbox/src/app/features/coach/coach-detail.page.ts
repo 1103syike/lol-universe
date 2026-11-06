@@ -18,10 +18,12 @@ import {
   yearOf,
 } from '../../shared/utils/contract-year';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
+import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
+import type { MenuOption } from '../../shared/ui/menu/menu.component';
 
 @Component({
   selector: 'app-coach-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent],
   templateUrl: './coach-detail.page.html',
   styleUrl: './coach-detail.page.scss',
 })
@@ -31,7 +33,10 @@ export class CoachDetailPage {
   private readonly coachService = inject(CoachService);
   private readonly formBuilder = inject(FormBuilder);
 
-  readonly nationalityOptions = PLAYER_NATIONALITY_OPTIONS;
+  readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
+    value: nation.code,
+    label: nation.name,
+  }));
   readonly nationalityName = nationalityName;
   readonly birthYears = buildBirthYears(new Date().getFullYear() - 25);
   readonly contractYears = buildUniverseStartYears();
@@ -46,6 +51,15 @@ export class CoachDetailPage {
   readonly formError = signal<string | null>(null);
 
   readonly teams = this.coachService.teams;
+  readonly yearOptions = yearMenu(this.birthYears);
+  readonly contractMenu = yearMenu(this.contractYears);
+  readonly teamMenu = computed((): MenuOption[] => [
+    { value: '', label: '未執教' },
+    ...this.teams().map((team) => ({
+      value: team.id,
+      label: `${team.abbreviation} · ${team.name}`,
+    })),
+  ]);
   readonly coach = computed(() => this.coachService.getCoachById(this.coachId()));
 
   readonly editForm = this.formBuilder.nonNullable.group({
