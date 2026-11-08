@@ -1,0 +1,13 @@
+@if (src(); as imageSrc) {
+  <img
+    class="champion-icon"
+    [class.is-bare]="bare()"
+    [src]="imageSrc"
+    [alt]="label()"
+    [title]="label()"
+    [style.width.px]="size()"
+    [style.height.px]="size()"
+  />
+} @else {
+  <span class="champion-icon is-empty" [style.width.px]="size()" [style.height.px]="size()" [title]="championId()">?</span>
+}

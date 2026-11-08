@@ -1,0 +1,202 @@
+<section class="desk">
+  @if (activeUniverse(); as universe) {
+    <header class="desk__bar">
+      <div>
+        <p class="desk__kicker">{{ universe.name }}</p>
+        <h1 class="desk__title">數據庫</h1>
+      </div>
+      <p class="desk__count">{{ gamesPlayed() }} 場記入</p>
+    </header>
+
+    <div class="control">
+      <div class="control__main">
+        <div class="control__group">
+          <span class="control__label">類型</span>
+          <div class="chip" role="tablist" aria-label="數據類型">
+            <button type="button" class="chip__btn" [class.is-on]="mode() === 'players'" (click)="setMode('players')">
+              選手
+            </button>
+            <button type="button" class="chip__btn" [class.is-on]="mode() === 'champions'" (click)="setMode('champions')">
+              英雄
+            </button>
+          </div>
+        </div>
+
+        <div class="control__rule" aria-hidden="true"></div>
+
+        <div class="control__group">
+          <span class="control__label">賽季</span>
+          <app-menu
+            class="control__menu"
+            variant="lane"
+            ariaLabel="賽季"
+            [value]="periodId()"
+            [options]="periodMenu()"
+            (picked)="setPeriod($event)"
+          />
+        </div>
+
+        <div class="control__rule" aria-hidden="true"></div>
+
+        <div class="control__group">
+          <span class="control__label">賽事</span>
+          <div class="chip" role="tablist" aria-label="賽事">
+            @for (item of competitions(); track item) {
+              <button
+                type="button"
+                class="chip__btn"
+                [class.is-on]="competition() === item"
+                (click)="setCompetition(item)"
+              >
+                {{ competitionLabels[item] }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <p class="control__meta">{{ periodLabel() }} · {{ competition() }}</p>
+      </div>
+
+      @if (mode() === 'players') {
+        <div class="control__roles" role="tablist" aria-label="位置">
+          <span class="control__label">位置</span>
+          <button type="button" class="role" [class.is-on]="positionFilter() === 'ALL'" (click)="setPosition('ALL')">
+            全部
+          </button>
+          @for (pos of positions; track pos) {
+            <button
+              type="button"
+              class="role"
+              [class.is-on]="positionFilter() === pos"
+              [attr.title]="positionLabels[pos]"
+              (click)="setPosition(pos)"
+            >
+              <app-role-icon [position]="pos" />
+              <span>{{ positionLabels[pos] }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (mode() === 'players') {
+      <div class="sheet sheet--players">
+        <div class="sheet__head sheet__head--players">
+          <span>#</span>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('gamertag')">選手{{ playerSortMark('gamertag') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('abbreviation')">隊伍{{ playerSortMark('abbreviation') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('position')">位置{{ playerSortMark('position') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('games')">場{{ playerSortMark('games') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('wins')">勝-負{{ playerSortMark('wins') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('winRate')">勝率{{ playerSortMark('winRate') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('kills')">K{{ playerSortMark('kills') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('deaths')">D{{ playerSortMark('deaths') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('assists')">A{{ playerSortMark('assists') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('kda')">KDA{{ playerSortMark('kda') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('kpPct')">KP%{{ playerSortMark('kpPct') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('csm')">CS/M{{ playerSortMark('csm') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('dpm')">DPM{{ playerSortMark('dpm') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('gpm')">GPM{{ playerSortMark('gpm') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortPlayers('vspm')">VS/M{{ playerSortMark('vspm') }}</button>
+        </div>
+
+        @if (playerRows().length === 0) {
+          <p class="sheet__empty">這時段還沒有記入的比賽。</p>
+        } @else {
+          @for (row of playerRows(); track row.playerId) {
+            <div class="sheet__row sheet__row--players">
+              <span class="sheet__rank">{{ row.rank }}</span>
+              <a class="sheet__who" [routerLink]="['/players', row.playerId]">{{ row.gamertag }}</a>
+              <a class="sheet__team" [routerLink]="['/teams', row.teamId]">
+                <app-team-logo
+                  [abbreviation]="row.abbreviation"
+                  [logoUrl]="row.logoUrl"
+                  [name]="row.teamName"
+                  [bare]="true"
+                />
+                <span>{{ row.abbreviation }}</span>
+              </a>
+              <span class="sheet__role">
+                <app-role-icon [position]="row.position" />
+              </span>
+              <span>{{ row.games }}</span>
+              <span>{{ row.wins }}-{{ row.losses }}</span>
+              <span>{{ row.winRate | number: '1.0-1' }}%</span>
+              <span>{{ row.kills | number: '1.1-1' }}</span>
+              <span>{{ row.deaths | number: '1.1-1' }}</span>
+              <span>{{ row.assists | number: '1.1-1' }}</span>
+              <span>{{ row.kda | number: '1.2-2' }}</span>
+              <span>{{ row.kpPct | number: '1.0-1' }}%</span>
+              <span>{{ row.csm | number: '1.1-1' }}</span>
+              <span>{{ row.dpm | number: '1.0-0' }}</span>
+              <span>{{ row.gpm | number: '1.0-0' }}</span>
+              <span>{{ row.vspm | number: '1.1-1' }}</span>
+            </div>
+          }
+        }
+      </div>
+    } @else {
+      <div class="sheet sheet--champs">
+        <div class="sheet__head sheet__head--champs">
+          <span>#</span>
+          <button type="button" class="sheet__sort" (click)="sortChamps('championNameZh')">英雄{{ champSortMark('championNameZh') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('picks')">選{{ champSortMark('picks') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('bans')">禁{{ champSortMark('bans') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('presence')">登場{{ champSortMark('presence') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('winRate')">勝率{{ champSortMark('winRate') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('kills')">K{{ champSortMark('kills') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('deaths')">D{{ champSortMark('deaths') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('assists')">A{{ champSortMark('assists') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('kda')">KDA{{ champSortMark('kda') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('csm')">CS/M{{ champSortMark('csm') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('dpm')">DPM{{ champSortMark('dpm') }}</button>
+          <button type="button" class="sheet__sort" (click)="sortChamps('gpm')">GPM{{ champSortMark('gpm') }}</button>
+        </div>
+
+        @if (championRows().length === 0) {
+          <p class="sheet__empty">這時段還沒有英雄數據。</p>
+        } @else {
+          @for (row of championRows(); track row.championId) {
+            <div class="sheet__row sheet__row--champs">
+              <span class="sheet__rank">{{ row.rank }}</span>
+              <div class="sheet__champ">
+                <app-champion-icon [championId]="row.championId" [size]="22" />
+                <span>{{ row.championNameZh }}</span>
+              </div>
+              <span>{{ row.picks }}</span>
+              <span>{{ row.bans }}</span>
+              <span>{{ row.presence | number: '1.0-1' }}%</span>
+              @if (row.picks > 0) {
+                <span>{{ row.winRate | number: '1.0-1' }}%</span>
+                <span>{{ row.kills | number: '1.1-1' }}</span>
+                <span>{{ row.deaths | number: '1.1-1' }}</span>
+                <span>{{ row.assists | number: '1.1-1' }}</span>
+                <span>{{ row.kda | number: '1.2-2' }}</span>
+                <span>{{ row.csm | number: '1.1-1' }}</span>
+                <span>{{ row.dpm | number: '1.0-0' }}</span>
+                <span>{{ row.gpm | number: '1.0-0' }}</span>
+              } @else {
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+  } @else {
+    <header class="desk__bar">
+      <div>
+        <p class="desk__kicker">尚未選擇宇宙</p>
+        <h1 class="desk__title">數據庫</h1>
+      </div>
+    </header>
+    <p class="sheet__empty">先建立或切換宇宙，打完比賽後統計會出現在這裡。</p>
+  }
+</section>

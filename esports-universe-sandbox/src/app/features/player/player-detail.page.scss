@@ -31,8 +31,25 @@
 }
 
 .player-detail__lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.85rem;
   margin: 0.7rem 0 0;
   color: var(--color-muted);
+}
+
+.player-detail__grade {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  strong {
+    color: var(--color-accent-strong);
+    font-size: 0.95rem;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .panel {
@@ -76,6 +93,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.attr-list {
+  display: grid;
+  gap: 0;
 }
 
 .panel__text {

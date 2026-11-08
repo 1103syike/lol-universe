@@ -1,0 +1,1245 @@
+{
+  "ver": "14.24.1",
+  "cell": 48,
+  "cols": 16,
+  "rows": 13,
+  "count": 206,
+  "mapping": [
+    {
+      "id": "Boots",
+      "key": 1001,
+      "name": "Boots",
+      "spriteIndex": 0
+    },
+    {
+      "id": "FaerieCharm",
+      "key": 1004,
+      "name": "Faerie Charm",
+      "spriteIndex": 1
+    },
+    {
+      "id": "RejuvenationBead",
+      "key": 1006,
+      "name": "Rejuvenation Bead",
+      "spriteIndex": 2
+    },
+    {
+      "id": "GiantsBelt",
+      "key": 1011,
+      "name": "Giant's Belt",
+      "spriteIndex": 3
+    },
+    {
+      "id": "CloakofAgility",
+      "key": 1018,
+      "name": "Cloak of Agility",
+      "spriteIndex": 4
+    },
+    {
+      "id": "BlastingWand",
+      "key": 1026,
+      "name": "Blasting Wand",
+      "spriteIndex": 5
+    },
+    {
+      "id": "SapphireCrystal",
+      "key": 1027,
+      "name": "Sapphire Crystal",
+      "spriteIndex": 6
+    },
+    {
+      "id": "RubyCrystal",
+      "key": 1028,
+      "name": "Ruby Crystal",
+      "spriteIndex": 7
+    },
+    {
+      "id": "ClothArmor",
+      "key": 1029,
+      "name": "Cloth Armor",
+      "spriteIndex": 8
+    },
+    {
+      "id": "ChainVest",
+      "key": 1031,
+      "name": "Chain Vest",
+      "spriteIndex": 9
+    },
+    {
+      "id": "NullMagicMantle",
+      "key": 1033,
+      "name": "Null-Magic Mantle",
+      "spriteIndex": 10
+    },
+    {
+      "id": "LongSword",
+      "key": 1036,
+      "name": "Long Sword",
+      "spriteIndex": 11
+    },
+    {
+      "id": "Pickaxe",
+      "key": 1037,
+      "name": "Pickaxe",
+      "spriteIndex": 12
+    },
+    {
+      "id": "BFSword",
+      "key": 1038,
+      "name": "B. F. Sword",
+      "spriteIndex": 13
+    },
+    {
+      "id": "Dagger",
+      "key": 1042,
+      "name": "Dagger",
+      "spriteIndex": 14
+    },
+    {
+      "id": "RecurveBow",
+      "key": 1043,
+      "name": "Recurve Bow",
+      "spriteIndex": 15
+    },
+    {
+      "id": "AmplifyingTome",
+      "key": 1052,
+      "name": "Amplifying Tome",
+      "spriteIndex": 16
+    },
+    {
+      "id": "VampiricScepter",
+      "key": 1053,
+      "name": "Vampiric Scepter",
+      "spriteIndex": 17
+    },
+    {
+      "id": "DoransShield",
+      "key": 1054,
+      "name": "Doran's Shield",
+      "spriteIndex": 18
+    },
+    {
+      "id": "DoransBlade",
+      "key": 1055,
+      "name": "Doran's Blade",
+      "spriteIndex": 19
+    },
+    {
+      "id": "DoransRing",
+      "key": 1056,
+      "name": "Doran's Ring",
+      "spriteIndex": 20
+    },
+    {
+      "id": "NegatronCloak",
+      "key": 1057,
+      "name": "Negatron Cloak",
+      "spriteIndex": 21
+    },
+    {
+      "id": "NeedlesslyLargeRod",
+      "key": 1058,
+      "name": "Needlessly Large Rod",
+      "spriteIndex": 22
+    },
+    {
+      "id": "DarkSeal",
+      "key": 1082,
+      "name": "Dark Seal",
+      "spriteIndex": 23
+    },
+    {
+      "id": "Cull",
+      "key": 1083,
+      "name": "Cull",
+      "spriteIndex": 24
+    },
+    {
+      "id": "ScorchclawPup",
+      "key": 1101,
+      "name": "Scorchclaw Pup",
+      "spriteIndex": 25
+    },
+    {
+      "id": "GustwalkerHatchling",
+      "key": 1102,
+      "name": "Gustwalker Hatchling",
+      "spriteIndex": 26
+    },
+    {
+      "id": "MosstomperSeedling",
+      "key": 1103,
+      "name": "Mosstomper Seedling",
+      "spriteIndex": 27
+    },
+    {
+      "id": "MosstomperSeedling",
+      "key": 1105,
+      "name": "Mosstomper Seedling",
+      "spriteIndex": 28
+    },
+    {
+      "id": "GustwalkerHatchling",
+      "key": 1106,
+      "name": "Gustwalker Hatchling",
+      "spriteIndex": 29
+    },
+    {
+      "id": "ScorchclawPup",
+      "key": 1107,
+      "name": "Scorchclaw Pup",
+      "spriteIndex": 30
+    },
+    {
+      "id": "HealthPotion",
+      "key": 2003,
+      "name": "Health Potion",
+      "spriteIndex": 31
+    },
+    {
+      "id": "SteelSigil",
+      "key": 2019,
+      "name": "Steel Sigil",
+      "spriteIndex": 32
+    },
+    {
+      "id": "TheBrutalizer",
+      "key": 2020,
+      "name": "The Brutalizer",
+      "spriteIndex": 33
+    },
+    {
+      "id": "Tunneler",
+      "key": 2021,
+      "name": "Tunneler",
+      "spriteIndex": 34
+    },
+    {
+      "id": "GlowingMote",
+      "key": 2022,
+      "name": "Glowing Mote",
+      "spriteIndex": 35
+    },
+    {
+      "id": "RefillablePotion",
+      "key": 2031,
+      "name": "Refillable Potion",
+      "spriteIndex": 36
+    },
+    {
+      "id": "CorruptingPotion",
+      "key": 2033,
+      "name": "Corrupting Potion",
+      "spriteIndex": 37
+    },
+    {
+      "id": "ControlWard",
+      "key": 2055,
+      "name": "Control Ward",
+      "spriteIndex": 38
+    },
+    {
+      "id": "ShurelyasBattlesong",
+      "key": 2065,
+      "name": "Shurelya's Battlesong",
+      "spriteIndex": 39
+    },
+    {
+      "id": "ElixirofIron",
+      "key": 2138,
+      "name": "Elixir of Iron",
+      "spriteIndex": 40
+    },
+    {
+      "id": "ElixirofSorcery",
+      "key": 2139,
+      "name": "Elixir of Sorcery",
+      "spriteIndex": 41
+    },
+    {
+      "id": "ElixirofWrath",
+      "key": 2140,
+      "name": "Elixir of Wrath",
+      "spriteIndex": 42
+    },
+    {
+      "id": "SeekersArmguard",
+      "key": 2420,
+      "name": "Seeker's Armguard",
+      "spriteIndex": 43
+    },
+    {
+      "id": "ShatteredArmguard",
+      "key": 2421,
+      "name": "Shattered Armguard",
+      "spriteIndex": 44
+    },
+    {
+      "id": "SlightlyMagicalFootwear",
+      "key": 2422,
+      "name": "Slightly Magical Footwear",
+      "spriteIndex": 45
+    },
+    {
+      "id": "OverlordsBloodmail",
+      "key": 2501,
+      "name": "Overlord's Bloodmail",
+      "spriteIndex": 46
+    },
+    {
+      "id": "UnendingDespair",
+      "key": 2502,
+      "name": "Unending Despair",
+      "spriteIndex": 47
+    },
+    {
+      "id": "BlackfireTorch",
+      "key": 2503,
+      "name": "Blackfire Torch",
+      "spriteIndex": 48
+    },
+    {
+      "id": "KaenicRookern",
+      "key": 2504,
+      "name": "Kaenic Rookern",
+      "spriteIndex": 49
+    },
+    {
+      "id": "FatedAshes",
+      "key": 2508,
+      "name": "Fated Ashes",
+      "spriteIndex": 50
+    },
+    {
+      "id": "Trailblazer",
+      "key": 3002,
+      "name": "Trailblazer",
+      "spriteIndex": 51
+    },
+    {
+      "id": "ArchangelsStaff",
+      "key": 3003,
+      "name": "Archangel's Staff",
+      "spriteIndex": 52
+    },
+    {
+      "id": "Manamune",
+      "key": 3004,
+      "name": "Manamune",
+      "spriteIndex": 53
+    },
+    {
+      "id": "BerserkersGreaves",
+      "key": 3006,
+      "name": "Berserker's Greaves",
+      "spriteIndex": 54
+    },
+    {
+      "id": "BootsofSwiftness",
+      "key": 3009,
+      "name": "Boots of Swiftness",
+      "spriteIndex": 55
+    },
+    {
+      "id": "SymbioticSoles",
+      "key": 3010,
+      "name": "Symbiotic Soles",
+      "spriteIndex": 56
+    },
+    {
+      "id": "ChemtechPutrifier",
+      "key": 3011,
+      "name": "Chemtech Putrifier",
+      "spriteIndex": 57
+    },
+    {
+      "id": "SynchronizedSouls",
+      "key": 3013,
+      "name": "Synchronized Souls",
+      "spriteIndex": 58
+    },
+    {
+      "id": "SorcerersShoes",
+      "key": 3020,
+      "name": "Sorcerer's Shoes",
+      "spriteIndex": 59
+    },
+    {
+      "id": "GlacialBuckler",
+      "key": 3024,
+      "name": "Glacial Buckler",
+      "spriteIndex": 60
+    },
+    {
+      "id": "GuardianAngel",
+      "key": 3026,
+      "name": "Guardian Angel",
+      "spriteIndex": 61
+    },
+    {
+      "id": "InfinityEdge",
+      "key": 3031,
+      "name": "Infinity Edge",
+      "spriteIndex": 62
+    },
+    {
+      "id": "YunTalWildarrows",
+      "key": 3032,
+      "name": "Yun Tal Wildarrows",
+      "spriteIndex": 63
+    },
+    {
+      "id": "MortalReminder",
+      "key": 3033,
+      "name": "Mortal Reminder",
+      "spriteIndex": 64
+    },
+    {
+      "id": "LastWhisper",
+      "key": 3035,
+      "name": "Last Whisper",
+      "spriteIndex": 65
+    },
+    {
+      "id": "LordDominiksRegards",
+      "key": 3036,
+      "name": "Lord Dominik's Regards",
+      "spriteIndex": 66
+    },
+    {
+      "id": "MejaisSoulstealer",
+      "key": 3041,
+      "name": "Mejai's Soulstealer",
+      "spriteIndex": 67
+    },
+    {
+      "id": "Phage",
+      "key": 3044,
+      "name": "Phage",
+      "spriteIndex": 68
+    },
+    {
+      "id": "PhantomDancer",
+      "key": 3046,
+      "name": "Phantom Dancer",
+      "spriteIndex": 69
+    },
+    {
+      "id": "PlatedSteelcaps",
+      "key": 3047,
+      "name": "Plated Steelcaps",
+      "spriteIndex": 70
+    },
+    {
+      "id": "ZekesConvergence",
+      "key": 3050,
+      "name": "Zeke's Convergence",
+      "spriteIndex": 71
+    },
+    {
+      "id": "HearthboundAxe",
+      "key": 3051,
+      "name": "Hearthbound Axe",
+      "spriteIndex": 72
+    },
+    {
+      "id": "SteraksGage",
+      "key": 3053,
+      "name": "Sterak's Gage",
+      "spriteIndex": 73
+    },
+    {
+      "id": "Sheen",
+      "key": 3057,
+      "name": "Sheen",
+      "spriteIndex": 74
+    },
+    {
+      "id": "SpiritVisage",
+      "key": 3065,
+      "name": "Spirit Visage",
+      "spriteIndex": 75
+    },
+    {
+      "id": "WingedMoonplate",
+      "key": 3066,
+      "name": "Winged Moonplate",
+      "spriteIndex": 76
+    },
+    {
+      "id": "Kindlegem",
+      "key": 3067,
+      "name": "Kindlegem",
+      "spriteIndex": 77
+    },
+    {
+      "id": "SunfireAegis",
+      "key": 3068,
+      "name": "Sunfire Aegis",
+      "spriteIndex": 78
+    },
+    {
+      "id": "TearoftheGoddess",
+      "key": 3070,
+      "name": "Tear of the Goddess",
+      "spriteIndex": 79
+    },
+    {
+      "id": "BlackCleaver",
+      "key": 3071,
+      "name": "Black Cleaver",
+      "spriteIndex": 80
+    },
+    {
+      "id": "Bloodthirster",
+      "key": 3072,
+      "name": "Bloodthirster",
+      "spriteIndex": 81
+    },
+    {
+      "id": "ExperimentalHexplate",
+      "key": 3073,
+      "name": "Experimental Hexplate",
+      "spriteIndex": 82
+    },
+    {
+      "id": "RavenousHydra",
+      "key": 3074,
+      "name": "Ravenous Hydra",
+      "spriteIndex": 83
+    },
+    {
+      "id": "Thornmail",
+      "key": 3075,
+      "name": "Thornmail",
+      "spriteIndex": 84
+    },
+    {
+      "id": "BrambleVest",
+      "key": 3076,
+      "name": "Bramble Vest",
+      "spriteIndex": 85
+    },
+    {
+      "id": "Tiamat",
+      "key": 3077,
+      "name": "Tiamat",
+      "spriteIndex": 86
+    },
+    {
+      "id": "TrinityForce",
+      "key": 3078,
+      "name": "Trinity Force",
+      "spriteIndex": 87
+    },
+    {
+      "id": "WardensMail",
+      "key": 3082,
+      "name": "Warden's Mail",
+      "spriteIndex": 88
+    },
+    {
+      "id": "WarmogsArmor",
+      "key": 3083,
+      "name": "Warmog's Armor",
+      "spriteIndex": 89
+    },
+    {
+      "id": "Heartsteel",
+      "key": 3084,
+      "name": "Heartsteel",
+      "spriteIndex": 90
+    },
+    {
+      "id": "RunaansHurricane",
+      "key": 3085,
+      "name": "Runaan's Hurricane",
+      "spriteIndex": 91
+    },
+    {
+      "id": "Zeal",
+      "key": 3086,
+      "name": "Zeal",
+      "spriteIndex": 92
+    },
+    {
+      "id": "StatikkShiv",
+      "key": 3087,
+      "name": "Statikk Shiv",
+      "spriteIndex": 93
+    },
+    {
+      "id": "RabadonsDeathcap",
+      "key": 3089,
+      "name": "Rabadon's Deathcap",
+      "spriteIndex": 94
+    },
+    {
+      "id": "WitsEnd",
+      "key": 3091,
+      "name": "Wit's End",
+      "spriteIndex": 95
+    },
+    {
+      "id": "RapidFirecannon",
+      "key": 3094,
+      "name": "Rapid Firecannon",
+      "spriteIndex": 96
+    },
+    {
+      "id": "LichBane",
+      "key": 3100,
+      "name": "Lich Bane",
+      "spriteIndex": 97
+    },
+    {
+      "id": "BansheesVeil",
+      "key": 3102,
+      "name": "Banshee's Veil",
+      "spriteIndex": 98
+    },
+    {
+      "id": "Redemption",
+      "key": 3107,
+      "name": "Redemption",
+      "spriteIndex": 99
+    },
+    {
+      "id": "FiendishCodex",
+      "key": 3108,
+      "name": "Fiendish Codex",
+      "spriteIndex": 100
+    },
+    {
+      "id": "KnightsVow",
+      "key": 3109,
+      "name": "Knight's Vow",
+      "spriteIndex": 101
+    },
+    {
+      "id": "FrozenHeart",
+      "key": 3110,
+      "name": "Frozen Heart",
+      "spriteIndex": 102
+    },
+    {
+      "id": "MercurysTreads",
+      "key": 3111,
+      "name": "Mercury's Treads",
+      "spriteIndex": 103
+    },
+    {
+      "id": "AetherWisp",
+      "key": 3113,
+      "name": "Aether Wisp",
+      "spriteIndex": 104
+    },
+    {
+      "id": "ForbiddenIdol",
+      "key": 3114,
+      "name": "Forbidden Idol",
+      "spriteIndex": 105
+    },
+    {
+      "id": "NashorsTooth",
+      "key": 3115,
+      "name": "Nashor's Tooth",
+      "spriteIndex": 106
+    },
+    {
+      "id": "RylaisCrystalScepter",
+      "key": 3116,
+      "name": "Rylai's Crystal Scepter",
+      "spriteIndex": 107
+    },
+    {
+      "id": "MobilityBoots",
+      "key": 3117,
+      "name": "Mobility Boots",
+      "spriteIndex": 108
+    },
+    {
+      "id": "Malignance",
+      "key": 3118,
+      "name": "Malignance",
+      "spriteIndex": 109
+    },
+    {
+      "id": "WintersApproach",
+      "key": 3119,
+      "name": "Winter's Approach",
+      "spriteIndex": 110
+    },
+    {
+      "id": "ExecutionersCalling",
+      "key": 3123,
+      "name": "Executioner's Calling",
+      "spriteIndex": 111
+    },
+    {
+      "id": "GuinsoosRageblade",
+      "key": 3124,
+      "name": "Guinsoo's Rageblade",
+      "spriteIndex": 112
+    },
+    {
+      "id": "CaulfieldsWarhammer",
+      "key": 3133,
+      "name": "Caulfield's Warhammer",
+      "spriteIndex": 113
+    },
+    {
+      "id": "SerratedDirk",
+      "key": 3134,
+      "name": "Serrated Dirk",
+      "spriteIndex": 114
+    },
+    {
+      "id": "VoidStaff",
+      "key": 3135,
+      "name": "Void Staff",
+      "spriteIndex": 115
+    },
+    {
+      "id": "Cryptbloom",
+      "key": 3137,
+      "name": "Cryptbloom",
+      "spriteIndex": 116
+    },
+    {
+      "id": "MercurialScimitar",
+      "key": 3139,
+      "name": "Mercurial Scimitar",
+      "spriteIndex": 117
+    },
+    {
+      "id": "QuicksilverSash",
+      "key": 3140,
+      "name": "Quicksilver Sash",
+      "spriteIndex": 118
+    },
+    {
+      "id": "YoumuusGhostblade",
+      "key": 3142,
+      "name": "Youmuu's Ghostblade",
+      "spriteIndex": 119
+    },
+    {
+      "id": "RanduinsOmen",
+      "key": 3143,
+      "name": "Randuin's Omen",
+      "spriteIndex": 120
+    },
+    {
+      "id": "ScoutsSlingshot",
+      "key": 3144,
+      "name": "Scout's Slingshot",
+      "spriteIndex": 121
+    },
+    {
+      "id": "HextechAlternator",
+      "key": 3145,
+      "name": "Hextech Alternator",
+      "spriteIndex": 122
+    },
+    {
+      "id": "HauntingGuise",
+      "key": 3147,
+      "name": "Haunting Guise",
+      "spriteIndex": 123
+    },
+    {
+      "id": "HextechRocketbelt",
+      "key": 3152,
+      "name": "Hextech Rocketbelt",
+      "spriteIndex": 124
+    },
+    {
+      "id": "BladeofTheRuinedKing",
+      "key": 3153,
+      "name": "Blade of The Ruined King",
+      "spriteIndex": 125
+    },
+    {
+      "id": "Hexdrinker",
+      "key": 3155,
+      "name": "Hexdrinker",
+      "spriteIndex": 126
+    },
+    {
+      "id": "MawofMalmortius",
+      "key": 3156,
+      "name": "Maw of Malmortius",
+      "spriteIndex": 127
+    },
+    {
+      "id": "ZhonyasHourglass",
+      "key": 3157,
+      "name": "Zhonya's Hourglass",
+      "spriteIndex": 128
+    },
+    {
+      "id": "IonianBootsofLucidity",
+      "key": 3158,
+      "name": "Ionian Boots of Lucidity",
+      "spriteIndex": 129
+    },
+    {
+      "id": "SpearofShojin",
+      "key": 3161,
+      "name": "Spear of Shojin",
+      "spriteIndex": 130
+    },
+    {
+      "id": "Morellonomicon",
+      "key": 3165,
+      "name": "Morellonomicon",
+      "spriteIndex": 131
+    },
+    {
+      "id": "Zephyr",
+      "key": 3172,
+      "name": "Zephyr",
+      "spriteIndex": 132
+    },
+    {
+      "id": "UmbralGlaive",
+      "key": 3179,
+      "name": "Umbral Glaive",
+      "spriteIndex": 133
+    },
+    {
+      "id": "Hullbreaker",
+      "key": 3181,
+      "name": "Hullbreaker",
+      "spriteIndex": 134
+    },
+    {
+      "id": "LocketoftheIronSolari",
+      "key": 3190,
+      "name": "Locket of the Iron Solari",
+      "spriteIndex": 135
+    },
+    {
+      "id": "SpectresCowl",
+      "key": 3211,
+      "name": "Spectre's Cowl",
+      "spriteIndex": 136
+    },
+    {
+      "id": "MikaelsBlessing",
+      "key": 3222,
+      "name": "Mikael's Blessing",
+      "spriteIndex": 137
+    },
+    {
+      "id": "Terminus",
+      "key": 3302,
+      "name": "Terminus",
+      "spriteIndex": 138
+    },
+    {
+      "id": "StealthWard",
+      "key": 3340,
+      "name": "Stealth Ward",
+      "spriteIndex": 139
+    },
+    {
+      "id": "FarsightAlteration",
+      "key": 3363,
+      "name": "Farsight Alteration",
+      "spriteIndex": 140
+    },
+    {
+      "id": "OracleLens",
+      "key": 3364,
+      "name": "Oracle Lens",
+      "spriteIndex": 141
+    },
+    {
+      "id": "ArdentCenser",
+      "key": 3504,
+      "name": "Ardent Censer",
+      "spriteIndex": 142
+    },
+    {
+      "id": "EssenceReaver",
+      "key": 3508,
+      "name": "Essence Reaver",
+      "spriteIndex": 143
+    },
+    {
+      "id": "DeadMansPlate",
+      "key": 3742,
+      "name": "Dead Man's Plate",
+      "spriteIndex": 144
+    },
+    {
+      "id": "TitanicHydra",
+      "key": 3748,
+      "name": "Titanic Hydra",
+      "spriteIndex": 145
+    },
+    {
+      "id": "CrystallineBracer",
+      "key": 3801,
+      "name": "Crystalline Bracer",
+      "spriteIndex": 146
+    },
+    {
+      "id": "LostChapter",
+      "key": 3802,
+      "name": "Lost Chapter",
+      "spriteIndex": 147
+    },
+    {
+      "id": "CatalystofAeons",
+      "key": 3803,
+      "name": "Catalyst of Aeons",
+      "spriteIndex": 148
+    },
+    {
+      "id": "EdgeofNight",
+      "key": 3814,
+      "name": "Edge of Night",
+      "spriteIndex": 149
+    },
+    {
+      "id": "WorldAtlas",
+      "key": 3865,
+      "name": "World Atlas",
+      "spriteIndex": 150
+    },
+    {
+      "id": "RunicCompass",
+      "key": 3866,
+      "name": "Runic Compass",
+      "spriteIndex": 151
+    },
+    {
+      "id": "BountyofWorlds",
+      "key": 3867,
+      "name": "Bounty of Worlds",
+      "spriteIndex": 152
+    },
+    {
+      "id": "CelestialOpposition",
+      "key": 3869,
+      "name": "Celestial Opposition",
+      "spriteIndex": 153
+    },
+    {
+      "id": "DreamMaker",
+      "key": 3870,
+      "name": "Dream Maker",
+      "spriteIndex": 154
+    },
+    {
+      "id": "ZazZaksRealmspike",
+      "key": 3871,
+      "name": "Zaz'Zak's Realmspike",
+      "spriteIndex": 155
+    },
+    {
+      "id": "SolsticeSleigh",
+      "key": 3876,
+      "name": "Solstice Sleigh",
+      "spriteIndex": 156
+    },
+    {
+      "id": "Bloodsong",
+      "key": 3877,
+      "name": "Bloodsong",
+      "spriteIndex": 157
+    },
+    {
+      "id": "OblivionOrb",
+      "key": 3916,
+      "name": "Oblivion Orb",
+      "spriteIndex": 158
+    },
+    {
+      "id": "ImperialMandate",
+      "key": 4005,
+      "name": "Imperial Mandate",
+      "spriteIndex": 159
+    },
+    {
+      "id": "ForceofNature",
+      "key": 4401,
+      "name": "Force of Nature",
+      "spriteIndex": 160
+    },
+    {
+      "id": "HorizonFocus",
+      "key": 4628,
+      "name": "Horizon Focus",
+      "spriteIndex": 161
+    },
+    {
+      "id": "CosmicDrive",
+      "key": 4629,
+      "name": "Cosmic Drive",
+      "spriteIndex": 162
+    },
+    {
+      "id": "BlightingJewel",
+      "key": 4630,
+      "name": "Blighting Jewel",
+      "spriteIndex": 163
+    },
+    {
+      "id": "VerdantBarrier",
+      "key": 4632,
+      "name": "Verdant Barrier",
+      "spriteIndex": 164
+    },
+    {
+      "id": "Riftmaker",
+      "key": 4633,
+      "name": "Riftmaker",
+      "spriteIndex": 165
+    },
+    {
+      "id": "LeechingLeer",
+      "key": 4635,
+      "name": "Leeching Leer",
+      "spriteIndex": 166
+    },
+    {
+      "id": "NightHarvester",
+      "key": 4636,
+      "name": "Night Harvester",
+      "spriteIndex": 167
+    },
+    {
+      "id": "DemonicEmbrace",
+      "key": 4637,
+      "name": "Demonic Embrace",
+      "spriteIndex": 168
+    },
+    {
+      "id": "WatchfulWardstone",
+      "key": 4638,
+      "name": "Watchful Wardstone",
+      "spriteIndex": 169
+    },
+    {
+      "id": "BandleglassMirror",
+      "key": 4642,
+      "name": "Bandleglass Mirror",
+      "spriteIndex": 170
+    },
+    {
+      "id": "VigilantWardstone",
+      "key": 4643,
+      "name": "Vigilant Wardstone",
+      "spriteIndex": 171
+    },
+    {
+      "id": "Shadowflame",
+      "key": 4645,
+      "name": "Shadowflame",
+      "spriteIndex": 172
+    },
+    {
+      "id": "Stormsurge",
+      "key": 4646,
+      "name": "Stormsurge",
+      "spriteIndex": 173
+    },
+    {
+      "id": "DeathsDance",
+      "key": 6333,
+      "name": "Death's Dance",
+      "spriteIndex": 174
+    },
+    {
+      "id": "ChempunkChainsword",
+      "key": 6609,
+      "name": "Chempunk Chainsword",
+      "spriteIndex": 175
+    },
+    {
+      "id": "SunderedSky",
+      "key": 6610,
+      "name": "Sundered Sky",
+      "spriteIndex": 176
+    },
+    {
+      "id": "StaffofFlowingWater",
+      "key": 6616,
+      "name": "Staff of Flowing Water",
+      "spriteIndex": 177
+    },
+    {
+      "id": "MoonstoneRenewer",
+      "key": 6617,
+      "name": "Moonstone Renewer",
+      "spriteIndex": 178
+    },
+    {
+      "id": "EchoesofHelia",
+      "key": 6620,
+      "name": "Echoes of Helia",
+      "spriteIndex": 179
+    },
+    {
+      "id": "Dawncore",
+      "key": 6621,
+      "name": "Dawncore",
+      "spriteIndex": 180
+    },
+    {
+      "id": "Stridebreaker",
+      "key": 6631,
+      "name": "Stridebreaker",
+      "spriteIndex": 181
+    },
+    {
+      "id": "LiandrysTorment",
+      "key": 6653,
+      "name": "Liandry's Torment",
+      "spriteIndex": 182
+    },
+    {
+      "id": "LudensCompanion",
+      "key": 6655,
+      "name": "Luden's Companion",
+      "spriteIndex": 183
+    },
+    {
+      "id": "RodofAges",
+      "key": 6657,
+      "name": "Rod of Ages",
+      "spriteIndex": 184
+    },
+    {
+      "id": "BamisCinder",
+      "key": 6660,
+      "name": "Bami's Cinder",
+      "spriteIndex": 185
+    },
+    {
+      "id": "IcebornGauntlet",
+      "key": 6662,
+      "name": "Iceborn Gauntlet",
+      "spriteIndex": 186
+    },
+    {
+      "id": "HollowRadiance",
+      "key": 6664,
+      "name": "Hollow Radiance",
+      "spriteIndex": 187
+    },
+    {
+      "id": "JakShoTheProtean",
+      "key": 6665,
+      "name": "Jak'Sho, The Protean",
+      "spriteIndex": 188
+    },
+    {
+      "id": "Noonquiver",
+      "key": 6670,
+      "name": "Noonquiver",
+      "spriteIndex": 189
+    },
+    {
+      "id": "KrakenSlayer",
+      "key": 6672,
+      "name": "Kraken Slayer",
+      "spriteIndex": 190
+    },
+    {
+      "id": "ImmortalShieldbow",
+      "key": 6673,
+      "name": "Immortal Shieldbow",
+      "spriteIndex": 191
+    },
+    {
+      "id": "NavoriFlickerblade",
+      "key": 6675,
+      "name": "Navori Flickerblade",
+      "spriteIndex": 192
+    },
+    {
+      "id": "TheCollector",
+      "key": 6676,
+      "name": "The Collector",
+      "spriteIndex": 193
+    },
+    {
+      "id": "Rectrix",
+      "key": 6690,
+      "name": "Rectrix",
+      "spriteIndex": 194
+    },
+    {
+      "id": "Eclipse",
+      "key": 6692,
+      "name": "Eclipse",
+      "spriteIndex": 195
+    },
+    {
+      "id": "ProwlersClaw",
+      "key": 6693,
+      "name": "Prowler's Claw",
+      "spriteIndex": 196
+    },
+    {
+      "id": "SeryldasGrudge",
+      "key": 6694,
+      "name": "Serylda's Grudge",
+      "spriteIndex": 197
+    },
+    {
+      "id": "SerpentsFang",
+      "key": 6695,
+      "name": "Serpent's Fang",
+      "spriteIndex": 198
+    },
+    {
+      "id": "AxiomArc",
+      "key": 6696,
+      "name": "Axiom Arc",
+      "spriteIndex": 199
+    },
+    {
+      "id": "Hubris",
+      "key": 6697,
+      "name": "Hubris",
+      "spriteIndex": 200
+    },
+    {
+      "id": "ProfaneHydra",
+      "key": 6698,
+      "name": "Profane Hydra",
+      "spriteIndex": 201
+    },
+    {
+      "id": "VoltaicCyclosword",
+      "key": 6699,
+      "name": "Voltaic Cyclosword",
+      "spriteIndex": 202
+    },
+    {
+      "id": "Opportunity",
+      "key": 6701,
+      "name": "Opportunity",
+      "spriteIndex": 203
+    },
+    {
+      "id": "AnathemasChains",
+      "key": 8001,
+      "name": "Anathema's Chains",
+      "spriteIndex": 204
+    },
+    {
+      "id": "AbyssalMask",
+      "key": 8020,
+      "name": "Abyssal Mask",
+      "spriteIndex": 205
+    }
+  ]
+}

@@ -1,19 +1,16 @@
 import type { GrowthTrend } from '../../core/models/player.model';
+import { formatStars, ratingToStars } from './rating-scale';
 
 export function potentialToStars(potential: number): number {
-  if (potential >= 90) {
-    return 5;
-  }
-  if (potential >= 80) {
-    return 4;
-  }
-  if (potential >= 70) {
-    return 3;
-  }
-  if (potential >= 60) {
-    return 2;
-  }
-  return 1;
+  return ratingToStars(potential);
+}
+
+export function currentToStars(current: number): number {
+  return ratingToStars(current);
+}
+
+export function starsDisplay(rating: number): string {
+  return formatStars(ratingToStars(rating));
 }
 
 export function growthRateToTrend(growthRate: number): GrowthTrend {

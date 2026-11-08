@@ -1,0 +1,26 @@
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.item-icon {
+  display: block;
+  object-fit: cover;
+  border-radius: 3px;
+  background: rgb(0 0 0 / 40%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%);
+}
+
+.item-icon.is-sprite {
+  display: inline-block;
+}
+
+.item-icon.is-empty {
+  display: inline-grid;
+  place-items: center;
+  color: rgb(255 255 255 / 45%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}

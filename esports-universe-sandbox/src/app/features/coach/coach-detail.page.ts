@@ -1,13 +1,19 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import {
+  COACH_ATTRIBUTE_KEYS,
+  COACH_ATTRIBUTE_LABELS,
+} from '../../core/models/coach.model';
 import type { PlayerNationality } from '../../core/models/player.model';
 import {
   PLAYER_NATIONALITY_OPTIONS,
   nationalityName,
 } from '../../core/models/player.model';
+import { RARITIES, RARITY_NAMES } from '../../core/models/rarity.model';
+import type { Rarity } from '../../core/models/rarity.model';
 import { buildUniverseStartYears } from '../../core/models/universe.model';
 import { CoachService } from '../../core/services/coach.service';
 import {
@@ -20,10 +26,14 @@ import {
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
+import { RarityBadgeComponent } from '../../shared/ui/rarity-badge/rarity-badge.component';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
+import { calculateCoachOvr } from '../../shared/utils/player-ovr';
+import { starsDisplay } from '../../shared/utils/player-potential';
 
 @Component({
   selector: 'app-coach-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RarityBadgeComponent],
   templateUrl: './coach-detail.page.html',
   styleUrl: './coach-detail.page.scss',
 })
@@ -33,15 +43,26 @@ export class CoachDetailPage {
   private readonly coachService = inject(CoachService);
   private readonly formBuilder = inject(FormBuilder);
 
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'coaches', '教練');
+  }
+
   readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
     value: nation.code,
     label: nation.name,
   }));
+  readonly rarityMenu: MenuOption[] = RARITIES.map((rarity) => ({
+    value: rarity,
+    label: `${rarity} · ${RARITY_NAMES[rarity]}`,
+  }));
+  readonly attributeKeys = COACH_ATTRIBUTE_KEYS;
+  readonly attributeLabels = COACH_ATTRIBUTE_LABELS;
   readonly nationalityName = nationalityName;
   readonly birthYears = buildBirthYears(new Date().getFullYear() - 25);
   readonly contractYears = buildUniverseStartYears();
   readonly yearOf = yearOf;
   readonly contractYearLabel = contractYearLabel;
+  readonly starsDisplay = starsDisplay;
 
   readonly coachId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('coachId') ?? '')),
@@ -61,11 +82,16 @@ export class CoachDetailPage {
     })),
   ]);
   readonly coach = computed(() => this.coachService.getCoachById(this.coachId()));
+  readonly ovr = computed(() => {
+    const current = this.coach();
+    return current ? calculateCoachOvr(current.attributes) : 0;
+  });
 
   readonly editForm = this.formBuilder.nonNullable.group({
     gamertag: ['', [Validators.required, Validators.maxLength(24)]],
     nationality: ['TW' as PlayerNationality, Validators.required],
     teamId: [''],
+    rarity: ['N' as Rarity, Validators.required],
     birthdayYear: [1988, Validators.required],
     contractYear: [2026, Validators.required],
     expiryYear: [2026, Validators.required],
@@ -89,6 +115,7 @@ export class CoachDetailPage {
       gamertag: current.gamertag,
       nationality: current.nationality,
       teamId: current.teamId ?? '',
+      rarity: current.rarity,
       birthdayYear: yearOf(current.birthday),
       contractYear: yearOf(current.contract.startDate),
       expiryYear: yearOf(current.contract.endDate),
@@ -130,6 +157,7 @@ export class CoachDetailPage {
         nationality: raw.nationality,
         teamId: raw.teamId || null,
         birthday: birthdayFromYear(Number(raw.birthdayYear)),
+        rarity: raw.rarity,
         attributes: current.attributes,
         specialties: current.specialties,
         contract: {
@@ -155,7 +183,12 @@ export class CoachDetailPage {
       return;
     }
 
-    this.coachService.deleteCoach(current.id);
+    try {
+      this.coachService.deleteCoach(current.id);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '沒刪成');
+      return;
+    }
     void this.router.navigate(['/coaches']);
   }
 }

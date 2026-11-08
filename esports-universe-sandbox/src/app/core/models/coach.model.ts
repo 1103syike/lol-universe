@@ -1,5 +1,6 @@
 import type { AttributeKey, CareerSeasonRecord, PlayerContract, PlayerNationality } from './player.model';
 import { ATTRIBUTE_KEYS, ATTRIBUTE_LABELS } from './player.model';
+import type { Rarity } from './rarity.model';
 
 export const COACH_ATTRIBUTE_KEYS = [
   'draftStrategy',
@@ -33,6 +34,7 @@ export interface Coach {
   nationality: PlayerNationality;
   teamId: string | null;
   birthday: string;
+  rarity: Rarity;
   attributes: CoachAttributes;
   specialties: AttributeKey[];
   contract: PlayerContract;
@@ -47,6 +49,7 @@ export interface CoachInput {
   nationality: PlayerNationality;
   teamId: string | null;
   birthday: string;
+  rarity: Rarity;
   attributes: CoachAttributes;
   specialties: AttributeKey[];
   contract: PlayerContract;

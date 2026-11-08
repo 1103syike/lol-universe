@@ -1,0 +1,220 @@
+@if (frameCount() > 0) {
+  <section class="match-map" aria-label="比賽地圖軌跡">
+    <header class="match-map__toolbar">
+      <button type="button" class="match-map__btn" (click)="step(-1)" [disabled]="frameIndex() <= 0">
+        ‹
+      </button>
+      <label class="match-map__scrub">
+        <span class="match-map__clock">{{ clockLabel() }}</span>
+        <input
+          type="range"
+          [min]="0"
+          [max]="frameCount() - 1"
+          [value]="frameIndex()"
+          (input)="onScrub($any($event.target).value)"
+        />
+      </label>
+      <button
+        type="button"
+        class="match-map__btn"
+        (click)="step(1)"
+        [disabled]="frameIndex() >= frameCount() - 1"
+      >
+        ›
+      </button>
+      <span class="match-map__count">小兵 {{ minionCount() }}</span>
+    </header>
+
+    <div class="match-map__stage">
+      <div class="match-map__board">
+        <img
+          class="match-map__bg"
+          src="/maps/summoners-rift.jpg"
+          alt="召喚峽谷"
+          draggable="false"
+        />
+
+        <svg class="match-map__overlay" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          @for (minion of current()?.minions ?? []; track minion.id) {
+            <circle
+              class="match-map__minion"
+              [class.is-blue]="minion.side === 'blue'"
+              [class.is-red]="minion.side === 'red'"
+              [class.is-cannon]="minion.role === 'cannon' || minion.role === 'super'"
+              [attr.cx]="mapX(minion.x)"
+              [attr.cy]="mapY(minion.y)"
+              [attr.r]="minion.role === 'cannon' || minion.role === 'super' ? 0.85 : 0.55"
+            />
+          }
+
+          @for (monster of jungleMonsters(); track monster.id) {
+            <circle
+              class="match-map__camp-live"
+              [attr.cx]="mapX(monster.x)"
+              [attr.cy]="mapY(monster.y)"
+              r="0.75"
+            />
+          }
+        </svg>
+
+        @for (structure of mapStructures(); track structure.id) {
+          <i
+            class="match-map__structure"
+            [class.is-dead]="!structure.alive"
+            [style.left.%]="mapX(structure.x)"
+            [style.top.%]="mapY(structure.y)"
+            [ngStyle]="structureIconStyle(structure)"
+            [attr.title]="structure.structureId + (structure.alive ? '' : '（已摧毀）')"
+          ></i>
+        }
+
+        @for (monster of objectiveMonsters(); track monster.id) {
+          <i
+            class="match-map__obj-icon"
+            [style.left.%]="mapX(monster.x)"
+            [style.top.%]="mapY(monster.y)"
+            [ngStyle]="objectiveIconStyle(monster) ?? {}"
+            [attr.title]="objectiveLabel(monster)"
+          ></i>
+        }
+
+        @for (champ of current()?.champions ?? []; track champ.playerId) {
+          <button
+            type="button"
+            class="match-map__dot"
+            [class.is-blue]="champ.side === 'blue'"
+            [class.is-red]="champ.side === 'red'"
+            [class.is-dead]="!champ.alive"
+            [class.is-selected]="selectedPlayerId() === champ.playerId"
+            [style.left.%]="mapX(champ.x)"
+            [style.top.%]="mapY(champ.y)"
+            [attr.title]="champ.gamertag + ' Lv' + champ.level"
+            (click)="selectChampion(champ.playerId)"
+          >
+            <app-champion-icon [championId]="champ.championId" [size]="24" [bare]="true" />
+            <i class="match-map__hp" [style.width.%]="hpPct(champ)"></i>
+          </button>
+        }
+      </div>
+
+      <aside class="match-map__side">
+        <p class="match-map__side-title">
+          {{ homeLabel() }}
+          <span>vs</span>
+          {{ awayLabel() }}
+          <em>時間軸</em>
+        </p>
+        <ul class="match-map__log" aria-label="擊殺與資源時間軸">
+          @for (entry of visibleEvents(); track entry.t + entry.text) {
+            <li
+              class="match-map__feed"
+              [class.is-kill]="entry.kind === 'kill'"
+              [class.is-objective]="entry.kind === 'objective'"
+              [class.is-end]="entry.kind === 'end'"
+              [class.is-blue]="entry.side === 'blue'"
+              [class.is-red]="entry.side === 'red'"
+              [class.is-latest]="$last"
+              [class.is-fb]="entry.firstBlood"
+              [attr.title]="entry.text"
+            >
+              <span class="match-map__feed-clock">{{ entry.clock }}</span>
+
+              @if (entry.kind === 'kill') {
+                <div
+                  class="match-map__feed-row"
+                  [class.is-blue-kill]="entry.side === 'blue'"
+                  [class.is-red-kill]="entry.side === 'red'"
+                >
+                  <div class="match-map__feed-assists" aria-label="助攻">
+                    @for (assist of entry.assists; track assist.playerId) {
+                      @if (assist.championId) {
+                        <span
+                          class="match-map__feed-assist"
+                          [class.is-blue]="assist.side === 'blue'"
+                          [class.is-red]="assist.side === 'red'"
+                          [attr.title]="'助攻 ' + assist.gamertag"
+                        >
+                          <app-champion-icon [championId]="assist.championId" [size]="20" [bare]="true" />
+                        </span>
+                      }
+                    }
+                  </div>
+                  <div class="match-map__feed-duel">
+                    @if (entry.killer?.championId; as killerId) {
+                      <span
+                        class="match-map__feed-main is-killer"
+                        [class.is-blue]="entry.killer?.side === 'blue'"
+                        [class.is-red]="entry.killer?.side === 'red'"
+                        [attr.title]="entry.killer?.gamertag"
+                      >
+                        <app-champion-icon [championId]="killerId" [size]="34" [bare]="true" />
+                      </span>
+                    } @else {
+                      <span class="match-map__feed-fallback">{{ entry.killer?.gamertag ?? '?' }}</span>
+                    }
+                    <span class="match-map__feed-action" aria-hidden="true">⚔</span>
+                    @if (entry.victim?.championId; as victimId) {
+                      <span
+                        class="match-map__feed-main is-victim"
+                        [class.is-blue]="entry.victim?.side === 'blue'"
+                        [class.is-red]="entry.victim?.side === 'red'"
+                        [attr.title]="entry.victim?.gamertag"
+                      >
+                        <app-champion-icon [championId]="victimId" [size]="34" [bare]="true" />
+                      </span>
+                    } @else {
+                      <span class="match-map__feed-fallback">{{ entry.victim?.gamertag ?? '?' }}</span>
+                    }
+                  </div>
+                </div>
+                <p class="match-map__feed-caption">
+                  @if (entry.firstBlood) {
+                    <em>一血</em>
+                  }
+                  @if (entry.mistake) {
+                    <em>失誤</em>
+                  }
+                  <span
+                    class="match-map__feed-side-tag"
+                    [class.is-blue]="entry.side === 'blue'"
+                    [class.is-red]="entry.side === 'red'"
+                  >
+                    {{ entry.side === 'blue' ? homeLabel() : entry.side === 'red' ? awayLabel() : '' }}擊殺
+                  </span>
+                  {{ entry.killer?.gamertag }}
+                  @if (entry.assists.length > 0) {
+                    <span class="match-map__feed-assist-tag">助攻×{{ entry.assists.length }}</span>
+                  }
+                </p>
+              } @else {
+                <div class="match-map__feed-row is-objective">
+                  @if (entry.killer?.championId; as takerId) {
+                    <span
+                      class="match-map__feed-main"
+                      [class.is-blue]="entry.killer?.side === 'blue'"
+                      [class.is-red]="entry.killer?.side === 'red'"
+                    >
+                      <app-champion-icon [championId]="takerId" [size]="34" [bare]="true" />
+                    </span>
+                  }
+                  <span class="match-map__feed-action" aria-hidden="true">›</span>
+                  @if (feedIconStyle(entry); as iconStyle) {
+                    <i class="match-map__feed-obj" [ngStyle]="iconStyle"></i>
+                  } @else {
+                    <span class="match-map__feed-fallback">{{ entry.objectiveLabel }}</span>
+                  }
+                </div>
+                <p class="match-map__feed-caption">
+                  {{ entry.side === 'blue' ? homeLabel() : entry.side === 'red' ? awayLabel() : '' }}
+                  拿下{{ entry.objectiveLabel }}
+                </p>
+              }
+            </li>
+          } @empty {
+            <li class="match-map__log-empty">拖曳時間軸查看擊殺與助攻</li>
+          }
+        </ul>
+      </aside>
+    </div>
+  </section>
+}

@@ -1,13 +1,26 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import type { PlayoffSeriesView } from '../../core/models/playoff-board.model';
+import { MsiBoardService, type MsiMatchView } from '../../core/services/msi-board.service';
+import { PlayoffBoardService, type PlayoffLeague } from '../../core/services/playoff-board.service';
+import { PromotionBoardService } from '../../core/services/promotion-board.service';
 import { RegularSeasonService } from '../../core/services/regular-season.service';
 import { SeasonClockService } from '../../core/services/season-clock.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { YearCalendarService, type ScheduleLeague } from '../../core/services/year-calendar.service';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
 import { internationalMarks } from '../../shared/utils/international-events';
 import { dateForWeekSlot, fromIsoDate, isScheduleYear, SCHEDULE_YEARS, toIsoDate } from '../../shared/utils/season-calendar';
 import { marksOn, promotionMarks, type CalendarDayMark } from '../../shared/utils/year-calendar';
 
 const WEEKDAY_LABELS = ['一', '二', '三', '四', '五', '六', '日'] as const;
+
+const BOARD_SERIES_OF_SLOT: Record<string, string> = {
+  'qf-1': 'r1-high',
+  'qf-2': 'r1-low',
+  'sf-1': 'sf-1',
+  'sf-2': 'sf-2',
+  final: 'final',
+};
 
 interface ScoreSide {
   name: string;
@@ -46,6 +59,13 @@ export class SchedulePage {
   private readonly clock = inject(SeasonClockService);
   private readonly calendar = inject(YearCalendarService);
   private readonly season = inject(RegularSeasonService);
+  private readonly playoff = inject(PlayoffBoardService);
+  private readonly promotion = inject(PromotionBoardService);
+  private readonly msi = inject(MsiBoardService);
+
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'schedule', '日程');
+  }
 
   readonly activeUniverse = this.universeService.activeUniverse;
   readonly scheduleYears = SCHEDULE_YEARS;
@@ -70,10 +90,15 @@ export class SchedulePage {
 
   shownMonth(): MonthBoard {
     const cursor = this.monthCursor();
-    if (!cursor || !isScheduleYear(cursor.year)) {
-      return this.monthBoard(this.viewYear(), 1);
+    if (cursor && isScheduleYear(cursor.year)) {
+      return this.monthBoard(cursor.year, cursor.month);
     }
-    return this.monthBoard(cursor.year, cursor.month);
+    const today = this.activeUniverse()?.currentDate ?? '';
+    const month = Number(today.slice(5, 7));
+    if (month >= 1 && month <= 12) {
+      return this.monthBoard(this.yearOf(today), month);
+    }
+    return this.monthBoard(this.viewYear(), 1);
   }
 
   shiftMonth(step: -1 | 1): void {
@@ -166,7 +191,7 @@ export class SchedulePage {
         for (const [weekIndex, mates] of byWeek) {
           mates.forEach((match, indexInWeek) => {
             const iso = dateForWeekSlot(monday, weekIndex, indexInWeek);
-            const slot = `W${weekIndex + 1}D${Math.floor(indexInWeek / 2) + 1}`;
+            const slot = `W${weekIndex + 1} D${Math.floor(indexInWeek / 2) + 1}`;
             const key = `${league}:${iso}`;
             const cards = marks.get(key) ?? [];
             let matchup = '';
@@ -221,6 +246,10 @@ export class SchedulePage {
             continue;
           }
         }
+        if (mark.tone === 'playoff') {
+          marks.push(this.seriesMark(mark, league, this.playoffOn(league, iso, year)));
+          continue;
+        }
         marks.push({ ...mark, league, matchup: '' });
       }
     }
@@ -230,11 +259,115 @@ export class SchedulePage {
       marks.unshift({ label: '休', detail: '休息', tone: 'rest', league: '', matchup: '' });
     }
     for (const mark of promotionMarks([], this.calendar.promotionFor(year), iso, year)) {
-      marks.push({ ...mark, league: '', matchup: '' });
+      marks.push(this.seriesMark(mark, '', this.promotionOn(iso, year)));
     }
+    const msiMarks = this.msiMarks(iso);
+    marks.push(...msiMarks);
     for (const mark of internationalMarks(year, iso)) {
+      if (mark.label === 'MSI') {
+        continue;
+      }
       marks.push({ ...mark, league: '', matchup: '' });
     }
     return marks;
+  }
+
+  private msiMarks(iso: string): ShownMark[] {
+    return this.msi.onDate(iso).map((match) => this.msiMark(match));
+  }
+
+  private msiMark(match: MsiMatchView): ShownMark {
+    const left = match.left?.abbreviation || '待定';
+    const right = match.right?.abbreviation || '待定';
+    const leftName = match.left?.name || left;
+    const rightName = match.right?.name || right;
+    let matchup = `${left} vs ${right}`;
+    let sides: [ScoreSide, ScoreSide] | undefined;
+    if (match.done) {
+      matchup = `${left} ${match.leftGames}:${match.rightGames} ${right}`;
+      sides = [
+        { name: left, score: match.leftGames, won: match.leftGames > match.rightGames },
+        { name: right, score: match.rightGames, won: match.rightGames > match.leftGames },
+      ];
+    }
+    return {
+      label: this.msiChip(match),
+      matchup,
+      detail: `MSI ${match.stage} ${match.label} ${leftName} vs ${rightName}`,
+      tone: 'event',
+      league: '',
+      sides,
+    };
+  }
+
+  private msiChip(match: MsiMatchView): string {
+    if (match.stage === '亂鬥賽') {
+      return `亂鬥 ${match.label}`;
+    }
+    if (match.label) {
+      return match.label;
+    }
+    return 'MSI';
+  }
+
+  private playoffOn(league: PlayoffLeague, iso: string, year: number): PlayoffSeriesView | null {
+    if (year !== this.clock.year()) {
+      return null;
+    }
+    const dates = this.calendar.planForYear(league, year).springPlayoff;
+    const slotId = Object.entries(dates).find(([, date]) => date === iso)?.[0];
+    if (!slotId) {
+      return null;
+    }
+    const seriesId = BOARD_SERIES_OF_SLOT[slotId] ?? slotId;
+    return this.playoff.bundle(league).series.find((item) => item.id === seriesId) ?? null;
+  }
+
+  private promotionOn(iso: string, year: number): PlayoffSeriesView | null {
+    if (year !== this.clock.year()) {
+      return null;
+    }
+    const plan = this.calendar.promotionFor(year);
+    for (const split of ['spring', 'summer'] as const) {
+      const slotId = Object.entries(plan[split]).find(([, date]) => date === iso)?.[0];
+      if (!slotId) {
+        continue;
+      }
+      const series = this.promotion.bracket(split).find((item) => item.id === slotId);
+      if (series) {
+        return series;
+      }
+    }
+    return null;
+  }
+
+  private seriesMark(mark: CalendarDayMark, league: ShownMark['league'], series: PlayoffSeriesView | null): ShownMark {
+    const base: ShownMark = { ...mark, league, matchup: '' };
+    if (!series?.left || !series.right) {
+      return base;
+    }
+    const left = series.left;
+    const right = series.right;
+    const leftGames = left.games ?? 0;
+    const rightGames = right.games ?? 0;
+    const played = series.status === 'done' || leftGames + rightGames > 0;
+    const names = `${left.abbreviation} vs ${right.abbreviation}`;
+    const score = `${left.abbreviation} ${leftGames}:${rightGames} ${right.abbreviation}`;
+    if (series.status !== 'done') {
+      return {
+        ...base,
+        matchup: played ? score : names,
+        detail: `${mark.detail} ${played ? score : names}`,
+      };
+    }
+    return {
+      ...base,
+      matchup: score,
+      detail: `${mark.detail} ${left.name} ${leftGames}:${rightGames} ${right.name}`,
+      sides: [
+        { name: left.abbreviation, score: leftGames, won: left.isWinner },
+        { name: right.abbreviation, score: rightGames, won: right.isWinner },
+      ],
+    };
   }
 }

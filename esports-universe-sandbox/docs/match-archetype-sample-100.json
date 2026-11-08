@@ -1,0 +1,19 @@
+{
+  "games": 100,
+  "nonePrimary": 72,
+  "nonePrimaryRate": 0.72,
+  "primaryCounts": {
+    "marathon": 3,
+    "objective-war": 3,
+    "bloodbath": 5,
+    "base-defense": 12,
+    "stomp": 5
+  },
+  "secondaryCounts": {
+    "marathon": 7,
+    "decisive-fight": 2,
+    "objective-war": 4,
+    "macro-game": 1
+  },
+  "conflictCount": 0
+}

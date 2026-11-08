@@ -42,3 +42,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Local diagnostics / scratch
+*-diag.json
+*-out.json
+dmg-think.txt
+item-pace-diag.json
+kill-pace-diag.json
+econ-29-diag.json

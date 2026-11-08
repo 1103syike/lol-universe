@@ -11,6 +11,7 @@ export class TeamLogoComponent {
   readonly logoUrl = input<string | null>(null);
   readonly name = input('');
   readonly markColor = input('#3b82f6');
+  readonly bare = input(false);
 
   readonly failed = signal(false);
   readonly imageSrc = signal('');

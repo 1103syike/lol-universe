@@ -1,15 +1,19 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import {
+  ATTRIBUTE_KEYS,
+  ATTRIBUTE_LABELS,
   PLAYER_NATIONALITY_OPTIONS,
   PLAYER_POSITIONS,
   PLAYER_POSITION_LABELS,
   nationalityName,
 } from '../../core/models/player.model';
 import type { PlayerNationality, PlayerPosition } from '../../core/models/player.model';
+import { RARITIES, RARITY_NAMES } from '../../core/models/rarity.model';
+import type { Rarity } from '../../core/models/rarity.model';
 import { MIN_UNIVERSE_START_YEAR } from '../../core/models/universe.model';
 import { PlayerService } from '../../core/services/player.service';
 import { UniverseService } from '../../core/services/universe.service';
@@ -21,15 +25,27 @@ import {
   contractYearLabel,
   yearOf,
 } from '../../shared/utils/contract-year';
+import { AttributeRowComponent } from '../../shared/ui/attribute-row/attribute-row.component';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
+import { RarityBadgeComponent } from '../../shared/ui/rarity-badge/rarity-badge.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
 import { calculateAge } from '../../shared/utils/player-age';
+import { calculateOverallPotential, calculatePlayerOvr } from '../../shared/utils/player-ovr';
 
 @Component({
   selector: 'app-player-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    AttributeRowComponent,
+    FlagIconComponent,
+    MenuComponent,
+    RarityBadgeComponent,
+    RoleIconComponent,
+  ],
   templateUrl: './player-detail.page.html',
   styleUrl: './player-detail.page.scss',
 })
@@ -40,8 +56,14 @@ export class PlayerDetailPage {
   private readonly universeService = inject(UniverseService);
   private readonly formBuilder = inject(FormBuilder);
 
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'players', '選手');
+  }
+
   readonly positions = PLAYER_POSITIONS;
   readonly positionLabels = PLAYER_POSITION_LABELS;
+  readonly attributeKeys = ATTRIBUTE_KEYS;
+  readonly attributeLabels = ATTRIBUTE_LABELS;
   readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
     value: nation.code,
     label: nation.name,
@@ -49,6 +71,10 @@ export class PlayerDetailPage {
   readonly positionMenu: MenuOption[] = PLAYER_POSITIONS.map((position) => ({
     value: position,
     label: PLAYER_POSITION_LABELS[position],
+  }));
+  readonly rarityMenu: MenuOption[] = RARITIES.map((rarity) => ({
+    value: rarity,
+    label: `${rarity} · ${RARITY_NAMES[rarity]}`,
   }));
   readonly nationalityName = nationalityName;
   readonly birthYears = computed(() => {
@@ -93,12 +119,22 @@ export class PlayerDetailPage {
     const current = this.player();
     return current ? calculateAge(current.birthday, this.currentDate()) : 0;
   });
+  readonly ovr = computed(() => {
+    const current = this.player();
+    return current ? calculatePlayerOvr(current.attributes, current.position) : 0;
+  });
+  readonly potential = computed(() => {
+    const current = this.player();
+    return current ? calculateOverallPotential(current.attributes) : 0;
+  });
+  readonly showHidden = signal(false);
 
   readonly editForm = this.formBuilder.nonNullable.group({
     gamertag: ['', [Validators.required, Validators.maxLength(24)]],
     nationality: ['TW' as PlayerNationality, Validators.required],
     position: ['MID' as PlayerPosition, Validators.required],
     teamId: [''],
+    rarity: ['N' as Rarity, Validators.required],
     birthdayYear: [2004, Validators.required],
     contractYear: [2026, Validators.required],
     expiryYear: [2026, Validators.required],
@@ -123,6 +159,7 @@ export class PlayerDetailPage {
       nationality: current.nationality,
       position: current.position,
       teamId: current.teamId ?? '',
+      rarity: current.rarity,
       birthdayYear: yearOf(current.birthday),
       contractYear: yearOf(current.contract.startDate),
       expiryYear: yearOf(current.contract.endDate),
@@ -165,6 +202,7 @@ export class PlayerDetailPage {
         position: raw.position,
         teamId: raw.teamId || null,
         birthday: birthdayFromYear(Number(raw.birthdayYear)),
+        rarity: raw.rarity,
         attributes: current.attributes,
         form: current.form,
         contract: {
@@ -199,7 +237,12 @@ export class PlayerDetailPage {
       return;
     }
 
-    this.playerService.deletePlayer(current.id);
+    try {
+      this.playerService.deletePlayer(current.id);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '沒刪成');
+      return;
+    }
     void this.router.navigate(['/players']);
   }
 }

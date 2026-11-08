@@ -1,0 +1,792 @@
+.transfer__range {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.transfer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+.transfer__main {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.transfer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.transfer__count {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.transfer__list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transfer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.transfer-row__who {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem 0.55rem;
+  align-items: center;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.transfer-row__name {
+  font-weight: 800;
+}
+
+.transfer-row__meta {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.transfer-row__act {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.transfer__empty {
+  margin: 0;
+  padding: 0.9rem 0.2rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.transfer__league {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.transfer__league + .transfer__league {
+  margin-top: 0.55rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.transfer__league-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  span {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+}
+
+.transfer__teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transfer__team-card {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 3%);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgb(227 179 65 / 45%);
+    background: rgb(227 179 65 / 6%);
+    outline: none;
+  }
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span,
+  small {
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+}
+
+.transfer-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.transfer-dialog__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgb(227 179 65 / 10%), transparent 55%),
+    rgb(3 5 9 / 78%);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.transfer-dialog__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 32rem);
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 42%),
+    #10151d;
+  box-shadow:
+    0 0 0 1px rgb(227 179 65 / 8%),
+    0 28px 70px rgb(0 0 0 / 55%);
+}
+
+.transfer-dialog__hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 1.15rem 1.15rem 1rem;
+  border-bottom: 1px solid var(--color-line);
+  background:
+    linear-gradient(135deg, rgb(227 179 65 / 10%), transparent 48%),
+    rgb(255 255 255 / 2%);
+}
+
+.transfer-dialog__mark {
+  width: 3.6rem;
+  height: 3.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(0 0 0 / 28%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  overflow: hidden;
+}
+
+.transfer-dialog__identity {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 850;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+}
+
+.transfer-dialog__league {
+  margin: 0 0 0.2rem;
+  color: var(--color-accent-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.transfer-dialog__fullname {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transfer-dialog__x {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: #fff;
+    border-color: rgb(255 255 255 / 24%);
+    outline: none;
+  }
+}
+
+.transfer-dialog__nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--color-line);
+
+  button {
+    position: relative;
+    border: 0;
+    padding: 0.85rem 0.5rem 0.8rem;
+    background: transparent;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    font-weight: 750;
+    cursor: pointer;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+
+    &.is-on {
+      color: var(--color-accent-strong);
+
+      &::after {
+        background: var(--color-accent);
+      }
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: #fff;
+      outline: none;
+    }
+  }
+}
+
+.transfer-dialog__body {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 0.85rem;
+  align-content: stretch;
+  margin: 0;
+  padding: 1.05rem 1.15rem 1.15rem;
+  height: 28.5rem;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.transfer-dialog__fields {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+  min-height: 0;
+  overflow: visible;
+}
+
+.transfer-dialog__fields--roster {
+  gap: 0.65rem;
+  overflow: auto;
+}
+
+.transfer-dialog__mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 28%);
+  border: 1px solid var(--color-line);
+
+  button {
+    border: 0;
+    border-radius: 9px;
+    padding: 0.55rem 0.4rem;
+    background: transparent;
+    color: var(--color-muted);
+    font-size: 0.86rem;
+    font-weight: 750;
+    cursor: pointer;
+
+    &.is-on {
+      background: rgb(227 179 65 / 16%);
+      color: var(--color-accent-strong);
+    }
+  }
+}
+
+.transfer-dialog__mode--sub {
+  background: rgb(255 255 255 / 3%);
+}
+
+.transfer-dialog__roster-block {
+  display: grid;
+  gap: 0.4rem;
+  min-height: 0;
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    strong {
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    span {
+      color: var(--color-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.transfer-dialog__roster {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 7.5rem;
+  overflow: auto;
+
+  button {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.45rem;
+    align-items: center;
+    width: 100%;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 3%);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &.is-on {
+      border-color: rgb(227 179 65 / 55%);
+      background: rgb(227 179 65 / 12%);
+    }
+
+    &:hover,
+    &:focus-visible {
+      border-color: rgb(255 255 255 / 22%);
+      outline: none;
+    }
+  }
+}
+
+.transfer-dialog__roster--tall {
+  max-height: 14rem;
+}
+
+.transfer-dialog__picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr));
+  gap: 0.35rem;
+  max-height: 8.5rem;
+  overflow: auto;
+
+  button {
+    display: grid;
+    gap: 0.1rem;
+    justify-items: start;
+    min-width: 0;
+    padding: 0.5rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 3%);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    strong {
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    span {
+      color: var(--color-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    &.is-on {
+      border-color: rgb(227 179 65 / 55%);
+      background: rgb(227 179 65 / 12%);
+
+      strong {
+        color: var(--color-accent-strong);
+      }
+    }
+
+    &:hover,
+    &:focus-visible {
+      border-color: rgb(255 255 255 / 22%);
+      outline: none;
+    }
+  }
+}
+
+.transfer-dialog__player-name {
+  font-size: 0.88rem;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transfer-dialog__player-pos {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.transfer-dialog__roster-empty {
+  margin: 0;
+  padding: 0.7rem 0.2rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+
+.transfer-dialog__stage {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgb(227 179 65 / 22%);
+  background:
+    linear-gradient(180deg, rgb(227 179 65 / 10%), rgb(227 179 65 / 3%));
+
+  strong {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+}
+
+.transfer-dialog__stage-label {
+  color: var(--color-accent-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.transfer-dialog__field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+
+  input {
+    width: 100%;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: 0.72rem 0.85rem;
+    background: rgb(0 0 0 / 28%);
+    color: var(--color-ink);
+    font-size: 0.95rem;
+    font-weight: 650;
+
+    &:focus {
+      outline: none;
+      border-color: rgb(227 179 65 / 55%);
+      box-shadow: 0 0 0 3px rgb(227 179 65 / 12%);
+    }
+  }
+}
+
+.transfer-dialog__field--grow {
+  flex: 1;
+}
+
+.transfer-dialog__row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: start;
+
+  .transfer-dialog__field:first-child {
+    width: 6.5rem;
+    flex: 0 0 6.5rem;
+  }
+}
+
+.transfer-dialog__compose {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+
+  button {
+    display: grid;
+    gap: 0.2rem;
+    justify-items: start;
+    padding: 0.7rem 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 3%);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    em {
+      font-style: normal;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    span {
+      color: var(--color-muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    &.is-on {
+      border-color: rgb(227 179 65 / 55%);
+      background: rgb(227 179 65 / 12%);
+
+      em {
+        color: var(--color-accent-strong);
+      }
+    }
+
+    &.is-clear.is-on {
+      border-color: rgb(255 255 255 / 22%);
+      background: rgb(255 255 255 / 6%);
+
+      em {
+        color: #fff;
+      }
+    }
+
+    &:hover,
+    &:focus-visible {
+      border-color: rgb(255 255 255 / 22%);
+      outline: none;
+    }
+  }
+}
+
+.transfer-dialog__drop {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  min-height: 7.25rem;
+  padding: 1rem;
+  border: 1px dashed rgb(255 255 255 / 18%);
+  border-radius: 16px;
+  background: rgb(0 0 0 / 22%);
+  color: var(--color-muted);
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  strong {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: rgb(0 0 0 / 45%);
+    padding: 0.75rem;
+  }
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:hover,
+  &:focus-within {
+    border-color: rgb(227 179 65 / 45%);
+    background: rgb(227 179 65 / 6%);
+  }
+}
+
+.transfer-dialog__drop-mark {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  color: var(--color-accent-strong);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.transfer-dialog__note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.transfer-dialog__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  align-self: end;
+  margin-top: 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.transfer__feed {
+  position: sticky;
+  top: 4.5rem;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: rgb(8 10 14 / 55%);
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    span {
+      color: var(--color-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+  }
+
+  ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    gap: 0.15rem;
+    font-size: 0.82rem;
+    font-weight: 650;
+  }
+
+  time {
+    color: var(--color-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+}
+
+.transfer__feed-team {
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .transfer__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transfer__feed {
+    position: static;
+  }
+
+  .transfer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .transfer-row__act {
+    flex-wrap: wrap;
+  }
+}

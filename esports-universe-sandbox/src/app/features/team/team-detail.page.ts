@@ -1,65 +1,99 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { LEAGUE_TIERS, LEAGUE_TIER_LABELS } from '../../core/models/league.model';
-import { PLAYER_POSITION_LABELS } from '../../core/models/player.model';
-import type { Player } from '../../core/models/player.model';
-import type { LeagueTier } from '../../core/models/league.model';
+import { LEAGUE_TIER_LABELS } from '../../core/models/league.model';
+import {
+  ATTRIBUTE_KEYS,
+  ATTRIBUTE_LABELS,
+  PLAYER_POSITION_LABELS,
+} from '../../core/models/player.model';
+import type { AttributeKey, Player } from '../../core/models/player.model';
+import { teamDisplayName } from '../../core/models/team.model';
 import { CoachService } from '../../core/services/coach.service';
 import { PlayerService } from '../../core/services/player.service';
 import { TeamService } from '../../core/services/team.service';
 import { TeamTimelineService } from '../../core/services/team-timeline.service';
+import { TransferWindowService } from '../../core/services/transfer-window.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
+import { RarityBadgeComponent } from '../../shared/ui/rarity-badge/rarity-badge.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { MenuComponent } from '../../shared/ui/menu/menu.component';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
-import { readImageAsDataUrl } from '../../shared/utils/read-image-as-data-url';
-import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import { bindPageScene, paintPageScene } from '../../shared/utils/bind-page-scene';
+import { calculateCoachOvr, calculatePlayerOvr, calculateTeamOvr } from '../../shared/utils/player-ovr';
+import { ratingToGrade } from '../../shared/utils/rating-scale';
+import type { RatingGrade } from '../../shared/utils/rating-scale';
+import { resolveTeamLogoUrl } from '../../shared/utils/team-logo';
 
 @Component({
   selector: 'app-team-detail-page',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent, TeamLogoComponent],
+  imports: [
+    DatePipe,
+    RouterLink,
+    FlagIconComponent,
+    MenuComponent,
+    RarityBadgeComponent,
+    RoleIconComponent,
+    TeamLogoComponent,
+  ],
   templateUrl: './team-detail.page.html',
   styleUrl: './team-detail.page.scss',
 })
 export class TeamDetailPage {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly teamService = inject(TeamService);
   private readonly playerService = inject(PlayerService);
   private readonly coachService = inject(CoachService);
   private readonly timelineService = inject(TeamTimelineService);
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly logoFileInput = viewChild<ElementRef<HTMLInputElement>>('logoFileInput');
+  private readonly windows = inject(TransferWindowService);
 
-  readonly leagueTiers = LEAGUE_TIERS;
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'clubs', '俱樂部');
+    effect(() => {
+      const current = this.team();
+      if (!current) {
+        paintPageScene('clubs', '俱樂部');
+        return;
+      }
+      if (current.leagueTier === 'TCS') {
+        paintPageScene('tcs', current.abbreviation);
+        return;
+      }
+      if (current.leagueTier === 'TCL') {
+        paintPageScene('tcl', current.abbreviation);
+        return;
+      }
+      paintPageScene('clubs', current.abbreviation);
+    });
+  }
+
   readonly leagueTierLabels = LEAGUE_TIER_LABELS;
-  readonly leagueMenu: MenuOption[] = LEAGUE_TIERS.map((tier) => ({
-    value: tier,
-    label: LEAGUE_TIER_LABELS[tier],
-  }));
   readonly positionLabels = PLAYER_POSITION_LABELS;
+  readonly attributeKeys = ATTRIBUTE_KEYS;
+  readonly attributeLabels = ATTRIBUTE_LABELS;
+  readonly displayName = teamDisplayName;
 
   readonly teamId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('teamId') ?? '')),
     { initialValue: '' },
   );
-  readonly isEditing = signal(false);
-  readonly formError = signal<string | null>(null);
-  readonly buyerName = signal('');
-  readonly timelineError = signal<string | null>(null);
   readonly rosterError = signal<string | null>(null);
   readonly incomingPlayerId = signal('');
   readonly moveChoice = signal<Record<string, string>>({});
 
+  readonly windowState = computed(() => this.windows.current());
   readonly team = computed(() => this.teamService.getTeamById(this.teamId()));
   readonly timeline = computed(() => this.timelineService.itemsFor(this.teamId()));
   readonly roster = computed(() => this.playerService.getPlayersByTeamId(this.teamId()));
   readonly coach = computed(() => this.coachService.getCoachByTeamId(this.teamId()));
+  readonly teamOvr = computed(() => calculateTeamOvr(this.roster()));
+  readonly coachOvr = computed(() => {
+    const current = this.coach();
+    return current ? calculateCoachOvr(current.attributes) : null;
+  });
   readonly otherTeams = computed(() =>
     this.teamService.teams()
       .filter((team) => team.id !== this.teamId())
@@ -85,115 +119,12 @@ export class TeamDetailPage {
       .sort((left, right) => left.gamertag.localeCompare(right.gamertag, 'zh-Hant')),
   );
 
-  readonly editForm = this.formBuilder.nonNullable.group({
-    abbreviation: ['', [Validators.required, Validators.maxLength(12)]],
-    name: ['', [Validators.required, Validators.maxLength(60)]],
-    leagueTier: ['TCS' as LeagueTier, Validators.required],
-    salaryCap: [1, [Validators.required, Validators.min(1)]],
-    logoUrl: [''],
-  });
-
-  startEdit(): void {
+  heroLogoUrl(): string {
     const current = this.team();
     if (!current) {
-      return;
+      return '';
     }
-
-    this.formError.set(null);
-    this.editForm.reset({
-      abbreviation: current.abbreviation,
-      name: current.name,
-      leagueTier: current.leagueTier,
-      salaryCap: current.salaryCap,
-      logoUrl: current.logoUrl ?? '',
-    });
-    this.isEditing.set(true);
-  }
-
-  cancelEdit(): void {
-    this.isEditing.set(false);
-    this.formError.set(null);
-  }
-
-  useDefaultLogo(): void {
-    const abbreviation = this.editForm.controls.abbreviation.value.trim();
-    if (!abbreviation) {
-      return;
-    }
-    this.editForm.controls.logoUrl.setValue(defaultTeamLogoUrl(abbreviation));
-  }
-
-  isUploadedLogo(logoUrl: string | null | undefined): boolean {
-    return !!logoUrl?.startsWith('data:image/');
-  }
-
-  logoSourceLabel(logoUrl: string | null | undefined): string {
-    if (!logoUrl) {
-      return '預設路徑';
-    }
-    if (logoUrl.startsWith('data:image/')) {
-      return '已上傳圖片';
-    }
-    if (logoUrl.startsWith('/team-logos/')) {
-      return '本機預設檔';
-    }
-    return '外部網址';
-  }
-
-  openLogoPicker(): void {
-    this.logoFileInput()?.nativeElement.click();
-  }
-
-  async onLogoSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    try {
-      const dataUrl = await readImageAsDataUrl(file);
-      this.editForm.controls.logoUrl.setValue(dataUrl);
-      this.formError.set(null);
-    } catch (error) {
-      this.formError.set(error instanceof Error ? error.message : '讀取圖片失敗');
-    } finally {
-      input.value = '';
-    }
-  }
-
-  saveEdit(): void {
-    this.formError.set(null);
-
-    if (this.editForm.invalid) {
-      this.editForm.markAllAsTouched();
-      return;
-    }
-
-    try {
-      const raw = this.editForm.getRawValue();
-      this.teamService.updateTeam(this.teamId(), {
-        ...raw,
-        logoUrl: raw.logoUrl.trim() ? raw.logoUrl.trim() : null,
-      });
-      this.isEditing.set(false);
-    } catch (error) {
-      this.formError.set(error instanceof Error ? error.message : '更新失敗');
-    }
-  }
-
-  recordAcquisition(): void {
-    this.timelineError.set(null);
-    try {
-      this.timelineService.recordAcquisition(this.teamId(), this.buyerName());
-      this.buyerName.set('');
-    } catch (error) {
-      this.timelineError.set(error instanceof Error ? error.message : '沒記上');
-    }
-  }
-
-  deleteTimelineItem(itemId: string): void {
-    this.timelineService.deleteItem(itemId);
+    return resolveTeamLogoUrl(current.logoUrl, current.abbreviation);
   }
 
   teamAbbreviation(teamId: string | null): string {
@@ -201,6 +132,18 @@ export class TeamDetailPage {
       return '自由球員';
     }
     return this.teamService.getTeamById(teamId)?.abbreviation ?? '已解散';
+  }
+
+  playerOvr(player: Player): number {
+    return calculatePlayerOvr(player.attributes, player.position);
+  }
+
+  playerGrade(player: Player): RatingGrade {
+    return ratingToGrade(this.playerOvr(player));
+  }
+
+  attrGrade(player: Player, key: AttributeKey): RatingGrade {
+    return ratingToGrade(player.attributes[key].current);
   }
 
   setMoveChoice(playerId: string, teamId: string | number): void {
@@ -246,20 +189,5 @@ export class TeamDetailPage {
     } catch (error) {
       this.rosterError.set(error instanceof Error ? error.message : '沒移成');
     }
-  }
-
-  deleteTeam(): void {
-    const current = this.team();
-    if (!current) {
-      return;
-    }
-
-    const confirmed = window.confirm(`確定刪除隊伍「${current.name}」？`);
-    if (!confirmed) {
-      return;
-    }
-
-    this.teamService.deleteTeam(current.id);
-    void this.router.navigate(['/teams']);
   }
 }

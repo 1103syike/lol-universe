@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import type { AttributeRating } from '../../../core/models/player.model';
-import { growthRateToTrend, potentialToStars, trendSymbol } from '../../utils/player-potential';
+import { growthRateToTrend, starsDisplay, trendSymbol } from '../../utils/player-potential';
 
 @Component({
   selector: 'app-attribute-row',
@@ -12,8 +12,12 @@ export class AttributeRowComponent {
   readonly rating = input.required<AttributeRating>();
   readonly showHidden = input(false);
 
-  stars(): string {
-    return '★'.repeat(potentialToStars(this.rating().potential));
+  currentStars(): string {
+    return starsDisplay(this.rating().current);
+  }
+
+  potentialStars(): string {
+    return starsDisplay(this.rating().potential);
   }
 
   trend(): string {

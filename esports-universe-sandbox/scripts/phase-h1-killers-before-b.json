@@ -1,0 +1,282 @@
+{
+  "label": "before-b",
+  "even": {
+    "runs": 100,
+    "avgKillGap": 30.8,
+    "avgMaxKillShare": 48.5,
+    "avgMaxDeathShare": 50.7,
+    "deathShareGe50": 47,
+    "avgConsecutiveDeathRuns": 3.46,
+    "ge50pct": 46,
+    "jgTopKillerRate": 29,
+    "botTopKillerRate": 6,
+    "midTopKillerRate": 21,
+    "topDeathRate": {
+      "TOP": 42,
+      "JUNGLE": 17,
+      "MID": 19,
+      "BOT": 5,
+      "SUPPORT": 17
+    },
+    "topKiller": {
+      "TOP": 35,
+      "JUNGLE": 29,
+      "MID": 21,
+      "BOT": 6,
+      "SUPPORT": 9
+    },
+    "topDeath": {
+      "TOP": 42,
+      "JUNGLE": 17,
+      "MID": 19,
+      "BOT": 5,
+      "SUPPORT": 17
+    },
+    "pos": {
+      "TOP": {
+        "avgK": 4.63,
+        "avgD": 5.25,
+        "avgA": 6.28,
+        "avgKP": 47.7
+      },
+      "JUNGLE": {
+        "avgK": 5.33,
+        "avgD": 5.42,
+        "avgA": 10.88,
+        "avgKP": 64.3
+      },
+      "MID": {
+        "avgK": 5.47,
+        "avgD": 4.51,
+        "avgA": 8.58,
+        "avgKP": 53
+      },
+      "BOT": {
+        "avgK": 4.04,
+        "avgD": 2.81,
+        "avgA": 6.6,
+        "avgKP": 42.1
+      },
+      "SUPPORT": {
+        "avgK": 2.85,
+        "avgD": 4.33,
+        "avgA": 9.77,
+        "avgKP": 48.1
+      }
+    },
+    "winnerAvgK": {
+      "TOP": 6.92,
+      "JUNGLE": 8.13,
+      "MID": 8.64,
+      "BOT": 6.46,
+      "SUPPORT": 4.39
+    },
+    "loserAvgK": {
+      "TOP": 2.34,
+      "JUNGLE": 2.53,
+      "MID": 2.31,
+      "BOT": 1.62,
+      "SUPPORT": 1.32
+    },
+    "winnerAvgD": {
+      "TOP": 2.37,
+      "JUNGLE": 2.16,
+      "MID": 2.28,
+      "BOT": 1.3,
+      "SUPPORT": 2.01
+    },
+    "loserAvgD": {
+      "TOP": 8.13,
+      "JUNGLE": 8.68,
+      "MID": 6.75,
+      "BOT": 4.32,
+      "SUPPORT": 6.66
+    }
+  },
+  "mid": {
+    "runs": 100,
+    "avgKillGap": 36.7,
+    "avgMaxKillShare": 55.4,
+    "avgMaxDeathShare": 59.5,
+    "deathShareGe50": 53,
+    "avgConsecutiveDeathRuns": 4.24,
+    "ge50pct": 50,
+    "jgTopKillerRate": 29,
+    "botTopKillerRate": 11,
+    "midTopKillerRate": 23,
+    "topDeathRate": {
+      "TOP": 31,
+      "JUNGLE": 45,
+      "MID": 8,
+      "BOT": 1,
+      "SUPPORT": 15
+    },
+    "topKiller": {
+      "TOP": 21,
+      "JUNGLE": 29,
+      "MID": 23,
+      "BOT": 11,
+      "SUPPORT": 16
+    },
+    "topDeath": {
+      "TOP": 31,
+      "JUNGLE": 45,
+      "MID": 8,
+      "BOT": 1,
+      "SUPPORT": 15
+    },
+    "pos": {
+      "TOP": {
+        "avgK": 5.1,
+        "avgD": 6.28,
+        "avgA": 5.93,
+        "avgKP": 37.4
+      },
+      "JUNGLE": {
+        "avgK": 5.29,
+        "avgD": 6,
+        "avgA": 10.99,
+        "avgKP": 55.7
+      },
+      "MID": {
+        "avgK": 5.91,
+        "avgD": 4.29,
+        "avgA": 8.59,
+        "avgKP": 47
+      },
+      "BOT": {
+        "avgK": 4.29,
+        "avgD": 2.94,
+        "avgA": 6.87,
+        "avgKP": 34.1
+      },
+      "SUPPORT": {
+        "avgK": 2.77,
+        "avgD": 3.85,
+        "avgA": 10.04,
+        "avgKP": 44.8
+      }
+    },
+    "winnerAvgK": {
+      "TOP": 8.67,
+      "JUNGLE": 8.81,
+      "MID": 10.2,
+      "BOT": 7.39,
+      "SUPPORT": 4.39
+    },
+    "loserAvgK": {
+      "TOP": 1.53,
+      "JUNGLE": 1.78,
+      "MID": 1.61,
+      "BOT": 1.19,
+      "SUPPORT": 1.14
+    },
+    "winnerAvgD": {
+      "TOP": 1.63,
+      "JUNGLE": 2.01,
+      "MID": 1.3,
+      "BOT": 0.81,
+      "SUPPORT": 1.5
+    },
+    "loserAvgD": {
+      "TOP": 10.93,
+      "JUNGLE": 9.98,
+      "MID": 7.29,
+      "BOT": 5.07,
+      "SUPPORT": 6.19
+    }
+  },
+  "stomp": {
+    "runs": 100,
+    "avgKillGap": 34.2,
+    "avgMaxKillShare": 56,
+    "avgMaxDeathShare": 63.3,
+    "deathShareGe50": 70,
+    "avgConsecutiveDeathRuns": 4.01,
+    "ge50pct": 59,
+    "jgTopKillerRate": 29,
+    "botTopKillerRate": 13,
+    "midTopKillerRate": 12,
+    "topDeathRate": {
+      "TOP": 33,
+      "JUNGLE": 8,
+      "MID": 14,
+      "BOT": 5,
+      "SUPPORT": 40
+    },
+    "topKiller": {
+      "TOP": 32,
+      "JUNGLE": 29,
+      "MID": 12,
+      "BOT": 13,
+      "SUPPORT": 14
+    },
+    "topDeath": {
+      "TOP": 33,
+      "JUNGLE": 8,
+      "MID": 14,
+      "BOT": 5,
+      "SUPPORT": 40
+    },
+    "pos": {
+      "TOP": {
+        "avgK": 4.26,
+        "avgD": 5.87,
+        "avgA": 4.6,
+        "avgKP": 35.5
+      },
+      "JUNGLE": {
+        "avgK": 5.79,
+        "avgD": 5.41,
+        "avgA": 10.05,
+        "avgKP": 58
+      },
+      "MID": {
+        "avgK": 5.42,
+        "avgD": 4.18,
+        "avgA": 7.87,
+        "avgKP": 41.3
+      },
+      "BOT": {
+        "avgK": 3.73,
+        "avgD": 2.57,
+        "avgA": 6.46,
+        "avgKP": 35.8
+      },
+      "SUPPORT": {
+        "avgK": 2.56,
+        "avgD": 3.73,
+        "avgA": 8.64,
+        "avgKP": 42
+      }
+    },
+    "winnerAvgK": {
+      "TOP": 6.98,
+      "JUNGLE": 9.64,
+      "MID": 9.29,
+      "BOT": 6.2,
+      "SUPPORT": 3.96
+    },
+    "loserAvgK": {
+      "TOP": 1.55,
+      "JUNGLE": 1.93,
+      "MID": 1.55,
+      "BOT": 1.26,
+      "SUPPORT": 1.16
+    },
+    "winnerAvgD": {
+      "TOP": 1.7,
+      "JUNGLE": 1.35,
+      "MID": 1.48,
+      "BOT": 0.74,
+      "SUPPORT": 2.18
+    },
+    "loserAvgD": {
+      "TOP": 10.03,
+      "JUNGLE": 9.46,
+      "MID": 6.89,
+      "BOT": 4.4,
+      "SUPPORT": 5.29
+    }
+  }
+}

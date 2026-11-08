@@ -1,10 +1,27 @@
 import type { CalendarDayMark } from './year-calendar';
 
+export type InternationalScene = 'msi' | 'worlds' | 'first-stand' | 'ewc';
+
+export interface InternationalWindow {
+  scene: InternationalScene;
+  label: string;
+  mark: string;
+  start: string;
+  end: string;
+}
+
 interface InternationalEvent {
   label: string;
   start: string;
   end: string;
 }
+
+const SCENE_BY_LABEL: Record<string, Pick<InternationalWindow, 'scene' | 'mark'>> = {
+  MSI: { scene: 'msi', mark: 'MSI' },
+  世界賽: { scene: 'worlds', mark: 'WORLDS' },
+  先鋒賽: { scene: 'first-stand', mark: 'FIRST' },
+  石油杯: { scene: 'ewc', mark: 'EWC' },
+};
 
 const EVENTS: Partial<Record<number, InternationalEvent[]>> = {
   2021: [
@@ -41,6 +58,24 @@ const EVENTS: Partial<Record<number, InternationalEvent[]>> = {
 function shortDate(iso: string): string {
   const [, month, day] = iso.split('-');
   return `${Number(month)}/${Number(day)}`;
+}
+
+export function internationalEnd(year: number, label: string): string | null {
+  return EVENTS[year]?.find((event) => event.label === label)?.end ?? null;
+}
+
+export function internationalWindows(iso: string): InternationalWindow[] {
+  const year = Number(iso.slice(0, 4));
+  return (EVENTS[year] ?? []).map((event) => {
+    const scene = SCENE_BY_LABEL[event.label] ?? { scene: 'worlds' as const, mark: 'WORLDS' };
+    return {
+      scene: scene.scene,
+      mark: scene.mark,
+      label: event.label,
+      start: event.start,
+      end: event.end,
+    };
+  });
 }
 
 export function internationalMarks(year: number, iso: string): CalendarDayMark[] {

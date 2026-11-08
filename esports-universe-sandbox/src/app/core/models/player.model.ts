@@ -1,3 +1,5 @@
+import type { Rarity } from './rarity.model';
+
 export const PLAYER_POSITIONS = ['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const;
 
 export type PlayerPosition = (typeof PLAYER_POSITIONS)[number];
@@ -88,6 +90,7 @@ export interface Player {
   position: PlayerPosition;
   teamId: string | null;
   birthday: string;
+  rarity: Rarity;
   attributes: PlayerAttributes;
   form: number;
   contract: PlayerContract;
@@ -103,6 +106,7 @@ export interface PlayerInput {
   position: PlayerPosition;
   teamId: string | null;
   birthday: string;
+  rarity: Rarity;
   attributes: PlayerAttributes;
   form: number;
   contract: PlayerContract;

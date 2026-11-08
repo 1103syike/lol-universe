@@ -1,0 +1,43 @@
+<section class="desk">
+  <header class="desk__bar">
+    <div>
+      <p class="desk__kicker">資料版 {{ dataVersion }} · {{ totalCount }} 位</p>
+      <h1 class="desk__title">英雄</h1>
+    </div>
+  </header>
+
+  <div class="filters">
+    <label class="filters__search">
+      搜尋
+      <input type="search" [value]="query()" (input)="onQueryInput($event)" placeholder="中文名、英文、ID" />
+    </label>
+    <div class="filters__tags" role="group" aria-label="定位篩選">
+      @for (tag of tagFilters; track tag) {
+        <button
+          type="button"
+          class="filters__tag"
+          [class.is-on]="selectedTag() === tag"
+          (click)="setTag(tag)"
+        >
+          {{ tag === 'ALL' ? '全部' : tagLabels[tag] }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="desk__count">顯示 {{ champions().length }} 位</p>
+
+  <div class="champ-grid">
+    @for (champion of champions(); track champion.id) {
+      <article class="champ-card">
+        <app-champion-icon [championId]="champion.id" [size]="56" />
+        <div class="champ-card__body">
+          <strong>{{ champion.nameZh }}</strong>
+          <span>{{ champion.name }}</span>
+          <em>{{ champion.titleZh }}</em>
+          <small>{{ roleText(champion.roles) }}</small>
+        </div>
+      </article>
+    }
+  </div>
+</section>

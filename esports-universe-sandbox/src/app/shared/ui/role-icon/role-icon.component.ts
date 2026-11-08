@@ -1,12 +1,15 @@
 import { Component, computed, input } from '@angular/core';
 import type { PlayerPosition } from '../../../core/models/player.model';
 
-const ROLE_ICON_SRC: Record<PlayerPosition, string> = {
+export type RoleIconId = PlayerPosition | 'COACH';
+
+const ROLE_ICON_SRC: Record<RoleIconId, string> = {
   TOP: 'role-icons/top.webp',
   JUNGLE: 'role-icons/jungle.webp',
   MID: 'role-icons/mid.webp',
   BOT: 'role-icons/bot.webp',
   SUPPORT: 'role-icons/support.webp',
+  COACH: 'role-icons/coach.webp',
 };
 
 @Component({
@@ -15,6 +18,6 @@ const ROLE_ICON_SRC: Record<PlayerPosition, string> = {
   styleUrl: './role-icon.component.scss',
 })
 export class RoleIconComponent {
-  readonly position = input.required<PlayerPosition>();
+  readonly position = input.required<RoleIconId>();
   readonly src = computed(() => ROLE_ICON_SRC[this.position()]);
 }

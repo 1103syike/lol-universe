@@ -36,6 +36,7 @@ export interface UniverseData {
   updatedAt: string;
   startYear: number;
   currentDate: string;
+  seedPowerRevision?: number;
   teams: Team[];
   players: Player[];
   coaches: Coach[];

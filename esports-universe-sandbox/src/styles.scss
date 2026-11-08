@@ -1,8 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700;800&family=Noto+Serif+TC:wght@700;900&display=swap');
 
 :root {
   --font-display: 'Barlow Condensed', sans-serif;
   --font-body: 'Barlow', sans-serif;
+  --font-mvp: 'Noto Serif TC', 'Barlow Condensed', serif;
   --color-bg: #090c12;
   --color-surface: #151b27;
   --color-ink: #f6f1e4;
@@ -44,6 +45,363 @@ body {
   color-scheme: dark;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+body[data-scene]::before {
+  content: attr(data-mark);
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  color: rgb(255 255 255 / 7%);
+  font-family: var(--font-display);
+  font-size: 22vw;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 0.8;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+body[data-scene='tcs']::before,
+body[data-scene='tcl']::before {
+  font-size: min(16vw, 8.5rem);
+  letter-spacing: 0.08em;
+  line-height: 1.12;
+  white-space: pre;
+  text-align: center;
+}
+
+body[data-scene='tcs-playoff']::before,
+body[data-scene='tcl-playoff']::before {
+  font-size: min(14vw, 7.5rem);
+  letter-spacing: 0.06em;
+}
+
+body.is-scene-swap::before {
+  animation: mark-in 0.7s cubic-bezier(.16, 1, .3, 1);
+}
+
+body.is-scene-swap::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: #090b10;
+  animation: scene-wash 0.68s ease forwards;
+}
+
+body[data-scene-from='tcs'].is-scene-swap::after {
+  background:
+    radial-gradient(70% 55% at 50% -10%, rgb(243 212 138 / 42%), transparent 58%),
+    linear-gradient(180deg, #3a2c12 0%, #120e09 46%, #090b10 100%);
+}
+
+body[data-scene-from='tcl'].is-scene-swap::after {
+  background:
+    radial-gradient(70% 55% at 50% -10%, rgb(61 214 165 / 34%), transparent 58%),
+    linear-gradient(180deg, #0d3d2e 0%, #07140f 46%, #090b10 100%);
+}
+
+body[data-scene-from='transfer'].is-scene-swap::after {
+  background:
+    radial-gradient(55% 50% at 18% 110%, rgb(214 122 58 / 36%), transparent 55%),
+    radial-gradient(45% 45% at 88% 0%, rgb(86 168 214 / 28%), transparent 58%),
+    linear-gradient(180deg, #1a2430 0%, #10141c 48%, #090b10 100%);
+}
+
+body[data-scene-from='playoff'].is-scene-swap::after {
+  background:
+    radial-gradient(ellipse 28% 70% at 50% -5%, rgb(255 220 140 / 55%), transparent 62%),
+    radial-gradient(60% 45% at 50% 108%, rgb(90 40 180 / 55%), transparent 58%),
+    linear-gradient(180deg, #1a1028 0%, #07050c 42%, #040308 100%);
+}
+
+body[data-scene-from='tcs-playoff'].is-scene-swap::after {
+  background:
+    radial-gradient(ellipse 32% 75% at 50% -8%, rgb(255 230 160 / 62%), transparent 60%),
+    radial-gradient(65% 50% at 50% 115%, rgb(90 40 170 / 58%), transparent 55%),
+    linear-gradient(180deg, #2a1838 0%, #120c10 40%, #060408 100%);
+}
+
+body[data-scene-from='tcl-playoff'].is-scene-swap::after {
+  background:
+    radial-gradient(ellipse 32% 75% at 50% -8%, rgb(120 255 220 / 42%), transparent 60%),
+    radial-gradient(65% 50% at 50% 115%, rgb(10 70 110 / 62%), transparent 55%),
+    linear-gradient(180deg, #0a2834 0%, #061018 40%, #04080c 100%);
+}
+
+body[data-scene-from='promotion'].is-scene-swap::after {
+  background:
+    radial-gradient(ellipse 40% 55% at 50% -6%, rgb(255 120 70 / 36%), transparent 60%),
+    radial-gradient(48% 50% at 0% 100%, rgb(227 179 65 / 34%), transparent 62%),
+    radial-gradient(48% 50% at 100% 100%, rgb(61 214 165 / 30%), transparent 62%),
+    linear-gradient(180deg, #2a1410 0%, #100c0e 46%, #070508 100%);
+}
+
+@keyframes mark-in {
+  from { opacity: 0; transform: scale(1.12); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes scene-wash {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-scene-swap::before,
+  body.is-scene-swap::after {
+    animation: none;
+  }
+}
+
+body[data-scene] .layout {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-scene='tcs'] {
+  background:
+    radial-gradient(42% 55% at 0% 100%, rgb(227 179 65 / 24%), transparent 70%),
+    radial-gradient(42% 55% at 100% 80%, rgb(227 179 65 / 16%), transparent 70%),
+    radial-gradient(70% 55% at 50% -10%, rgb(243 212 138 / 42%), transparent 58%),
+    linear-gradient(115deg, transparent 42%, rgb(255 236 190 / 10%) 50%, transparent 58%),
+    linear-gradient(180deg, #3a2c12 0%, #120e09 46%, #090b10 100%);
+}
+
+body[data-scene='tcl'] {
+  background:
+    radial-gradient(42% 55% at 0% 100%, rgb(61 214 165 / 22%), transparent 70%),
+    radial-gradient(42% 55% at 100% 80%, rgb(61 214 165 / 14%), transparent 70%),
+    radial-gradient(70% 55% at 50% -10%, rgb(61 214 165 / 34%), transparent 58%),
+    linear-gradient(115deg, transparent 42%, rgb(186 255 228 / 10%) 50%, transparent 58%),
+    linear-gradient(180deg, #0d3d2e 0%, #07140f 46%, #090b10 100%);
+}
+
+body[data-scene='playoff'],
+body[data-scene='tcs-playoff'],
+body[data-scene='tcl-playoff'] {
+  --color-surface: #12101a;
+  --color-toolbar: rgb(8 6 12 / 88%);
+}
+
+body[data-scene='playoff']::before,
+body[data-scene='tcs-playoff']::before,
+body[data-scene='tcl-playoff']::before {
+  color: rgb(243 212 138 / 14%);
+  font-size: 26vw;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 48px rgb(120 78 210 / 35%);
+}
+
+body[data-scene='playoff'] {
+  background:
+    radial-gradient(ellipse 28% 70% at 50% -5%, rgb(255 220 140 / 55%), transparent 62%),
+    radial-gradient(ellipse 18% 55% at 22% 0%, rgb(180 120 255 / 28%), transparent 70%),
+    radial-gradient(ellipse 18% 55% at 78% 0%, rgb(180 120 255 / 28%), transparent 70%),
+    radial-gradient(60% 45% at 50% 108%, rgb(90 40 180 / 55%), transparent 58%),
+    conic-gradient(from 200deg at 50% 120%, transparent 0deg, rgb(227 179 65 / 10%) 40deg, transparent 80deg, rgb(140 90 255 / 12%) 140deg, transparent 180deg),
+    linear-gradient(180deg, #1a1028 0%, #07050c 42%, #040308 100%);
+}
+
+body[data-scene='tcs-playoff'] {
+  background:
+    radial-gradient(ellipse 32% 75% at 50% -8%, rgb(255 230 160 / 62%), transparent 60%),
+    radial-gradient(ellipse 22% 50% at 12% 10%, rgb(255 200 100 / 22%), transparent 70%),
+    radial-gradient(ellipse 22% 50% at 88% 10%, rgb(140 80 220 / 30%), transparent 70%),
+    radial-gradient(65% 50% at 50% 115%, rgb(90 40 170 / 58%), transparent 55%),
+    linear-gradient(180deg, #2a1838 0%, #120c10 40%, #060408 100%);
+}
+
+body[data-scene='tcl-playoff'] {
+  background:
+    radial-gradient(ellipse 32% 75% at 50% -8%, rgb(120 255 220 / 42%), transparent 60%),
+    radial-gradient(ellipse 22% 50% at 12% 10%, rgb(40 180 200 / 26%), transparent 70%),
+    radial-gradient(ellipse 22% 50% at 88% 10%, rgb(80 120 255 / 28%), transparent 70%),
+    radial-gradient(65% 50% at 50% 115%, rgb(10 70 110 / 62%), transparent 55%),
+    linear-gradient(180deg, #0a2834 0%, #061018 40%, #04080c 100%);
+}
+
+body[data-scene='msi'] {
+  background:
+    linear-gradient(118deg, transparent 18%, rgb(0 229 255 / 14%) 28%, transparent 40%),
+    radial-gradient(50% 45% at 80% 0%, rgb(0 229 255 / 28%), transparent 60%),
+    linear-gradient(180deg, #042433 0%, #071018 62%, #05080c 100%);
+}
+
+body[data-scene='worlds'] {
+  background:
+    radial-gradient(circle at 50% 120%, rgb(120 78 210 / 42%), transparent 46%),
+    radial-gradient(40% 40% at 50% 30%, rgb(243 212 138 / 18%), transparent 70%),
+    linear-gradient(180deg, #14082a 0%, #090614 70%);
+}
+
+body[data-scene='first-stand'] {
+  background:
+    linear-gradient(102deg, transparent 46%, rgb(255 59 87 / 28%) 54%, transparent 64%),
+    radial-gradient(55% 45% at 0% 0%, rgb(255 80 104 / 32%), transparent 60%),
+    linear-gradient(180deg, #3a1020 0%, #14070c 68%, #090b10 100%);
+}
+
+body[data-scene='ewc'] {
+  background:
+    radial-gradient(50% 45% at 50% 120%, rgb(212 168 67 / 32%), transparent 55%),
+    radial-gradient(40% 40% at 100% 0%, rgb(31 122 74 / 28%), transparent 60%),
+    linear-gradient(180deg, #143024 0%, #1a160c 55%, #090b10 100%);
+}
+
+body[data-scene='transfer'] {
+  background:
+    radial-gradient(48% 55% at 12% 110%, rgb(214 122 58 / 30%), transparent 62%),
+    radial-gradient(42% 48% at 92% -8%, rgb(86 168 214 / 26%), transparent 60%),
+    linear-gradient(128deg, transparent 36%, rgb(214 168 110 / 12%) 48%, transparent 58%),
+    linear-gradient(180deg, #1a2430 0%, #10141c 48%, #090b10 100%);
+}
+
+body[data-scene='promotion'] {
+  --color-surface: #161010;
+  --color-toolbar: rgb(12 8 8 / 88%);
+  background:
+    radial-gradient(ellipse 42% 58% at 50% -8%, rgb(255 130 70 / 42%), transparent 60%),
+    radial-gradient(46% 55% at 0% 108%, rgb(227 179 65 / 40%), transparent 60%),
+    radial-gradient(46% 55% at 100% 108%, rgb(61 214 165 / 34%), transparent 60%),
+    linear-gradient(115deg, transparent 40%, rgb(255 160 90 / 10%) 50%, transparent 60%),
+    linear-gradient(180deg, #2e1612 0%, #120c0e 46%, #070508 100%);
+}
+
+body[data-scene='promotion']::before {
+  color: rgb(255 160 90 / 14%);
+  font-size: 24vw;
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 40px rgb(255 100 60 / 28%);
+}
+
+body[data-scene='clubs'] {
+  --color-surface: #12161e;
+  --color-toolbar: rgb(8 10 14 / 88%);
+  background:
+    radial-gradient(48% 55% at 8% 108%, rgb(227 179 65 / 22%), transparent 62%),
+    radial-gradient(42% 48% at 96% -6%, rgb(90 140 210 / 22%), transparent 58%),
+    radial-gradient(70% 50% at 50% -12%, rgb(180 200 230 / 14%), transparent 55%),
+    linear-gradient(122deg, transparent 38%, rgb(227 179 65 / 8%) 50%, transparent 62%),
+    linear-gradient(180deg, #1a2230 0%, #0e1218 48%, #090b10 100%);
+}
+
+body[data-scene='clubs']::before {
+  color: rgb(220 230 245 / 9%);
+  font-size: min(18vw, 9rem);
+  letter-spacing: 0.2em;
+}
+
+body[data-scene-from='clubs'].is-scene-swap::after {
+  background:
+    radial-gradient(48% 55% at 8% 108%, rgb(227 179 65 / 28%), transparent 62%),
+    radial-gradient(42% 48% at 96% -6%, rgb(90 140 210 / 26%), transparent 58%),
+    linear-gradient(180deg, #1a2230 0%, #0e1218 48%, #090b10 100%);
+}
+
+body[data-scene='players'] {
+  --color-surface: #101820;
+  --color-toolbar: rgb(6 12 18 / 88%);
+  background:
+    radial-gradient(46% 52% at 0% 100%, rgb(56 170 210 / 26%), transparent 62%),
+    radial-gradient(40% 48% at 100% 0%, rgb(90 210 190 / 18%), transparent 58%),
+    radial-gradient(65% 45% at 50% -10%, rgb(120 190 230 / 22%), transparent 55%),
+    linear-gradient(128deg, transparent 40%, rgb(80 200 230 / 9%) 52%, transparent 64%),
+    linear-gradient(180deg, #0c2834 0%, #0a141c 48%, #080b10 100%);
+}
+
+body[data-scene='players']::before {
+  color: rgb(160 220 240 / 10%);
+  font-size: min(18vw, 9rem);
+  letter-spacing: 0.22em;
+}
+
+body[data-scene-from='players'].is-scene-swap::after {
+  background:
+    radial-gradient(46% 52% at 0% 100%, rgb(56 170 210 / 30%), transparent 62%),
+    radial-gradient(40% 48% at 100% 0%, rgb(90 210 190 / 22%), transparent 58%),
+    linear-gradient(180deg, #0c2834 0%, #0a141c 48%, #080b10 100%);
+}
+
+body[data-scene='coaches'] {
+  --color-surface: #161412;
+  --color-toolbar: rgb(12 10 8 / 88%);
+  background:
+    radial-gradient(48% 55% at 100% 108%, rgb(214 150 70 / 24%), transparent 62%),
+    radial-gradient(42% 48% at 0% -8%, rgb(180 120 70 / 18%), transparent 58%),
+    radial-gradient(70% 50% at 50% -12%, rgb(230 190 130 / 16%), transparent 55%),
+    linear-gradient(118deg, transparent 38%, rgb(214 160 90 / 9%) 50%, transparent 62%),
+    linear-gradient(180deg, #2a1c12 0%, #14100c 48%, #0a0908 100%);
+}
+
+body[data-scene='coaches']::before {
+  color: rgb(230 200 150 / 10%);
+  font-size: min(18vw, 9rem);
+  letter-spacing: 0.2em;
+}
+
+body[data-scene-from='coaches'].is-scene-swap::after {
+  background:
+    radial-gradient(48% 55% at 100% 108%, rgb(214 150 70 / 28%), transparent 62%),
+    radial-gradient(42% 48% at 0% -8%, rgb(180 120 70 / 22%), transparent 58%),
+    linear-gradient(180deg, #2a1c12 0%, #14100c 48%, #0a0908 100%);
+}
+
+body[data-scene='schedule'] {
+  --color-surface: #12181c;
+  --color-toolbar: rgb(8 12 14 / 88%);
+  background:
+    radial-gradient(44% 50% at 12% 110%, rgb(70 160 150 / 22%), transparent 62%),
+    radial-gradient(40% 46% at 90% -8%, rgb(100 150 180 / 18%), transparent 58%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 4.5rem,
+      rgb(180 210 220 / 4%) 4.5rem,
+      rgb(180 210 220 / 4%) 4.6rem
+    ),
+    linear-gradient(180deg, #152028 0%, #0e1418 48%, #090b10 100%);
+}
+
+body[data-scene='schedule']::before {
+  color: rgb(170 210 210 / 9%);
+  font-size: min(18vw, 9rem);
+  letter-spacing: 0.24em;
+}
+
+body[data-scene-from='schedule'].is-scene-swap::after {
+  background:
+    radial-gradient(44% 50% at 12% 110%, rgb(70 160 150 / 26%), transparent 62%),
+    radial-gradient(40% 46% at 90% -8%, rgb(100 150 180 / 22%), transparent 58%),
+    linear-gradient(180deg, #152028 0%, #0e1418 48%, #090b10 100%);
+}
+
+body[data-scene='matches'] {
+  --color-surface: #181214;
+  --color-toolbar: rgb(12 8 10 / 88%);
+  background:
+    radial-gradient(48% 55% at 50% 115%, rgb(200 60 70 / 28%), transparent 60%),
+    radial-gradient(42% 48% at 0% 0%, rgb(220 120 70 / 18%), transparent 58%),
+    radial-gradient(40% 46% at 100% 8%, rgb(180 70 90 / 16%), transparent 58%),
+    linear-gradient(125deg, transparent 40%, rgb(220 90 80 / 9%) 52%, transparent 64%),
+    linear-gradient(180deg, #301418 0%, #140c10 46%, #09080a 100%);
+}
+
+body[data-scene='matches']::before {
+  color: rgb(255 170 160 / 10%);
+  font-size: min(18vw, 9rem);
+  letter-spacing: 0.22em;
+}
+
+body[data-scene-from='matches'].is-scene-swap::after {
+  background:
+    radial-gradient(48% 55% at 50% 115%, rgb(200 60 70 / 32%), transparent 60%),
+    radial-gradient(42% 48% at 0% 0%, rgb(220 120 70 / 22%), transparent 58%),
+    linear-gradient(180deg, #301418 0%, #140c10 46%, #09080a 100%);
 }
 
 h1,
@@ -253,6 +611,11 @@ a {
   grid-template-columns: minmax(8rem, 1.5fr) minmax(4.5rem, 0.7fr) 3.2rem 6.5rem;
 }
 
+.sheet__head.sheet__head--coaches,
+.sheet__row.sheet__row--coaches {
+  grid-template-columns: minmax(8rem, 1.4fr) 5.2rem minmax(4rem, 0.7fr) 3.2rem 6.5rem;
+}
+
 .sheet__head {
   color: var(--color-muted);
   font-size: 0.72rem;
@@ -322,5 +685,24 @@ a {
 @media (max-width: 560px) {
   .sign {
     grid-template-columns: 1fr;
+  }
+}
+
+.window-note {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  background: rgb(255 255 255 / 3%);
+
+  strong {
+    margin-right: 0.35rem;
+    color: var(--color-ink);
+  }
+
+  &.is-open {
+    border-color: rgb(227 179 65 / 45%);
+    color: var(--color-ink);
   }
 }

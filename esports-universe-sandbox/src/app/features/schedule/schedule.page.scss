@@ -395,6 +395,11 @@
   background: rgb(196 160 255 / 12%);
 }
 
+.month__day.is-today {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
 .month__day.is-holiday {
   background: rgb(255 93 115 / 16%);
   color: var(--color-danger);

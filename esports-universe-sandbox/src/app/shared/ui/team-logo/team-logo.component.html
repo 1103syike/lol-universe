@@ -1,5 +1,5 @@
 @if (!failed()) {
-  <span class="team-logo__plate">
+  <span class="team-logo__plate" [class.is-bare]="bare()">
     <img
       class="team-logo__image"
       [src]="imageSrc()"

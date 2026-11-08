@@ -1,10 +1,12 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { buildOpeningLeague } from '../data/initial-teams';
+import { applySeedCoachDefaults, buildOpeningLeague, ensureTeamCoaches } from '../data/initial-teams';
+import { applySeedPlayerDefaults, SEED_POWER_REVISION } from '../data/player-power-profiles';
 import type { Coach } from '../models/coach.model';
 import { COACH_ATTRIBUTE_KEYS, isCoachAttributeKey } from '../models/coach.model';
 import type { Player } from '../models/player.model';
 import { ATTRIBUTE_KEYS, isPlayerNationality } from '../models/player.model';
 import type { Team } from '../models/team.model';
+import { stripEmbeddedTitleSponsor } from '../models/team.model';
 import { TEAM_TIMELINE_KINDS } from '../models/team-timeline.model';
 import type { TeamTimelineEvent } from '../models/team-timeline.model';
 import type { UniverseData, UniverseStoreSnapshot, UniverseSummary } from '../models/universe.model';
@@ -12,9 +14,12 @@ import {
   isValidUniverseStartYear,
   universeDateFromStartYear,
 } from '../models/universe.model';
+import { isRarity, suggestRarityFromOvr } from '../models/rarity.model';
 import { createDefaultAttributes, clampRating } from '../../shared/utils/create-default-attributes';
 import { createDefaultCoachAttributes } from '../../shared/utils/create-default-coach-attributes';
+import { calculateCoachOvr, calculatePlayerOvr } from '../../shared/utils/player-ovr';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import type { PlayerAttributes } from '../models/player.model';
 import { rememberShuffledFixtures } from '../../shared/utils/opening-fixtures';
 import { StorageAdapter } from '../storage/storage.adapter';
 import { STORAGE_KEYS } from '../storage/storage.tokens';
@@ -57,6 +62,7 @@ export class UniverseService {
       updatedAt: now,
       startYear,
       currentDate: universeDateFromStartYear(startYear),
+      seedPowerRevision: SEED_POWER_REVISION,
       ...buildOpeningLeague(now, startYear),
       teamEvents: [],
       hiddenTimelineIds: [],
@@ -187,7 +193,9 @@ export class UniverseService {
   }
 
   patchActiveUniverse(
-    patch: Partial<Pick<UniverseData, 'teams' | 'players' | 'coaches' | 'teamEvents' | 'hiddenTimelineIds'>>,
+    patch: Partial<
+      Pick<UniverseData, 'teams' | 'players' | 'coaches' | 'teamEvents' | 'hiddenTimelineIds' | 'seedPowerRevision'>
+    >,
   ): void {
     const active = this.activeUniverseState();
     if (!active) {
@@ -233,6 +241,7 @@ export class UniverseService {
       updatedAt: now,
       startYear: DEFAULT_START_YEAR,
       currentDate: universeDateFromStartYear(DEFAULT_START_YEAR),
+      seedPowerRevision: SEED_POWER_REVISION,
       ...buildOpeningLeague(now, DEFAULT_START_YEAR),
       teamEvents: [],
       hiddenTimelineIds: [],
@@ -253,7 +262,13 @@ export class UniverseService {
   }
 
   private loadActiveUniverse(universeId: string): void {
-    this.activeUniverseState.set(this.readUniverseData(universeId));
+    const data = this.readUniverseData(universeId);
+    if (!data) {
+      this.activeUniverseState.set(null);
+      return;
+    }
+    this.writeUniverse(data);
+    this.activeUniverseState.set(data);
   }
 
   private readUniverseData(universeId: string): UniverseData | null {
@@ -269,10 +284,22 @@ export class UniverseService {
   }
 
   private normalizeUniverse(universe: UniverseData): UniverseData {
-    const teams = Array.isArray(universe.teams) ? universe.teams : [];
-    const players = Array.isArray(universe.players) ? universe.players : [];
+    const rawTeams = Array.isArray(universe.teams) ? universe.teams : [];
+    const rawPlayers = Array.isArray(universe.players) ? universe.players : [];
     const coaches = Array.isArray(universe.coaches) ? universe.coaches : [];
     const startYear = this.resolveStartYear(universe);
+    const currentRevision = Number(universe.seedPowerRevision ?? 0);
+    const shouldSyncPower = currentRevision < SEED_POWER_REVISION;
+    const seeded = applySeedPlayerDefaults(
+      rawPlayers.map((player) => this.normalizePlayer(player)),
+      rawTeams.map((team) => this.normalizeTeam(team)),
+      { syncPower: shouldSyncPower },
+    );
+    const normalizedCoaches = coaches.map((coach) => this.normalizeCoach(coach));
+    const syncedCoaches = shouldSyncPower
+      ? applySeedCoachDefaults(normalizedCoaches)
+      : normalizedCoaches;
+    const withCoaches = ensureTeamCoaches(seeded.teams, syncedCoaches, { startYear });
 
     return {
       ...universe,
@@ -280,9 +307,10 @@ export class UniverseService {
       currentDate: universe.currentDate?.trim()
         ? universe.currentDate
         : universeDateFromStartYear(startYear),
-      teams: teams.map((team) => this.normalizeTeam(team)),
-      players: players.map((player) => this.normalizePlayer(player)),
-      coaches: coaches.map((coach) => this.normalizeCoach(coach)),
+      seedPowerRevision: Math.max(currentRevision, SEED_POWER_REVISION),
+      teams: withCoaches.teams,
+      players: seeded.players,
+      coaches: withCoaches.coaches,
       teamEvents: this.normalizeTeamEvents(universe.teamEvents),
       hiddenTimelineIds: this.normalizeHiddenIds(universe.hiddenTimelineIds),
     };
@@ -328,8 +356,13 @@ export class UniverseService {
   }
 
   private normalizeTeam(team: Team): Team {
+    const sponsor = typeof team.titleSponsor === 'string' ? team.titleSponsor.trim() : '';
+    const side = team.titleSponsorSide === 'prefix' || team.titleSponsorSide === 'suffix' ? team.titleSponsorSide : null;
     return {
       ...team,
+      name: stripEmbeddedTitleSponsor(team.name, sponsor || null, sponsor ? side : null),
+      titleSponsor: sponsor ? sponsor : null,
+      titleSponsorSide: sponsor ? side : null,
       logoUrl: team.logoUrl?.trim() ? team.logoUrl : defaultTeamLogoUrl(team.abbreviation),
       coachId: team.coachId ?? null,
       playerIds: Array.isArray(team.playerIds) ? team.playerIds : [],
@@ -338,13 +371,19 @@ export class UniverseService {
 
   private normalizePlayer(player: Player): Player {
     const nationalityCode = String(player.nationality ?? 'TW').toUpperCase();
+    const attributes = this.normalizePlayerAttributes(player.attributes);
+    const form = clampRating(Number.isFinite(player.form) ? Number(player.form) : 60);
+    const rarity = isRarity(String(player.rarity ?? ''))
+      ? player.rarity
+      : suggestRarityFromOvr(calculatePlayerOvr(attributes, player.position));
 
     return {
       ...player,
       nationality: isPlayerNationality(nationalityCode) ? nationalityCode : 'TW',
       teamId: player.teamId ?? null,
-      attributes: player.attributes ?? createDefaultAttributes(),
-      form: Number.isFinite(player.form) ? player.form : 50,
+      rarity,
+      attributes,
+      form,
       contract: player.contract ?? {
         startDate: '2026-01-01',
         endDate: '2026-12-31',
@@ -362,7 +401,7 @@ export class UniverseService {
 
     for (const key of COACH_ATTRIBUTE_KEYS) {
       const value = isCoachAttributeKey(key) ? source[key] : defaults[key];
-      attributes[key] = clampRating(Number.isFinite(value) ? value : defaults[key]);
+      attributes[key] = clampRating(Number.isFinite(value) ? Number(value) : defaults[key]);
     }
 
     const specialties = Array.isArray(coach.specialties)
@@ -373,6 +412,9 @@ export class UniverseService {
 
     const gamertag = String(coach.gamertag ?? '').trim() || String(coach.displayName ?? '').trim() || 'Coach';
     const displayName = String(coach.displayName ?? '').trim() || gamertag;
+    const rarity = isRarity(String(coach.rarity ?? ''))
+      ? coach.rarity
+      : suggestRarityFromOvr(calculateCoachOvr(attributes));
 
     return {
       ...coach,
@@ -380,6 +422,7 @@ export class UniverseService {
       gamertag,
       nationality: isPlayerNationality(nationalityCode) ? nationalityCode : 'TW',
       teamId: coach.teamId ?? null,
+      rarity,
       attributes,
       specialties,
       contract: coach.contract ?? {
@@ -389,6 +432,29 @@ export class UniverseService {
       },
       careerRecords: Array.isArray(coach.careerRecords) ? coach.careerRecords : [],
     };
+  }
+
+  private normalizePlayerAttributes(source: PlayerAttributes | undefined): PlayerAttributes {
+    const defaults = createDefaultAttributes();
+    if (!source) {
+      return defaults;
+    }
+    const attributes = createDefaultAttributes();
+    for (const key of ATTRIBUTE_KEYS) {
+      const current = clampRating(Number(source[key]?.current ?? defaults[key].current));
+      let potential = clampRating(Number(source[key]?.potential ?? defaults[key].potential));
+      if (potential < current) {
+        potential = current;
+      }
+      attributes[key] = {
+        current,
+        potential,
+        growthRate: Number.isFinite(source[key]?.growthRate)
+          ? Number(source[key].growthRate)
+          : defaults[key].growthRate,
+      };
+    }
+    return attributes;
   }
 
   private toSummary(universe: UniverseData): UniverseSummary {

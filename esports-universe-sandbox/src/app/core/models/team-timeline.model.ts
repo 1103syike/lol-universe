@@ -1,6 +1,7 @@
 export const TEAM_TIMELINE_KINDS = [
   'acquired',
   'renamed',
+  'sponsored',
   'player-joined',
   'player-left',
   'league-changed',

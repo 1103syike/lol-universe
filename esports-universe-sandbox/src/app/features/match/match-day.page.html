@@ -1,33 +1,183 @@
 <section class="day">
   @if (activeUniverse()) {
+    @if (msiIsOn()) {
+      <header class="msi-head">
+        <p>2021 MSI</p>
+        <h1>{{ msiHeadline() }}</h1>
+      </header>
+      <div class="msi-layout">
+        <section class="panel msi-live">
+          @if (msiHero(); as hero) {
+            @if (hero.kind === 'match') {
+              <div class="msi-live__top">
+                <p class="msi-live__meta">
+                  <span>MSI</span>
+                  <span>{{ hero.match.stage }}</span>
+                  <span>{{ hero.match.label }}</span>
+                  <span>{{ hero.match.kickoff }}</span>
+                  <span>{{ shortDate(hero.match.date) }}</span>
+                  <span>{{ hero.match.bestOf === 1 ? 'BO1' : 'BO5' }}</span>
+                </p>
+                <a class="msi-go" routerLink="/dashboard">去打這場</a>
+              </div>
+              <div class="msi-live__clubs">
+                <div class="msi-club" [class.is-winner]="hero.match.done && hero.match.leftGames > hero.match.rightGames">
+                  <span class="msi-club__logo">
+                    <app-team-logo [abbreviation]="hero.match.left?.abbreviation ?? ''" [logoUrl]="hero.match.left?.logoUrl ?? null" [name]="hero.match.left?.name ?? ''" />
+                  </span>
+                  <span class="msi-club__id">
+                    <strong>{{ hero.match.left?.abbreviation }}</strong>
+                    <small>{{ hero.match.left?.seed }}</small>
+                  </span>
+                </div>
+                <p class="msi-live__score">
+                  <b>{{ hero.match.leftGames }}</b>
+                  <span>:</span>
+                  <b>{{ hero.match.rightGames }}</b>
+                </p>
+                <div class="msi-club msi-club--away" [class.is-winner]="hero.match.done && hero.match.rightGames > hero.match.leftGames">
+                  <span class="msi-club__id">
+                    <strong>{{ hero.match.right?.abbreviation }}</strong>
+                    <small>{{ hero.match.right?.seed }}</small>
+                  </span>
+                  <span class="msi-club__logo">
+                    <app-team-logo [abbreviation]="hero.match.right?.abbreviation ?? ''" [logoUrl]="hero.match.right?.logoUrl ?? null" [name]="hero.match.right?.name ?? ''" />
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <p class="msi-live__meta">亂鬥賽第 1 選四強對手</p>
+              <p class="msi-pick">{{ hero.chooser.abbreviation }} · {{ hero.chooser.seed }}</p>
+              <div class="msi-pick__choices">
+                @for (choice of hero.choices; track choice.id) {
+                  <span>{{ choice.abbreviation }} · {{ choice.seed }}</span>
+                }
+              </div>
+              <a class="btn btn--primary" routerLink="/dashboard">去總覽選對手</a>
+            }
+          }
+        </section>
+        <div class="msi-tables">
+          @for (table of msiTables(); track table.key) {
+            <article class="panel msi-table" [class.is-live]="msiLiveTable(table.key)">
+              <h2>{{ table.title }}</h2>
+              <div class="msi-board">
+                @for (row of table.rows; track row.abbreviation) {
+                  @if (row.rank === table.advanceCount + 1) {
+                    <p class="msi-board__cut"><span>出線</span></p>
+                  }
+                  <div class="msi-board__row" [class.is-in]="row.rank <= table.advanceCount">
+                    <span>{{ row.rank }}</span>
+                    <span class="msi-board__team">
+                      <span class="msi-board__logo">
+                        <app-team-logo [abbreviation]="row.abbreviation" [logoUrl]="row.logoUrl" [name]="row.name" />
+                      </span>
+                      <span>
+                        <strong>{{ row.abbreviation }}</strong>
+                        <small>{{ row.note }}</small>
+                      </span>
+                    </span>
+                    <span [class.is-idle]="row.wins + row.losses === 0">{{ row.wins }}-{{ row.losses }}</span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+      <section class="panel msi-slate">
+        <h2 class="panel__title">這一段的賽程</h2>
+        @for (day of msiDays(); track day.iso) {
+          <h3 class="round__label">{{ day.title }}</h3>
+          <div class="msi-rows">
+            @for (match of day.matches; track match.id) {
+              <article class="msi-row" [class.is-live]="match.id === msiLiveId()" [class.is-done]="match.done">
+                <span class="msi-row__tag">{{ match.label }}</span>
+                <span class="msi-row__side">
+                  <span class="msi-row__logo">
+                    <app-team-logo [abbreviation]="match.left?.abbreviation ?? ''" [logoUrl]="match.left?.logoUrl ?? null" [name]="match.left?.name ?? ''" />
+                  </span>
+                  <strong [class.is-winner]="match.done && match.leftGames > match.rightGames">{{ match.left?.abbreviation }}</strong>
+                </span>
+                <span class="msi-row__score" [class.is-wait]="!match.done && match.id !== msiLiveId()">
+                  @if (match.done) {
+                    {{ match.leftGames }}:{{ match.rightGames }}
+                  } @else if (match.id === msiLiveId()) {
+                    現在
+                  } @else {
+                    對
+                  }
+                </span>
+                <span class="msi-row__side msi-row__side--away">
+                  <strong [class.is-winner]="match.done && match.rightGames > match.leftGames">{{ match.right?.abbreviation }}</strong>
+                  <span class="msi-row__logo">
+                    <app-team-logo [abbreviation]="match.right?.abbreviation ?? ''" [logoUrl]="match.right?.logoUrl ?? null" [name]="match.right?.name ?? ''" />
+                  </span>
+                </span>
+              </article>
+            }
+          </div>
+        }
+      </section>
+      <button class="btn btn--ghost" type="button" (click)="toggleSpringReview()">{{ springReview() ? '收起春季' : '回看春季' }}</button>
+    }
+    @if (!msiIsOn() || springReview()) {
     <div class="league-bar">
       <div class="league-switch">
         @for (league of leagues; track league) {
           <button type="button" [class.is-on]="selectedLeague() === league" (click)="selectLeague(league)">{{ league }}</button>
         }
       </div>
-      <span class="league-bar__stage">{{ clockLabel() }}</span>
+      <span class="league-bar__stage">{{ barLabel() }}</span>
+      @if (playoffLocked()) {
+        <div class="stage-switch">
+          <button type="button" [class.is-on]="recordStage() === 'regular'" (click)="showRecord('regular')">例行賽</button>
+          <button type="button" [class.is-on]="recordStage() === 'playoff'" (click)="showRecord('playoff')">季後賽</button>
+          <button type="button" [class.is-on]="recordStage() === 'promotion'" (click)="showRecord('promotion')">升降賽</button>
+        </div>
+      }
       @if ((selectedLeague() === 'TCS' || selectedLeague() === 'TCL') && isSupported() && hasEnoughTeams() && !playoffLocked()) {
         <strong class="league-bar__progress">{{ playedCount() }} / {{ matchCount() }}</strong>
       }
     </div>
 
-    @if (selectedLeague() === 'RL' || selectedLeague() === 'EA') {
-      <p class="empty">{{ otherLeagueNote() }}</p>
-    } @else if (!isSupported()) {
+    @if (!isSupported()) {
       <p class="empty">這個宇宙停在 {{ year() }} 年。賽程從 2021 排到 2026，到宇宙頁把開始年份改過來。</p>
     } @else if (!hasEnoughTeams()) {
       <p class="empty">至少要 2 支 {{ selectedLeague() }} 才能排賽程。</p>
     } @else if (!hasSpringSchedule()) {
       <p class="empty">先排好 {{ selectedLeague() }} 春季例行賽，比賽才會出現。</p>
       <a class="btn btn--primary" routerLink="/schedule">去日程</a>
-    } @else if (playoffLocked()) {
-        <section class="panel">
+    } @else if (playoffLocked() && recordStage() === 'playoff') {
+      <section class="panel">
+        <h2 class="panel__title">{{ selectedLeague() }} 季後賽</h2>
+        @if (playoffRounds().length === 0) {
+          <p class="panel__note">這一聯賽的季後賽還沒有對陣。</p>
+        }
+        @for (round of playoffRounds(); track round.title) {
+          <h3 class="round__label">{{ round.title }}</h3>
+          <div class="fixtures">
+            @for (match of round.matches; track match.id) {
+              <ng-container *ngTemplateOutlet="seriesCard; context: { match: match }" />
+            }
+          </div>
+        }
+      </section>
+    } @else if (playoffLocked() && recordStage() === 'promotion') {
+      <section class="panel">
         <div class="panel__head">
-          <h2 class="panel__title">例行賽結束</h2>
-          <a class="btn btn--primary" [routerLink]="playoffRoute()">季後賽</a>
+          <h2 class="panel__title">春季升降賽</h2>
+          <p class="panel__note">TCS 和 TCL 共用這兩場</p>
         </div>
-        <ng-container *ngTemplateOutlet="standingsTable" />
+        @if (promotionSeries().length === 0) {
+          <p class="panel__note">這一季的升降賽還沒排對陣。</p>
+        } @else {
+          <div class="fixtures">
+            @for (match of promotionSeries(); track match.id) {
+              <ng-container *ngTemplateOutlet="seriesCard; context: { match: match }" />
+            }
+          </div>
+        }
       </section>
     } @else {
       @if (rosterNotice(); as notice) {
@@ -118,10 +268,51 @@
         </section>
       }
     }
+    }
   } @else {
     <p class="empty">先選一個宇宙。</p>
   }
 </section>
+
+<ng-template #seriesCard let-match="match">
+  <article class="series">
+    <header class="series__label">{{ match.roundLabel }}</header>
+    <div class="fixture" [class.is-done]="match.status === 'done'">
+      @if (match.left; as side) {
+        <div class="side" [class.is-winner]="side.isWinner">
+          <div class="side__pick">
+            <span class="side__logo">
+              <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+            </span>
+            <span class="side__name">
+              <strong>#{{ side.seed }} {{ side.abbreviation }}</strong>
+              <small>{{ side.name }}</small>
+            </span>
+          </div>
+          <span class="side__score">{{ seriesGames(side.games, match.status) }}</span>
+        </div>
+      } @else {
+        <div class="side is-empty"><span>待定</span></div>
+      }
+      @if (match.right; as side) {
+        <div class="side side--away" [class.is-winner]="side.isWinner">
+          <span class="side__score">{{ seriesGames(side.games, match.status) }}</span>
+          <div class="side__pick">
+            <span class="side__name">
+              <strong>{{ side.abbreviation }} #{{ side.seed }}</strong>
+              <small>{{ side.name }}</small>
+            </span>
+            <span class="side__logo">
+              <app-team-logo [abbreviation]="side.abbreviation" [logoUrl]="side.logoUrl" [name]="side.name" />
+            </span>
+          </div>
+        </div>
+      } @else {
+        <div class="side side--away is-empty"><span>待定</span></div>
+      }
+    </div>
+  </article>
+</ng-template>
 
 <ng-template #standingsTable>
   <div class="table">

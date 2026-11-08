@@ -1,0 +1,301 @@
+{
+  "teamCount": 20,
+  "weakest": [
+    {
+      "id": "a9a5f3f2-eb48-4a8e-94a7-85a6fcd9dec1",
+      "abbr": "OCE",
+      "name": "Ocean Rovers",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 74.4,
+      "minPlayer": 74.3,
+      "maxPlayer": 74.7
+    },
+    {
+      "id": "e032813c-cad5-43db-8182-f772ed1c8048",
+      "abbr": "MCX",
+      "name": "Machi E-Sports",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 74.8,
+      "minPlayer": 72.8,
+      "maxPlayer": 77
+    },
+    {
+      "id": "75850da8-e303-414c-b5bd-851f52462ef7",
+      "abbr": "BYG",
+      "name": "Beyond Gaming",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 75.9,
+      "minPlayer": 73.5,
+      "maxPlayer": 77.3
+    },
+    {
+      "id": "2144888d-8811-4e07-ae9a-2b8bb30572a5",
+      "abbr": "GRX",
+      "name": "G-Rex Gaming",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 76.2,
+      "minPlayer": 73.5,
+      "maxPlayer": 78.3
+    },
+    {
+      "id": "1458ecd0-50fa-4ba9-9b0a-9d62aa4551f7",
+      "abbr": "BMG",
+      "name": "Ban Mei Gaming",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 76.8,
+      "minPlayer": 75.3,
+      "maxPlayer": 77.8
+    },
+    {
+      "id": "f518df64-dadc-4d72-932a-70d1319e06f2",
+      "abbr": "ONE",
+      "name": "Cathay ONE Team",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 78.6,
+      "minPlayer": 77.8,
+      "maxPlayer": 79.7
+    },
+    {
+      "id": "0988532c-9198-4a73-9ad5-0e0f11ae878b",
+      "abbr": "TXO",
+      "name": "Tongxin",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 79.3,
+      "minPlayer": 77.7,
+      "maxPlayer": 80.7
+    },
+    {
+      "id": "19b71ee4-3eaa-4688-82d4-57de0d390929",
+      "abbr": "SMG",
+      "name": "Still Moving Under Gunfire",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 80.1,
+      "minPlayer": 78.2,
+      "maxPlayer": 81.3
+    },
+    {
+      "id": "dc2cfcfc-1503-4f30-9b7d-d5565b6046a9",
+      "abbr": "ANK",
+      "name": "ANK Gaming",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 81.3,
+      "minPlayer": 80.2,
+      "maxPlayer": 82.7
+    },
+    {
+      "id": "f48bad1f-6e23-4f90-a36a-fc3e433696d0",
+      "abbr": "NVM",
+      "name": "Nova MS",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCL",
+      "playerCount": 5,
+      "teamAvg": 81.7,
+      "minPlayer": 80.3,
+      "maxPlayer": 83.8
+    }
+  ],
+  "strongest": [
+    {
+      "id": "1c70c32a-ebd3-45d1-8b85-236c9785d267",
+      "abbr": "FEG",
+      "name": "Far Eastern Giants",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 105.8,
+      "minPlayer": 101.7,
+      "maxPlayer": 108.3
+    },
+    {
+      "id": "b547b6e4-4055-49e1-8081-bff7cbe1c7bc",
+      "abbr": "RM",
+      "name": "Rakuten Monkeys",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 102,
+      "minPlayer": 99.2,
+      "maxPlayer": 109.2
+    },
+    {
+      "id": "0c2c4cce-743d-4ffe-bb5e-e8a9e6ebaf49",
+      "abbr": "JT",
+      "name": "CTBC J Team",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 101.8,
+      "minPlayer": 94.3,
+      "maxPlayer": 113.8
+    },
+    {
+      "id": "a63d1726-7ffa-4309-80e8-f8b92f5064de",
+      "abbr": "WS",
+      "name": "Wayi Spiders",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 100,
+      "minPlayer": 97.8,
+      "maxPlayer": 101.7
+    },
+    {
+      "id": "4e4fa412-a1ae-4c21-b2cf-b16d28f6a2da",
+      "abbr": "PSG",
+      "name": "PSG Talon",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 91.7,
+      "minPlayer": 90.3,
+      "maxPlayer": 92.5
+    },
+    {
+      "id": "70e50299-b05c-47b3-9d32-c0752c86a059",
+      "abbr": "MAD",
+      "name": "MAD Team",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 90.1,
+      "minPlayer": 87,
+      "maxPlayer": 92
+    },
+    {
+      "id": "09be6f78-f1b2-456c-abb0-3a7659e78dec",
+      "abbr": "GT",
+      "name": "Glitter Tigers",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 89.4,
+      "minPlayer": 76,
+      "maxPlayer": 109.8
+    },
+    {
+      "id": "9fb61bc5-fd32-4d17-a3ac-19b2d44684f0",
+      "abbr": "DCG",
+      "name": "Deep Cross Gaming",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 87.7,
+      "minPlayer": 86.7,
+      "maxPlayer": 88.7
+    },
+    {
+      "id": "1a3d3c21-5add-4853-9dc0-6338d39eae49",
+      "abbr": "ahq",
+      "name": "ahq e-Sports Club",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 84.8,
+      "minPlayer": 83.8,
+      "maxPlayer": 86
+    },
+    {
+      "id": "925f10d6-47f5-4594-8fd4-2d36feab416a",
+      "abbr": "HKA",
+      "name": "Hong Kong Attitude",
+      "leagueId": null,
+      "region": null,
+      "tier": "TCS",
+      "playerCount": 5,
+      "teamAvg": 83.7,
+      "minPlayer": 82.5,
+      "maxPlayer": 84.3
+    }
+  ],
+  "leagues": [
+    {
+      "league": "TCS",
+      "teams": 10,
+      "leagueAvg": 93.7,
+      "floor": 83.7,
+      "ceiling": 105.8,
+      "spread": 22.1,
+      "ranking": [
+        "FEG 105.8",
+        "RM 102",
+        "JT 101.8",
+        "WS 100",
+        "PSG 91.7",
+        "MAD 90.1",
+        "GT 89.4",
+        "DCG 87.7",
+        "ahq 84.8",
+        "HKA 83.7"
+      ]
+    },
+    {
+      "league": "TCL",
+      "teams": 10,
+      "leagueAvg": 77.9,
+      "floor": 74.4,
+      "ceiling": 81.7,
+      "spread": 7.3,
+      "ranking": [
+        "NVM 81.7",
+        "ANK 81.3",
+        "SMG 80.1",
+        "TXO 79.3",
+        "ONE 78.6",
+        "BMG 76.8",
+        "GRX 76.2",
+        "BYG 75.9",
+        "MCX 74.8",
+        "OCE 74.4"
+      ]
+    }
+  ],
+  "sampleTeamKeys": [
+    "id",
+    "abbreviation",
+    "name",
+    "leagueTier",
+    "salaryCap",
+    "logoUrl",
+    "coachId",
+    "playerIds",
+    "createdAt",
+    "updatedAt"
+  ]
+}

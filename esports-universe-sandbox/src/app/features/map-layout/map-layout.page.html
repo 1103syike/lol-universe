@@ -1,0 +1,86 @@
+<section class="map-editor">
+  <header class="map-editor__bar">
+    <div class="map-editor__title">
+      <a routerLink="/dashboard">← 回主頁</a>
+      <h1>地圖座標編輯</h1>
+      <p>拖曳標記，自動對齊 {{ snap }}。方向鍵也可微調（Shift = 100）。</p>
+    </div>
+    <div class="map-editor__actions">
+      <button type="button" (click)="saveDraft()">存草稿</button>
+      <button type="button" (click)="copyJson()">複製 JSON</button>
+      <button type="button" class="is-primary" (click)="saveFile()">儲存檔案</button>
+      <button type="button" (click)="resetAll()">全部還原</button>
+    </div>
+  </header>
+
+  <p class="map-editor__status" [class.is-dirty]="dirty()">{{ status() }}</p>
+
+  <div class="map-editor__body">
+    <div class="map-editor__board" #board>
+      <img class="map-editor__bg" src="/maps/summoners-rift.jpg" alt="召喚峽谷" draggable="false" />
+
+      @for (marker of visibleMarkers(); track marker.id) {
+        <button
+          type="button"
+          class="map-editor__marker"
+          [class.is-selected]="selectedId() === marker.id"
+          [class.is-structure]="marker.group === 'structure'"
+          [class.is-objective]="marker.group === 'objective'"
+          [class.is-camp]="marker.group === 'camp'"
+          [style.left.%]="mapX(marker.x)"
+          [style.top.%]="mapY(marker.y)"
+          [attr.title]="marker.label + ' (' + marker.x + ', ' + marker.y + ')'"
+          (pointerdown)="startDrag($event, marker, board)"
+          (click)="select(marker.id)"
+        >
+          <i [ngStyle]="markerStyle(marker)"></i>
+          <span>{{ marker.id }}</span>
+        </button>
+      }
+    </div>
+
+    <aside class="map-editor__side">
+      <div class="map-editor__filters">
+        <button type="button" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">全部</button>
+        <button type="button" [class.is-on]="filter() === 'structure'" (click)="setFilter('structure')">防禦塔</button>
+        <button type="button" [class.is-on]="filter() === 'objective'" (click)="setFilter('objective')">龍巴龍</button>
+        <button type="button" [class.is-on]="filter() === 'camp'" (click)="setFilter('camp')">野怪</button>
+        <button type="button" [class.is-on]="filter() === 'fountain'" (click)="setFilter('fountain')">泉水</button>
+      </div>
+
+      @if (selected(); as current) {
+        <div class="map-editor__selected">
+          <h2>{{ current.id }}</h2>
+          <p>{{ current.label }}</p>
+          <p class="map-editor__coords">x {{ current.x }}　y {{ current.y }}</p>
+          <div class="map-editor__nudge">
+            <button type="button" (click)="nudge(0, 1)">↑</button>
+            <div>
+              <button type="button" (click)="nudge(-1, 0)">←</button>
+              <button type="button" (click)="nudge(1, 0)">→</button>
+            </div>
+            <button type="button" (click)="nudge(0, -1)">↓</button>
+          </div>
+          <button type="button" (click)="resetSelected()">還原此點</button>
+        </div>
+      } @else {
+        <p class="map-editor__hint">點選或拖曳地圖上的標記開始調整。</p>
+      }
+
+      <ul class="map-editor__list">
+        @for (marker of visibleMarkers(); track marker.id) {
+          <li>
+            <button
+              type="button"
+              [class.is-selected]="selectedId() === marker.id"
+              (click)="select(marker.id)"
+            >
+              <span>{{ marker.id }}</span>
+              <span>{{ marker.x }}, {{ marker.y }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </aside>
+  </div>
+</section>

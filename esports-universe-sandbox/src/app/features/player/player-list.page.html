@@ -52,14 +52,17 @@
       </form>
     }
 
-    <div class="desk__lane">
-      <button type="button" [class.is-on]="selectedPosition() === 'ALL'" (click)="setPositionFilter('ALL')">全部</button>
-      @for (position of positions; track position) {
-        <button type="button" [class.is-on]="selectedPosition() === position" (click)="setPositionFilter(position)">
-          <app-role-icon [position]="position" />
-          {{ positionLabels[position] }}
-        </button>
-      }
+    <div class="player-filter">
+      <label class="player-filter__search" for="player-search">
+        <span>名稱</span>
+        <input
+          id="player-search"
+          type="search"
+          [value]="nameQuery()"
+          (input)="onNameInput($event)"
+          placeholder="搜尋 ID／名稱"
+        />
+      </label>
       <app-menu
         variant="lane"
         ariaLabel="依隊伍篩"
@@ -67,32 +70,57 @@
         [options]="filterTeamMenu()"
         (picked)="setTeamFilter($event)"
       />
+      <div class="desk__lane player-filter__roles">
+        <button type="button" [class.is-on]="selectedPosition() === 'ALL'" (click)="setPositionFilter('ALL')">全部</button>
+        @for (position of positions; track position) {
+          <button type="button" [class.is-on]="selectedPosition() === position" (click)="setPositionFilter(position)">
+            <app-role-icon [position]="position" />
+            {{ positionLabels[position] }}
+          </button>
+        }
+      </div>
     </div>
 
-    <div class="sheet">
-      <div class="sheet__head">
-        <span>位置</span>
-        <span>ID</span>
+    <div class="sheet sheet--players">
+      <div class="sheet__head sheet__head--players">
+        <span>選手</span>
+        <span>路線</span>
+        <span>稀有</span>
+        <span>評級</span>
         <span>隊伍</span>
-        <span>歲</span>
-        <span>合約</span>
+        @for (key of attributeKeys; track key) {
+          <span>{{ attributeLabels[key] }}</span>
+        }
       </div>
       @for (player of filteredPlayers(); track player.id) {
-        <a class="sheet__row" [routerLink]="['/players', player.id]">
-          <span class="sheet__role">
-            <app-role-icon [position]="player.position" />
-            <span>{{ positionLabels[player.position] }}</span>
-          </span>
+        <a class="sheet__row sheet__row--players" [routerLink]="['/players', player.id]">
           <span class="sheet__who">
             <app-flag-icon [code]="player.nationality" />
             <span>{{ player.gamertag }}</span>
           </span>
+          <span class="sheet__role">
+            <app-role-icon [position]="player.position" />
+            {{ positionLabels[player.position] }}
+          </span>
+          <span class="sheet__rarity">
+            <app-rarity-badge [rarity]="player.rarity" />
+          </span>
+          <strong class="sheet__letter" [attr.data-grade]="playerGrade(player)" [attr.title]="'OVR ' + playerOvr(player)">
+            {{ playerGrade(player) }}
+          </strong>
           <span>{{ teamName(player.teamId) }}</span>
-          <span>{{ playerAge(player.birthday) }}</span>
-          <span>{{ deal(player.contract.startDate, player.contract.endDate) }}</span>
+          @for (key of attributeKeys; track key) {
+            <span
+              class="sheet__letter sheet__letter--attr"
+              [attr.data-grade]="attrGrade(player, key)"
+              [attr.title]="attributeLabels[key] + ' ' + player.attributes[key].current"
+            >
+              {{ attrGrade(player, key) }}
+            </span>
+          }
         </a>
       } @empty {
-        <p class="sheet__empty">這份名冊是空的。</p>
+        <p class="sheet__empty">沒有符合的選手。</p>
       }
     </div>
   } @else {

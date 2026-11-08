@@ -1,0 +1,206 @@
+{
+  "structures": {
+    "blue_top_outer": {
+      "x": 1650,
+      "y": 10550
+    },
+    "blue_mid_outer": {
+      "x": 6250,
+      "y": 6900
+    },
+    "blue_bot_outer": {
+      "x": 10550,
+      "y": 1650
+    },
+    "blue_top_inner": {
+      "x": 2100,
+      "y": 7050
+    },
+    "blue_mid_inner": {
+      "x": 5500,
+      "y": 5350
+    },
+    "blue_bot_inner": {
+      "x": 7350,
+      "y": 2100
+    },
+    "blue_top_inhib_tower": {
+      "x": 1650,
+      "y": 4750
+    },
+    "blue_mid_inhib_tower": {
+      "x": 4150,
+      "y": 4200
+    },
+    "blue_bot_inhib_tower": {
+      "x": 4550,
+      "y": 2150
+    },
+    "blue_inhib_top": {
+      "x": 1650,
+      "y": 4100
+    },
+    "blue_inhib_mid": {
+      "x": 3700,
+      "y": 3700
+    },
+    "blue_inhib_bot": {
+      "x": 3850,
+      "y": 2050
+    },
+    "blue_nexus_t1": {
+      "x": 2150,
+      "y": 2700
+    },
+    "blue_nexus_t2": {
+      "x": 2500,
+      "y": 2300
+    },
+    "blue_nexus": {
+      "x": 1950,
+      "y": 2050
+    },
+    "red_top_outer": {
+      "x": 4850,
+      "y": 13850
+    },
+    "red_mid_outer": {
+      "x": 9150,
+      "y": 8900
+    },
+    "red_bot_outer": {
+      "x": 14100,
+      "y": 5050
+    },
+    "red_top_inner": {
+      "x": 8300,
+      "y": 13400
+    },
+    "red_mid_inner": {
+      "x": 10000,
+      "y": 10350
+    },
+    "red_bot_inner": {
+      "x": 13500,
+      "y": 8550
+    },
+    "red_top_inhib_tower": {
+      "x": 10650,
+      "y": 13650
+    },
+    "red_mid_inhib_tower": {
+      "x": 11250,
+      "y": 11450
+    },
+    "red_bot_inhib_tower": {
+      "x": 13650,
+      "y": 10850
+    },
+    "red_inhib_top": {
+      "x": 11350,
+      "y": 13650
+    },
+    "red_inhib_mid": {
+      "x": 11700,
+      "y": 11900
+    },
+    "red_inhib_bot": {
+      "x": 13650,
+      "y": 11550
+    },
+    "red_nexus_t1": {
+      "x": 12650,
+      "y": 13250
+    },
+    "red_nexus_t2": {
+      "x": 13100,
+      "y": 12850
+    },
+    "red_nexus": {
+      "x": 13150,
+      "y": 13350
+    }
+  },
+  "objectives": {
+    "dragon": {
+      "x": 10250,
+      "y": 4850
+    },
+    "baron": {
+      "x": 5450,
+      "y": 10550
+    },
+    "herald": {
+      "x": 5400,
+      "y": 10500
+    }
+  },
+  "camps": {
+    "blue_buff": {
+      "x": 4300,
+      "y": 8200
+    },
+    "red_buff": {
+      "x": 8150,
+      "y": 4450
+    },
+    "gromp": {
+      "x": 2850,
+      "y": 8600
+    },
+    "wolves": {
+      "x": 4300,
+      "y": 6850
+    },
+    "raptors": {
+      "x": 7350,
+      "y": 5850
+    },
+    "krugs": {
+      "x": 8900,
+      "y": 3100
+    },
+    "red_blue_buff": {
+      "x": 11200,
+      "y": 7200
+    },
+    "red_red_buff": {
+      "x": 7450,
+      "y": 11000
+    },
+    "red_gromp": {
+      "x": 12800,
+      "y": 6700
+    },
+    "red_wolves": {
+      "x": 11200,
+      "y": 8700
+    },
+    "red_raptors": {
+      "x": 8200,
+      "y": 9700
+    },
+    "red_krugs": {
+      "x": 6850,
+      "y": 12300
+    },
+    "scuttle_top": {
+      "x": 4800,
+      "y": 9800
+    },
+    "scuttle_bot": {
+      "x": 10800,
+      "y": 5700
+    }
+  },
+  "fountains": {
+    "blue": {
+      "x": 900,
+      "y": 850
+    },
+    "red": {
+      "x": 14200,
+      "y": 14250
+    }
+  }
+}

@@ -263,10 +263,11 @@ export class PlayoffBoardService {
 
   private rowsFor(teams: Team[], progress: PlayoffProgress): PlayoffStandingRow[] {
     const seedIds = progress.seedTeamIds;
+    const directory = new Map(this.allTeams().map((team) => [team.id, team]));
     const ordered = seedIds
-      .map((teamId) => teams.find((team) => team.id === teamId))
+      .map((teamId) => directory.get(teamId) ?? null)
       .filter((team): team is Team => !!team);
-    const rest = teams.filter((team) => !seedIds.includes(team.id));
+    const rest = this.bracketStarted(progress) ? [] : teams.filter((team) => !seedIds.includes(team.id));
     return [...ordered, ...rest].map((team, index) => ({
       rank: index + 1,
       teamId: team.id,
@@ -293,8 +294,8 @@ export class PlayoffBoardService {
         : null;
     const otherSeed = pickedSeed?.teamId === fifth.teamId ? sixth : pickedSeed ? fifth : null;
 
-    const roundOneHigh = this.seriesView(progress, PLAYOFF_SERIES_IDS.roundOneHigh, '首輪 1', pickedSeed ? third : null, pickedSeed);
-    const roundOneLow = this.seriesView(progress, PLAYOFF_SERIES_IDS.roundOneLow, '首輪 2', otherSeed ? fourth : null, otherSeed);
+    const roundOneHigh = this.seriesView(progress, PLAYOFF_SERIES_IDS.roundOneHigh, '首輪 1', third, pickedSeed);
+    const roundOneLow = this.seriesView(progress, PLAYOFF_SERIES_IDS.roundOneLow, '首輪 2', fourth, otherSeed);
 
     const highWinner = this.winnerSeed(PLAYOFF_SERIES_IDS.roundOneHigh, progress, seeds);
     const lowWinner = this.winnerSeed(PLAYOFF_SERIES_IDS.roundOneLow, progress, seeds);
@@ -440,8 +441,30 @@ export class PlayoffBoardService {
     };
   }
 
+  private allTeams(): Team[] {
+    return this.universeService.activeUniverse()?.teams ?? [];
+  }
+
+  private bracketStarted(progress: PlayoffProgress): boolean {
+    return (
+      progress.seedsLocked ||
+      Object.keys(progress.scores ?? {}).length > 0 ||
+      Boolean(progress.roundOneOpponentId) ||
+      Boolean(progress.semiOpponentId)
+    );
+  }
+
   private readProgress(universeId: string, league: PlayoffLeague, teams: Team[]): PlayoffProgress {
     const stored = this.storage.getItem<PlayoffProgress>(this.storageKey(universeId, league));
+    if (stored && this.bracketStarted(stored)) {
+      return {
+        seedTeamIds: stored.seedTeamIds ?? [],
+        roundOneOpponentId: stored.roundOneOpponentId ?? null,
+        semiOpponentId: stored.semiOpponentId ?? null,
+        scores: stored.scores ?? {},
+        seedsLocked: stored.seedsLocked === true,
+      };
+    }
     const knownIds = new Set(teams.map((team) => team.id));
     const storedSeeds = (stored?.seedTeamIds ?? []).filter((teamId) => knownIds.has(teamId));
     const missing = teams.map((team) => team.id).filter((teamId) => !storedSeeds.includes(teamId));

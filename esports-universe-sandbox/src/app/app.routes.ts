@@ -48,6 +48,16 @@ export const routes: Routes = [
           import('./features/coach/coach-detail.page').then((m) => m.CoachDetailPage),
       },
       {
+        path: 'champions',
+        loadComponent: () =>
+          import('./features/champion/champion-list.page').then((m) => m.ChampionListPage),
+      },
+      {
+        path: 'stats',
+        loadComponent: () =>
+          import('./features/stats/stats-database.page').then((m) => m.StatsDatabasePage),
+      },
+      {
         path: 'leagues',
         loadComponent: () =>
           import('./features/league/league-catalog.page').then((m) => m.LeagueCatalogPage),
@@ -134,6 +144,16 @@ export const routes: Routes = [
       {
         path: 'matches',
         loadComponent: () => import('./features/match/match-day.page').then((m) => m.MatchDayPage),
+      },
+      {
+        path: 'transfer',
+        loadComponent: () =>
+          import('./features/transfer/transfer-desk.page').then((m) => m.TransferDeskPage),
+      },
+      {
+        path: 'map-layout',
+        loadComponent: () =>
+          import('./features/map-layout/map-layout.page').then((m) => m.MapLayoutPage),
       },
     ],
   },

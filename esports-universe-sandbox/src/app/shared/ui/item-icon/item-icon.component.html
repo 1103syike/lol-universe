@@ -1,0 +1,14 @@
+@if (tileSrc(); as src) {
+  <img
+    class="item-icon"
+    [src]="src"
+    [alt]="label()"
+    [title]="label()"
+    [style.width.px]="size()"
+    [style.height.px]="size()"
+  />
+} @else if (spriteStyle(); as style) {
+  <span class="item-icon is-sprite" [ngStyle]="style" [attr.title]="label()" role="img" [attr.aria-label]="label()"></span>
+} @else {
+  <span class="item-icon is-empty" [style.width.px]="size()" [style.height.px]="size()" [title]="itemId()">?</span>
+}

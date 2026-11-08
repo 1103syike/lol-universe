@@ -128,16 +128,92 @@
 
 .team-tile__face {
   display: grid;
+  gap: 0.35rem;
   place-items: center;
+  padding: 0 0.55rem 0.55rem;
   aspect-ratio: 1.15;
+  color: inherit;
   text-decoration: none;
 }
 
+.team-tile__coach {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  em {
+    overflow: hidden;
+    font-style: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .team-tile__logo {
+  position: relative;
   display: grid;
   place-items: center;
   width: min(78%, 8.5rem);
   aspect-ratio: 1;
+}
+
+.team-tile__grade {
+  position: absolute;
+  right: -0.35rem;
+  bottom: -0.25rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: rgb(8 10 14 / 92%);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 42%);
+
+  &[data-grade='SS'] {
+    color: #ff6b9d;
+    border-color: rgb(255 80 140 / 75%);
+  }
+
+  &[data-grade='S'] {
+    color: #ff8ea0;
+    border-color: rgb(255 93 115 / 65%);
+  }
+
+  &[data-grade='A'] {
+    color: var(--color-accent-strong);
+    border-color: rgb(227 179 65 / 65%);
+  }
+
+  &[data-grade='B'] {
+    color: #c9a6ff;
+    border-color: rgb(168 110 255 / 55%);
+  }
+
+  &[data-grade='C'] {
+    color: #8ec0ff;
+    border-color: rgb(74 144 226 / 55%);
+  }
+
+  &[data-grade='D'] {
+    color: #9fd6b5;
+    border-color: rgb(61 214 165 / 45%);
+  }
+
+  &[data-grade='E'] {
+    color: #93a0b5;
+    border-color: rgb(147 160 181 / 45%);
+  }
 }
 
 .team-tile__members {
@@ -152,13 +228,34 @@
   list-style: none;
 }
 
+.member-list__coach,
 .member-list__item {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 0.45rem;
   padding: 0.28rem 0;
   border-top: 1px solid var(--color-line);
+}
+
+.member-list__coach {
+  border-top: 0;
+  margin-bottom: 0.1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgb(227 179 65 / 28%);
+}
+
+.member-list__role--coach {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-list__ovr {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .member-list__name {

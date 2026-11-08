@@ -3,7 +3,10 @@ import type { Player, PlayerInput } from '../models/player.model';
 import type { Team } from '../models/team.model';
 import { clampGrowthRate, clampRating, createDefaultAttributes } from '../../shared/utils/create-default-attributes';
 import { ATTRIBUTE_KEYS, comparePlayersByRole, isPlayerNationality } from '../models/player.model';
+import { isRarity, suggestRarityFromOvr } from '../models/rarity.model';
+import { calculatePlayerOvr } from '../../shared/utils/player-ovr';
 import { TeamTimelineService } from './team-timeline.service';
+import { TransferWindowService } from './transfer-window.service';
 import { UniverseService } from './universe.service';
 
 const MAX_PLAYERS_PER_TEAM = 7;
@@ -12,6 +15,7 @@ const MAX_PLAYERS_PER_TEAM = 7;
 export class PlayerService {
   private readonly universeService = inject(UniverseService);
   private readonly timeline = inject(TeamTimelineService);
+  private readonly windows = inject(TransferWindowService);
 
   readonly players = computed(() => this.universeService.activeUniverse()?.players ?? []);
   readonly teams = computed(() => this.universeService.activeUniverse()?.teams ?? []);
@@ -28,6 +32,7 @@ export class PlayerService {
   }
 
   createPlayer(input: PlayerInput): Player {
+    this.windows.assertOpen();
     const payload = this.normalizeInput(input);
     this.assertUniqueGamertag(payload.gamertag);
     this.assertTeamExists(payload.teamId);
@@ -42,6 +47,7 @@ export class PlayerService {
       position: payload.position,
       teamId: payload.teamId,
       birthday: payload.birthday,
+      rarity: payload.rarity,
       attributes: payload.attributes,
       form: payload.form,
       contract: payload.contract,
@@ -73,6 +79,7 @@ export class PlayerService {
     this.assertUniqueGamertag(payload.gamertag, playerId);
     this.assertTeamExists(payload.teamId);
     if (payload.teamId !== current.teamId) {
+      this.windows.assertOpen();
       this.assertRosterHasRoom(payload.teamId);
     }
 
@@ -84,6 +91,7 @@ export class PlayerService {
       position: payload.position,
       teamId: payload.teamId,
       birthday: payload.birthday,
+      rarity: payload.rarity,
       attributes: payload.attributes,
       form: payload.form,
       contract: payload.contract,
@@ -110,6 +118,7 @@ export class PlayerService {
     if (current.teamId === teamId) {
       return;
     }
+    this.windows.assertOpen();
     this.assertRosterHasRoom(teamId);
 
     const updated: Player = {
@@ -128,8 +137,58 @@ export class PlayerService {
     });
   }
 
+  tradePlayers(ourPlayerId: string, theirPlayerId: string): void {
+    const ours = this.getPlayerById(ourPlayerId);
+    const theirs = this.getPlayerById(theirPlayerId);
+    if (!ours || !theirs) {
+      throw new Error('找不到交易選手');
+    }
+    if (!ours.teamId || !theirs.teamId) {
+      throw new Error('交易雙方都要有所屬隊伍');
+    }
+    if (ours.id === theirs.id) {
+      throw new Error('不能拿同一人交易');
+    }
+    if (ours.teamId === theirs.teamId) {
+      throw new Error('同隊選手不能互交易');
+    }
+    this.windows.assertOpen();
+
+    const ourTeamId = ours.teamId;
+    const theirTeamId = theirs.teamId;
+    const now = new Date().toISOString();
+    const players = this.players().map((player) => {
+      if (player.id === ours.id) {
+        return { ...player, teamId: theirTeamId, updatedAt: now };
+      }
+      if (player.id === theirs.id) {
+        return { ...player, teamId: ourTeamId, updatedAt: now };
+      }
+      return player;
+    });
+    const teams = this.syncTeamRosters(this.teams(), players);
+    this.universeService.patchActiveUniverse({ players, teams });
+    this.timeline.recordPlayerMove({
+      playerId: ours.id,
+      gamertag: ours.gamertag,
+      fromTeamId: ourTeamId,
+      toTeamId: theirTeamId,
+      leftDetail: `，與 ${theirs.gamertag} 一換一`,
+    });
+    this.timeline.recordPlayerMove({
+      playerId: theirs.id,
+      gamertag: theirs.gamertag,
+      fromTeamId: theirTeamId,
+      toTeamId: ourTeamId,
+      leftDetail: `，與 ${ours.gamertag} 一換一`,
+    });
+  }
+
   deletePlayer(playerId: string): void {
     const current = this.getPlayerById(playerId);
+    if (current?.teamId) {
+      this.windows.assertOpen();
+    }
     const players = this.players().filter((player) => player.id !== playerId);
     const teams = this.syncTeamRosters(this.teams(), players);
     this.universeService.patchActiveUniverse({ players, teams });
@@ -181,8 +240,8 @@ export class PlayerService {
 
     for (const key of ATTRIBUTE_KEYS) {
       attributes[key] = {
-        current: clampRating(sourceAttributes[key]?.current ?? 70),
-        potential: clampRating(sourceAttributes[key]?.potential ?? 80),
+        current: clampRating(sourceAttributes[key]?.current ?? 85),
+        potential: clampRating(sourceAttributes[key]?.potential ?? 97),
         growthRate: clampGrowthRate(sourceAttributes[key]?.growthRate ?? 1),
       };
 
@@ -191,6 +250,10 @@ export class PlayerService {
       }
     }
 
+    const rarity = isRarity(input.rarity)
+      ? input.rarity
+      : suggestRarityFromOvr(calculatePlayerOvr(attributes, input.position));
+
     return {
       displayName,
       gamertag,
@@ -198,6 +261,7 @@ export class PlayerService {
       position: input.position,
       teamId: input.teamId,
       birthday,
+      rarity,
       attributes,
       form,
       contract: {

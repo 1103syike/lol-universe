@@ -19,6 +19,10 @@
       </div>
     </header>
 
+    <p class="window-note" [class.is-open]="windowState().isOpen">
+      <strong>{{ windowState().label }}</strong>{{ windowState().detail }}
+    </p>
+
     @if (isFounding()) {
       <form class="sign" [formGroup]="createForm" (ngSubmit)="createTeam()">
         <label for="team-abbreviation">
@@ -91,7 +95,7 @@
                   <div class="team-tile__top">
                     <a class="team-tile__id" [routerLink]="['/teams', team.id]">
                       <strong>{{ team.abbreviation }}</strong>
-                      <span>{{ team.name }}</span>
+                      <span>{{ displayName(team) }}</span>
                     </a>
                     <button
                       type="button"
@@ -105,6 +109,18 @@
 
                   @if (isRosterOpen(team.id)) {
                     <div class="team-tile__members">
+                      @if (teamCoach(team.id); as coach) {
+                        <div class="member-list__coach">
+                          <a class="member-list__name" [routerLink]="['/coaches', coach.id]">
+                            <app-flag-icon [code]="coach.nationality" />
+                            <span class="member-list__id">{{ coach.gamertag }}</span>
+                          </a>
+                          <span class="member-list__ovr">{{ coachOvr(coach) }}</span>
+                          <span class="member-list__role member-list__role--coach">
+                            <app-role-icon position="COACH" />
+                          </span>
+                        </div>
+                      }
                       @if (teamPlayers(team.id).length > 0) {
                         <ul class="member-list">
                           @for (player of teamPlayers(team.id); track player.id) {
@@ -113,13 +129,14 @@
                                 <app-flag-icon [code]="player.nationality" />
                                 <span class="member-list__id">{{ player.gamertag }}</span>
                               </a>
+                              <span class="member-list__ovr">{{ playerOvr(player) }}</span>
                               <span class="member-list__role">
                                 <app-role-icon [position]="player.position" />
                               </span>
                             </li>
                           }
                         </ul>
-                      } @else {
+                      } @else if (!teamCoach(team.id)) {
                         <p class="member-list__empty">還沒有選手</p>
                       }
                     </div>
@@ -129,10 +146,18 @@
                         <app-team-logo
                           [abbreviation]="team.abbreviation"
                           [logoUrl]="team.logoUrl"
-                          [name]="team.name"
+                          [name]="displayName(team)"
                           [markColor]="markColor(team.abbreviation)"
                         />
+                        @let grade = teamGrade(team.id);
+                        <span class="team-tile__grade" [attr.data-grade]="grade">{{ grade }}</span>
                       </span>
+                      @if (teamCoach(team.id); as coach) {
+                        <span class="team-tile__coach">
+                          <app-role-icon position="COACH" />
+                          <em>{{ coach.gamertag }}</em>
+                        </span>
+                      }
                     </a>
                   }
                 </li>

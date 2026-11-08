@@ -227,8 +227,8 @@ export class DoubleElimBoardService {
           : null;
     const other = picked?.teamId === fifth.teamId ? sixth : picked ? fifth : null;
 
-    const roundOneHigh = this.seriesView(SERIES.roundOneHigh, '首輪 1', picked ? third : null, picked);
-    const roundOneLow = this.seriesView(SERIES.roundOneLow, '首輪 2', other ? fourth : null, other);
+    const roundOneHigh = this.seriesView(SERIES.roundOneHigh, '首輪 1', third, picked);
+    const roundOneLow = this.seriesView(SERIES.roundOneLow, '首輪 2', fourth, other);
     const highWinner = this.winningSide(roundOneHigh);
     const lowWinner = this.winningSide(roundOneLow);
     const pickedWinner =

@@ -19,6 +19,16 @@
       </span>
     </nav>
 
+    @if (transferPulse(); as pulse) {
+      <a
+        class="top-nav__transfer"
+        routerLink="/transfer"
+        [attr.title]="pulse.label + ' · ' + pulse.range"
+      >
+        轉會期
+      </a>
+    }
+
     <div class="universe-switcher">
       <a class="universe-switcher__label" routerLink="/universes">宇宙</a>
       @if (hasUniverses()) {

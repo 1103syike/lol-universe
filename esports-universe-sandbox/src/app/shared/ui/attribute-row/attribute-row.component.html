@@ -2,11 +2,12 @@
   <div class="attribute-row__main">
     <span class="attribute-row__label">{{ label() }}</span>
     <span class="attribute-row__value">{{ rating().current }}</span>
-    <span class="attribute-row__stars" [attr.title]="'潛力'">{{ stars() }}</span>
+    <span class="attribute-row__stars" [attr.title]="'能力 ' + rating().current">{{ currentStars() }}</span>
     <span
       class="attribute-row__trend"
       [class.is-up]="trend() === '↑'"
       [class.is-down]="trend() === '↓'"
+      [attr.title]="'成長趨勢'"
     >
       {{ trend() }}
     </span>
@@ -14,8 +15,8 @@
 
   @if (showHidden()) {
     <div class="attribute-row__hidden">
-      <span>潛力值 {{ rating().potential }}</span>
-      <span>成長速度 {{ rating().growthRate }}</span>
+      <span>潛力 {{ rating().potential }} · {{ potentialStars() }}</span>
+      <span>成長 {{ rating().growthRate }}</span>
     </div>
   }
 </div>

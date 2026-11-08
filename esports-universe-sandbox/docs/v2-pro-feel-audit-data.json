@@ -1,0 +1,8087 @@
+{
+  "v2": {
+    "even": {
+      "n": 4,
+      "duration": {
+        "mean": 2266.8,
+        "median": 2400,
+        "p90": 2400
+      },
+      "totalKills": {
+        "mean": 31.25,
+        "median": 29,
+        "p10": 17,
+        "p90": 30
+      },
+      "firstBloodSec": {
+        "mean": 89.4,
+        "median": 89.5,
+        "missingPct": 0
+      },
+      "firstOuterTowerSec": {
+        "mean": 965.5,
+        "median": 972,
+        "missingPct": 0
+      },
+      "firstDragonSec": {
+        "mean": 367,
+        "median": 368.5,
+        "missingPct": 0
+      },
+      "firstBaronSec": {
+        "mean": 1306.5,
+        "median": 1306.5,
+        "missingPct": 50
+      },
+      "dragons": {
+        "mean": 1.5
+      },
+      "barons": {
+        "mean": 0.5
+      },
+      "towers": {
+        "mean": 11.25
+      },
+      "teamfights": {
+        "mean": 0.5
+      },
+      "teamfightAvgParticipants": {
+        "mean": 2.75
+      },
+      "teamfightAvgKills": {
+        "mean": 1.5
+      },
+      "damageToChamps": {
+        "mean": 22122.5
+      },
+      "abilityCasts": {
+        "mean": 151.5
+      },
+      "autoAttacks": {
+        "mean": 564
+      },
+      "abilityDamageShare": {
+        "mean": 0.245
+      },
+      "forcedEndPct": 75,
+      "avgFinalGold": {
+        "mean": 4995.5
+      },
+      "goldGapEnd": {
+        "mean": 7194.8
+      },
+      "aiActionShare": {
+        "lane": 0.157,
+        "jungle": 0.029,
+        "farm": 0.046,
+        "fight": 0.036,
+        "recall": 0.622,
+        "objective": 0.013,
+        "siege": 0.098
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 0.239,
+          "fight": 0.058,
+          "recall": 0.595,
+          "objective": 0.012,
+          "siege": 0.095
+        },
+        "BOT": {
+          "lane": 0.165,
+          "farm": 0.078,
+          "recall": 0.563,
+          "fight": 0.03,
+          "objective": 0.019,
+          "siege": 0.145
+        },
+        "MID": {
+          "lane": 0.26,
+          "farm": 0.08,
+          "fight": 0.033,
+          "recall": 0.501,
+          "objective": 0.007,
+          "siege": 0.118
+        },
+        "JUNGLE": {
+          "jungle": 0.142,
+          "fight": 0.026,
+          "lane": 0.005,
+          "recall": 0.759,
+          "objective": 0.018,
+          "siege": 0.049
+        },
+        "TOP": {
+          "lane": 0.12,
+          "farm": 0.071,
+          "fight": 0.031,
+          "recall": 0.684,
+          "objective": 0.007,
+          "siege": 0.087
+        }
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 840,
+          "recall": 1042,
+          "lane": 1575,
+          "fight": 608,
+          "jungle": 485
+        },
+        "dragonPlus2": {
+          "lane": 1362,
+          "jungle": 253,
+          "recall": 1311,
+          "farm": 814,
+          "fight": 542,
+          "objective": 385
+        },
+        "baronMinus2": {
+          "siege": 1249,
+          "recall": 3514,
+          "lane": 21,
+          "objective": 3,
+          "jungle": 4,
+          "farm": 1
+        },
+        "baronPlus2": {
+          "siege": 662,
+          "recall": 3550,
+          "lane": 184,
+          "objective": 245,
+          "fight": 67,
+          "farm": 28,
+          "jungle": 20
+        }
+      },
+      "levelsAtEnd": {
+        "mean": 4.7
+      },
+      "csTotal": {
+        "mean": 137.3
+      },
+      "campKills": {
+        "mean": 21.5
+      },
+      "recallCounts": {
+        "mean": 86.8
+      },
+      "activityShare": {
+        "lane": 0.29,
+        "jungle": 0.053,
+        "fight": 0.036,
+        "recallTravel": 0.108,
+        "recallBase": 0.514,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.286,
+          "jungle": 0.007,
+          "fight": 0.034,
+          "recallTravel": 0.111,
+          "recallBase": 0.562,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.218,
+          "fight": 0.029,
+          "recallTravel": 0.064,
+          "recallBase": 0.689,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.463,
+          "jungle": 0.008,
+          "fight": 0.034,
+          "recallTravel": 0.117,
+          "recallBase": 0.378,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.407,
+          "jungle": 0.021,
+          "fight": 0.031,
+          "recallTravel": 0.153,
+          "recallBase": 0.388,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.33,
+          "jungle": 0.012,
+          "fight": 0.056,
+          "recallTravel": 0.109,
+          "recallBase": 0.492,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 26333.3,
+        "cs": 2467.5,
+        "kill": 9375,
+        "tower": 1287.5,
+        "tower_share": 1587.5,
+        "camp": 1766.3,
+        "assist": 2137.5
+      },
+      "expBySource": {
+        "minion_share": 13619.6,
+        "minion": 5420.7,
+        "camp": 1705
+      },
+      "itemBuys": {
+        "mean": 39
+      },
+      "firstItemBuySec": {
+        "mean": 101,
+        "missingPct": 0
+      }
+    },
+    "advantage": {
+      "n": 4,
+      "duration": {
+        "mean": 2184.3,
+        "median": 2197.5,
+        "p90": 2400
+      },
+      "totalKills": {
+        "mean": 30.25,
+        "median": 31,
+        "p10": 20,
+        "p90": 34
+      },
+      "firstBloodSec": {
+        "mean": 89.1,
+        "median": 89.3,
+        "missingPct": 0
+      },
+      "firstOuterTowerSec": {
+        "mean": 809,
+        "median": 755,
+        "missingPct": 0
+      },
+      "firstDragonSec": {
+        "mean": 337,
+        "median": 337,
+        "missingPct": 0
+      },
+      "firstBaronSec": {
+        "mean": 1245,
+        "median": 1245,
+        "missingPct": 75
+      },
+      "dragons": {
+        "mean": 2.5
+      },
+      "barons": {
+        "mean": 0.25
+      },
+      "towers": {
+        "mean": 12.75
+      },
+      "teamfights": {
+        "mean": 1
+      },
+      "teamfightAvgParticipants": {
+        "mean": 7.25
+      },
+      "teamfightAvgKills": {
+        "mean": 3
+      },
+      "damageToChamps": {
+        "mean": 25097
+      },
+      "abilityCasts": {
+        "mean": 170.3
+      },
+      "autoAttacks": {
+        "mean": 521.8
+      },
+      "abilityDamageShare": {
+        "mean": 0.276
+      },
+      "forcedEndPct": 50,
+      "avgFinalGold": {
+        "mean": 4996.6
+      },
+      "goldGapEnd": {
+        "mean": 4601.3
+      },
+      "aiActionShare": {
+        "lane": 0.15,
+        "jungle": 0.038,
+        "farm": 0.043,
+        "fight": 0.049,
+        "recall": 0.589,
+        "objective": 0.012,
+        "siege": 0.118
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 0.216,
+          "fight": 0.073,
+          "recall": 0.537,
+          "objective": 0.016,
+          "siege": 0.158
+        },
+        "BOT": {
+          "lane": 0.121,
+          "farm": 0.046,
+          "recall": 0.713,
+          "fight": 0.019,
+          "objective": 0.011,
+          "siege": 0.09
+        },
+        "MID": {
+          "lane": 0.223,
+          "farm": 0.083,
+          "fight": 0.048,
+          "recall": 0.532,
+          "objective": 0.006,
+          "siege": 0.109
+        },
+        "JUNGLE": {
+          "jungle": 0.19,
+          "fight": 0.048,
+          "lane": 0.008,
+          "recall": 0.657,
+          "objective": 0.017,
+          "siege": 0.079
+        },
+        "TOP": {
+          "lane": 0.184,
+          "farm": 0.088,
+          "fight": 0.058,
+          "recall": 0.502,
+          "objective": 0.011,
+          "siege": 0.156
+        }
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "lane": 1489,
+          "fight": 714,
+          "jungle": 547,
+          "farm": 923,
+          "recall": 833
+        },
+        "dragonPlus2": {
+          "fight": 472,
+          "recall": 1310,
+          "farm": 523,
+          "jungle": 556,
+          "lane": 1410,
+          "objective": 379
+        },
+        "baronMinus2": {
+          "siege": 1100,
+          "recall": 3273,
+          "objective": 23,
+          "farm": 12,
+          "jungle": 12,
+          "lane": 131,
+          "fight": 139
+        },
+        "baronPlus2": {
+          "siege": 887,
+          "recall": 3316,
+          "fight": 136,
+          "lane": 164,
+          "jungle": 18,
+          "objective": 165,
+          "farm": 39
+        }
+      },
+      "levelsAtEnd": {
+        "mean": 4.63
+      },
+      "csTotal": {
+        "mean": 116.5
+      },
+      "campKills": {
+        "mean": 26.5
+      },
+      "recallCounts": {
+        "mean": 92
+      },
+      "activityShare": {
+        "lane": 0.294,
+        "jungle": 0.069,
+        "fight": 0.049,
+        "recallTravel": 0.123,
+        "recallBase": 0.466,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.436,
+          "jungle": 0.012,
+          "fight": 0.058,
+          "recallTravel": 0.166,
+          "recallBase": 0.329,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.306,
+          "fight": 0.052,
+          "recallTravel": 0.09,
+          "recallBase": 0.552,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.425,
+          "jungle": 0.006,
+          "fight": 0.05,
+          "recallTravel": 0.115,
+          "recallBase": 0.403,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.279,
+          "jungle": 0.012,
+          "fight": 0.021,
+          "recallTravel": 0.108,
+          "recallBase": 0.58,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.375,
+          "jungle": 0.016,
+          "fight": 0.075,
+          "recallTravel": 0.154,
+          "recallBase": 0.38,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 25470,
+        "cs": 2196.3,
+        "kill": 9075,
+        "assist": 2812.5,
+        "tower": 1525,
+        "camp": 2050,
+        "tower_share": 1837.5
+      },
+      "expBySource": {
+        "minion_share": 13119,
+        "minion": 4626.6,
+        "camp": 2117.5
+      },
+      "itemBuys": {
+        "mean": 38.8
+      },
+      "firstItemBuySec": {
+        "mean": 100.8,
+        "missingPct": 0
+      }
+    },
+    "stomp": {
+      "n": 4,
+      "duration": {
+        "mean": 2054.8,
+        "median": 2072,
+        "p90": 2316
+      },
+      "totalKills": {
+        "mean": 24,
+        "median": 22.5,
+        "p10": 10,
+        "p90": 24
+      },
+      "firstBloodSec": {
+        "mean": 89.6,
+        "median": 89.3,
+        "missingPct": 0
+      },
+      "firstOuterTowerSec": {
+        "mean": 1001.5,
+        "median": 972.3,
+        "missingPct": 0
+      },
+      "firstDragonSec": {
+        "mean": 365.5,
+        "median": 342,
+        "missingPct": 0
+      },
+      "firstBaronSec": {
+        "mean": 1332,
+        "median": 1332,
+        "missingPct": 75
+      },
+      "dragons": {
+        "mean": 2.25
+      },
+      "barons": {
+        "mean": 0.25
+      },
+      "towers": {
+        "mean": 13.25
+      },
+      "teamfights": {
+        "mean": 0.75
+      },
+      "teamfightAvgParticipants": {
+        "mean": 2.63
+      },
+      "teamfightAvgKills": {
+        "mean": 1.63
+      },
+      "damageToChamps": {
+        "mean": 22205.8
+      },
+      "abilityCasts": {
+        "mean": 154
+      },
+      "autoAttacks": {
+        "mean": 527
+      },
+      "abilityDamageShare": {
+        "mean": 0.267
+      },
+      "forcedEndPct": 25,
+      "avgFinalGold": {
+        "mean": 4538.7
+      },
+      "goldGapEnd": {
+        "mean": 2783.8
+      },
+      "aiActionShare": {
+        "lane": 0.163,
+        "jungle": 0.037,
+        "farm": 0.047,
+        "fight": 0.035,
+        "recall": 0.575,
+        "objective": 0.014,
+        "siege": 0.129
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 0.172,
+          "farm": 0.091,
+          "fight": 0.031,
+          "recall": 0.589,
+          "objective": 0.006,
+          "siege": 0.111
+        },
+        "JUNGLE": {
+          "jungle": 0.183,
+          "fight": 0.031,
+          "recall": 0.688,
+          "lane": 0.009,
+          "objective": 0.018,
+          "siege": 0.071
+        },
+        "MID": {
+          "lane": 0.264,
+          "farm": 0.097,
+          "fight": 0.037,
+          "recall": 0.358,
+          "objective": 0.014,
+          "siege": 0.231
+        },
+        "BOT": {
+          "lane": 0.144,
+          "farm": 0.047,
+          "recall": 0.646,
+          "fight": 0.022,
+          "objective": 0.015,
+          "siege": 0.126
+        },
+        "SUPPORT": {
+          "lane": 0.228,
+          "fight": 0.056,
+          "recall": 0.593,
+          "objective": 0.018,
+          "siege": 0.105
+        }
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 915,
+          "jungle": 653,
+          "recall": 1110,
+          "fight": 384,
+          "lane": 1448
+        },
+        "dragonPlus2": {
+          "lane": 1271,
+          "jungle": 582,
+          "objective": 387,
+          "farm": 731,
+          "fight": 383,
+          "recall": 1307
+        },
+        "baronMinus2": {
+          "recall": 2803,
+          "siege": 1244,
+          "lane": 352,
+          "objective": 58,
+          "farm": 34,
+          "jungle": 13,
+          "fight": 132
+        },
+        "baronPlus2": {
+          "recall": 3122,
+          "lane": 270,
+          "siege": 1198,
+          "farm": 12,
+          "jungle": 4,
+          "fight": 6,
+          "objective": 145
+        }
+      },
+      "levelsAtEnd": {
+        "mean": 4.53
+      },
+      "csTotal": {
+        "mean": 123.5
+      },
+      "campKills": {
+        "mean": 23
+      },
+      "recallCounts": {
+        "mean": 88.3
+      },
+      "activityShare": {
+        "lane": 0.322,
+        "jungle": 0.067,
+        "fight": 0.035,
+        "recallTravel": 0.126,
+        "recallBase": 0.449,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.369,
+          "jungle": 0.006,
+          "fight": 0.029,
+          "recallTravel": 0.103,
+          "recallBase": 0.493,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.281,
+          "fight": 0.033,
+          "recallTravel": 0.084,
+          "recallBase": 0.601,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.606,
+          "jungle": 0.014,
+          "fight": 0.038,
+          "recallTravel": 0.194,
+          "recallBase": 0.147,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.344,
+          "jungle": 0.016,
+          "fight": 0.023,
+          "recallTravel": 0.158,
+          "recallBase": 0.458,
+          "other": 0.001
+        },
+        "SUPPORT": {
+          "lane": 0.341,
+          "jungle": 0.018,
+          "fight": 0.058,
+          "recallTravel": 0.109,
+          "recallBase": 0.473,
+          "other": 0.001
+        }
+      },
+      "goldBySource": {
+        "passive": 24052,
+        "cs": 2274.3,
+        "kill": 7200,
+        "assist": 1612.5,
+        "tower_share": 1887.5,
+        "camp": 1798.8,
+        "tower": 1562.5
+      },
+      "expBySource": {
+        "minion": 4891.1,
+        "minion_share": 13814.4,
+        "camp": 1755
+      },
+      "itemBuys": {
+        "mean": 37.8
+      },
+      "firstItemBuySec": {
+        "mean": 101.3,
+        "missingPct": 0
+      }
+    }
+  },
+  "v1": {
+    "even": {
+      "n": 4,
+      "duration": {
+        "mean": 2001,
+        "median": 1992
+      },
+      "totalKills": {
+        "mean": 36.25,
+        "median": 37.5
+      },
+      "firstBloodSec": {
+        "mean": 174.3
+      },
+      "firstTowerSec": {
+        "mean": 657
+      },
+      "dragons": {
+        "mean": 4
+      },
+      "barons": {
+        "mean": 2.5
+      },
+      "towers": {
+        "mean": 16
+      },
+      "damageToChamps": {
+        "mean": 226278.5
+      },
+      "goldGapEnd": {
+        "mean": 10028
+      }
+    },
+    "advantage": {
+      "n": 4,
+      "duration": {
+        "mean": 1896,
+        "median": 1949
+      },
+      "totalKills": {
+        "mean": 30.25,
+        "median": 31
+      },
+      "firstBloodSec": {
+        "mean": 148.5
+      },
+      "firstTowerSec": {
+        "mean": 587.3
+      },
+      "dragons": {
+        "mean": 4
+      },
+      "barons": {
+        "mean": 2.5
+      },
+      "towers": {
+        "mean": 16.75
+      },
+      "damageToChamps": {
+        "mean": 190055.3
+      },
+      "goldGapEnd": {
+        "mean": 8610.6
+      }
+    },
+    "stomp": {
+      "n": 4,
+      "duration": {
+        "mean": 1386.5,
+        "median": 1349.5
+      },
+      "totalKills": {
+        "mean": 21,
+        "median": 21
+      },
+      "firstBloodSec": {
+        "mean": 207
+      },
+      "firstTowerSec": {
+        "mean": 562.5
+      },
+      "dragons": {
+        "mean": 4
+      },
+      "barons": {
+        "mean": 1
+      },
+      "towers": {
+        "mean": 14.75
+      },
+      "damageToChamps": {
+        "mean": 100303.5
+      },
+      "goldGapEnd": {
+        "mean": 14731.3
+      }
+    }
+  },
+  "samples": [
+    {
+      "strength": "even",
+      "seed": 1000,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "home",
+      "killsHome": 37,
+      "killsAway": 13,
+      "totalKills": 50,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 996,
+      "firstDragonSec": 399,
+      "firstBaronSec": null,
+      "dragons": 2,
+      "barons": 0,
+      "towers": 10,
+      "teamfights": 0,
+      "teamfightAvgParticipants": 0,
+      "teamfightAvgKills": 0,
+      "damageToChamps": 21484,
+      "abilityCasts": 140,
+      "autoAttacks": 535,
+      "abilityDamageShare": 0.235,
+      "itemBuys": 38,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 5531.1,
+      "goldGapEnd": 11351,
+      "aiActions": {
+        "lane": 3806,
+        "jungle": 556,
+        "farm": 950,
+        "fight": 778,
+        "recall": 14301,
+        "objective": 268,
+        "siege": 1949
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 1696,
+          "fight": 216,
+          "recall": 1892,
+          "objective": 94,
+          "siege": 566
+        },
+        "BOT": {
+          "lane": 796,
+          "farm": 251,
+          "recall": 1760,
+          "fight": 269,
+          "objective": 78,
+          "siege": 672
+        },
+        "MID": {
+          "lane": 859,
+          "farm": 397,
+          "fight": 134,
+          "recall": 3153,
+          "objective": 14,
+          "siege": 184
+        },
+        "JUNGLE": {
+          "jungle": 556,
+          "fight": 20,
+          "lane": 12,
+          "recall": 4131,
+          "objective": 52,
+          "siege": 31
+        },
+        "TOP": {
+          "lane": 443,
+          "farm": 302,
+          "fight": 139,
+          "recall": 3365,
+          "objective": 30,
+          "siege": 496
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 329,
+          "jungle": 112,
+          "farm": 45,
+          "fight": 58,
+          "recall": 33
+        },
+        "2": {
+          "recall": 57,
+          "jungle": 71,
+          "lane": 297,
+          "fight": 64,
+          "farm": 85
+        },
+        "3": {
+          "farm": 150,
+          "recall": 154,
+          "lane": 166,
+          "fight": 47,
+          "jungle": 46
+        },
+        "4": {
+          "lane": 172,
+          "farm": 81,
+          "recall": 169,
+          "fight": 85,
+          "jungle": 60
+        },
+        "5": {
+          "lane": 175,
+          "jungle": 49,
+          "recall": 113,
+          "farm": 150,
+          "fight": 31,
+          "objective": 81
+        },
+        "6": {
+          "fight": 35,
+          "lane": 185,
+          "farm": 40,
+          "recall": 231,
+          "objective": 35,
+          "jungle": 37
+        },
+        "7": {
+          "lane": 273,
+          "jungle": 36,
+          "fight": 22,
+          "recall": 141,
+          "farm": 76
+        },
+        "8": {
+          "lane": 227,
+          "recall": 177,
+          "farm": 43,
+          "siege": 11,
+          "fight": 45,
+          "objective": 58,
+          "jungle": 20
+        },
+        "9": {
+          "farm": 77,
+          "jungle": 5,
+          "lane": 218,
+          "recall": 258,
+          "siege": 20,
+          "fight": 22
+        },
+        "10": {
+          "fight": 76,
+          "lane": 235,
+          "recall": 221,
+          "farm": 47
+        },
+        "11": {
+          "farm": 102,
+          "recall": 224,
+          "lane": 218,
+          "fight": 14
+        },
+        "12": {
+          "farm": 34,
+          "recall": 306,
+          "siege": 98,
+          "fight": 85,
+          "lane": 5,
+          "objective": 46
+        },
+        "13": {
+          "recall": 322,
+          "fight": 95,
+          "siege": 154,
+          "lane": 9
+        },
+        "14": {
+          "recall": 354,
+          "fight": 33,
+          "siege": 182,
+          "lane": 5,
+          "farm": 6
+        },
+        "15": {
+          "farm": 7,
+          "recall": 411,
+          "siege": 160,
+          "lane": 6,
+          "fight": 16
+        },
+        "16": {
+          "recall": 294,
+          "fight": 11,
+          "siege": 263,
+          "lane": 2,
+          "farm": 6
+        },
+        "17": {
+          "siege": 88,
+          "recall": 454,
+          "lane": 4,
+          "fight": 36,
+          "farm": 1
+        },
+        "18": {
+          "siege": 128,
+          "recall": 460,
+          "lane": 4
+        },
+        "19": {
+          "recall": 434,
+          "siege": 165,
+          "lane": 1
+        },
+        "20": {
+          "siege": 86,
+          "recall": 508,
+          "lane": 3,
+          "objective": 3
+        },
+        "21": {
+          "siege": 84,
+          "recall": 440,
+          "objective": 32,
+          "lane": 34,
+          "fight": 3
+        },
+        "22": {
+          "recall": 424,
+          "lane": 6,
+          "siege": 138,
+          "objective": 13
+        },
+        "23": {
+          "recall": 491,
+          "siege": 67,
+          "lane": 1
+        },
+        "24": {
+          "siege": 42,
+          "recall": 469
+        },
+        "25": {
+          "recall": 445,
+          "siege": 68
+        },
+        "26": {
+          "recall": 467,
+          "siege": 52,
+          "lane": 1
+        },
+        "27": {
+          "recall": 442,
+          "siege": 50,
+          "lane": 29
+        },
+        "28": {
+          "recall": 480,
+          "lane": 60,
+          "siege": 6
+        },
+        "29": {
+          "recall": 486,
+          "lane": 60,
+          "siege": 9
+        },
+        "30": {
+          "lane": 60,
+          "recall": 486,
+          "siege": 13
+        },
+        "31": {
+          "lane": 60,
+          "siege": 12,
+          "recall": 487
+        },
+        "32": {
+          "recall": 488,
+          "lane": 60,
+          "siege": 9
+        },
+        "33": {
+          "recall": 487,
+          "lane": 60,
+          "siege": 9
+        },
+        "34": {
+          "recall": 480,
+          "lane": 60,
+          "siege": 5
+        },
+        "35": {
+          "lane": 60,
+          "recall": 480,
+          "siege": 5
+        },
+        "36": {
+          "lane": 60,
+          "recall": 480,
+          "siege": 5
+        },
+        "37": {
+          "lane": 60,
+          "recall": 480,
+          "siege": 10
+        },
+        "38": {
+          "lane": 60,
+          "recall": 480,
+          "siege": 5
+        },
+        "39": {
+          "recall": 480,
+          "lane": 60,
+          "siege": 5
+        },
+        "40": {
+          "recall": 8,
+          "lane": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 2,
+        "2": 2,
+        "3": 3,
+        "4": 2,
+        "6": 2,
+        "7": 3,
+        "8": 1,
+        "10": 1,
+        "11": 2,
+        "12": 1,
+        "13": 1,
+        "14": 1,
+        "16": 1,
+        "17": 1,
+        "21": 1,
+        "23": 2,
+        "24": 2,
+        "25": 4,
+        "26": 3,
+        "27": 1,
+        "28": 1,
+        "29": 1,
+        "30": 1,
+        "31": 1,
+        "32": 2,
+        "33": 1,
+        "34": 1,
+        "35": 1,
+        "36": 1,
+        "37": 2,
+        "38": 1,
+        "39": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 231,
+          "recall": 323,
+          "lane": 338,
+          "fight": 132,
+          "jungle": 106
+        },
+        "dragonPlus2": {
+          "lane": 365,
+          "jungle": 87,
+          "recall": 346,
+          "farm": 191,
+          "fight": 67,
+          "objective": 116
+        },
+        "baronMinus2": {
+          "siege": 293,
+          "recall": 894,
+          "lane": 5
+        },
+        "baronPlus2": {
+          "siege": 170,
+          "recall": 956,
+          "lane": 38,
+          "objective": 35,
+          "fight": 3
+        }
+      },
+      "structureHits": 712,
+      "minionLastHitsApprox": 127,
+      "abilityByChampion": {
+        "Sett": 18,
+        "TahmKench": 16,
+        "Diana": 7,
+        "Trundle": 34,
+        "Ezreal": 26,
+        "Ashe": 18,
+        "Rumble": 6,
+        "Renekton": 1,
+        "Akali": 6,
+        "Ziggs": 8
+      },
+      "levelsAtEnd": [
+        7,
+        3,
+        6,
+        3,
+        3,
+        3,
+        2,
+        7,
+        7,
+        10
+      ],
+      "campKills": 17,
+      "recallCounts": 99,
+      "activitySec": {
+        "lane": 6649.5,
+        "jungle": 867,
+        "fight": 777.5,
+        "recallTravel": 2261.5,
+        "recallBase": 12035.9,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.294,
+        "jungle": 0.038,
+        "fight": 0.034,
+        "recallTravel": 0.1,
+        "recallBase": 0.533,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.26,
+          "jungle": 0.006,
+          "fight": 0.029,
+          "recallTravel": 0.129,
+          "recallBase": 0.575,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.136,
+          "fight": 0.004,
+          "recallTravel": 0.02,
+          "recallBase": 0.84,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.304,
+          "jungle": 0.003,
+          "fight": 0.028,
+          "recallTravel": 0.064,
+          "recallBase": 0.601,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.448,
+          "jungle": 0.02,
+          "fight": 0.07,
+          "recallTravel": 0.188,
+          "recallBase": 0.272,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.506,
+          "jungle": 0.021,
+          "fight": 0.048,
+          "recallTravel": 0.118,
+          "recallBase": 0.307,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 27109.6,
+        "cs": 2391,
+        "kill": 15000,
+        "tower": 950,
+        "tower_share": 1400,
+        "camp": 1210,
+        "assist": 2250
+      },
+      "expBySource": {
+        "minion_share": 17939,
+        "minion": 5042.8,
+        "camp": 1190
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.05
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.5
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.05
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.3
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.65
+        },
+        {
+          "t": 420,
+          "avgLevel": 2.9
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.05
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.3
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.45
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 780,
+          "avgLevel": 3.85
+        },
+        {
+          "t": 840,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.05
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.25
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.55
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.9
+        },
+        {
+          "t": 2220,
+          "avgLevel": 5
+        },
+        {
+          "t": 2280,
+          "avgLevel": 5.1
+        },
+        {
+          "t": 2340,
+          "avgLevel": 5.1
+        },
+        {
+          "t": 2400,
+          "avgLevel": 5.1
+        }
+      ]
+    },
+    {
+      "strength": "even",
+      "seed": 1017,
+      "durationSec": 1867,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 5,
+      "killsAway": 23,
+      "totalKills": 28,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 1012,
+      "firstDragonSec": 332,
+      "firstBaronSec": 1281,
+      "dragons": 1,
+      "barons": 1,
+      "towers": 12,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 6,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 17593,
+      "abilityCasts": 147,
+      "autoAttacks": 452,
+      "abilityDamageShare": 0.27,
+      "itemBuys": 38,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4429,
+      "goldGapEnd": 10212,
+      "aiActions": {
+        "lane": 3275,
+        "jungle": 619,
+        "farm": 824,
+        "fight": 978,
+        "recall": 9493,
+        "objective": 346,
+        "siege": 2593
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 621,
+          "farm": 226,
+          "fight": 282,
+          "recall": 1870,
+          "objective": 43,
+          "siege": 577
+        },
+        "JUNGLE": {
+          "jungle": 619,
+          "fight": 286,
+          "lane": 23,
+          "recall": 2422,
+          "objective": 90,
+          "siege": 212
+        },
+        "MID": {
+          "lane": 958,
+          "farm": 311,
+          "fight": 217,
+          "recall": 1476,
+          "siege": 666,
+          "objective": 21
+        },
+        "BOT": {
+          "lane": 883,
+          "farm": 287,
+          "recall": 1032,
+          "fight": 67,
+          "objective": 137,
+          "siege": 1118
+        },
+        "SUPPORT": {
+          "lane": 790,
+          "fight": 126,
+          "recall": 2693,
+          "objective": 55,
+          "siege": 20
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 328,
+          "jungle": 109,
+          "farm": 81,
+          "fight": 44,
+          "recall": 15
+        },
+        "2": {
+          "lane": 245,
+          "recall": 126,
+          "jungle": 63,
+          "fight": 91,
+          "farm": 58
+        },
+        "3": {
+          "fight": 81,
+          "jungle": 105,
+          "lane": 215,
+          "farm": 131,
+          "recall": 41
+        },
+        "4": {
+          "recall": 78,
+          "jungle": 50,
+          "farm": 40,
+          "lane": 194,
+          "fight": 184
+        },
+        "5": {
+          "fight": 159,
+          "farm": 79,
+          "objective": 108,
+          "lane": 86,
+          "recall": 123,
+          "jungle": 13
+        },
+        "6": {
+          "recall": 136,
+          "lane": 213,
+          "fight": 106,
+          "farm": 102
+        },
+        "7": {
+          "lane": 290,
+          "recall": 90,
+          "farm": 106,
+          "jungle": 83
+        },
+        "8": {
+          "lane": 247,
+          "farm": 57,
+          "objective": 57,
+          "recall": 96,
+          "jungle": 6,
+          "fight": 99
+        },
+        "9": {
+          "lane": 256,
+          "fight": 37,
+          "recall": 187,
+          "farm": 78,
+          "jungle": 17,
+          "siege": 5
+        },
+        "10": {
+          "lane": 317,
+          "recall": 179,
+          "siege": 6,
+          "farm": 20,
+          "jungle": 24,
+          "fight": 30,
+          "objective": 24
+        },
+        "11": {
+          "recall": 185,
+          "lane": 253,
+          "fight": 22,
+          "farm": 44,
+          "siege": 15,
+          "jungle": 12
+        },
+        "12": {
+          "siege": 99,
+          "farm": 10,
+          "jungle": 7,
+          "recall": 342,
+          "lane": 60,
+          "objective": 16,
+          "fight": 56
+        },
+        "13": {
+          "recall": 329,
+          "siege": 189,
+          "lane": 62,
+          "objective": 3
+        },
+        "14": {
+          "recall": 382,
+          "lane": 3,
+          "objective": 23,
+          "siege": 155,
+          "farm": 17,
+          "jungle": 5
+        },
+        "15": {
+          "recall": 400,
+          "siege": 149,
+          "jungle": 3,
+          "lane": 2,
+          "fight": 39
+        },
+        "16": {
+          "recall": 337,
+          "siege": 216,
+          "objective": 23,
+          "fight": 1
+        },
+        "17": {
+          "recall": 404,
+          "fight": 3,
+          "siege": 159,
+          "lane": 5,
+          "objective": 3
+        },
+        "18": {
+          "recall": 453,
+          "siege": 138,
+          "objective": 3,
+          "lane": 4,
+          "jungle": 2
+        },
+        "19": {
+          "recall": 425,
+          "siege": 172,
+          "lane": 3
+        },
+        "20": {
+          "recall": 468,
+          "objective": 30,
+          "siege": 77
+        },
+        "21": {
+          "recall": 400,
+          "siege": 114,
+          "objective": 56,
+          "fight": 3,
+          "lane": 1
+        },
+        "22": {
+          "recall": 476,
+          "siege": 113,
+          "lane": 2,
+          "fight": 9
+        },
+        "23": {
+          "recall": 483,
+          "siege": 102,
+          "fight": 14,
+          "lane": 1
+        },
+        "24": {
+          "recall": 437,
+          "siege": 162,
+          "lane": 1
+        },
+        "25": {
+          "recall": 468,
+          "siege": 130,
+          "lane": 2
+        },
+        "26": {
+          "recall": 463,
+          "siege": 137
+        },
+        "27": {
+          "recall": 492,
+          "siege": 94
+        },
+        "28": {
+          "recall": 417,
+          "siege": 157,
+          "lane": 1
+        },
+        "29": {
+          "recall": 537,
+          "siege": 59,
+          "lane": 3,
+          "farm": 1
+        },
+        "30": {
+          "recall": 468,
+          "siege": 131,
+          "lane": 1
+        },
+        "31": {
+          "recall": 56,
+          "siege": 14
+        }
+      },
+      "fightsPerMinute": {
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 3,
+        "5": 3,
+        "6": 3,
+        "8": 2,
+        "9": 1,
+        "11": 3,
+        "12": 1,
+        "14": 1,
+        "15": 1,
+        "17": 1,
+        "19": 1,
+        "21": 1,
+        "27": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "fight": 265,
+          "jungle": 155,
+          "lane": 409,
+          "farm": 171,
+          "recall": 119
+        },
+        "dragonPlus2": {
+          "fight": 265,
+          "farm": 182,
+          "objective": 108,
+          "lane": 303,
+          "recall": 261,
+          "jungle": 13
+        },
+        "baronMinus2": {
+          "recall": 878,
+          "siege": 310,
+          "objective": 3,
+          "lane": 7,
+          "jungle": 2
+        },
+        "baronPlus2": {
+          "recall": 877,
+          "objective": 86,
+          "siege": 192,
+          "fight": 3,
+          "lane": 1
+        }
+      },
+      "structureHits": 1202,
+      "minionLastHitsApprox": 115,
+      "abilityByChampion": {
+        "Yuumi": 17,
+        "Braum": 9,
+        "LeeSin": 37,
+        "Sylas": 23,
+        "Gwen": 15,
+        "Ashe": 9,
+        "Azir": 9,
+        "Ryze": 4,
+        "Jinx": 22,
+        "Akali": 2
+      },
+      "levelsAtEnd": [
+        3,
+        3,
+        6,
+        3,
+        1,
+        7,
+        4,
+        5,
+        8,
+        4
+      ],
+      "campKills": 21,
+      "recallCounts": 88,
+      "activitySec": {
+        "lane": 6453,
+        "jungle": 1200,
+        "fight": 978,
+        "recallTravel": 2602.2,
+        "recallBase": 6887.4,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.356,
+        "jungle": 0.066,
+        "fight": 0.054,
+        "recallTravel": 0.144,
+        "recallBase": 0.38,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.394,
+          "jungle": 0.012,
+          "fight": 0.078,
+          "recallTravel": 0.174,
+          "recallBase": 0.342,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.259,
+          "fight": 0.078,
+          "recallTravel": 0.093,
+          "recallBase": 0.57,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.53,
+          "jungle": 0.006,
+          "fight": 0.059,
+          "recallTravel": 0.172,
+          "recallBase": 0.232,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.649,
+          "jungle": 0.039,
+          "fight": 0.019,
+          "recallTravel": 0.247,
+          "recallBase": 0.046,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.22,
+          "jungle": 0.015,
+          "fight": 0.034,
+          "recallTravel": 0.036,
+          "recallBase": 0.695,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 21744.7,
+        "cs": 1975,
+        "tower_share": 1700,
+        "camp": 1820,
+        "kill": 8400,
+        "tower": 1550,
+        "assist": 2100
+      },
+      "expBySource": {
+        "minion": 4518.8,
+        "minion_share": 11316.6,
+        "camp": 1695
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.05
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.55
+        },
+        {
+          "t": 240,
+          "avgLevel": 2
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.2
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.6
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.05
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.4
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.55
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.65
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 720,
+          "avgLevel": 4.05
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.15
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.25
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.4
+        }
+      ]
+    },
+    {
+      "strength": "even",
+      "seed": 1034,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "away",
+      "killsHome": 13,
+      "killsAway": 17,
+      "totalKills": 30,
+      "firstBloodSec": 89,
+      "firstOuterTowerSec": 906,
+      "firstDragonSec": 341,
+      "firstBaronSec": 1332,
+      "dragons": 1,
+      "barons": 1,
+      "towers": 12,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 5,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 31304,
+      "abilityCasts": 178,
+      "autoAttacks": 738,
+      "abilityDamageShare": 0.238,
+      "itemBuys": 45,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 5269,
+      "goldGapEnd": 2182,
+      "aiActions": {
+        "lane": 3467,
+        "jungle": 606,
+        "farm": 1315,
+        "fight": 939,
+        "recall": 14766,
+        "objective": 263,
+        "siege": 2041
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 741,
+          "fight": 425,
+          "recall": 3000,
+          "objective": 35,
+          "siege": 476
+        },
+        "BOT": {
+          "lane": 611,
+          "farm": 453,
+          "recall": 2951,
+          "fight": 127,
+          "objective": 53,
+          "siege": 393
+        },
+        "MID": {
+          "lane": 1571,
+          "farm": 395,
+          "fight": 134,
+          "recall": 2072,
+          "siege": 502,
+          "objective": 32
+        },
+        "JUNGLE": {
+          "jungle": 606,
+          "fight": 134,
+          "recall": 3470,
+          "lane": 23,
+          "objective": 99,
+          "siege": 365
+        },
+        "TOP": {
+          "lane": 521,
+          "farm": 467,
+          "fight": 119,
+          "recall": 3273,
+          "objective": 44,
+          "siege": 305
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 327,
+          "jungle": 109,
+          "farm": 92,
+          "fight": 38,
+          "recall": 3
+        },
+        "2": {
+          "jungle": 64,
+          "lane": 288,
+          "farm": 131,
+          "recall": 57,
+          "fight": 31
+        },
+        "3": {
+          "lane": 133,
+          "jungle": 80,
+          "recall": 162,
+          "farm": 138,
+          "fight": 83
+        },
+        "4": {
+          "recall": 133,
+          "lane": 235,
+          "farm": 91,
+          "fight": 70,
+          "jungle": 26
+        },
+        "5": {
+          "fight": 89,
+          "recall": 108,
+          "lane": 138,
+          "farm": 152,
+          "objective": 69,
+          "jungle": 7
+        },
+        "6": {
+          "farm": 153,
+          "fight": 76,
+          "lane": 196,
+          "recall": 128,
+          "jungle": 28
+        },
+        "7": {
+          "fight": 22,
+          "lane": 183,
+          "recall": 183,
+          "farm": 131,
+          "jungle": 60
+        },
+        "8": {
+          "objective": 43,
+          "lane": 154,
+          "fight": 121,
+          "farm": 44,
+          "recall": 127,
+          "siege": 17
+        },
+        "9": {
+          "fight": 85,
+          "lane": 259,
+          "recall": 118,
+          "objective": 16,
+          "farm": 72,
+          "jungle": 8,
+          "siege": 4
+        },
+        "10": {
+          "lane": 225,
+          "fight": 38,
+          "recall": 207,
+          "farm": 40,
+          "siege": 9,
+          "jungle": 10,
+          "objective": 32
+        },
+        "11": {
+          "lane": 203,
+          "farm": 96,
+          "recall": 131,
+          "objective": 22,
+          "fight": 28,
+          "jungle": 48
+        },
+        "12": {
+          "farm": 44,
+          "jungle": 41,
+          "siege": 111,
+          "recall": 330,
+          "fight": 40,
+          "lane": 8
+        },
+        "13": {
+          "recall": 281,
+          "siege": 231,
+          "farm": 53,
+          "lane": 4,
+          "fight": 23
+        },
+        "14": {
+          "farm": 19,
+          "recall": 288,
+          "lane": 22,
+          "siege": 168,
+          "fight": 45
+        },
+        "15": {
+          "fight": 81,
+          "siege": 148,
+          "recall": 358,
+          "lane": 2,
+          "farm": 1
+        },
+        "16": {
+          "siege": 226,
+          "recall": 326,
+          "lane": 3,
+          "fight": 4
+        },
+        "17": {
+          "recall": 332,
+          "siege": 240,
+          "fight": 2,
+          "lane": 7,
+          "farm": 3
+        },
+        "18": {
+          "siege": 165,
+          "recall": 433,
+          "lane": 1,
+          "farm": 1
+        },
+        "19": {
+          "siege": 221,
+          "recall": 375,
+          "lane": 4
+        },
+        "20": {
+          "recall": 399,
+          "siege": 112,
+          "farm": 1,
+          "objective": 21,
+          "fight": 47,
+          "lane": 20
+        },
+        "21": {
+          "objective": 50,
+          "siege": 82,
+          "recall": 359,
+          "lane": 40,
+          "farm": 27,
+          "jungle": 4,
+          "fight": 13
+        },
+        "22": {
+          "recall": 428,
+          "lane": 35,
+          "fight": 3,
+          "objective": 10,
+          "siege": 98,
+          "farm": 26
+        },
+        "23": {
+          "siege": 55,
+          "recall": 484,
+          "lane": 60,
+          "jungle": 1
+        },
+        "24": {
+          "recall": 505,
+          "lane": 60,
+          "siege": 35
+        },
+        "25": {
+          "siege": 19,
+          "recall": 520,
+          "lane": 61
+        },
+        "26": {
+          "recall": 486,
+          "lane": 60,
+          "siege": 54
+        },
+        "27": {
+          "recall": 517,
+          "lane": 60,
+          "siege": 23
+        },
+        "28": {
+          "recall": 516,
+          "lane": 61,
+          "siege": 23
+        },
+        "29": {
+          "recall": 540,
+          "lane": 60
+        },
+        "30": {
+          "recall": 540,
+          "lane": 60
+        },
+        "31": {
+          "recall": 582,
+          "lane": 18
+        },
+        "32": {
+          "recall": 600
+        },
+        "33": {
+          "recall": 600
+        },
+        "34": {
+          "recall": 600
+        },
+        "35": {
+          "recall": 600
+        },
+        "36": {
+          "recall": 600
+        },
+        "37": {
+          "recall": 600
+        },
+        "38": {
+          "recall": 600
+        },
+        "39": {
+          "recall": 600
+        },
+        "40": {
+          "recall": 10
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "2": 2,
+        "3": 1,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "8": 5,
+        "9": 2,
+        "10": 1,
+        "11": 3,
+        "12": 1,
+        "13": 1,
+        "14": 2,
+        "15": 1,
+        "16": 1,
+        "20": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "lane": 368,
+          "jungle": 106,
+          "recall": 295,
+          "farm": 229,
+          "fight": 153
+        },
+        "dragonPlus2": {
+          "fight": 167,
+          "recall": 239,
+          "lane": 336,
+          "farm": 306,
+          "objective": 69,
+          "jungle": 36
+        },
+        "baronMinus2": {
+          "siege": 386,
+          "recall": 808,
+          "lane": 5,
+          "farm": 1
+        },
+        "baronPlus2": {
+          "recall": 766,
+          "siege": 194,
+          "farm": 28,
+          "objective": 71,
+          "fight": 61,
+          "lane": 61,
+          "jungle": 4
+        }
+      },
+      "structureHits": 786,
+      "minionLastHitsApprox": 176,
+      "abilityByChampion": {
+        "TahmKench": 19,
+        "Braum": 16,
+        "Diana": 14,
+        "LeeSin": 51,
+        "Ezreal": 14,
+        "Rumble": 5,
+        "Renekton": 20,
+        "Kaisa": 17,
+        "Irelia": 16,
+        "Ryze": 6
+      },
+      "levelsAtEnd": [
+        7,
+        4,
+        5,
+        6,
+        3,
+        5,
+        2,
+        7,
+        6,
+        3
+      ],
+      "campKills": 22,
+      "recallCounts": 86,
+      "activitySec": {
+        "lane": 6433,
+        "jungle": 1256,
+        "fight": 937.5,
+        "recallTravel": 2391.7,
+        "recallBase": 12361.1,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.275,
+        "jungle": 0.054,
+        "fight": 0.04,
+        "recallTravel": 0.102,
+        "recallBase": 0.529,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.274,
+          "jungle": 0.009,
+          "fight": 0.025,
+          "recallTravel": 0.097,
+          "recallBase": 0.594,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.233,
+          "fight": 0.028,
+          "recallTravel": 0.07,
+          "recallBase": 0.669,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.524,
+          "jungle": 0.007,
+          "fight": 0.028,
+          "recallTravel": 0.104,
+          "recallBase": 0.336,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.318,
+          "jungle": 0.012,
+          "fight": 0.028,
+          "recallTravel": 0.097,
+          "recallBase": 0.546,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.26,
+          "jungle": 0.007,
+          "fight": 0.091,
+          "recallTravel": 0.143,
+          "recallBase": 0.499,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 28055.2,
+        "cs": 3065,
+        "kill": 9000,
+        "tower_share": 1700,
+        "tower": 1400,
+        "camp": 1920,
+        "assist": 2550
+      },
+      "expBySource": {
+        "minion": 6926.3,
+        "minion_share": 12342.3,
+        "camp": 1805
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.2
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.85
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.2
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.55
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.8
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.3
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.65
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 600,
+          "avgLevel": 4
+        },
+        {
+          "t": 660,
+          "avgLevel": 4.15
+        },
+        {
+          "t": 720,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2220,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2280,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2340,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2400,
+          "avgLevel": 4.8
+        }
+      ]
+    },
+    {
+      "strength": "even",
+      "seed": 1051,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "home",
+      "killsHome": 11,
+      "killsAway": 6,
+      "totalKills": 17,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 948,
+      "firstDragonSec": 396,
+      "firstBaronSec": null,
+      "dragons": 2,
+      "barons": 0,
+      "towers": 11,
+      "teamfights": 0,
+      "teamfightAvgParticipants": 0,
+      "teamfightAvgKills": 0,
+      "damageToChamps": 18109,
+      "abilityCasts": 141,
+      "autoAttacks": 531,
+      "abilityDamageShare": 0.238,
+      "itemBuys": 35,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4752.8,
+      "goldGapEnd": 5034,
+      "aiActions": {
+        "lane": 3268,
+        "jungle": 767,
+        "farm": 911,
+        "fight": 436,
+        "recall": 16042,
+        "objective": 231,
+        "siege": 2045
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 572,
+          "farm": 282,
+          "fight": 19,
+          "recall": 3743,
+          "siege": 175
+        },
+        "JUNGLE": {
+          "jungle": 767,
+          "fight": 29,
+          "lane": 36,
+          "recall": 3612,
+          "objective": 84,
+          "siege": 274
+        },
+        "MID": {
+          "lane": 1240,
+          "farm": 323,
+          "fight": 101,
+          "objective": 65,
+          "recall": 2215,
+          "siege": 755
+        },
+        "BOT": {
+          "lane": 471,
+          "farm": 306,
+          "recall": 3646,
+          "fight": 39,
+          "objective": 53,
+          "siege": 235
+        },
+        "SUPPORT": {
+          "lane": 949,
+          "fight": 248,
+          "recall": 2826,
+          "objective": 29,
+          "siege": 606
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 329,
+          "jungle": 109,
+          "farm": 90,
+          "fight": 39,
+          "recall": 3
+        },
+        "2": {
+          "jungle": 63,
+          "lane": 287,
+          "farm": 114,
+          "recall": 73,
+          "fight": 44
+        },
+        "3": {
+          "lane": 226,
+          "recall": 180,
+          "farm": 95,
+          "jungle": 60,
+          "fight": 19
+        },
+        "4": {
+          "recall": 125,
+          "jungle": 58,
+          "lane": 234,
+          "fight": 39,
+          "farm": 114
+        },
+        "5": {
+          "fight": 43,
+          "farm": 72,
+          "recall": 258,
+          "lane": 167,
+          "jungle": 60
+        },
+        "6": {
+          "recall": 204,
+          "jungle": 56,
+          "farm": 61,
+          "lane": 187,
+          "objective": 92
+        },
+        "7": {
+          "lane": 198,
+          "recall": 272,
+          "farm": 71,
+          "jungle": 28,
+          "fight": 31
+        },
+        "8": {
+          "lane": 214,
+          "recall": 224,
+          "fight": 48,
+          "farm": 18,
+          "jungle": 30,
+          "objective": 24
+        },
+        "9": {
+          "recall": 244,
+          "jungle": 24,
+          "lane": 203,
+          "fight": 34,
+          "farm": 39,
+          "siege": 11
+        },
+        "10": {
+          "fight": 32,
+          "recall": 218,
+          "lane": 207,
+          "jungle": 55,
+          "farm": 65
+        },
+        "11": {
+          "recall": 244,
+          "jungle": 14,
+          "lane": 186,
+          "farm": 16,
+          "fight": 88,
+          "siege": 4
+        },
+        "12": {
+          "recall": 237,
+          "siege": 218,
+          "lane": 60,
+          "farm": 6,
+          "objective": 51,
+          "jungle": 1
+        },
+        "13": {
+          "recall": 395,
+          "siege": 134,
+          "farm": 52,
+          "lane": 10,
+          "jungle": 9
+        },
+        "14": {
+          "recall": 471,
+          "siege": 127,
+          "jungle": 2
+        },
+        "15": {
+          "siege": 183,
+          "recall": 397,
+          "farm": 11,
+          "lane": 3,
+          "jungle": 6
+        },
+        "16": {
+          "recall": 418,
+          "jungle": 12,
+          "siege": 170
+        },
+        "17": {
+          "siege": 118,
+          "recall": 432,
+          "lane": 3,
+          "fight": 19,
+          "jungle": 2
+        },
+        "18": {
+          "siege": 125,
+          "recall": 473,
+          "lane": 2
+        },
+        "19": {
+          "recall": 461,
+          "siege": 135,
+          "jungle": 2,
+          "lane": 2
+        },
+        "20": {
+          "recall": 453,
+          "siege": 64,
+          "lane": 23,
+          "objective": 44,
+          "jungle": 16
+        },
+        "21": {
+          "recall": 491,
+          "lane": 60,
+          "siege": 41,
+          "objective": 8
+        },
+        "22": {
+          "siege": 44,
+          "recall": 462,
+          "lane": 12,
+          "objective": 12,
+          "farm": 30,
+          "jungle": 40
+        },
+        "23": {
+          "recall": 518,
+          "siege": 82
+        },
+        "24": {
+          "recall": 562,
+          "siege": 38
+        },
+        "25": {
+          "siege": 63,
+          "recall": 537
+        },
+        "26": {
+          "recall": 511,
+          "siege": 88,
+          "lane": 1
+        },
+        "27": {
+          "siege": 43,
+          "recall": 557
+        },
+        "28": {
+          "recall": 503,
+          "siege": 68,
+          "lane": 7,
+          "farm": 22
+        },
+        "29": {
+          "recall": 498,
+          "farm": 18,
+          "lane": 42,
+          "siege": 42
+        },
+        "30": {
+          "recall": 535,
+          "lane": 61,
+          "siege": 4
+        },
+        "31": {
+          "recall": 540,
+          "lane": 60
+        },
+        "32": {
+          "recall": 564,
+          "lane": 1,
+          "farm": 17,
+          "siege": 18
+        },
+        "33": {
+          "recall": 570,
+          "siege": 28,
+          "lane": 2
+        },
+        "34": {
+          "recall": 555,
+          "siege": 44,
+          "lane": 1
+        },
+        "35": {
+          "recall": 578,
+          "siege": 22
+        },
+        "36": {
+          "recall": 564,
+          "siege": 36
+        },
+        "37": {
+          "recall": 564,
+          "siege": 36
+        },
+        "38": {
+          "recall": 586,
+          "siege": 14
+        },
+        "39": {
+          "recall": 555,
+          "siege": 45
+        },
+        "40": {
+          "recall": 10
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "2": 2,
+        "3": 1,
+        "4": 2,
+        "8": 2,
+        "9": 2,
+        "10": 1,
+        "11": 3,
+        "17": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "lane": 460,
+          "recall": 305,
+          "farm": 209,
+          "jungle": 118,
+          "fight": 58
+        },
+        "dragonPlus2": {
+          "fight": 43,
+          "farm": 135,
+          "recall": 465,
+          "lane": 358,
+          "jungle": 117,
+          "objective": 92
+        },
+        "baronMinus2": {
+          "siege": 260,
+          "recall": 934,
+          "lane": 4,
+          "jungle": 2
+        },
+        "baronPlus2": {
+          "recall": 951,
+          "siege": 106,
+          "lane": 84,
+          "objective": 53,
+          "jungle": 16
+        }
+      },
+      "structureHits": 810,
+      "minionLastHitsApprox": 131,
+      "abilityByChampion": {
+        "Rakan": 16,
+        "Braum": 20,
+        "Diana": 9,
+        "Viego": 59,
+        "Aphelios": 2,
+        "Rumble": 2,
+        "Gwen": 1,
+        "Jinx": 16,
+        "Akali": 11,
+        "Ziggs": 5
+      },
+      "levelsAtEnd": [
+        2,
+        5,
+        6,
+        6,
+        5,
+        8,
+        2,
+        5,
+        2,
+        4
+      ],
+      "campKills": 26,
+      "recallCounts": 74,
+      "activitySec": {
+        "lane": 5910.5,
+        "jungle": 1308,
+        "fight": 436,
+        "recallTravel": 2203.2,
+        "recallBase": 13828.9,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.25,
+        "jungle": 0.055,
+        "fight": 0.018,
+        "recallTravel": 0.093,
+        "recallBase": 0.584,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.215,
+          "jungle": 0,
+          "fight": 0.004,
+          "recallTravel": 0.045,
+          "recallBase": 0.736,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.242,
+          "fight": 0.006,
+          "recallTravel": 0.074,
+          "recallBase": 0.678,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.493,
+          "jungle": 0.014,
+          "fight": 0.022,
+          "recallTravel": 0.128,
+          "recallBase": 0.343,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.213,
+          "jungle": 0.011,
+          "fight": 0.008,
+          "recallTravel": 0.081,
+          "recallBase": 0.687,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.334,
+          "jungle": 0.006,
+          "fight": 0.053,
+          "recallTravel": 0.139,
+          "recallBase": 0.468,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 28423.9,
+        "cs": 2439,
+        "tower_share": 1550,
+        "tower": 1250,
+        "camp": 2115,
+        "assist": 1650,
+        "kill": 5100
+      },
+      "expBySource": {
+        "minion": 5194.8,
+        "minion_share": 12880.5,
+        "camp": 2130
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.15
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.7
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.1
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.45
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.8
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.15
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.25
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.5
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.6
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 720,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.15
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.45
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2220,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2280,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2340,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2400,
+          "avgLevel": 4.5
+        }
+      ]
+    },
+    {
+      "strength": "advantage",
+      "seed": 1100,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "away",
+      "killsHome": 12,
+      "killsAway": 16,
+      "totalKills": 28,
+      "firstBloodSec": 89,
+      "firstOuterTowerSec": 1119,
+      "firstDragonSec": 347,
+      "firstBaronSec": null,
+      "dragons": 3,
+      "barons": 0,
+      "towers": 9,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 7,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 23908,
+      "abilityCasts": 168,
+      "autoAttacks": 505,
+      "abilityDamageShare": 0.293,
+      "itemBuys": 38,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4978.2,
+      "goldGapEnd": 3668,
+      "aiActions": {
+        "lane": 3441,
+        "jungle": 1031,
+        "farm": 853,
+        "fight": 792,
+        "recall": 15179,
+        "objective": 193,
+        "siege": 1990
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 817,
+          "fight": 365,
+          "recall": 3136,
+          "objective": 48,
+          "siege": 337
+        },
+        "BOT": {
+          "lane": 347,
+          "farm": 189,
+          "recall": 4100,
+          "fight": 57,
+          "objective": 35
+        },
+        "MID": {
+          "lane": 1041,
+          "farm": 276,
+          "fight": 125,
+          "recall": 2839,
+          "objective": 2,
+          "siege": 411
+        },
+        "JUNGLE": {
+          "jungle": 1031,
+          "fight": 133,
+          "lane": 42,
+          "recall": 3238,
+          "objective": 53,
+          "siege": 305
+        },
+        "TOP": {
+          "lane": 1194,
+          "farm": 388,
+          "fight": 112,
+          "recall": 1866,
+          "objective": 55,
+          "siege": 937
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 352,
+          "jungle": 109,
+          "farm": 66,
+          "fight": 35,
+          "recall": 4
+        },
+        "2": {
+          "lane": 279,
+          "jungle": 80,
+          "farm": 152,
+          "fight": 26,
+          "recall": 33
+        },
+        "3": {
+          "lane": 176,
+          "fight": 78,
+          "jungle": 99,
+          "farm": 133,
+          "recall": 70
+        },
+        "4": {
+          "lane": 224,
+          "jungle": 108,
+          "farm": 140,
+          "recall": 30,
+          "fight": 52
+        },
+        "5": {
+          "fight": 112,
+          "recall": 134,
+          "farm": 48,
+          "jungle": 69,
+          "lane": 133,
+          "objective": 71
+        },
+        "6": {
+          "fight": 58,
+          "recall": 77,
+          "lane": 232,
+          "jungle": 114,
+          "farm": 80
+        },
+        "7": {
+          "recall": 145,
+          "jungle": 119,
+          "lane": 198,
+          "fight": 67,
+          "farm": 34
+        },
+        "8": {
+          "farm": 57,
+          "jungle": 105,
+          "lane": 153,
+          "recall": 174,
+          "fight": 74,
+          "siege": 15
+        },
+        "9": {
+          "recall": 275,
+          "lane": 139,
+          "siege": 2,
+          "fight": 51,
+          "jungle": 27,
+          "farm": 11,
+          "objective": 50
+        },
+        "10": {
+          "lane": 302,
+          "recall": 203,
+          "objective": 5,
+          "farm": 38,
+          "siege": 12,
+          "jungle": 29,
+          "fight": 11
+        },
+        "11": {
+          "lane": 235,
+          "recall": 231,
+          "farm": 29,
+          "jungle": 25,
+          "fight": 23,
+          "siege": 12
+        },
+        "12": {
+          "siege": 103,
+          "recall": 308,
+          "farm": 32,
+          "fight": 38,
+          "objective": 30,
+          "lane": 87,
+          "jungle": 2
+        },
+        "13": {
+          "siege": 151,
+          "recall": 336,
+          "lane": 48,
+          "farm": 2,
+          "fight": 12
+        },
+        "14": {
+          "recall": 348,
+          "siege": 177,
+          "jungle": 2,
+          "fight": 44,
+          "farm": 17
+        },
+        "15": {
+          "recall": 398,
+          "siege": 182,
+          "fight": 1,
+          "lane": 4,
+          "jungle": 2
+        },
+        "16": {
+          "siege": 211,
+          "recall": 361,
+          "lane": 2
+        },
+        "17": {
+          "siege": 155,
+          "recall": 440,
+          "jungle": 2,
+          "lane": 3
+        },
+        "18": {
+          "siege": 167,
+          "recall": 404,
+          "objective": 23,
+          "farm": 2,
+          "jungle": 2,
+          "lane": 1,
+          "fight": 1
+        },
+        "19": {
+          "siege": 131,
+          "recall": 455,
+          "fight": 13,
+          "lane": 1
+        },
+        "20": {
+          "siege": 133,
+          "recall": 373,
+          "fight": 45,
+          "lane": 5,
+          "jungle": 16
+        },
+        "21": {
+          "recall": 426,
+          "siege": 123,
+          "fight": 17,
+          "lane": 1,
+          "objective": 7
+        },
+        "22": {
+          "recall": 495,
+          "siege": 67,
+          "fight": 30,
+          "objective": 7,
+          "jungle": 1
+        },
+        "23": {
+          "recall": 570,
+          "siege": 30
+        },
+        "24": {
+          "recall": 580,
+          "siege": 20
+        },
+        "25": {
+          "recall": 542,
+          "siege": 58
+        },
+        "26": {
+          "recall": 588,
+          "siege": 12
+        },
+        "27": {
+          "recall": 556,
+          "siege": 44
+        },
+        "28": {
+          "recall": 566,
+          "siege": 34
+        },
+        "29": {
+          "recall": 560,
+          "siege": 40
+        },
+        "30": {
+          "recall": 574,
+          "siege": 26
+        },
+        "31": {
+          "recall": 571,
+          "siege": 29
+        },
+        "32": {
+          "recall": 563,
+          "siege": 37
+        },
+        "33": {
+          "recall": 540,
+          "siege": 19,
+          "lane": 37,
+          "fight": 4
+        },
+        "34": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "35": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "36": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "37": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "38": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "39": {
+          "recall": 540,
+          "lane": 58,
+          "farm": 2
+        },
+        "40": {
+          "recall": 9,
+          "lane": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 3,
+        "5": 2,
+        "6": 3,
+        "7": 1,
+        "8": 1,
+        "9": 2,
+        "11": 2,
+        "13": 2,
+        "14": 1,
+        "16": 1,
+        "20": 1,
+        "21": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "lane": 400,
+          "fight": 130,
+          "jungle": 207,
+          "farm": 273,
+          "recall": 100
+        },
+        "dragonPlus2": {
+          "fight": 171,
+          "recall": 213,
+          "farm": 129,
+          "jungle": 185,
+          "lane": 368,
+          "objective": 71
+        },
+        "baronMinus2": {
+          "siege": 298,
+          "recall": 859,
+          "objective": 23,
+          "farm": 2,
+          "jungle": 2,
+          "lane": 2,
+          "fight": 14
+        },
+        "baronPlus2": {
+          "siege": 257,
+          "recall": 806,
+          "fight": 63,
+          "lane": 6,
+          "jungle": 16,
+          "objective": 8
+        }
+      },
+      "structureHits": 809,
+      "minionLastHitsApprox": 94,
+      "abilityByChampion": {
+        "Braum": 19,
+        "TahmKench": 11,
+        "Diana": 46,
+        "Rumble": 25,
+        "XinZhao": 30,
+        "Kaisa": 9,
+        "Ashe": 4,
+        "Jayce": 10,
+        "Ziggs": 9,
+        "Akali": 5
+      },
+      "levelsAtEnd": [
+        4,
+        3,
+        5,
+        4,
+        3,
+        11,
+        5,
+        5,
+        3,
+        3
+      ],
+      "campKills": 32,
+      "recallCounts": 80,
+      "activitySec": {
+        "lane": 5932.5,
+        "jungle": 1571,
+        "fight": 792,
+        "recallTravel": 2094.7,
+        "recallBase": 13076.4,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.253,
+        "jungle": 0.067,
+        "fight": 0.034,
+        "recallTravel": 0.089,
+        "recallBase": 0.557,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.553,
+          "jungle": 0.012,
+          "fight": 0.025,
+          "recallTravel": 0.162,
+          "recallBase": 0.248,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.298,
+          "fight": 0.028,
+          "recallTravel": 0.079,
+          "recallBase": 0.595,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.368,
+          "jungle": 0,
+          "fight": 0.027,
+          "recallTravel": 0.086,
+          "recallBase": 0.519,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.113,
+          "jungle": 0.007,
+          "fight": 0.012,
+          "recallTravel": 0.018,
+          "recallBase": 0.849,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.245,
+          "jungle": 0.01,
+          "fight": 0.078,
+          "recallTravel": 0.104,
+          "recallBase": 0.563,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 28159.9,
+        "cs": 1912,
+        "kill": 8400,
+        "assist": 1650,
+        "tower": 1050,
+        "camp": 2360,
+        "tower_share": 1250
+      },
+      "expBySource": {
+        "minion_share": 13638.8,
+        "minion": 3768,
+        "camp": 2515
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.15
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.75
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.25
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.6
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.8
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.2
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.45
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.5
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.55
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.75
+        },
+        {
+          "t": 720,
+          "avgLevel": 4
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.25
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 2220,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 2280,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 2340,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 2400,
+          "avgLevel": 4.6
+        }
+      ]
+    },
+    {
+      "strength": "advantage",
+      "seed": 1117,
+      "durationSec": 1942,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 11,
+      "killsAway": 23,
+      "totalKills": 34,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 848.5,
+      "firstDragonSec": 329,
+      "firstBaronSec": null,
+      "dragons": 2,
+      "barons": 0,
+      "towers": 14,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 7,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 27253,
+      "abilityCasts": 179,
+      "autoAttacks": 583,
+      "abilityDamageShare": 0.255,
+      "itemBuys": 40,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4942.3,
+      "goldGapEnd": 4942,
+      "aiActions": {
+        "lane": 2859,
+        "jungle": 749,
+        "farm": 1081,
+        "fight": 1289,
+        "recall": 9613,
+        "objective": 318,
+        "siege": 2822
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 489,
+          "fight": 111,
+          "recall": 3254,
+          "objective": 30
+        },
+        "BOT": {
+          "lane": 842,
+          "farm": 255,
+          "recall": 1335,
+          "fight": 217,
+          "objective": 114,
+          "siege": 866
+        },
+        "MID": {
+          "lane": 905,
+          "farm": 393,
+          "fight": 214,
+          "recall": 1482,
+          "siege": 779
+        },
+        "JUNGLE": {
+          "jungle": 749,
+          "fight": 482,
+          "recall": 1598,
+          "lane": 35,
+          "objective": 123,
+          "siege": 727
+        },
+        "TOP": {
+          "lane": 588,
+          "farm": 433,
+          "recall": 1944,
+          "fight": 265,
+          "objective": 51,
+          "siege": 450
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 287,
+          "jungle": 86,
+          "farm": 46,
+          "fight": 113,
+          "recall": 57
+        },
+        "2": {
+          "fight": 71,
+          "farm": 76,
+          "lane": 253,
+          "recall": 88,
+          "jungle": 94
+        },
+        "3": {
+          "farm": 123,
+          "recall": 145,
+          "fight": 90,
+          "lane": 167,
+          "jungle": 52
+        },
+        "4": {
+          "recall": 136,
+          "lane": 162,
+          "jungle": 19,
+          "farm": 105,
+          "fight": 121
+        },
+        "5": {
+          "lane": 106,
+          "jungle": 59,
+          "recall": 116,
+          "farm": 129,
+          "objective": 108,
+          "fight": 52
+        },
+        "6": {
+          "lane": 245,
+          "recall": 143,
+          "jungle": 107,
+          "fight": 43,
+          "farm": 46
+        },
+        "7": {
+          "lane": 231,
+          "farm": 115,
+          "recall": 104,
+          "jungle": 61,
+          "fight": 64
+        },
+        "8": {
+          "recall": 87,
+          "lane": 261,
+          "fight": 66,
+          "farm": 21,
+          "siege": 24,
+          "objective": 48,
+          "jungle": 6
+        },
+        "9": {
+          "objective": 21,
+          "siege": 36,
+          "farm": 71,
+          "lane": 180,
+          "recall": 129,
+          "jungle": 23,
+          "fight": 83
+        },
+        "10": {
+          "recall": 178,
+          "lane": 215,
+          "fight": 44,
+          "jungle": 21,
+          "farm": 65,
+          "objective": 22,
+          "siege": 12
+        },
+        "11": {
+          "recall": 147,
+          "lane": 186,
+          "farm": 82,
+          "siege": 41,
+          "jungle": 62,
+          "fight": 11,
+          "objective": 24
+        },
+        "12": {
+          "siege": 108,
+          "jungle": 9,
+          "objective": 5,
+          "recall": 292,
+          "farm": 60,
+          "fight": 90,
+          "lane": 4
+        },
+        "13": {
+          "recall": 294,
+          "siege": 213,
+          "fight": 39,
+          "lane": 4,
+          "farm": 9
+        },
+        "14": {
+          "farm": 40,
+          "siege": 82,
+          "recall": 281,
+          "fight": 148,
+          "jungle": 3,
+          "lane": 24
+        },
+        "15": {
+          "recall": 338,
+          "siege": 188,
+          "fight": 43,
+          "farm": 3,
+          "lane": 2
+        },
+        "16": {
+          "recall": 356,
+          "siege": 151,
+          "lane": 13,
+          "jungle": 2,
+          "fight": 77,
+          "farm": 1
+        },
+        "17": {
+          "recall": 295,
+          "siege": 214,
+          "fight": 6,
+          "lane": 4,
+          "objective": 31,
+          "farm": 17,
+          "jungle": 1
+        },
+        "18": {
+          "farm": 1,
+          "recall": 272,
+          "fight": 34,
+          "siege": 235,
+          "jungle": 1,
+          "lane": 1
+        },
+        "19": {
+          "recall": 468,
+          "siege": 120,
+          "lane": 2,
+          "jungle": 2,
+          "farm": 8
+        },
+        "20": {
+          "recall": 412,
+          "siege": 131,
+          "objective": 20,
+          "lane": 2,
+          "fight": 35
+        },
+        "21": {
+          "recall": 371,
+          "siege": 125,
+          "objective": 19,
+          "fight": 3,
+          "farm": 37,
+          "lane": 9
+        },
+        "22": {
+          "recall": 424,
+          "siege": 115,
+          "farm": 25,
+          "lane": 16,
+          "objective": 20
+        },
+        "23": {
+          "recall": 438,
+          "siege": 154,
+          "jungle": 1,
+          "lane": 3,
+          "fight": 4
+        },
+        "24": {
+          "siege": 72,
+          "fight": 50,
+          "recall": 459,
+          "lane": 2,
+          "jungle": 17
+        },
+        "25": {
+          "recall": 415,
+          "siege": 155
+        },
+        "26": {
+          "recall": 469,
+          "siege": 127,
+          "jungle": 2,
+          "fight": 1,
+          "farm": 1
+        },
+        "27": {
+          "siege": 124,
+          "recall": 476
+        },
+        "28": {
+          "recall": 469,
+          "siege": 129,
+          "jungle": 1,
+          "fight": 1
+        },
+        "29": {
+          "recall": 502,
+          "siege": 98
+        },
+        "30": {
+          "recall": 527,
+          "siege": 73
+        },
+        "31": {
+          "recall": 545,
+          "siege": 55
+        },
+        "32": {
+          "recall": 180,
+          "siege": 40
+        }
+      },
+      "fightsPerMinute": {
+        "1": 1,
+        "2": 2,
+        "3": 1,
+        "4": 4,
+        "5": 2,
+        "6": 1,
+        "7": 3,
+        "8": 3,
+        "9": 3,
+        "10": 2,
+        "11": 2,
+        "12": 2,
+        "13": 1,
+        "14": 2,
+        "17": 1,
+        "18": 2,
+        "21": 1,
+        "24": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 228,
+          "recall": 281,
+          "fight": 211,
+          "lane": 329,
+          "jungle": 71
+        },
+        "dragonPlus2": {
+          "lane": 357,
+          "jungle": 167,
+          "recall": 261,
+          "farm": 176,
+          "objective": 108,
+          "fight": 95
+        },
+        "baronMinus2": {
+          "farm": 9,
+          "recall": 740,
+          "fight": 34,
+          "siege": 355,
+          "jungle": 3,
+          "lane": 3
+        },
+        "baronPlus2": {
+          "recall": 791,
+          "siege": 257,
+          "objective": 39,
+          "lane": 11,
+          "fight": 38,
+          "farm": 38
+        }
+      },
+      "structureHits": 1151,
+      "minionLastHitsApprox": 156,
+      "abilityByChampion": {
+        "Leona": 13,
+        "Sett": 2,
+        "Udyr": 47,
+        "Gnar": 11,
+        "Nocturne": 34,
+        "Ezreal": 16,
+        "MissFortune": 22,
+        "Rumble": 17,
+        "Akali": 6,
+        "Irelia": 11
+      },
+      "levelsAtEnd": [
+        8,
+        4,
+        6,
+        3,
+        1,
+        5,
+        4,
+        7,
+        8,
+        2
+      ],
+      "campKills": 24,
+      "recallCounts": 98,
+      "activitySec": {
+        "lane": 5996.5,
+        "jungle": 1828.5,
+        "fight": 1287.5,
+        "recallTravel": 2833,
+        "recallBase": 6778.5,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.32,
+        "jungle": 0.098,
+        "fight": 0.069,
+        "recallTravel": 0.151,
+        "recallBase": 0.362,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.394,
+          "jungle": 0.014,
+          "fight": 0.071,
+          "recallTravel": 0.156,
+          "recallBase": 0.365,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.44,
+          "fight": 0.13,
+          "recallTravel": 0.18,
+          "recallBase": 0.25,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.55,
+          "jungle": 0,
+          "fight": 0.057,
+          "recallTravel": 0.179,
+          "recallBase": 0.214,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.541,
+          "jungle": 0.031,
+          "fight": 0.059,
+          "recallTravel": 0.219,
+          "recallBase": 0.149,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.126,
+          "jungle": 0.008,
+          "fight": 0.029,
+          "recallTravel": 0.03,
+          "recallBase": 0.808,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 22468.8,
+        "cs": 2913,
+        "assist": 3450,
+        "kill": 10200,
+        "tower_share": 2000,
+        "tower": 1550,
+        "camp": 1840
+      },
+      "expBySource": {
+        "minion_share": 13178.7,
+        "minion": 6188.3,
+        "camp": 1970
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.05
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.4
+        },
+        {
+          "t": 240,
+          "avgLevel": 1.95
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.25
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.55
+        },
+        {
+          "t": 420,
+          "avgLevel": 2.85
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.05
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.1
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.4
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.65
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.15
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.45
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.8
+        }
+      ]
+    },
+    {
+      "strength": "advantage",
+      "seed": 1134,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "home",
+      "killsHome": 12,
+      "killsAway": 8,
+      "totalKills": 20,
+      "firstBloodSec": 88.5,
+      "firstOuterTowerSec": 607,
+      "firstDragonSec": 345,
+      "firstBaronSec": null,
+      "dragons": 2,
+      "barons": 0,
+      "towers": 14,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 6,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 20050,
+      "abilityCasts": 142,
+      "autoAttacks": 444,
+      "abilityDamageShare": 0.254,
+      "itemBuys": 32,
+      "firstItemBuySec": 100,
+      "avgFinalGold": 4937.7,
+      "goldGapEnd": 4194,
+      "aiActions": {
+        "lane": 2536,
+        "jungle": 609,
+        "farm": 748,
+        "fight": 890,
+        "recall": 16679,
+        "objective": 227,
+        "siege": 1908
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 880,
+          "fight": 211,
+          "recall": 1799,
+          "objective": 125,
+          "siege": 1587
+        },
+        "BOT": {
+          "lane": 310,
+          "farm": 123,
+          "recall": 4337,
+          "fight": 21
+        },
+        "MID": {
+          "lane": 813,
+          "farm": 368,
+          "fight": 170,
+          "recall": 3139,
+          "objective": 27,
+          "siege": 205
+        },
+        "JUNGLE": {
+          "jungle": 609,
+          "fight": 39,
+          "lane": 26,
+          "recall": 4061,
+          "objective": 47,
+          "siege": 20
+        },
+        "TOP": {
+          "lane": 507,
+          "farm": 257,
+          "fight": 449,
+          "recall": 3343,
+          "objective": 28,
+          "siege": 96
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 331,
+          "jungle": 107,
+          "farm": 42,
+          "fight": 63,
+          "recall": 35
+        },
+        "2": {
+          "recall": 98,
+          "jungle": 57,
+          "lane": 273,
+          "fight": 36,
+          "farm": 124
+        },
+        "3": {
+          "farm": 93,
+          "jungle": 60,
+          "recall": 214,
+          "fight": 130,
+          "lane": 103
+        },
+        "4": {
+          "fight": 97,
+          "jungle": 15,
+          "lane": 230,
+          "recall": 140,
+          "farm": 79
+        },
+        "5": {
+          "farm": 28,
+          "objective": 105,
+          "recall": 267,
+          "lane": 126,
+          "fight": 61,
+          "jungle": 9
+        },
+        "6": {
+          "recall": 288,
+          "farm": 70,
+          "fight": 25,
+          "lane": 156,
+          "jungle": 45
+        },
+        "7": {
+          "lane": 196,
+          "recall": 202,
+          "farm": 91,
+          "jungle": 60,
+          "fight": 32
+        },
+        "8": {
+          "lane": 143,
+          "jungle": 7,
+          "farm": 18,
+          "recall": 322,
+          "fight": 94,
+          "objective": 16
+        },
+        "9": {
+          "lane": 118,
+          "recall": 266,
+          "fight": 125,
+          "siege": 27,
+          "jungle": 39,
+          "farm": 1
+        },
+        "10": {
+          "fight": 16,
+          "jungle": 44,
+          "siege": 17,
+          "recall": 232,
+          "lane": 165,
+          "farm": 33,
+          "objective": 36
+        },
+        "11": {
+          "recall": 259,
+          "objective": 18,
+          "fight": 39,
+          "farm": 42,
+          "lane": 173,
+          "jungle": 46
+        },
+        "12": {
+          "siege": 128,
+          "recall": 341,
+          "farm": 70,
+          "lane": 3,
+          "fight": 33,
+          "objective": 24
+        },
+        "13": {
+          "recall": 330,
+          "siege": 124,
+          "fight": 49,
+          "farm": 43,
+          "lane": 1
+        },
+        "14": {
+          "farm": 14,
+          "recall": 349,
+          "siege": 128,
+          "fight": 85,
+          "lane": 2
+        },
+        "15": {
+          "recall": 453,
+          "lane": 1,
+          "fight": 4,
+          "siege": 112
+        },
+        "16": {
+          "siege": 90,
+          "recall": 508,
+          "lane": 2
+        },
+        "17": {
+          "recall": 534,
+          "siege": 66
+        },
+        "18": {
+          "recall": 515,
+          "siege": 60,
+          "lane": 1
+        },
+        "19": {
+          "siege": 60,
+          "recall": 539,
+          "lane": 1
+        },
+        "20": {
+          "recall": 517,
+          "siege": 71,
+          "objective": 12
+        },
+        "21": {
+          "recall": 542,
+          "objective": 2,
+          "siege": 56
+        },
+        "22": {
+          "siege": 43,
+          "recall": 543,
+          "objective": 14
+        },
+        "23": {
+          "siege": 81,
+          "recall": 519
+        },
+        "24": {
+          "recall": 536,
+          "siege": 63,
+          "lane": 1
+        },
+        "25": {
+          "recall": 544,
+          "siege": 56
+        },
+        "26": {
+          "siege": 66,
+          "recall": 534
+        },
+        "27": {
+          "recall": 534,
+          "siege": 66
+        },
+        "28": {
+          "recall": 539,
+          "siege": 60,
+          "lane": 1
+        },
+        "29": {
+          "siege": 72,
+          "recall": 527,
+          "lane": 1
+        },
+        "30": {
+          "recall": 535,
+          "siege": 64,
+          "lane": 1
+        },
+        "31": {
+          "recall": 529,
+          "siege": 57,
+          "lane": 14
+        },
+        "32": {
+          "recall": 544,
+          "siege": 54,
+          "lane": 2
+        },
+        "33": {
+          "recall": 503,
+          "siege": 58,
+          "lane": 10,
+          "fight": 1
+        },
+        "34": {
+          "recall": 522,
+          "siege": 73,
+          "lane": 1
+        },
+        "35": {
+          "recall": 542,
+          "siege": 49
+        },
+        "36": {
+          "recall": 540,
+          "siege": 34
+        },
+        "37": {
+          "recall": 581,
+          "siege": 19
+        },
+        "38": {
+          "recall": 553,
+          "siege": 47
+        },
+        "39": {
+          "recall": 594,
+          "siege": 6
+        },
+        "40": {
+          "recall": 9,
+          "siege": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 2,
+        "2": 1,
+        "4": 3,
+        "6": 1,
+        "7": 1,
+        "9": 3,
+        "10": 1,
+        "11": 1,
+        "13": 2,
+        "14": 1,
+        "15": 1,
+        "18": 1,
+        "33": 1,
+        "35": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 172,
+          "jungle": 75,
+          "recall": 354,
+          "fight": 227,
+          "lane": 333
+        },
+        "dragonPlus2": {
+          "farm": 101,
+          "objective": 105,
+          "recall": 559,
+          "lane": 284,
+          "fight": 86,
+          "jungle": 55
+        },
+        "baronMinus2": {
+          "recall": 1054,
+          "siege": 120,
+          "lane": 2
+        },
+        "baronPlus2": {
+          "recall": 1067,
+          "siege": 129,
+          "objective": 14
+        }
+      },
+      "structureHits": 918,
+      "minionLastHitsApprox": 91,
+      "abilityByChampion": {
+        "Karma": 14,
+        "TahmKench": 29,
+        "Diana": 8,
+        "Sylas": 48,
+        "Gwen": 11,
+        "Aphelios": 1,
+        "Ezreal": 3,
+        "Lucian": 6,
+        "Rumble": 11,
+        "Ziggs": 11
+      },
+      "levelsAtEnd": [
+        5,
+        5,
+        5,
+        2,
+        3,
+        4,
+        2,
+        6,
+        3,
+        5
+      ],
+      "campKills": 22,
+      "recallCounts": 81,
+      "activitySec": {
+        "lane": 5143,
+        "jungle": 882,
+        "fight": 889.5,
+        "recallTravel": 2383.4,
+        "recallBase": 14285.7,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.218,
+        "jungle": 0.037,
+        "fight": 0.038,
+        "recallTravel": 0.101,
+        "recallBase": 0.606,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.184,
+          "jungle": 0.006,
+          "fight": 0.096,
+          "recallTravel": 0.073,
+          "recallBase": 0.641,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.146,
+          "fight": 0.008,
+          "recallTravel": 0.033,
+          "recallBase": 0.812,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.294,
+          "jungle": 0.006,
+          "fight": 0.036,
+          "recallTravel": 0.064,
+          "recallBase": 0.6,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.09,
+          "jungle": 0,
+          "fight": 0.004,
+          "recallTravel": 0.03,
+          "recallBase": 0.876,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.536,
+          "jungle": 0.027,
+          "fight": 0.046,
+          "recallTravel": 0.312,
+          "recallBase": 0.079,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 28300.4,
+        "cs": 1866,
+        "assist": 2850,
+        "kill": 6000,
+        "tower_share": 2050,
+        "tower": 1600,
+        "camp": 1710
+      },
+      "expBySource": {
+        "minion_share": 8936.5,
+        "minion": 3651.5,
+        "camp": 1840
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.05
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.6
+        },
+        {
+          "t": 240,
+          "avgLevel": 1.95
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.15
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.2
+        },
+        {
+          "t": 420,
+          "avgLevel": 2.6
+        },
+        {
+          "t": 480,
+          "avgLevel": 2.8
+        },
+        {
+          "t": 540,
+          "avgLevel": 2.9
+        },
+        {
+          "t": 600,
+          "avgLevel": 2.95
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.3
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.45
+        },
+        {
+          "t": 780,
+          "avgLevel": 3.55
+        },
+        {
+          "t": 840,
+          "avgLevel": 3.65
+        },
+        {
+          "t": 900,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 960,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 1020,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1080,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1140,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1200,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1260,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1320,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1380,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1440,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1500,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1560,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1620,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1680,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1740,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1800,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1860,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1920,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1980,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2040,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2100,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2160,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2220,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2280,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2340,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 2400,
+          "avgLevel": 4
+        }
+      ]
+    },
+    {
+      "strength": "advantage",
+      "seed": 1151,
+      "durationSec": 1995,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 15,
+      "killsAway": 24,
+      "totalKills": 39,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 661.5,
+      "firstDragonSec": 327,
+      "firstBaronSec": 1245,
+      "dragons": 3,
+      "barons": 1,
+      "towers": 14,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 9,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 29177,
+      "abilityCasts": 192,
+      "autoAttacks": 555,
+      "abilityDamageShare": 0.3,
+      "itemBuys": 45,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 5128.4,
+      "goldGapEnd": 5601,
+      "aiActions": {
+        "lane": 3903,
+        "jungle": 876,
+        "farm": 987,
+        "fight": 1193,
+        "recall": 8525,
+        "objective": 317,
+        "siege": 3331
+      },
+      "aiActionsByRole": {
+        "SUPPORT": {
+          "lane": 1471,
+          "fight": 549,
+          "recall": 915,
+          "objective": 75,
+          "siege": 760
+        },
+        "BOT": {
+          "lane": 571,
+          "farm": 216,
+          "recall": 2396,
+          "fight": 28,
+          "objective": 44,
+          "siege": 670
+        },
+        "MID": {
+          "lane": 1038,
+          "farm": 370,
+          "fight": 302,
+          "recall": 1574,
+          "objective": 68,
+          "siege": 456
+        },
+        "JUNGLE": {
+          "jungle": 876,
+          "fight": 161,
+          "lane": 37,
+          "recall": 2377,
+          "objective": 77,
+          "siege": 309
+        },
+        "TOP": {
+          "lane": 786,
+          "farm": 401,
+          "recall": 1263,
+          "fight": 153,
+          "objective": 53,
+          "siege": 1136
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 354,
+          "jungle": 109,
+          "farm": 62,
+          "fight": 35,
+          "recall": 7
+        },
+        "2": {
+          "lane": 253,
+          "jungle": 80,
+          "farm": 143,
+          "recall": 55,
+          "fight": 40
+        },
+        "3": {
+          "lane": 233,
+          "farm": 130,
+          "jungle": 101,
+          "recall": 34,
+          "fight": 34
+        },
+        "4": {
+          "lane": 194,
+          "jungle": 93,
+          "farm": 120,
+          "recall": 64,
+          "fight": 112
+        },
+        "5": {
+          "lane": 139,
+          "farm": 74,
+          "jungle": 60,
+          "fight": 82,
+          "recall": 120,
+          "objective": 95
+        },
+        "6": {
+          "lane": 260,
+          "fight": 38,
+          "recall": 152,
+          "jungle": 88,
+          "farm": 42
+        },
+        "7": {
+          "jungle": 119,
+          "farm": 69,
+          "recall": 111,
+          "lane": 282
+        },
+        "8": {
+          "farm": 53,
+          "objective": 20,
+          "recall": 90,
+          "lane": 309,
+          "jungle": 34,
+          "siege": 32,
+          "fight": 23
+        },
+        "9": {
+          "lane": 228,
+          "recall": 151,
+          "fight": 57,
+          "farm": 57,
+          "objective": 13,
+          "siege": 25
+        },
+        "10": {
+          "recall": 149,
+          "lane": 208,
+          "jungle": 27,
+          "farm": 64,
+          "objective": 75,
+          "fight": 37,
+          "siege": 21
+        },
+        "11": {
+          "objective": 10,
+          "recall": 210,
+          "lane": 242,
+          "fight": 6,
+          "farm": 52,
+          "siege": 18,
+          "jungle": 21
+        },
+        "12": {
+          "recall": 208,
+          "siege": 151,
+          "jungle": 14,
+          "farm": 59,
+          "lane": 4,
+          "fight": 95
+        },
+        "13": {
+          "siege": 220,
+          "farm": 27,
+          "recall": 198,
+          "fight": 92,
+          "lane": 3
+        },
+        "14": {
+          "recall": 298,
+          "fight": 157,
+          "siege": 114,
+          "farm": 1,
+          "lane": 1
+        },
+        "15": {
+          "recall": 341,
+          "siege": 174,
+          "fight": 57,
+          "lane": 5
+        },
+        "16": {
+          "siege": 159,
+          "recall": 316,
+          "fight": 107,
+          "lane": 2,
+          "jungle": 1
+        },
+        "17": {
+          "siege": 211,
+          "recall": 310,
+          "lane": 4,
+          "fight": 40
+        },
+        "18": {
+          "recall": 310,
+          "siege": 119,
+          "fight": 80,
+          "lane": 62,
+          "jungle": 6,
+          "farm": 1
+        },
+        "19": {
+          "lane": 62,
+          "recall": 310,
+          "siege": 208,
+          "fight": 11,
+          "jungle": 1
+        },
+        "20": {
+          "lane": 86,
+          "recall": 268,
+          "fight": 35,
+          "siege": 97,
+          "objective": 88,
+          "farm": 1
+        },
+        "21": {
+          "recall": 379,
+          "lane": 60,
+          "siege": 143,
+          "objective": 16,
+          "jungle": 2
+        },
+        "22": {
+          "siege": 170,
+          "recall": 368,
+          "lane": 33,
+          "farm": 29
+        },
+        "23": {
+          "siege": 170,
+          "recall": 365,
+          "lane": 37,
+          "fight": 4
+        },
+        "24": {
+          "recall": 396,
+          "siege": 141,
+          "lane": 2,
+          "fight": 49,
+          "farm": 3
+        },
+        "25": {
+          "siege": 160,
+          "recall": 401,
+          "fight": 2,
+          "lane": 37
+        },
+        "26": {
+          "lane": 60,
+          "siege": 165,
+          "recall": 357
+        },
+        "27": {
+          "recall": 355,
+          "siege": 164,
+          "lane": 60
+        },
+        "28": {
+          "lane": 60,
+          "siege": 139,
+          "recall": 401
+        },
+        "29": {
+          "lane": 60,
+          "siege": 163,
+          "recall": 377
+        },
+        "30": {
+          "lane": 60,
+          "recall": 439,
+          "siege": 63
+        },
+        "31": {
+          "recall": 461,
+          "siege": 116,
+          "lane": 23
+        },
+        "32": {
+          "recall": 434,
+          "siege": 127
+        },
+        "33": {
+          "recall": 90,
+          "siege": 61
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "2": 3,
+        "3": 4,
+        "4": 1,
+        "5": 2,
+        "6": 2,
+        "8": 2,
+        "9": 4,
+        "11": 2,
+        "12": 5,
+        "13": 1,
+        "14": 1,
+        "15": 1,
+        "16": 2,
+        "18": 1,
+        "19": 1,
+        "23": 1,
+        "26": 1,
+        "30": 1,
+        "32": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "lane": 427,
+          "farm": 250,
+          "jungle": 194,
+          "recall": 98,
+          "fight": 146
+        },
+        "dragonPlus2": {
+          "lane": 401,
+          "farm": 117,
+          "jungle": 149,
+          "fight": 120,
+          "recall": 277,
+          "objective": 95
+        },
+        "baronMinus2": {
+          "recall": 620,
+          "siege": 327,
+          "fight": 91,
+          "lane": 124,
+          "jungle": 7,
+          "farm": 1
+        },
+        "baronPlus2": {
+          "lane": 147,
+          "recall": 652,
+          "fight": 35,
+          "siege": 244,
+          "objective": 104,
+          "farm": 1,
+          "jungle": 2
+        }
+      },
+      "structureHits": 1258,
+      "minionLastHitsApprox": 125,
+      "abilityByChampion": {
+        "Braum": 12,
+        "TahmKench": 26,
+        "Nocturne": 47,
+        "Trundle": 29,
+        "Rumble": 21,
+        "Lucian": 17,
+        "Aphelios": 1,
+        "Jayce": 15,
+        "Ryze": 18,
+        "Diana": 6
+      },
+      "levelsAtEnd": [
+        4,
+        3,
+        6,
+        2,
+        2,
+        8,
+        4,
+        6,
+        7,
+        9
+      ],
+      "campKills": 28,
+      "recallCounts": 109,
+      "activitySec": {
+        "lane": 7870.5,
+        "jungle": 1538.5,
+        "fight": 1192.5,
+        "recallTravel": 3093.5,
+        "recallBase": 5430.6,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.412,
+        "jungle": 0.08,
+        "fight": 0.062,
+        "recallTravel": 0.162,
+        "recallBase": 0.284,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.612,
+          "jungle": 0.014,
+          "fight": 0.04,
+          "recallTravel": 0.273,
+          "recallBase": 0.06,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.339,
+          "fight": 0.042,
+          "recallTravel": 0.068,
+          "recallBase": 0.551,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.49,
+          "jungle": 0.018,
+          "fight": 0.079,
+          "recallTravel": 0.132,
+          "recallBase": 0.281,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.371,
+          "jungle": 0.011,
+          "fight": 0.007,
+          "recallTravel": 0.165,
+          "recallBase": 0.445,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.592,
+          "jungle": 0.02,
+          "fight": 0.146,
+          "recallTravel": 0.171,
+          "recallBase": 0.072,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 22950.7,
+        "cs": 2094,
+        "kill": 11700,
+        "tower_share": 2050,
+        "assist": 3300,
+        "tower": 1900,
+        "camp": 2290
+      },
+      "expBySource": {
+        "minion_share": 16722.2,
+        "minion": 4898.5,
+        "camp": 2145
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.15
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.65
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.15
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.55
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.7
+        },
+        {
+          "t": 420,
+          "avgLevel": 3
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.35
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.5
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.05
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.25
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.45
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.55
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.9
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.9
+        },
+        {
+          "t": 1800,
+          "avgLevel": 5
+        },
+        {
+          "t": 1860,
+          "avgLevel": 5
+        },
+        {
+          "t": 1920,
+          "avgLevel": 5
+        },
+        {
+          "t": 1980,
+          "avgLevel": 5.1
+        }
+      ]
+    },
+    {
+      "strength": "stomp",
+      "seed": 1200,
+      "durationSec": 2316,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 14,
+      "killsAway": 27,
+      "totalKills": 41,
+      "firstBloodSec": 88.5,
+      "firstOuterTowerSec": 1143,
+      "firstDragonSec": 322,
+      "firstBaronSec": null,
+      "dragons": 3,
+      "barons": 0,
+      "towers": 14,
+      "teamfights": 2,
+      "teamfightAvgParticipants": 6.5,
+      "teamfightAvgKills": 3.5,
+      "damageToChamps": 31691,
+      "abilityCasts": 195,
+      "autoAttacks": 651,
+      "abilityDamageShare": 0.259,
+      "itemBuys": 47,
+      "firstItemBuySec": 100,
+      "avgFinalGold": 5607.1,
+      "goldGapEnd": 4490,
+      "aiActions": {
+        "lane": 2960,
+        "jungle": 914,
+        "farm": 1185,
+        "fight": 892,
+        "recall": 12988,
+        "objective": 327,
+        "siege": 3045
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 590,
+          "farm": 538,
+          "fight": 270,
+          "recall": 1687,
+          "objective": 68,
+          "siege": 1162
+        },
+        "JUNGLE": {
+          "jungle": 914,
+          "fight": 133,
+          "recall": 3122,
+          "lane": 53,
+          "objective": 76,
+          "siege": 243
+        },
+        "MID": {
+          "lane": 872,
+          "farm": 367,
+          "fight": 199,
+          "recall": 2215,
+          "objective": 29,
+          "siege": 786
+        },
+        "BOT": {
+          "lane": 785,
+          "farm": 280,
+          "recall": 2777,
+          "fight": 58,
+          "objective": 80,
+          "siege": 522
+        },
+        "SUPPORT": {
+          "lane": 660,
+          "fight": 232,
+          "recall": 3187,
+          "objective": 74,
+          "siege": 332
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 325,
+          "jungle": 106,
+          "farm": 93,
+          "fight": 39,
+          "recall": 6
+        },
+        "2": {
+          "jungle": 66,
+          "lane": 249,
+          "farm": 154,
+          "recall": 89,
+          "fight": 27
+        },
+        "3": {
+          "farm": 141,
+          "jungle": 94,
+          "recall": 35,
+          "fight": 34,
+          "lane": 254
+        },
+        "4": {
+          "farm": 124,
+          "jungle": 79,
+          "lane": 191,
+          "fight": 42,
+          "recall": 97
+        },
+        "5": {
+          "lane": 116,
+          "jungle": 100,
+          "objective": 111,
+          "farm": 125,
+          "fight": 113,
+          "recall": 35
+        },
+        "6": {
+          "farm": 81,
+          "jungle": 99,
+          "recall": 93,
+          "fight": 25,
+          "lane": 217
+        },
+        "7": {
+          "lane": 183,
+          "farm": 137,
+          "fight": 27,
+          "jungle": 100,
+          "recall": 130
+        },
+        "8": {
+          "recall": 70,
+          "lane": 220,
+          "farm": 22,
+          "fight": 83,
+          "jungle": 35,
+          "objective": 56,
+          "siege": 13
+        },
+        "9": {
+          "recall": 167,
+          "lane": 243,
+          "fight": 30,
+          "farm": 50,
+          "jungle": 4,
+          "siege": 17,
+          "objective": 7
+        },
+        "10": {
+          "lane": 189,
+          "objective": 50,
+          "farm": 71,
+          "recall": 156,
+          "fight": 67,
+          "jungle": 6,
+          "siege": 11
+        },
+        "11": {
+          "recall": 165,
+          "fight": 11,
+          "objective": 34,
+          "lane": 247,
+          "siege": 13,
+          "farm": 52,
+          "jungle": 43
+        },
+        "12": {
+          "farm": 32,
+          "jungle": 42,
+          "siege": 168,
+          "recall": 241,
+          "fight": 61,
+          "lane": 5,
+          "objective": 14
+        },
+        "13": {
+          "recall": 241,
+          "siege": 199,
+          "fight": 68,
+          "farm": 34,
+          "lane": 3,
+          "jungle": 5
+        },
+        "14": {
+          "fight": 142,
+          "siege": 120,
+          "recall": 301,
+          "lane": 5,
+          "jungle": 1
+        },
+        "15": {
+          "recall": 256,
+          "siege": 258,
+          "lane": 3,
+          "fight": 39
+        },
+        "16": {
+          "recall": 305,
+          "siege": 211,
+          "fight": 48,
+          "lane": 1,
+          "farm": 1
+        },
+        "17": {
+          "recall": 370,
+          "siege": 207,
+          "lane": 3,
+          "farm": 4,
+          "fight": 3
+        },
+        "18": {
+          "recall": 344,
+          "siege": 205,
+          "lane": 6,
+          "objective": 21,
+          "farm": 3
+        },
+        "19": {
+          "recall": 263,
+          "siege": 260,
+          "jungle": 12,
+          "fight": 4,
+          "farm": 25
+        },
+        "20": {
+          "recall": 412,
+          "lane": 2,
+          "siege": 177,
+          "farm": 7,
+          "jungle": 2
+        },
+        "21": {
+          "recall": 339,
+          "siege": 249,
+          "lane": 3,
+          "fight": 3,
+          "farm": 1
+        },
+        "22": {
+          "recall": 408,
+          "siege": 124,
+          "lane": 1,
+          "objective": 10
+        },
+        "23": {
+          "objective": 24,
+          "recall": 464,
+          "siege": 73,
+          "farm": 28,
+          "lane": 11
+        },
+        "24": {
+          "recall": 497,
+          "siege": 103
+        },
+        "25": {
+          "siege": 80,
+          "recall": 520
+        },
+        "26": {
+          "recall": 476,
+          "siege": 124
+        },
+        "27": {
+          "recall": 551,
+          "siege": 49
+        },
+        "28": {
+          "recall": 505,
+          "siege": 95
+        },
+        "29": {
+          "recall": 585,
+          "siege": 15
+        },
+        "30": {
+          "recall": 549,
+          "siege": 51
+        },
+        "31": {
+          "recall": 586,
+          "siege": 14
+        },
+        "32": {
+          "recall": 561,
+          "siege": 39
+        },
+        "33": {
+          "recall": 573,
+          "siege": 27
+        },
+        "34": {
+          "recall": 572,
+          "siege": 26,
+          "lane": 2
+        },
+        "35": {
+          "recall": 560,
+          "siege": 40
+        },
+        "36": {
+          "recall": 581,
+          "siege": 18,
+          "lane": 1
+        },
+        "37": {
+          "recall": 552,
+          "siege": 48
+        },
+        "38": {
+          "recall": 333,
+          "siege": 11,
+          "fight": 26
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "2": 1,
+        "3": 3,
+        "4": 4,
+        "6": 5,
+        "7": 2,
+        "8": 5,
+        "9": 3,
+        "10": 2,
+        "11": 2,
+        "12": 1,
+        "13": 2,
+        "14": 2,
+        "15": 1,
+        "16": 1,
+        "17": 1,
+        "19": 1,
+        "21": 2
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 265,
+          "jungle": 173,
+          "recall": 132,
+          "fight": 76,
+          "lane": 445
+        },
+        "dragonPlus2": {
+          "lane": 336,
+          "jungle": 200,
+          "objective": 111,
+          "farm": 208,
+          "fight": 140,
+          "recall": 129
+        },
+        "baronMinus2": {
+          "recall": 607,
+          "siege": 465,
+          "lane": 6,
+          "objective": 21,
+          "farm": 28,
+          "jungle": 12,
+          "fight": 4
+        },
+        "baronPlus2": {
+          "recall": 757,
+          "lane": 5,
+          "siege": 428,
+          "farm": 8,
+          "jungle": 2,
+          "fight": 3
+        }
+      },
+      "structureHits": 1323,
+      "minionLastHitsApprox": 163,
+      "abilityByChampion": {
+        "Lulu": 13,
+        "Thresh": 19,
+        "Diana": 25,
+        "Nocturne": 50,
+        "Ezreal": 4,
+        "Akali": 20,
+        "Varus": 34,
+        "Ashe": 15,
+        "Jayce": 11,
+        "Ryze": 4
+      },
+      "levelsAtEnd": [
+        7,
+        4,
+        6,
+        3,
+        2,
+        8,
+        4,
+        5,
+        7,
+        2
+      ],
+      "campKills": 28,
+      "recallCounts": 104,
+      "activitySec": {
+        "lane": 6887,
+        "jungle": 1536,
+        "fight": 882.5,
+        "recallTravel": 2762.5,
+        "recallBase": 10218.8,
+        "other": 11.5
+      },
+      "activityShare": {
+        "lane": 0.309,
+        "jungle": 0.069,
+        "fight": 0.04,
+        "recallTravel": 0.124,
+        "recallBase": 0.458,
+        "other": 0.001
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.531,
+          "jungle": 0.016,
+          "fight": 0.062,
+          "recallTravel": 0.23,
+          "recallBase": 0.161,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.283,
+          "fight": 0.029,
+          "recallTravel": 0.065,
+          "recallBase": 0.622,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.453,
+          "jungle": 0.006,
+          "fight": 0.045,
+          "recallTravel": 0.143,
+          "recallBase": 0.352,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.352,
+          "jungle": 0.018,
+          "fight": 0.013,
+          "recallTravel": 0.127,
+          "recallBase": 0.489,
+          "other": 0.001
+        },
+        "SUPPORT": {
+          "lane": 0.221,
+          "jungle": 0.017,
+          "fight": 0.051,
+          "recallTravel": 0.058,
+          "recallBase": 0.653,
+          "other": 0.001
+        }
+      },
+      "goldBySource": {
+        "passive": 26758,
+        "cs": 2904,
+        "kill": 12300,
+        "assist": 3150,
+        "tower_share": 2000,
+        "camp": 2110,
+        "tower": 1850
+      },
+      "expBySource": {
+        "minion": 6431,
+        "minion_share": 12889.4,
+        "camp": 2110
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.1
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.8
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.35
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.6
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.95
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.3
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.65
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.85
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 720,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.45
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.5
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2220,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2280,
+          "avgLevel": 4.8
+        }
+      ]
+    },
+    {
+      "strength": "stomp",
+      "seed": 1217,
+      "durationSec": 1828,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 16,
+      "killsAway": 5,
+      "totalKills": 21,
+      "firstBloodSec": 89,
+      "firstOuterTowerSec": 936,
+      "firstDragonSec": 456,
+      "firstBaronSec": null,
+      "dragons": 1,
+      "barons": 0,
+      "towers": 14,
+      "teamfights": 0,
+      "teamfightAvgParticipants": 0,
+      "teamfightAvgKills": 0,
+      "damageToChamps": 16092,
+      "abilityCasts": 117,
+      "autoAttacks": 422,
+      "abilityDamageShare": 0.272,
+      "itemBuys": 30,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4094.8,
+      "goldGapEnd": 3098,
+      "aiActions": {
+        "lane": 3062,
+        "jungle": 513,
+        "farm": 762,
+        "fight": 798,
+        "recall": 9977,
+        "objective": 183,
+        "siege": 2506
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 1263,
+          "farm": 192,
+          "recall": 1872,
+          "fight": 60,
+          "siege": 257,
+          "objective": 14
+        },
+        "JUNGLE": {
+          "jungle": 513,
+          "fight": 264,
+          "lane": 22,
+          "recall": 2059,
+          "objective": 52,
+          "siege": 582
+        },
+        "MID": {
+          "lane": 866,
+          "farm": 418,
+          "fight": 143,
+          "recall": 870,
+          "objective": 58,
+          "siege": 1112
+        },
+        "BOT": {
+          "lane": 400,
+          "farm": 152,
+          "recall": 2390,
+          "fight": 114,
+          "objective": 37,
+          "siege": 508
+        },
+        "SUPPORT": {
+          "lane": 511,
+          "fight": 217,
+          "recall": 2786,
+          "objective": 22,
+          "siege": 47
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 290,
+          "jungle": 85,
+          "farm": 42,
+          "fight": 110,
+          "recall": 62
+        },
+        "2": {
+          "fight": 78,
+          "recall": 158,
+          "lane": 250,
+          "jungle": 58,
+          "farm": 44
+        },
+        "3": {
+          "farm": 101,
+          "recall": 220,
+          "lane": 105,
+          "jungle": 64,
+          "fight": 91
+        },
+        "4": {
+          "recall": 257,
+          "farm": 87,
+          "fight": 26,
+          "lane": 191,
+          "jungle": 16
+        },
+        "5": {
+          "fight": 23,
+          "recall": 281,
+          "farm": 52,
+          "jungle": 55,
+          "lane": 161,
+          "objective": 28
+        },
+        "6": {
+          "lane": 142,
+          "recall": 290,
+          "farm": 80,
+          "objective": 32,
+          "fight": 13,
+          "jungle": 22
+        },
+        "7": {
+          "recall": 294,
+          "fight": 19,
+          "lane": 163,
+          "jungle": 30,
+          "farm": 58,
+          "objective": 17
+        },
+        "8": {
+          "lane": 162,
+          "recall": 310,
+          "siege": 20,
+          "farm": 54,
+          "fight": 54
+        },
+        "9": {
+          "fight": 40,
+          "recall": 331,
+          "siege": 40,
+          "lane": 161,
+          "farm": 8
+        },
+        "10": {
+          "recall": 294,
+          "farm": 73,
+          "lane": 127,
+          "fight": 54,
+          "siege": 13,
+          "jungle": 27
+        },
+        "11": {
+          "fight": 56,
+          "recall": 289,
+          "jungle": 18,
+          "lane": 170,
+          "farm": 44,
+          "siege": 2
+        },
+        "12": {
+          "recall": 326,
+          "farm": 65,
+          "siege": 126,
+          "fight": 40
+        },
+        "13": {
+          "recall": 410,
+          "siege": 66,
+          "fight": 82,
+          "farm": 5,
+          "lane": 5,
+          "jungle": 2
+        },
+        "14": {
+          "recall": 392,
+          "siege": 134,
+          "jungle": 10,
+          "objective": 43
+        },
+        "15": {
+          "recall": 407,
+          "siege": 147,
+          "jungle": 1,
+          "fight": 1,
+          "farm": 5,
+          "lane": 39
+        },
+        "16": {
+          "recall": 371,
+          "lane": 61,
+          "siege": 144,
+          "farm": 6,
+          "objective": 15,
+          "fight": 3
+        },
+        "17": {
+          "recall": 402,
+          "siege": 66,
+          "fight": 39,
+          "lane": 59,
+          "farm": 3,
+          "objective": 6
+        },
+        "18": {
+          "recall": 336,
+          "siege": 127,
+          "lane": 60,
+          "objective": 10,
+          "farm": 3,
+          "fight": 34
+        },
+        "19": {
+          "recall": 368,
+          "lane": 60,
+          "fight": 31,
+          "siege": 114,
+          "farm": 2,
+          "jungle": 1
+        },
+        "20": {
+          "recall": 417,
+          "siege": 114,
+          "lane": 58,
+          "farm": 2,
+          "objective": 2
+        },
+        "21": {
+          "recall": 413,
+          "objective": 14,
+          "siege": 111,
+          "lane": 60,
+          "farm": 2
+        },
+        "22": {
+          "recall": 387,
+          "lane": 58,
+          "siege": 137,
+          "farm": 2,
+          "objective": 16
+        },
+        "23": {
+          "recall": 419,
+          "siege": 118,
+          "lane": 60,
+          "farm": 2,
+          "jungle": 1
+        },
+        "24": {
+          "recall": 415,
+          "siege": 122,
+          "lane": 61,
+          "farm": 2
+        },
+        "25": {
+          "recall": 392,
+          "siege": 152,
+          "lane": 53,
+          "farm": 2,
+          "jungle": 1
+        },
+        "26": {
+          "recall": 424,
+          "siege": 139,
+          "fight": 2,
+          "lane": 13,
+          "farm": 18,
+          "jungle": 2
+        },
+        "27": {
+          "recall": 352,
+          "siege": 210
+        },
+        "28": {
+          "recall": 377,
+          "siege": 118,
+          "lane": 12
+        },
+        "29": {
+          "recall": 376,
+          "siege": 220
+        },
+        "30": {
+          "recall": 207,
+          "siege": 66,
+          "fight": 2,
+          "lane": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 1,
+        "2": 1,
+        "3": 2,
+        "4": 1,
+        "6": 1,
+        "7": 1,
+        "9": 1,
+        "10": 1,
+        "11": 1,
+        "12": 1,
+        "13": 2,
+        "17": 1,
+        "18": 1,
+        "19": 1,
+        "26": 1,
+        "27": 1,
+        "28": 2,
+        "30": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 188,
+          "recall": 477,
+          "lane": 296,
+          "jungle": 80,
+          "fight": 117
+        },
+        "dragonPlus2": {
+          "fight": 37,
+          "recall": 576,
+          "farm": 132,
+          "jungle": 78,
+          "lane": 306,
+          "objective": 60
+        },
+        "baronMinus2": {
+          "recall": 704,
+          "siege": 241,
+          "lane": 120,
+          "objective": 10,
+          "farm": 5,
+          "fight": 65,
+          "jungle": 1
+        },
+        "baronPlus2": {
+          "recall": 838,
+          "siege": 226,
+          "lane": 119,
+          "farm": 4,
+          "objective": 16
+        }
+      },
+      "structureHits": 1190,
+      "minionLastHitsApprox": 97,
+      "abilityByChampion": {
+        "Braum": 15,
+        "Leona": 2,
+        "Diana": 36,
+        "Udyr": 13,
+        "Sett": 5,
+        "MissFortune": 12,
+        "Jayce": 25,
+        "Irelia": 9
+      },
+      "levelsAtEnd": [
+        1,
+        2,
+        6,
+        5,
+        1,
+        12,
+        4,
+        7,
+        1,
+        3
+      ],
+      "campKills": 15,
+      "recallCounts": 78,
+      "activitySec": {
+        "lane": 5723,
+        "jungle": 1300,
+        "fight": 798,
+        "recallTravel": 2259.5,
+        "recallBase": 7706.3,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.322,
+        "jungle": 0.073,
+        "fight": 0.045,
+        "recallTravel": 0.127,
+        "recallBase": 0.433,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.468,
+          "jungle": 0.004,
+          "fight": 0.016,
+          "recallTravel": 0.07,
+          "recallBase": 0.441,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.335,
+          "fight": 0.076,
+          "recallTravel": 0.132,
+          "recallBase": 0.458,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.691,
+          "jungle": 0.017,
+          "fight": 0.041,
+          "recallTravel": 0.236,
+          "recallBase": 0.015,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.295,
+          "jungle": 0.01,
+          "fight": 0.032,
+          "recallTravel": 0.181,
+          "recallBase": 0.483,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.156,
+          "jungle": 0.006,
+          "fight": 0.061,
+          "recallTravel": 0.022,
+          "recallBase": 0.756,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 21344.2,
+        "cs": 1830,
+        "assist": 1650,
+        "tower_share": 2000,
+        "camp": 1125,
+        "kill": 6300,
+        "tower": 1700
+      },
+      "expBySource": {
+        "minion_share": 15937.1,
+        "minion": 3852.5,
+        "camp": 1155
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.3
+        },
+        {
+          "t": 240,
+          "avgLevel": 1.7
+        },
+        {
+          "t": 300,
+          "avgLevel": 1.9
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.2
+        },
+        {
+          "t": 420,
+          "avgLevel": 2.6
+        },
+        {
+          "t": 480,
+          "avgLevel": 2.75
+        },
+        {
+          "t": 540,
+          "avgLevel": 2.9
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.1
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.3
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.5
+        },
+        {
+          "t": 780,
+          "avgLevel": 3.6
+        },
+        {
+          "t": 840,
+          "avgLevel": 3.6
+        },
+        {
+          "t": 900,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 960,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 1020,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1080,
+          "avgLevel": 3.8
+        },
+        {
+          "t": 1140,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 1200,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 1260,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.2
+        }
+      ]
+    },
+    {
+      "strength": "stomp",
+      "seed": 1234,
+      "durationSec": 1675,
+      "endReason": "nexus",
+      "forcedEnd": false,
+      "winnerSide": "away",
+      "killsHome": 8,
+      "killsAway": 16,
+      "totalKills": 24,
+      "firstBloodSec": 91.5,
+      "firstOuterTowerSec": 1008.5,
+      "firstDragonSec": 358,
+      "firstBaronSec": 1332,
+      "dragons": 2,
+      "barons": 1,
+      "towers": 13,
+      "teamfights": 1,
+      "teamfightAvgParticipants": 4,
+      "teamfightAvgKills": 3,
+      "damageToChamps": 19455,
+      "abilityCasts": 150,
+      "autoAttacks": 537,
+      "abilityDamageShare": 0.26,
+      "itemBuys": 40,
+      "firstItemBuySec": 103,
+      "avgFinalGold": 3996.5,
+      "goldGapEnd": 3132,
+      "aiActions": {
+        "lane": 3349,
+        "jungle": 711,
+        "farm": 938,
+        "fight": 614,
+        "recall": 7689,
+        "objective": 331,
+        "siege": 2648
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 331,
+          "farm": 301,
+          "fight": 43,
+          "recall": 2644
+        },
+        "JUNGLE": {
+          "jungle": 711,
+          "fight": 59,
+          "lane": 26,
+          "recall": 2512,
+          "objective": 42
+        },
+        "MID": {
+          "lane": 1157,
+          "farm": 392,
+          "fight": 142,
+          "recall": 699,
+          "objective": 68,
+          "siege": 799
+        },
+        "BOT": {
+          "lane": 780,
+          "farm": 245,
+          "recall": 915,
+          "fight": 106,
+          "objective": 100,
+          "siege": 991
+        },
+        "SUPPORT": {
+          "lane": 1055,
+          "fight": 264,
+          "recall": 919,
+          "objective": 121,
+          "siege": 858
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 298,
+          "jungle": 86,
+          "farm": 50,
+          "fight": 80,
+          "recall": 75
+        },
+        "2": {
+          "lane": 286,
+          "jungle": 46,
+          "recall": 93,
+          "farm": 150,
+          "fight": 25
+        },
+        "3": {
+          "farm": 213,
+          "jungle": 108,
+          "fight": 49,
+          "lane": 150,
+          "recall": 16
+        },
+        "4": {
+          "recall": 143,
+          "jungle": 90,
+          "farm": 71,
+          "lane": 220,
+          "fight": 53
+        },
+        "5": {
+          "lane": 114,
+          "jungle": 103,
+          "recall": 54,
+          "farm": 164,
+          "fight": 42,
+          "objective": 123
+        },
+        "6": {
+          "lane": 227,
+          "farm": 37,
+          "fight": 85,
+          "recall": 133,
+          "jungle": 68
+        },
+        "7": {
+          "lane": 246,
+          "recall": 208,
+          "jungle": 32,
+          "farm": 65,
+          "fight": 14
+        },
+        "8": {
+          "lane": 187,
+          "recall": 237,
+          "farm": 54,
+          "jungle": 34,
+          "objective": 26,
+          "fight": 34
+        },
+        "9": {
+          "recall": 243,
+          "jungle": 24,
+          "lane": 205,
+          "farm": 46,
+          "fight": 44
+        },
+        "10": {
+          "recall": 331,
+          "fight": 16,
+          "lane": 172,
+          "farm": 44
+        },
+        "11": {
+          "lane": 213,
+          "recall": 240,
+          "farm": 39,
+          "fight": 13,
+          "objective": 68
+        },
+        "12": {
+          "recall": 417,
+          "siege": 115,
+          "lane": 65,
+          "farm": 3
+        },
+        "13": {
+          "recall": 326,
+          "siege": 181,
+          "lane": 63,
+          "fight": 20
+        },
+        "14": {
+          "siege": 167,
+          "recall": 359,
+          "lane": 65
+        },
+        "15": {
+          "recall": 407,
+          "siege": 129,
+          "lane": 64
+        },
+        "16": {
+          "recall": 390,
+          "siege": 162,
+          "lane": 48
+        },
+        "17": {
+          "recall": 351,
+          "siege": 222,
+          "lane": 6,
+          "fight": 5
+        },
+        "18": {
+          "siege": 144,
+          "recall": 348,
+          "fight": 42,
+          "lane": 39,
+          "farm": 1
+        },
+        "19": {
+          "lane": 64,
+          "siege": 140,
+          "recall": 349,
+          "fight": 20
+        },
+        "20": {
+          "lane": 90,
+          "recall": 332,
+          "siege": 96,
+          "objective": 68
+        },
+        "21": {
+          "lane": 16,
+          "siege": 142,
+          "recall": 367,
+          "fight": 3,
+          "objective": 17
+        },
+        "22": {
+          "siege": 176,
+          "objective": 26,
+          "recall": 371,
+          "fight": 20,
+          "lane": 7
+        },
+        "23": {
+          "recall": 381,
+          "siege": 171,
+          "fight": 44,
+          "lane": 4
+        },
+        "24": {
+          "recall": 436,
+          "fight": 5,
+          "siege": 155,
+          "lane": 1,
+          "objective": 3
+        },
+        "25": {
+          "recall": 326,
+          "siege": 273,
+          "farm": 1
+        },
+        "26": {
+          "recall": 433,
+          "siege": 149,
+          "lane": 18
+        },
+        "27": {
+          "recall": 323,
+          "siege": 226,
+          "lane": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 1,
+        "3": 5,
+        "4": 1,
+        "6": 3,
+        "7": 2,
+        "8": 2,
+        "9": 2,
+        "10": 1,
+        "11": 1,
+        "13": 1,
+        "17": 1,
+        "18": 1,
+        "19": 1,
+        "21": 2
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 284,
+          "jungle": 198,
+          "fight": 102,
+          "lane": 370,
+          "recall": 159
+        },
+        "dragonPlus2": {
+          "lane": 347,
+          "jungle": 172,
+          "recall": 190,
+          "farm": 201,
+          "fight": 127,
+          "objective": 123
+        },
+        "baronMinus2": {
+          "siege": 284,
+          "recall": 697,
+          "fight": 62,
+          "lane": 103,
+          "farm": 1
+        },
+        "baronPlus2": {
+          "lane": 106,
+          "recall": 705,
+          "siege": 241,
+          "objective": 86,
+          "fight": 3
+        }
+      },
+      "structureHits": 1138,
+      "minionLastHitsApprox": 108,
+      "abilityByChampion": {
+        "Sett": 17,
+        "Thresh": 25,
+        "Diana": 20,
+        "Rumble": 2,
+        "Nocturne": 35,
+        "Jayce": 3,
+        "Ezreal": 11,
+        "Ziggs": 10,
+        "Kaisa": 15,
+        "Irelia": 12
+      },
+      "levelsAtEnd": [
+        4,
+        4,
+        5,
+        3,
+        2,
+        5,
+        3,
+        7,
+        5,
+        5
+      ],
+      "campKills": 23,
+      "recallCounts": 92,
+      "activitySec": {
+        "lane": 6896,
+        "jungle": 1067,
+        "fight": 608,
+        "recallTravel": 2618.5,
+        "recallBase": 5064.5,
+        "other": 15
+      },
+      "activityShare": {
+        "lane": 0.424,
+        "jungle": 0.066,
+        "fight": 0.037,
+        "recallTravel": 0.161,
+        "recallBase": 0.311,
+        "other": 0.001
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.19,
+          "jungle": 0,
+          "fight": 0.013,
+          "recallTravel": 0.033,
+          "recallBase": 0.764,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.233,
+          "fight": 0.018,
+          "recallTravel": 0.043,
+          "recallBase": 0.707,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.721,
+          "jungle": 0.021,
+          "fight": 0.044,
+          "recallTravel": 0.202,
+          "recallBase": 0.013,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.641,
+          "jungle": 0.032,
+          "fight": 0.033,
+          "recallTravel": 0.272,
+          "recallBase": 0.019,
+          "other": 0.003
+        },
+        "SUPPORT": {
+          "lane": 0.594,
+          "jungle": 0.037,
+          "fight": 0.081,
+          "recallTravel": 0.267,
+          "recallBase": 0.019,
+          "other": 0.002
+        }
+      },
+      "goldBySource": {
+        "passive": 19522.8,
+        "cs": 1923,
+        "kill": 7200,
+        "tower_share": 1850,
+        "camp": 2020,
+        "tower": 1400,
+        "assist": 1050
+      },
+      "expBySource": {
+        "minion_share": 11100,
+        "minion": 4260.8,
+        "camp": 1795
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.05
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.6
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.15
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.75
+        },
+        {
+          "t": 360,
+          "avgLevel": 3.25
+        },
+        {
+          "t": 420,
+          "avgLevel": 3.35
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.5
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.6
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.7
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.85
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 780,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 840,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 900,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 960,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 1020,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 1080,
+          "avgLevel": 3.9
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.1
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.25
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.3
+        }
+      ]
+    },
+    {
+      "strength": "stomp",
+      "seed": 1251,
+      "durationSec": 2400,
+      "endReason": "nexus_overtime",
+      "forcedEnd": true,
+      "winnerSide": "away",
+      "killsHome": 6,
+      "killsAway": 4,
+      "totalKills": 10,
+      "firstBloodSec": 89.5,
+      "firstOuterTowerSec": 918.5,
+      "firstDragonSec": 326,
+      "firstBaronSec": null,
+      "dragons": 3,
+      "barons": 0,
+      "towers": 12,
+      "teamfights": 0,
+      "teamfightAvgParticipants": 0,
+      "teamfightAvgKills": 0,
+      "damageToChamps": 21585,
+      "abilityCasts": 154,
+      "autoAttacks": 498,
+      "abilityDamageShare": 0.277,
+      "itemBuys": 34,
+      "firstItemBuySec": 101,
+      "avgFinalGold": 4456.3,
+      "goldGapEnd": 415,
+      "aiActions": {
+        "lane": 3713,
+        "jungle": 820,
+        "farm": 862,
+        "fight": 533,
+        "recall": 15502,
+        "objective": 284,
+        "siege": 2117
+      },
+      "aiActionsByRole": {
+        "TOP": {
+          "lane": 560,
+          "farm": 417,
+          "fight": 124,
+          "recall": 3221,
+          "objective": 16,
+          "siege": 363
+        },
+        "JUNGLE": {
+          "jungle": 820,
+          "fight": 49,
+          "lane": 49,
+          "recall": 3430,
+          "objective": 120,
+          "siege": 318
+        },
+        "MID": {
+          "lane": 1311,
+          "farm": 373,
+          "fight": 103,
+          "recall": 1928,
+          "objective": 61,
+          "siege": 987
+        },
+        "BOT": {
+          "lane": 348,
+          "farm": 72,
+          "recall": 4275,
+          "objective": 22,
+          "fight": 74
+        },
+        "SUPPORT": {
+          "lane": 1445,
+          "fight": 183,
+          "recall": 2648,
+          "objective": 65,
+          "siege": 449
+        }
+      },
+      "actionsPerMinute": {
+        "0": {
+          "lane": 480,
+          "jungle": 120
+        },
+        "1": {
+          "lane": 311,
+          "jungle": 105,
+          "farm": 74,
+          "fight": 48,
+          "recall": 32
+        },
+        "2": {
+          "lane": 199,
+          "recall": 179,
+          "jungle": 64,
+          "farm": 119,
+          "fight": 34
+        },
+        "3": {
+          "farm": 88,
+          "jungle": 112,
+          "recall": 164,
+          "lane": 199,
+          "fight": 22
+        },
+        "4": {
+          "fight": 67,
+          "recall": 178,
+          "farm": 90,
+          "lane": 138,
+          "jungle": 90
+        },
+        "5": {
+          "objective": 93,
+          "recall": 217,
+          "lane": 92,
+          "farm": 115,
+          "jungle": 35,
+          "fight": 45
+        },
+        "6": {
+          "recall": 192,
+          "farm": 74,
+          "jungle": 96,
+          "lane": 187,
+          "fight": 33
+        },
+        "7": {
+          "lane": 145,
+          "recall": 209,
+          "farm": 56,
+          "jungle": 98,
+          "fight": 72
+        },
+        "8": {
+          "recall": 260,
+          "objective": 44,
+          "lane": 217,
+          "fight": 26,
+          "farm": 28,
+          "siege": 9
+        },
+        "9": {
+          "recall": 327,
+          "lane": 96,
+          "farm": 44,
+          "siege": 4,
+          "fight": 73,
+          "jungle": 34,
+          "objective": 22
+        },
+        "10": {
+          "recall": 318,
+          "lane": 159,
+          "jungle": 44,
+          "fight": 24,
+          "farm": 55
+        },
+        "11": {
+          "recall": 337,
+          "farm": 45,
+          "lane": 156,
+          "jungle": 20,
+          "objective": 39,
+          "siege": 3
+        },
+        "12": {
+          "siege": 90,
+          "recall": 367,
+          "farm": 13,
+          "lane": 100,
+          "fight": 14,
+          "objective": 16
+        },
+        "13": {
+          "lane": 71,
+          "recall": 406,
+          "siege": 76,
+          "farm": 4,
+          "fight": 8
+        },
+        "14": {
+          "lane": 62,
+          "recall": 391,
+          "siege": 124,
+          "fight": 23
+        },
+        "15": {
+          "lane": 62,
+          "recall": 381,
+          "siege": 154,
+          "fight": 3
+        },
+        "16": {
+          "recall": 432,
+          "siege": 105,
+          "lane": 63
+        },
+        "17": {
+          "recall": 416,
+          "siege": 119,
+          "lane": 65
+        },
+        "18": {
+          "lane": 63,
+          "recall": 366,
+          "siege": 143,
+          "objective": 27,
+          "fight": 1
+        },
+        "19": {
+          "recall": 429,
+          "siege": 111,
+          "lane": 60
+        },
+        "20": {
+          "lane": 38,
+          "recall": 429,
+          "siege": 112,
+          "objective": 21
+        },
+        "21": {
+          "recall": 386,
+          "siege": 189,
+          "objective": 22,
+          "jungle": 2,
+          "lane": 1
+        },
+        "22": {
+          "siege": 92,
+          "recall": 504,
+          "lane": 4
+        },
+        "23": {
+          "recall": 428,
+          "siege": 170,
+          "lane": 1,
+          "farm": 1
+        },
+        "24": {
+          "recall": 514,
+          "siege": 43,
+          "lane": 3,
+          "fight": 40
+        },
+        "25": {
+          "siege": 63,
+          "recall": 527,
+          "lane": 10
+        },
+        "26": {
+          "recall": 480,
+          "siege": 45,
+          "lane": 75
+        },
+        "27": {
+          "lane": 57,
+          "recall": 507,
+          "farm": 36
+        },
+        "28": {
+          "recall": 492,
+          "farm": 20,
+          "lane": 40,
+          "siege": 48
+        },
+        "29": {
+          "recall": 503,
+          "lane": 60,
+          "siege": 37
+        },
+        "30": {
+          "recall": 511,
+          "lane": 60,
+          "siege": 29
+        },
+        "31": {
+          "siege": 24,
+          "recall": 514,
+          "lane": 62
+        },
+        "32": {
+          "recall": 498,
+          "lane": 60,
+          "siege": 42
+        },
+        "33": {
+          "recall": 541,
+          "lane": 19,
+          "siege": 40
+        },
+        "34": {
+          "recall": 527,
+          "siege": 73
+        },
+        "35": {
+          "recall": 488,
+          "siege": 55,
+          "lane": 57
+        },
+        "36": {
+          "recall": 514,
+          "lane": 60,
+          "siege": 26
+        },
+        "37": {
+          "lane": 60,
+          "recall": 520,
+          "siege": 20
+        },
+        "38": {
+          "lane": 60,
+          "recall": 482,
+          "siege": 58
+        },
+        "39": {
+          "recall": 528,
+          "lane": 60,
+          "siege": 12
+        },
+        "40": {
+          "recall": 8,
+          "siege": 1,
+          "lane": 1
+        }
+      },
+      "fightsPerMinute": {
+        "1": 3,
+        "3": 1,
+        "4": 2,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "13": 1
+      },
+      "objectiveWindowActions": {
+        "dragonMinus2": {
+          "farm": 178,
+          "jungle": 202,
+          "recall": 342,
+          "lane": 337,
+          "fight": 89
+        },
+        "dragonPlus2": {
+          "objective": 93,
+          "recall": 412,
+          "lane": 282,
+          "farm": 190,
+          "jungle": 132,
+          "fight": 79
+        },
+        "baronMinus2": {
+          "lane": 123,
+          "recall": 795,
+          "siege": 254,
+          "objective": 27,
+          "fight": 1
+        },
+        "baronPlus2": {
+          "lane": 40,
+          "recall": 822,
+          "siege": 303,
+          "objective": 43,
+          "jungle": 2
+        }
+      },
+      "structureHits": 906,
+      "minionLastHitsApprox": 126,
+      "abilityByChampion": {
+        "Braum": 20,
+        "Sett": 4,
+        "Diana": 45,
+        "Rumble": 38,
+        "Akali": 4,
+        "Gnar": 6,
+        "Lucian": 20,
+        "Ezreal": 7,
+        "Ryze": 10
+      },
+      "levelsAtEnd": [
+        5,
+        4,
+        6,
+        3,
+        1,
+        8,
+        4,
+        6,
+        1,
+        10
+      ],
+      "campKills": 26,
+      "recallCounts": 79,
+      "activitySec": {
+        "lane": 6322.7,
+        "jungle": 1471,
+        "fight": 533,
+        "recallTravel": 2444.9,
+        "recallBase": 13047.6,
+        "other": 0
+      },
+      "activityShare": {
+        "lane": 0.265,
+        "jungle": 0.062,
+        "fight": 0.022,
+        "recallTravel": 0.103,
+        "recallBase": 0.548,
+        "other": 0
+      },
+      "activityShareByRole": {
+        "TOP": {
+          "lane": 0.285,
+          "jungle": 0.003,
+          "fight": 0.026,
+          "recallTravel": 0.078,
+          "recallBase": 0.607,
+          "other": 0
+        },
+        "JUNGLE": {
+          "lane": 0,
+          "jungle": 0.273,
+          "fight": 0.01,
+          "recallTravel": 0.098,
+          "recallBase": 0.619,
+          "other": 0
+        },
+        "MID": {
+          "lane": 0.561,
+          "jungle": 0.013,
+          "fight": 0.022,
+          "recallTravel": 0.196,
+          "recallBase": 0.208,
+          "other": 0
+        },
+        "BOT": {
+          "lane": 0.088,
+          "jungle": 0.005,
+          "fight": 0.015,
+          "recallTravel": 0.052,
+          "recallBase": 0.84,
+          "other": 0
+        },
+        "SUPPORT": {
+          "lane": 0.395,
+          "jungle": 0.014,
+          "fight": 0.038,
+          "recallTravel": 0.089,
+          "recallBase": 0.463,
+          "other": 0
+        }
+      },
+      "goldBySource": {
+        "passive": 28583.1,
+        "cs": 2440,
+        "kill": 3000,
+        "tower_share": 1700,
+        "camp": 1940,
+        "assist": 600,
+        "tower": 1300
+      },
+      "expBySource": {
+        "minion": 5020,
+        "minion_share": 15331,
+        "camp": 1960
+      },
+      "levelCurve": [
+        {
+          "t": 0,
+          "avgLevel": 1
+        },
+        {
+          "t": 60,
+          "avgLevel": 1
+        },
+        {
+          "t": 120,
+          "avgLevel": 1.15
+        },
+        {
+          "t": 180,
+          "avgLevel": 1.65
+        },
+        {
+          "t": 240,
+          "avgLevel": 2.15
+        },
+        {
+          "t": 300,
+          "avgLevel": 2.35
+        },
+        {
+          "t": 360,
+          "avgLevel": 2.7
+        },
+        {
+          "t": 420,
+          "avgLevel": 2.9
+        },
+        {
+          "t": 480,
+          "avgLevel": 3.25
+        },
+        {
+          "t": 540,
+          "avgLevel": 3.45
+        },
+        {
+          "t": 600,
+          "avgLevel": 3.55
+        },
+        {
+          "t": 660,
+          "avgLevel": 3.75
+        },
+        {
+          "t": 720,
+          "avgLevel": 3.95
+        },
+        {
+          "t": 780,
+          "avgLevel": 4.05
+        },
+        {
+          "t": 840,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 900,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 960,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1020,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1080,
+          "avgLevel": 4.2
+        },
+        {
+          "t": 1140,
+          "avgLevel": 4.3
+        },
+        {
+          "t": 1200,
+          "avgLevel": 4.35
+        },
+        {
+          "t": 1260,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1320,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1380,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1440,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1500,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1560,
+          "avgLevel": 4.4
+        },
+        {
+          "t": 1620,
+          "avgLevel": 4.45
+        },
+        {
+          "t": 1680,
+          "avgLevel": 4.55
+        },
+        {
+          "t": 1740,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1800,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1860,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1920,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 1980,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 2040,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 2100,
+          "avgLevel": 4.6
+        },
+        {
+          "t": 2160,
+          "avgLevel": 4.65
+        },
+        {
+          "t": 2220,
+          "avgLevel": 4.7
+        },
+        {
+          "t": 2280,
+          "avgLevel": 4.75
+        },
+        {
+          "t": 2340,
+          "avgLevel": 4.8
+        },
+        {
+          "t": 2400,
+          "avgLevel": 4.8
+        }
+      ]
+    }
+  ]
+}

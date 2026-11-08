@@ -36,6 +36,7 @@
               [class.is-holiday]="day.tone === 'holiday'"
               [class.is-promotion]="day.tone === 'promotion'"
               [class.is-event]="day.tone === 'event'"
+              [class.is-today]="day.iso === activeUniverse()?.currentDate"
               [attr.title]="dayTitle(day.marks)"
             >
               <span>{{ day.label }}</span>

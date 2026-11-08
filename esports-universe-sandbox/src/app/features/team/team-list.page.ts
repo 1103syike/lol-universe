@@ -1,19 +1,28 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DEFAULT_SALARY_CAP } from '../../core/data/initial-teams';
 import { LEAGUE_TIERS, LEAGUE_TIER_LABELS } from '../../core/models/league.model';
 import type { LeagueTier } from '../../core/models/league.model';
 import { PLAYER_POSITION_LABELS } from '../../core/models/player.model';
+import { teamDisplayName } from '../../core/models/team.model';
+import { CoachService } from '../../core/services/coach.service';
 import { PlayerService } from '../../core/services/player.service';
 import { TeamService } from '../../core/services/team.service';
+import { TransferWindowService } from '../../core/services/transfer-window.service';
 import { UniverseService } from '../../core/services/universe.service';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
 import { MenuComponent } from '../../shared/ui/menu/menu.component';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
+import { calculateCoachOvr, calculatePlayerOvr, calculateTeamOvr } from '../../shared/utils/player-ovr';
+import { ratingToGrade } from '../../shared/utils/rating-scale';
+import type { RatingGrade } from '../../shared/utils/rating-scale';
 import { readImageAsDataUrl } from '../../shared/utils/read-image-as-data-url';
+import type { Coach } from '../../core/models/coach.model';
+import type { Player } from '../../core/models/player.model';
 
 @Component({
   selector: 'app-team-list-page',
@@ -23,10 +32,17 @@ import { readImageAsDataUrl } from '../../shared/utils/read-image-as-data-url';
 })
 export class TeamListPage {
   private readonly teamService = inject(TeamService);
+  private readonly windows = inject(TransferWindowService);
   private readonly playerService = inject(PlayerService);
+  private readonly coachService = inject(CoachService);
   private readonly universeService = inject(UniverseService);
   private readonly formBuilder = inject(FormBuilder);
 
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'clubs', '俱樂部');
+  }
+
+  readonly windowState = computed(() => this.windows.current());
   readonly leagueTiers = LEAGUE_TIERS;
   readonly leagueTierLabels = LEAGUE_TIER_LABELS;
   readonly leagueMenu: MenuOption[] = LEAGUE_TIERS.map((tier) => ({
@@ -34,6 +50,7 @@ export class TeamListPage {
     label: LEAGUE_TIER_LABELS[tier],
   }));
   readonly positionLabels = PLAYER_POSITION_LABELS;
+  readonly displayName = teamDisplayName;
 
   readonly activeUniverse = this.universeService.activeUniverse;
   readonly teams = this.teamService.teams;
@@ -166,6 +183,22 @@ export class TeamListPage {
 
   teamPlayers(teamId: string) {
     return this.playerService.getPlayersByTeamId(teamId);
+  }
+
+  teamCoach(teamId: string): Coach | null {
+    return this.coachService.getCoachByTeamId(teamId);
+  }
+
+  teamGrade(teamId: string): RatingGrade {
+    return ratingToGrade(calculateTeamOvr(this.teamPlayers(teamId)));
+  }
+
+  playerOvr(player: Player): number {
+    return calculatePlayerOvr(player.attributes, player.position);
+  }
+
+  coachOvr(coach: Coach): number {
+    return calculateCoachOvr(coach.attributes);
   }
 
   markColor(abbreviation: string): string {

@@ -1,0 +1,524 @@
+<section class="desk transfer">
+  @if (activeUniverse(); as universe) {
+    <header class="desk__bar">
+      <div>
+        <p class="desk__kicker">{{ universe.name }} · {{ windowState().label }}</p>
+        <h1 class="desk__title">轉會台</h1>
+      </div>
+      <p class="transfer__range">{{ windowState().range || '—' }}</p>
+    </header>
+
+    <p class="window-note" [class.is-open]="windowState().isOpen">
+      <strong>{{ windowState().label }}</strong>{{ windowState().detail }}
+    </p>
+
+    @if (note(); as ok) {
+      <p class="sign__note sign__note--ok">{{ ok }}</p>
+    }
+    @if (error(); as bad) {
+      <p class="sign__note sign__note--bad">{{ bad }}</p>
+    }
+
+    <div class="desk__lane">
+      <button type="button" [class.is-on]="tab() === 'players'" (click)="setTab('players')">選手</button>
+      <button type="button" [class.is-on]="tab() === 'coaches'" (click)="setTab('coaches')">教練</button>
+      <button type="button" [class.is-on]="tab() === 'teams'" (click)="setTab('teams')">隊伍</button>
+    </div>
+
+    <div class="transfer__grid">
+      <div class="transfer__main">
+        @if (tab() === 'players') {
+          <div class="transfer__toolbar">
+            <app-menu
+              variant="lane"
+              ariaLabel="篩選手"
+              [value]="playerFilter()"
+              [options]="filterMenu()"
+              (picked)="setPlayerFilter($event)"
+            />
+            <span class="transfer__count">{{ shownPlayers().length }} 人</span>
+          </div>
+
+          <ul class="transfer__list">
+            @for (player of shownPlayers(); track player.id) {
+              <li class="transfer-row">
+                <div class="transfer-row__who">
+                  <app-flag-icon [code]="player.nationality" />
+                  <span class="transfer-row__name">{{ player.gamertag }}</span>
+                  <span class="transfer-row__meta">
+                    <app-role-icon [position]="player.position" />
+                    {{ positionLabels[player.position] }} · {{ teamLabel(player.teamId) }}
+                  </span>
+                </div>
+                <div class="transfer-row__act">
+                  <app-menu
+                    variant="lane"
+                    ariaLabel="選手目的地"
+                    [value]="playerTarget()[player.id] ?? ''"
+                    [options]="teamMenu()"
+                    (picked)="setPlayerTarget(player.id, $event)"
+                  />
+                  <button
+                    class="desk__act"
+                    type="button"
+                    [disabled]="!windowState().isOpen"
+                    (click)="movePlayer(player)"
+                  >
+                    移動
+                  </button>
+                </div>
+              </li>
+            } @empty {
+              <li class="transfer__empty">沒有符合的選手。</li>
+            }
+          </ul>
+        }
+
+        @if (tab() === 'coaches') {
+          <ul class="transfer__list">
+            @for (coach of shownCoaches(); track coach.id) {
+              <li class="transfer-row">
+                <div class="transfer-row__who">
+                  <app-flag-icon [code]="coach.nationality" />
+                  <span class="transfer-row__name">{{ coach.gamertag }}</span>
+                  <span class="transfer-row__meta">{{ teamLabel(coach.teamId) }}</span>
+                </div>
+                <div class="transfer-row__act">
+                  <app-menu
+                    variant="lane"
+                    ariaLabel="教練目的地"
+                    [value]="coachTarget()[coach.id] ?? ''"
+                    [options]="teamMenu()"
+                    (picked)="setCoachTarget(coach.id, $event)"
+                  />
+                  <button
+                    class="desk__act"
+                    type="button"
+                    [disabled]="!windowState().isOpen"
+                    (click)="moveCoach(coach)"
+                  >
+                    指派
+                  </button>
+                </div>
+              </li>
+            } @empty {
+              <li class="transfer__empty">還沒有教練。</li>
+            }
+          </ul>
+        }
+
+        @if (tab() === 'teams') {
+          <section class="transfer__league">
+            <header class="transfer__league-head">
+              <h2>TCS</h2>
+              <span>{{ tcsTeams().length }} 隊</span>
+            </header>
+            <ul class="transfer__teams">
+              @for (team of tcsTeams(); track team.id) {
+                <li>
+                  <button class="transfer__team-card" type="button" (click)="openTeamDialog(team)">
+                    <app-team-logo [abbreviation]="team.abbreviation" [logoUrl]="team.logoUrl" [name]="displayName(team)" />
+                    <strong>{{ team.abbreviation }}</strong>
+                    <span>{{ displayName(team) }}</span>
+                    <small>OVR {{ teamOvr(team.id) }}</small>
+                  </button>
+                </li>
+              } @empty {
+                <li class="transfer__empty">沒有 TCS 隊伍。</li>
+              }
+            </ul>
+          </section>
+
+          <section class="transfer__league">
+            <header class="transfer__league-head">
+              <h2>TCL</h2>
+              <span>{{ tclTeams().length }} 隊</span>
+            </header>
+            <ul class="transfer__teams">
+              @for (team of tclTeams(); track team.id) {
+                <li>
+                  <button class="transfer__team-card" type="button" (click)="openTeamDialog(team)">
+                    <app-team-logo [abbreviation]="team.abbreviation" [logoUrl]="team.logoUrl" [name]="displayName(team)" />
+                    <strong>{{ team.abbreviation }}</strong>
+                    <span>{{ displayName(team) }}</span>
+                    <small>OVR {{ teamOvr(team.id) }}</small>
+                  </button>
+                </li>
+              } @empty {
+                <li class="transfer__empty">沒有 TCL 隊伍。</li>
+              }
+            </ul>
+          </section>
+
+          @if (otherTeams().length > 0) {
+            <section class="transfer__league">
+              <header class="transfer__league-head">
+                <h2>其他</h2>
+                <span>{{ otherTeams().length }} 隊</span>
+              </header>
+              <ul class="transfer__teams">
+                @for (team of otherTeams(); track team.id) {
+                  <li>
+                    <button class="transfer__team-card" type="button" (click)="openTeamDialog(team)">
+                      <app-team-logo [abbreviation]="team.abbreviation" [logoUrl]="team.logoUrl" [name]="displayName(team)" />
+                      <strong>{{ team.abbreviation }}</strong>
+                      <span>{{ displayName(team) }}</span>
+                      <small>{{ leagueLabels[team.leagueTier] }} · OVR {{ teamOvr(team.id) }}</small>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        }
+      </div>
+
+      <aside class="transfer__feed">
+        <header>
+          <strong>本窗動態</strong>
+          <span>{{ feed().length }}</span>
+        </header>
+        <ul>
+          @for (item of feed(); track item.id) {
+            <li>
+              <span class="transfer__feed-team">{{ item.teamAbbr }}</span>
+              <span>{{ item.text }}</span>
+              <time>{{ item.date }}</time>
+            </li>
+          } @empty {
+            <li class="transfer__empty">這窗還沒有動態。</li>
+          }
+        </ul>
+      </aside>
+    </div>
+  } @else {
+    <p class="quiet">先選一個宇宙。</p>
+  }
+
+  @if (editingTeam(); as team) {
+    <div class="transfer-dialog" role="presentation">
+      <button class="transfer-dialog__scrim" type="button" aria-label="關閉" (click)="closeTeamDialog()"></button>
+      <div class="transfer-dialog__panel" role="dialog" aria-modal="true" [attr.aria-label]="'調整 ' + team.abbreviation">
+        <header class="transfer-dialog__hero">
+          <div class="transfer-dialog__mark">
+            <app-team-logo [abbreviation]="team.abbreviation" [logoUrl]="team.logoUrl" [name]="displayName(team)" />
+          </div>
+          <div class="transfer-dialog__identity">
+            <p class="transfer-dialog__league">{{ leagueLabels[team.leagueTier] }}</p>
+            <h2>{{ team.abbreviation }}</h2>
+            <p class="transfer-dialog__fullname">{{ displayName(team) }}</p>
+          </div>
+          <button class="transfer-dialog__x" type="button" aria-label="關閉" (click)="closeTeamDialog()">×</button>
+        </header>
+
+        <nav class="transfer-dialog__nav" role="tablist" aria-label="隊伍調整">
+          <button type="button" role="tab" [class.is-on]="teamPane() === 'sponsor'" (click)="setTeamPane('sponsor')">
+            冠名
+          </button>
+          <button type="button" role="tab" [class.is-on]="teamPane() === 'rename'" (click)="setTeamPane('rename')">
+            更名
+          </button>
+          <button type="button" role="tab" [class.is-on]="teamPane() === 'acquire'" (click)="setTeamPane('acquire')">
+            收購
+          </button>
+          <button type="button" role="tab" [class.is-on]="teamPane() === 'roster'" (click)="setTeamPane('roster')">
+            轉會
+          </button>
+        </nav>
+
+        @if (teamPane() === 'sponsor') {
+          <form class="transfer-dialog__body" [formGroup]="sponsorForm" (ngSubmit)="saveSponsor()">
+            <div class="transfer-dialog__fields">
+              <div class="transfer-dialog__stage">
+                <span class="transfer-dialog__stage-label">顯示名</span>
+                <strong>{{ sponsorPreviewName() }}</strong>
+              </div>
+
+              <label class="transfer-dialog__field" for="transfer-sponsor">
+                <span>贊助商</span>
+                <input id="transfer-sponsor" type="text" formControlName="sponsor" maxlength="40" placeholder="例如 CTBC" />
+              </label>
+
+              <div class="transfer-dialog__compose" role="group" aria-label="冠名位置">
+                <button
+                  type="button"
+                  [class.is-on]="isSponsorSideOn('prefix')"
+                  (click)="setSponsorSide('prefix')"
+                >
+                  <em>前綴</em>
+                  <span>贊助 · 隊名</span>
+                </button>
+                <button
+                  type="button"
+                  [class.is-on]="isSponsorSideOn('suffix')"
+                  (click)="setSponsorSide('suffix')"
+                >
+                  <em>後綴</em>
+                  <span>隊名 · 贊助</span>
+                </button>
+                <button type="button" [class.is-on]="isSponsorCleared()" class="is-clear" (click)="clearSponsor()">
+                  <em>無</em>
+                  <span>不冠名</span>
+                </button>
+              </div>
+            </div>
+
+            <footer class="transfer-dialog__foot">
+              <button class="desk__quiet" type="button" (click)="closeTeamDialog()">取消</button>
+              <button class="desk__act" type="submit" [disabled]="!windowState().isOpen">儲存冠名</button>
+            </footer>
+          </form>
+        }
+
+        @if (teamPane() === 'rename') {
+          <form class="transfer-dialog__body" [formGroup]="renameForm" (ngSubmit)="saveRename()">
+            <div class="transfer-dialog__fields">
+              <div class="transfer-dialog__row">
+                <label class="transfer-dialog__field" for="transfer-abbr">
+                  <span>縮寫</span>
+                  <input id="transfer-abbr" type="text" formControlName="abbreviation" maxlength="12" />
+                </label>
+                <label class="transfer-dialog__field transfer-dialog__field--grow" for="transfer-name">
+                  <span>隊名</span>
+                  <input id="transfer-name" type="text" formControlName="name" maxlength="60" />
+                </label>
+              </div>
+              <p class="transfer-dialog__note">只改本名與縮寫，既有冠名會繼續掛上。</p>
+            </div>
+            <footer class="transfer-dialog__foot">
+              <button class="desk__quiet" type="button" (click)="closeTeamDialog()">取消</button>
+              <button class="desk__act" type="submit" [disabled]="!windowState().isOpen">儲存更名</button>
+            </footer>
+          </form>
+        }
+
+        @if (teamPane() === 'acquire') {
+          <form class="transfer-dialog__body" [formGroup]="acquireForm" (ngSubmit)="saveAcquire()">
+            <div class="transfer-dialog__fields">
+              <label class="transfer-dialog__drop" for="transfer-acquire-logo">
+                @if (acquireLogoUrl(); as logo) {
+                  <img [src]="logo" alt="新隊標預覽" />
+                } @else {
+                  <span class="transfer-dialog__drop-mark">+</span>
+                  <strong>上傳新隊標</strong>
+                  <span>收購必換標 · 小於 800KB</span>
+                }
+                <input id="transfer-acquire-logo" type="file" accept="image/*" (change)="onAcquireLogoSelected($event)" />
+              </label>
+
+              <label class="transfer-dialog__field" for="transfer-buyer">
+                <span>收購方</span>
+                <input id="transfer-buyer" type="text" formControlName="buyer" maxlength="40" placeholder="例如 新老闆" />
+              </label>
+
+              <div class="transfer-dialog__row">
+                <label class="transfer-dialog__field" for="transfer-acquire-abbr">
+                  <span>新縮寫</span>
+                  <input id="transfer-acquire-abbr" type="text" formControlName="abbreviation" maxlength="12" />
+                </label>
+                <label class="transfer-dialog__field transfer-dialog__field--grow" for="transfer-acquire-name">
+                  <span>新隊名</span>
+                  <input id="transfer-acquire-name" type="text" formControlName="name" maxlength="60" />
+                </label>
+              </div>
+
+              <p class="transfer-dialog__note">確認後舊冠名清掉，隊徽與隊名一起換新。</p>
+            </div>
+            <footer class="transfer-dialog__foot">
+              <button class="desk__quiet" type="button" (click)="closeTeamDialog()">取消</button>
+              <button class="desk__act" type="submit" [disabled]="!windowState().isOpen">確認收購</button>
+            </footer>
+          </form>
+        }
+
+        @if (teamPane() === 'roster') {
+          <div class="transfer-dialog__body">
+            <div class="transfer-dialog__fields transfer-dialog__fields--roster">
+              <div class="transfer-dialog__mode" role="tablist" aria-label="隊員調整方式">
+                <button type="button" [class.is-on]="rosterMode() === 'move'" (click)="setRosterMode('move')">轉會</button>
+                <button type="button" [class.is-on]="rosterMode() === 'trade'" (click)="setRosterMode('trade')">交易</button>
+              </div>
+
+              @if (rosterMode() === 'move') {
+                <div class="transfer-dialog__mode transfer-dialog__mode--sub" role="tablist" aria-label="轉會方向">
+                  <button type="button" [class.is-on]="moveAction() === 'out'" (click)="setMoveAction('out')">轉出</button>
+                  <button type="button" [class.is-on]="moveAction() === 'in'" (click)="setMoveAction('in')">引入</button>
+                </div>
+
+                @if (moveAction() === 'out') {
+                  <div class="transfer-dialog__roster-block">
+                    <header>
+                      <strong>選本隊選手</strong>
+                      <span>{{ editingRoster().length }} / 7</span>
+                    </header>
+                    <ul class="transfer-dialog__roster">
+                      @for (player of editingRoster(); track player.id) {
+                        <li>
+                          <button
+                            type="button"
+                            [class.is-on]="selectedOwnPlayerId() === player.id"
+                            (click)="selectOwnPlayer(player.id)"
+                          >
+                            <app-role-icon [position]="player.position" />
+                            <span class="transfer-dialog__player-name">{{ player.gamertag }}</span>
+                            <span class="transfer-dialog__player-pos">{{ positionLabels[player.position] }}</span>
+                          </button>
+                        </li>
+                      } @empty {
+                        <li class="transfer-dialog__roster-empty">這隊目前沒有選手。</li>
+                      }
+                    </ul>
+                  </div>
+
+                  <div class="transfer-dialog__roster-block">
+                    <header>
+                      <strong>轉出目的地</strong>
+                      <span>點選即可</span>
+                    </header>
+                    <div class="transfer-dialog__picks">
+                      @for (dest of moveDestinations(); track dest.id) {
+                        <button
+                          type="button"
+                          [class.is-on]="moveTarget() === dest.id"
+                          (click)="selectMoveTarget(dest.id)"
+                        >
+                          <strong>{{ dest.label }}</strong>
+                          <span>{{ dest.detail }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="transfer-dialog__roster-block">
+                    <header>
+                      <strong>引入選手</strong>
+                      <span>{{ incomingCandidates().length }} 人</span>
+                    </header>
+                    <ul class="transfer-dialog__roster transfer-dialog__roster--tall">
+                      @for (item of incomingCandidates(); track item.player.id) {
+                        <li>
+                          <button
+                            type="button"
+                            [class.is-on]="incomingPlayerId() === item.player.id"
+                            (click)="selectIncomingPlayer(item.player.id)"
+                          >
+                            <app-role-icon [position]="item.player.position" />
+                            <span class="transfer-dialog__player-name">{{ item.player.gamertag }}</span>
+                            <span class="transfer-dialog__player-pos">{{ item.club }}</span>
+                          </button>
+                        </li>
+                      } @empty {
+                        <li class="transfer-dialog__roster-empty">沒有可引入的選手。</li>
+                      }
+                    </ul>
+                  </div>
+                }
+              } @else {
+                <div class="transfer-dialog__roster-block">
+                  <header>
+                    <strong>本隊選手</strong>
+                    <span>{{ editingRoster().length }} / 7</span>
+                  </header>
+                  <ul class="transfer-dialog__roster">
+                    @for (player of editingRoster(); track player.id) {
+                      <li>
+                        <button
+                          type="button"
+                          [class.is-on]="selectedOwnPlayerId() === player.id"
+                          (click)="selectOwnPlayer(player.id)"
+                        >
+                          <app-role-icon [position]="player.position" />
+                          <span class="transfer-dialog__player-name">{{ player.gamertag }}</span>
+                          <span class="transfer-dialog__player-pos">{{ positionLabels[player.position] }}</span>
+                        </button>
+                      </li>
+                    } @empty {
+                      <li class="transfer-dialog__roster-empty">這隊目前沒有選手。</li>
+                    }
+                  </ul>
+                </div>
+
+                <div class="transfer-dialog__roster-block">
+                  <header>
+                    <strong>對手隊伍</strong>
+                    <span>一換一</span>
+                  </header>
+                  <div class="transfer-dialog__picks">
+                    @for (partner of tradePartners(); track partner.id) {
+                      <button
+                        type="button"
+                        [class.is-on]="tradePartnerTeamId() === partner.id"
+                        (click)="selectTradePartner(partner.id)"
+                      >
+                        <strong>{{ partner.label }}</strong>
+                        <span>{{ partner.detail }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <div class="transfer-dialog__roster-block">
+                  <header>
+                    <strong>對手選手</strong>
+                    <span>{{ tradePartnerRoster().length }} 人</span>
+                  </header>
+                  <ul class="transfer-dialog__roster">
+                    @for (player of tradePartnerRoster(); track player.id) {
+                      <li>
+                        <button
+                          type="button"
+                          [class.is-on]="selectedTradePlayerId() === player.id"
+                          (click)="selectTradePlayer(player.id)"
+                        >
+                          <app-role-icon [position]="player.position" />
+                          <span class="transfer-dialog__player-name">{{ player.gamertag }}</span>
+                          <span class="transfer-dialog__player-pos">{{ positionLabels[player.position] }}</span>
+                        </button>
+                      </li>
+                    } @empty {
+                      <li class="transfer-dialog__roster-empty">先選對手隊伍。</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+
+            <footer class="transfer-dialog__foot">
+              <button class="desk__quiet" type="button" (click)="closeTeamDialog()">關閉</button>
+              @if (rosterMode() === 'move' && moveAction() === 'out') {
+                <button
+                  class="desk__act"
+                  type="button"
+                  [disabled]="!windowState().isOpen"
+                  (click)="confirmMoveOut()"
+                >
+                  確認轉出
+                </button>
+              }
+              @if (rosterMode() === 'move' && moveAction() === 'in') {
+                <button
+                  class="desk__act"
+                  type="button"
+                  [disabled]="!windowState().isOpen"
+                  (click)="confirmMoveIn()"
+                >
+                  確認引入
+                </button>
+              }
+              @if (rosterMode() === 'trade') {
+                <button
+                  class="desk__act"
+                  type="button"
+                  [disabled]="!windowState().isOpen"
+                  (click)="confirmTrade()"
+                >
+                  確認一換一
+                </button>
+              }
+            </footer>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</section>

@@ -11,7 +11,15 @@
         <app-flag-icon [code]="current.nationality" />
         {{ current.gamertag }}
       </h1>
-      <p class="player-detail__lead">{{ age() }} 歲 · {{ teamName(current.teamId) }}</p>
+      <p class="player-detail__lead">
+        <span class="player-detail__grade">
+          <app-rarity-badge [rarity]="current.rarity" />
+          <strong>OVR {{ ovr() }}</strong>
+        </span>
+        <span>潛力 {{ potential() }}</span>
+        <span>{{ age() }} 歲</span>
+        <span>{{ teamName(current.teamId) }}</span>
+      </p>
     </div>
 
     <div class="panel">
@@ -46,6 +54,10 @@
             <label class="field">
               <span class="field__label">所屬隊伍</span>
               <app-menu formControlName="teamId" [options]="teamMenu()" />
+            </label>
+            <label class="field">
+              <span class="field__label">稀有度</span>
+              <app-menu formControlName="rarity" [options]="rarityMenu" />
             </label>
             <label class="field">
               <span class="field__label">出生年</span>
@@ -92,6 +104,13 @@
             <dd>{{ teamName(current.teamId) }}</dd>
           </div>
           <div>
+            <dt>評級</dt>
+            <dd class="player-detail__grade">
+              <app-rarity-badge [rarity]="current.rarity" />
+              <strong>OVR {{ ovr() }}</strong>
+            </dd>
+          </div>
+          <div>
             <dt>合約</dt>
             <dd>{{ contractYearLabel(current.contract.startDate, current.contract.endDate) }}</dd>
           </div>
@@ -100,6 +119,24 @@
     </div>
 
     @if (!isEditing()) {
+      <div class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">能力（0–120）</h2>
+          <button class="btn btn--ghost" type="button" (click)="showHidden.set(!showHidden())">
+            {{ showHidden() ? '隱藏潛力' : '顯示潛力' }}
+          </button>
+        </div>
+        <div class="attr-list">
+          @for (key of attributeKeys; track key) {
+            <app-attribute-row
+              [label]="attributeLabels[key]"
+              [rating]="current.attributes[key]"
+              [showHidden]="showHidden()"
+            />
+          }
+        </div>
+      </div>
+
       <div class="panel">
         <h2 class="panel__title">職業生涯紀錄</h2>
         @if (current.careerRecords.length > 0) {

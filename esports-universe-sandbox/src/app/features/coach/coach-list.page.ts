@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,22 +6,34 @@ import { PLAYER_NATIONALITY_OPTIONS } from '../../core/models/player.model';
 import type { PlayerNationality } from '../../core/models/player.model';
 import { buildUniverseStartYears } from '../../core/models/universe.model';
 import { CoachService } from '../../core/services/coach.service';
+import { TransferWindowService } from '../../core/services/transfer-window.service';
 import { UniverseService } from '../../core/services/universe.service';
+import type { Coach } from '../../core/models/coach.model';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
+import { RarityBadgeComponent } from '../../shared/ui/rarity-badge/rarity-badge.component';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
 import { birthdayFromYear, buildBirthYears, contractRangeFromYears, contractYearLabel } from '../../shared/utils/contract-year';
 import { calculateAge } from '../../shared/utils/player-age';
 import { createDefaultCoachAttributes } from '../../shared/utils/create-default-coach-attributes';
+import { calculateCoachOvr } from '../../shared/utils/player-ovr';
 
 @Component({
   selector: 'app-coach-list-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent],
+  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RarityBadgeComponent],
   templateUrl: './coach-list.page.html',
 })
 export class CoachListPage {
   private readonly coachService = inject(CoachService);
   private readonly universeService = inject(UniverseService);
+  private readonly windows = inject(TransferWindowService);
   private readonly formBuilder = inject(FormBuilder);
+
+  constructor() {
+    bindPageScene(inject(DestroyRef), 'coaches', '教練');
+  }
+
+  readonly windowState = computed(() => this.windows.current());
 
   readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
     value: nation.code,
@@ -80,6 +92,10 @@ export class CoachListPage {
     this.selectedTeamId.set(String(teamId) as string | 'ALL' | 'FREE');
   }
 
+  coachOvr(coach: Coach): number {
+    return calculateCoachOvr(coach.attributes);
+  }
+
   coachAge(birthday: string): number {
     return calculateAge(birthday, this.activeUniverse()?.currentDate ?? '2026-01-01');
   }
@@ -124,7 +140,8 @@ export class CoachListPage {
         nationality: raw.nationality,
         teamId: raw.teamId || null,
         birthday: birthdayFromYear(Number(raw.birthdayYear)),
-        attributes: createDefaultCoachAttributes(72),
+        rarity: 'N',
+        attributes: createDefaultCoachAttributes(85),
         specialties: [],
         contract: {
           startDate: contract.startDate,
@@ -151,6 +168,10 @@ export class CoachListPage {
     if (!confirmed) {
       return;
     }
-    this.coachService.deleteCoach(coachId);
+    try {
+      this.coachService.deleteCoach(coachId);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '沒刪成');
+    }
   }
 }

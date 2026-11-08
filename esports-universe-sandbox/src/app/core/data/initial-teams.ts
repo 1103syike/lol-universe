@@ -1,11 +1,15 @@
 import type { Coach, CoachAttributes } from '../models/coach.model';
 import { COACH_ATTRIBUTE_KEYS } from '../models/coach.model';
 import type { LeagueTier } from '../models/league.model';
-import type { Player, PlayerAttributes, PlayerNationality, PlayerPosition } from '../models/player.model';
-import { ATTRIBUTE_KEYS } from '../models/player.model';
-import type { Team } from '../models/team.model';
+import type { Player, PlayerNationality, PlayerPosition } from '../models/player.model';
+import type { Rarity } from '../models/rarity.model';
+import { suggestRarityFromOvr } from '../models/rarity.model';
+import type { Team, TitleSponsorSide } from '../models/team.model';
 import { clampRating } from '../../shared/utils/create-default-attributes';
+import { calculateCoachOvr } from '../../shared/utils/player-ovr';
 import { defaultTeamLogoUrl } from '../../shared/utils/team-logo';
+import { resolvePlayerPower } from './player-power-profiles';
+import type { AttributeSeed } from './player-power-profiles';
 
 export interface InitialTeamSeed {
   abbreviation: string;
@@ -27,6 +31,9 @@ interface NamedPlayer {
   birthday?: string;
   nationality?: PlayerNationality;
   position?: PlayerPosition;
+  rarity?: Rarity;
+  form?: number;
+  attributes?: AttributeSeed;
 }
 
 interface NamedRoster {
@@ -39,21 +46,23 @@ interface SeedRow {
   name: string;
   leagueTier: LeagueTier;
   logoUrl?: string;
+  titleSponsor?: string | null;
+  titleSponsorSide?: TitleSponsorSide | null;
   roster?: RosterLine | NamedRoster;
 }
 
 const SEED_ROWS: SeedRow[] = [
   { abbreviation: 'ahq', name: 'ahq e-Sports Club', leagueTier: 'TCS', roster: {
+    coach: 'Green',
     players: [
       { gamertag: 'Azhi', birthday: '2001-05-09', position: 'TOP' },
       { gamertag: 'Relic', position: 'JUNGLE' },
-      { gamertag: 'Wuji', birthday: '1994-07-02', position: 'MID' },
       { gamertag: 'Apex', birthday: '1996-01-19', position: 'MID' },
       { gamertag: 'Prism', position: 'BOT' },
       { gamertag: 'Quartz', position: 'SUPPORT' },
     ],
   } },
-  { abbreviation: 'JT', name: 'CTBC J Team', leagueTier: 'TCS', roster: {
+  { abbreviation: 'JT', name: 'J Team', leagueTier: 'TCS', titleSponsor: 'CTBC', titleSponsorSide: 'prefix', roster: {
     coach: 'Shuan',
     players: [
       { gamertag: 'Union', birthday: '1998-01-01' },
@@ -76,14 +85,15 @@ const SEED_ROWS: SeedRow[] = [
   { abbreviation: 'GT', name: 'Glitter Tigers', leagueTier: 'TCS', roster: {
     coach: 'Sopchin',
     players: [
-      { gamertag: 'Hoshi', birthday: '2000-01-01' },
-      { gamertag: 'Angle', birthday: '2001-01-01' },
-      { gamertag: 'Ssign', birthday: '2003-01-01' },
-      { gamertag: 'Chiayi', birthday: '2002-01-01' },
-      { gamertag: 'Yuwen', birthday: '2001-01-01' },
+      { gamertag: 'Hoshi', birthday: '2000-01-01', position: 'TOP' },
+      { gamertag: 'Angle', birthday: '2001-01-01', position: 'JUNGLE' },
+      { gamertag: 'Ssign', birthday: '2003-01-01', position: 'MID' },
+      { gamertag: 'Chiayi', birthday: '2002-01-01', position: 'BOT' },
+      { gamertag: 'Yuwen', birthday: '2001-01-01', position: 'SUPPORT' },
     ],
   } },
   { abbreviation: 'FEG', name: 'Far Eastern Giants', leagueTier: 'TCS', roster: {
+    coach: 'Ori',
     players: [
       { gamertag: 'Kinko', birthday: '2000-01-01' },
       { gamertag: 'Quan', birthday: '2000-01-01' },
@@ -93,6 +103,7 @@ const SEED_ROWS: SeedRow[] = [
     ],
   } },
   { abbreviation: 'RM', name: 'Rakuten Monkeys', leagueTier: 'TCS', roster: {
+    coach: 'Poppy',
     players: [
       { gamertag: 'Diya', birthday: '1999-01-01', nationality: 'KR' },
       { gamertag: 'Luke', birthday: '2002-01-01' },
@@ -102,6 +113,7 @@ const SEED_ROWS: SeedRow[] = [
     ],
   } },
   { abbreviation: 'WS', name: 'Wayi Spiders', leagueTier: 'TCS', roster: {
+    coach: 'Silk',
     players: [
       { gamertag: 'Unicials', birthday: '1998-01-01' },
       { gamertag: 'Nuz', birthday: '1999-01-01' },
@@ -118,12 +130,18 @@ const SEED_ROWS: SeedRow[] = [
       { gamertag: 'Pika', position: 'TOP' },
       { gamertag: 'Burrow', position: 'JUNGLE' },
       { gamertag: 'Mission', position: 'MID' },
-      { gamertag: 'Nestea', position: 'MID' },
       { gamertag: 'Atlen', position: 'BOT' },
       { gamertag: 'Deep', position: 'SUPPORT' },
     ],
   } },
-  { abbreviation: 'ONE', name: 'Cathay ONE Team', leagueTier: 'TCL', roster: ['Cath', 'Driver', 'Cube', 'Hong', 'Shunn', 'Kino'] },
+  {
+    abbreviation: 'ONE',
+    name: 'ONE Team',
+    leagueTier: 'TCL',
+    titleSponsor: 'Cathay',
+    titleSponsorSide: 'prefix',
+    roster: ['Cath', 'Driver', 'Cube', 'Hong', 'Shunn', 'Kino'],
+  },
   { abbreviation: 'ANK', name: 'ANK Gaming', leagueTier: 'TCL', roster: ['Anko', 'Sez', 'Topz', 'Midk', 'Art', 'Eason'] },
   { abbreviation: 'NVM', name: 'Nova MS', leagueTier: 'TCL', roster: ['Nov', 'Sheng', 'Hole', 'Mist', 'Doggo', 'Yurs'] },
   { abbreviation: 'BMG', name: 'Ban Mei Gaming', leagueTier: 'TCL', roster: {
@@ -147,7 +165,14 @@ const SEED_ROWS: SeedRow[] = [
     ],
   } },
   { abbreviation: 'SMG', name: 'Still Moving Under Gunfire', leagueTier: 'TCL', roster: ['Still', 'Moving', 'Under', 'Gunfire', 'Smoke', 'Cover'] },
-  { abbreviation: 'BYG', name: 'Beyond Gaming', leagueTier: 'TCL', roster: ['Bay', 'Yon', 'Over', 'Line', 'Edge', 'Limit'] },
+  {
+    abbreviation: 'BYG',
+    name: 'Beyond Gaming',
+    leagueTier: 'TCL',
+    titleSponsor: 'Mega Bank',
+    titleSponsorSide: 'prefix',
+    roster: ['Bay', 'Yon', 'Over', 'Line', 'Edge', 'Limit'],
+  },
   { abbreviation: 'OCE', name: 'Ocean Rovers', leagueTier: 'TCL', roster: ['Tide', 'Wave', 'Reef', 'Coral', 'Drift', 'Harbor'] },
   { abbreviation: 'MCX', name: 'Machi E-Sports', leagueTier: 'TCL', roster: ['Machi', 'Macchi', 'Chi', 'Espo', 'Ort', 'Play'] },
   { abbreviation: 'TXO', name: 'Tongxin', leagueTier: 'TCL', roster: ['Tong', 'Xin', 'Oath', 'Bond', 'Link', 'Pact'] },
@@ -160,10 +185,54 @@ export const INITIAL_TEAMS: InitialTeamSeed[] = SEED_ROWS.map((row) => ({
   logoUrl: row.logoUrl ?? defaultTeamLogoUrl(row.abbreviation),
 }));
 
+export const SEED_COACH_BY_TEAM: Record<string, string> = Object.fromEntries(
+  SEED_ROWS.flatMap((row) => {
+    const tag = seedCoachTag(row);
+    return tag ? [[row.abbreviation, tag] as const] : [];
+  }),
+);
+
 export interface OpeningLeague {
   teams: Team[];
   players: Player[];
   coaches: Coach[];
+}
+
+export function ensureTeamCoaches(
+  teams: readonly Team[],
+  coaches: readonly Coach[],
+  options: { startYear: number; now?: string },
+): { teams: Team[]; coaches: Coach[] } {
+  const now = options.now ?? new Date().toISOString();
+  const nextCoaches = [...coaches];
+  const usedTags = new Set(nextCoaches.map((coach) => coach.gamertag.toLowerCase()));
+  const coachByTeamId = new Map<string, Coach>();
+
+  for (const coach of nextCoaches) {
+    if (coach.teamId) {
+      coachByTeamId.set(coach.teamId, coach);
+    }
+  }
+
+  const nextTeams = teams.map((team, teamIndex) => {
+    const existing = coachByTeamId.get(team.id);
+    if (existing) {
+      if (team.coachId === existing.id) {
+        return team;
+      }
+      return { ...team, coachId: existing.id };
+    }
+
+    const base = team.leagueTier === 'TCS' ? 94 : 84;
+    const tag = uniqueCoachTag(team.abbreviation, usedTags);
+    usedTags.add(tag.toLowerCase());
+    const coach = buildCoach(tag, team.id, now, options.startYear, base, teamIndex);
+    nextCoaches.push(coach);
+    coachByTeamId.set(team.id, coach);
+    return { ...team, coachId: coach.id, updatedAt: now };
+  });
+
+  return { teams: nextTeams, coaches: nextCoaches };
 }
 
 export function buildOpeningLeague(now: string, startYear: number): OpeningLeague {
@@ -177,16 +246,15 @@ export function buildOpeningLeague(now: string, startYear: number): OpeningLeagu
     const roster = row.roster;
     const playerIds: string[] = [];
     let coachId: string | null = null;
-    const base = row.leagueTier === 'TCS' ? 76 : 68;
+    const base = row.leagueTier === 'TCS' ? 92 : 82;
 
     if (roster) {
       const named = isNamedRoster(roster) ? roster : toNamedRoster(roster, startYear, teamIndex);
-      if (named.coach) {
-        rememberTag(seen, named.coach);
-        const coach = buildCoach(named.coach, teamId, now, startYear, base, teamIndex);
-        coachId = coach.id;
-        coaches.push(coach);
-      }
+      const coachTag = named.coach ?? SEED_COACH_BY_TEAM[row.abbreviation] ?? `${row.abbreviation}HC`;
+      rememberTag(seen, coachTag);
+      const coach = buildCoach(coachTag, teamId, now, startYear, base, teamIndex);
+      coachId = coach.id;
+      coaches.push(coach);
 
       if (named.players.length > 7) {
         throw new Error(`${row.abbreviation} 超過 7 名選手`);
@@ -194,16 +262,36 @@ export function buildOpeningLeague(now: string, startYear: number): OpeningLeagu
       named.players.forEach((seed, roleIndex) => {
         const position = seed.position ?? ROLES[roleIndex];
         rememberTag(seen, seed.gamertag);
-        const player = buildPlayer(seed.gamertag, position, teamId, now, startYear, base, teamIndex, roleIndex, seed);
+        const player = buildPlayer(
+          seed.gamertag,
+          position,
+          teamId,
+          now,
+          startYear,
+          base,
+          teamIndex,
+          roleIndex,
+          row.abbreviation,
+          row.leagueTier,
+          seed,
+        );
         playerIds.push(player.id);
         players.push(player);
       });
     }
 
+    const sponsor = row.titleSponsor?.trim() ? row.titleSponsor.trim() : null;
+    const side =
+      sponsor && (row.titleSponsorSide === 'prefix' || row.titleSponsorSide === 'suffix')
+        ? row.titleSponsorSide
+        : null;
+
     teams.push({
       id: teamId,
       abbreviation: row.abbreviation,
       name: row.name,
+      titleSponsor: sponsor,
+      titleSponsorSide: side,
       leagueTier: row.leagueTier,
       salaryCap: DEFAULT_SALARY_CAP,
       logoUrl: row.logoUrl ?? defaultTeamLogoUrl(row.abbreviation),
@@ -215,6 +303,31 @@ export function buildOpeningLeague(now: string, startYear: number): OpeningLeagu
   });
 
   return { teams, players, coaches };
+}
+
+function seedCoachTag(row: SeedRow): string | undefined {
+  if (!row.roster) {
+    return undefined;
+  }
+  if (isNamedRoster(row.roster)) {
+    return row.roster.coach;
+  }
+  return row.roster[0];
+}
+
+function uniqueCoachTag(teamAbbr: string, usedTags: Set<string>): string {
+  const preferred = SEED_COACH_BY_TEAM[teamAbbr] ?? `${teamAbbr}HC`;
+  if (!usedTags.has(preferred.toLowerCase())) {
+    return preferred;
+  }
+
+  let tag = `${teamAbbr}HC`;
+  let index = 2;
+  while (usedTags.has(tag.toLowerCase())) {
+    tag = `${teamAbbr}HC${index}`;
+    index += 1;
+  }
+  return tag;
 }
 
 function isNamedRoster(roster: RosterLine | NamedRoster): roster is NamedRoster {
@@ -249,24 +362,48 @@ function buildPlayer(
   base: number,
   teamIndex: number,
   roleIndex: number,
+  teamAbbr: string,
+  leagueTier: LeagueTier,
   seed?: NamedPlayer,
 ): Player {
+  const resolvedPosition = seed?.position ?? position;
+  const power = resolvePlayerPower({
+    gamertag: tag,
+    position: resolvedPosition,
+    teamAbbr,
+    leagueTier,
+    seedAttributes: seed?.attributes,
+    seedForm: seed?.form,
+    seedRarity: seed?.rarity,
+  });
   return {
     id: crypto.randomUUID(),
     displayName: tag,
     gamertag: tag,
     nationality: seed?.nationality ?? 'TW',
-    position,
+    position: resolvedPosition,
     teamId,
     birthday: seed?.birthday ?? birthday(startYear, teamIndex * 6 + roleIndex),
-    attributes: playerAttributes(base, teamIndex + roleIndex),
-    form: clampRating(base - 4),
+    rarity: power.rarity,
+    attributes: power.attributes,
+    form: power.form,
     contract: contract(startYear, PLAYER_SALARY),
     careerRecords: [],
     createdAt: now,
     updatedAt: now,
   };
 }
+
+const COACH_POWER_PROFILES: Record<string, CoachAttributes> = {
+  Shuan: {
+    draftStrategy: 108,
+    metaAdaptation: 106,
+    tacticalPlanning: 110,
+    teamIntegration: 112,
+    inGameLeadership: 108,
+    playerDevelopment: 104,
+  },
+};
 
 function buildCoach(
   tag: string,
@@ -276,6 +413,7 @@ function buildCoach(
   base: number,
   teamIndex: number,
 ): Coach {
+  const attributes = COACH_POWER_PROFILES[tag] ?? coachAttributes(base + 2, teamIndex);
   return {
     id: crypto.randomUUID(),
     displayName: tag,
@@ -283,7 +421,8 @@ function buildCoach(
     nationality: 'TW',
     teamId,
     birthday: birthday(startYear, teamIndex * 6 + 5),
-    attributes: coachAttributes(base + 2, teamIndex),
+    rarity: suggestRarityFromOvr(calculateCoachOvr(attributes)),
+    attributes,
     specialties: ['teamfighting', 'gameSense'],
     contract: contract(startYear, COACH_SALARY),
     careerRecords: [],
@@ -292,25 +431,27 @@ function buildCoach(
   };
 }
 
-function playerAttributes(base: number, salt: number): PlayerAttributes {
-  const attributes = {} as PlayerAttributes;
-  ATTRIBUTE_KEYS.forEach((key, index) => {
-    const current = clampRating(base + ((salt + index * 3) % 9) - 4);
-    attributes[key] = {
-      current,
-      potential: clampRating(current + 8),
-      growthRate: 1,
-    };
-  });
-  return attributes;
-}
-
 function coachAttributes(base: number, salt: number): CoachAttributes {
   const attributes = {} as CoachAttributes;
   COACH_ATTRIBUTE_KEYS.forEach((key, index) => {
     attributes[key] = clampRating(base + ((salt + index) % 5) - 2);
   });
   return attributes;
+}
+
+export function applySeedCoachDefaults(coaches: readonly Coach[]): Coach[] {
+  return coaches.map((coach) => {
+    const profile = COACH_POWER_PROFILES[coach.gamertag];
+    if (!profile) {
+      return coach;
+    }
+    return {
+      ...coach,
+      attributes: { ...profile },
+      rarity: suggestRarityFromOvr(calculateCoachOvr(profile)),
+      updatedAt: new Date().toISOString(),
+    };
+  });
 }
 
 function contract(startYear: number, annualSalary: number) {

@@ -1,0 +1,1253 @@
+{
+  "meta": {
+    "seed": 700014,
+    "home": "RM",
+    "away": "JT",
+    "score": "1-60",
+    "durationSec": 2700,
+    "note": "UI 場次未持久化；4000 seed 未找到精確 1-63，改用結構同型 RM 1-60 JT（45:00）",
+    "exactUiMatchPersisted": false
+  },
+  "killCount": 61,
+  "byBucket": {
+    "0-5": {
+      "RM": 0,
+      "JT": 1
+    },
+    "5-10": {
+      "RM": 0,
+      "JT": 1
+    },
+    "10-15": {
+      "RM": 0,
+      "JT": 1
+    },
+    "15-20": {
+      "RM": 0,
+      "JT": 7
+    },
+    "20-25": {
+      "RM": 1,
+      "JT": 11
+    },
+    "25-30": {
+      "RM": 0,
+      "JT": 10
+    },
+    "30-35": {
+      "RM": 0,
+      "JT": 9
+    },
+    "35-40": {
+      "RM": 0,
+      "JT": 12
+    },
+    "40-45": {
+      "RM": 0,
+      "JT": 8
+    }
+  },
+  "bySrc": {
+    "lane": 3,
+    "teamfight": 47,
+    "gank": 9,
+    "mistake": 2
+  },
+  "gapsUnder30": 9,
+  "minGap": 20,
+  "avgGap": 145,
+  "teamfightCount": 22,
+  "avgKillsPerTeamfightNearby": 2.1363636363636362,
+  "maxKillsPerTeamfightNearby": 3,
+  "tfStats": [
+    {
+      "clock": "16:20",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "17:36",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "18:50",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "19:10",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "20:13",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "22:11",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "25:18",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "25:47",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "26:20",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "28:48",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "30:47",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "31:47",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "32:43",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "33:12",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "37:13",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "37:41",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "38:47",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "39:11",
+      "side": "JT",
+      "kills": 1,
+      "contexts": [
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "39:39",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "40:14",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "40:37",
+      "side": "JT",
+      "kills": 2,
+      "contexts": [
+        "teamfight",
+        "teamfight"
+      ]
+    },
+    {
+      "clock": "44:19",
+      "side": "JT",
+      "kills": 3,
+      "contexts": [
+        "teamfight",
+        "teamfight",
+        "teamfight"
+      ]
+    }
+  ],
+  "kills": [
+    {
+      "clock": "2:08",
+      "t": 128,
+      "type": "first-blood",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "lane",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "9:11",
+      "t": 551,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Nicky",
+      "context": "lane",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "10:39",
+      "t": 639,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Diya",
+      "context": "lane",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "16:20",
+      "t": 980,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "17:36",
+      "t": 1056,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "18:50",
+      "t": 1130,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "18:51",
+      "t": 1131,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "19:10",
+      "t": 1150,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "19:11",
+      "t": 1151,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "19:12",
+      "t": 1152,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "20:13",
+      "t": 1213,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "20:14",
+      "t": 1214,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "20:15",
+      "t": 1215,
+      "type": "kill",
+      "side": "JT",
+      "killer": "vans",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "20:44",
+      "t": 1244,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Nicky",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "21:15",
+      "t": 1275,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "21:45",
+      "t": 1305,
+      "type": "mistake",
+      "side": "RM",
+      "killer": "Luke",
+      "victim": "Dodo",
+      "context": "mistake",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "22:11",
+      "t": 1331,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "22:12",
+      "t": 1332,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "22:13",
+      "t": 1333,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "23:20",
+      "t": 1400,
+      "type": "mistake",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "mistake",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "24:07",
+      "t": 1447,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "gank",
+      "intensity": "gank"
+    },
+    {
+      "clock": "24:42",
+      "t": 1482,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Nicky",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "25:18",
+      "t": 1518,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "25:19",
+      "t": 1519,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "25:20",
+      "t": 1520,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "25:47",
+      "t": 1547,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "26:20",
+      "t": 1580,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "26:44",
+      "t": 1604,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "gank",
+      "intensity": "gank"
+    },
+    {
+      "clock": "27:41",
+      "t": 1661,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Nicky",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "28:48",
+      "t": 1728,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "28:49",
+      "t": 1729,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Amity",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "29:38",
+      "t": 1778,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Effort",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "30:47",
+      "t": 1847,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "30:48",
+      "t": 1848,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "30:49",
+      "t": 1849,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Amity",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "31:47",
+      "t": 1907,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "31:48",
+      "t": 1908,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "31:49",
+      "t": 1909,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "32:43",
+      "t": 1963,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "32:44",
+      "t": 1964,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "33:12",
+      "t": 1992,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "36:10",
+      "t": 2170,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Amity",
+      "context": "gank",
+      "intensity": "gank"
+    },
+    {
+      "clock": "37:13",
+      "t": 2233,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "37:14",
+      "t": 2234,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "37:15",
+      "t": 2235,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "37:41",
+      "t": 2261,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "37:42",
+      "t": 2262,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "38:47",
+      "t": 2327,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Effort",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "38:48",
+      "t": 2328,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "38:49",
+      "t": 2329,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "39:11",
+      "t": 2351,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "39:39",
+      "t": 2379,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Dodo",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "39:40",
+      "t": 2380,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "40:14",
+      "t": 2414,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "40:15",
+      "t": 2415,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "40:37",
+      "t": 2437,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Union",
+      "victim": "Diya",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "40:38",
+      "t": 2438,
+      "type": "kill",
+      "side": "JT",
+      "killer": "vans",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "42:41",
+      "t": 2561,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Nicky",
+      "context": "gank",
+      "intensity": "skirmish"
+    },
+    {
+      "clock": "44:19",
+      "t": 2659,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Amity",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "44:20",
+      "t": 2660,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Chilyz",
+      "victim": "Luke",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    },
+    {
+      "clock": "44:21",
+      "t": 2661,
+      "type": "kill",
+      "side": "JT",
+      "killer": "Doris",
+      "victim": "Nicky",
+      "context": "teamfight",
+      "intensity": "teamfight"
+    }
+  ],
+  "objs": [
+    {
+      "clock": "5:20",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "8:21",
+      "type": "voidgrub",
+      "side": "RM"
+    },
+    {
+      "clock": "10:22",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "10:22",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "15:21",
+      "type": "herald",
+      "side": "JT"
+    },
+    {
+      "clock": "15:21",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "15:21",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "15:42",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "15:42",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "17:26",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "20:17",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "20:50",
+      "type": "dragon-soul",
+      "side": "JT"
+    },
+    {
+      "clock": "20:50",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "23:23",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "26:23",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "26:23",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "27:26",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "27:26",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "28:22",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "31:23",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "32:24",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "33:54",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "33:54",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "34:21",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "36:17",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "38:52",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "38:52",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "40:19",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "40:19",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "41:16",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "41:49",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "42:27",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "43:30",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "44:53",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "44:53",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "44:56",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "45:00",
+      "type": "nexus",
+      "side": "JT"
+    }
+  ],
+  "rmObjectives": [
+    {
+      "clock": "8:21",
+      "type": "voidgrub",
+      "side": "RM"
+    },
+    {
+      "clock": "10:22",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "15:21",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "15:42",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "20:50",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "26:23",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "27:26",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "33:54",
+      "type": "tower",
+      "side": "RM"
+    },
+    {
+      "clock": "38:52",
+      "type": "tower",
+      "side": "RM"
+    }
+  ],
+  "jtObjectives": [
+    {
+      "clock": "5:20",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "10:22",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "15:21",
+      "type": "herald",
+      "side": "JT"
+    },
+    {
+      "clock": "15:21",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "15:42",
+      "type": "dragon",
+      "side": "JT"
+    },
+    {
+      "clock": "17:26",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "20:17",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "20:50",
+      "type": "dragon-soul",
+      "side": "JT"
+    },
+    {
+      "clock": "23:23",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "26:23",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "27:26",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "28:22",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "31:23",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "32:24",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "33:54",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "34:21",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "36:17",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "38:52",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "40:19",
+      "type": "elder",
+      "side": "JT"
+    },
+    {
+      "clock": "40:19",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "41:16",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "41:49",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "42:27",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "43:30",
+      "type": "inhibitor",
+      "side": "JT"
+    },
+    {
+      "clock": "44:53",
+      "type": "baron",
+      "side": "JT"
+    },
+    {
+      "clock": "44:53",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "44:56",
+      "type": "tower",
+      "side": "JT"
+    },
+    {
+      "clock": "45:00",
+      "type": "nexus",
+      "side": "JT"
+    }
+  ]
+}

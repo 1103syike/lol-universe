@@ -1,22 +1,21 @@
 import type { AttributeKey, PlayerAttributes } from '../../core/models/player.model';
 import { ATTRIBUTE_KEYS } from '../../core/models/player.model';
+import { clampRating } from './rating-scale';
 
-export function createDefaultAttributes(base = 70): PlayerAttributes {
+export { clampRating, RATING_MAX } from './rating-scale';
+
+export function createDefaultAttributes(base = 85): PlayerAttributes {
   const attributes = {} as PlayerAttributes;
 
   for (const key of ATTRIBUTE_KEYS) {
     attributes[key] = {
       current: clampRating(base),
-      potential: clampRating(base + 10),
+      potential: clampRating(base + 12),
       growthRate: 1,
     };
   }
 
   return attributes;
-}
-
-export function clampRating(value: number): number {
-  return Math.min(99, Math.max(0, Math.round(value)));
 }
 
 export function clampGrowthRate(value: number): number {

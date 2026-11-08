@@ -1,0 +1,42 @@
+.rarity-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.4rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.rarity-badge[data-rarity='N'] {
+  border-color: rgb(147 160 181 / 35%);
+  background: rgb(147 160 181 / 14%);
+  color: #c2ccd9;
+}
+
+.rarity-badge[data-rarity='R'] {
+  border-color: rgb(74 144 226 / 45%);
+  background: rgb(74 144 226 / 16%);
+  color: #8ec0ff;
+}
+
+.rarity-badge[data-rarity='SR'] {
+  border-color: rgb(168 110 255 / 45%);
+  background: rgb(168 110 255 / 16%);
+  color: #c9a6ff;
+}
+
+.rarity-badge[data-rarity='SSR'] {
+  border-color: rgb(227 179 65 / 55%);
+  background: rgb(227 179 65 / 16%);
+  color: var(--color-accent-strong);
+}
+
+.rarity-badge[data-rarity='UR'] {
+  border-color: rgb(255 93 115 / 55%);
+  background: rgb(255 93 115 / 16%);
+  color: #ff8ea0;
+}

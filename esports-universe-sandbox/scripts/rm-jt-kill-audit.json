@@ -1,0 +1,1486 @@
+{
+  "searched": 1200,
+  "extremeCandidates": 171,
+  "candidateSample": [
+    {
+      "seed": 700014,
+      "home": "RM",
+      "away": "JT",
+      "score": "1-60",
+      "dur": 2700
+    },
+    {
+      "seed": 700024,
+      "home": "RM",
+      "away": "JT",
+      "score": "47-11",
+      "dur": 2700
+    },
+    {
+      "seed": 700034,
+      "home": "RM",
+      "away": "JT",
+      "score": "8-54",
+      "dur": 2723
+    },
+    {
+      "seed": 700037,
+      "home": "RM",
+      "away": "JT",
+      "score": "7-51",
+      "dur": 2783
+    },
+    {
+      "seed": 700077,
+      "home": "RM",
+      "away": "JT",
+      "score": "51-7",
+      "dur": 2790
+    },
+    {
+      "seed": 700078,
+      "home": "RM",
+      "away": "JT",
+      "score": "9-50",
+      "dur": 2726
+    },
+    {
+      "seed": 700089,
+      "home": "RM",
+      "away": "JT",
+      "score": "3-58",
+      "dur": 2700
+    },
+    {
+      "seed": 700090,
+      "home": "RM",
+      "away": "JT",
+      "score": "1-70",
+      "dur": 2700
+    },
+    {
+      "seed": 700094,
+      "home": "RM",
+      "away": "JT",
+      "score": "4-62",
+      "dur": 2790
+    },
+    {
+      "seed": 700098,
+      "home": "RM",
+      "away": "JT",
+      "score": "58-7",
+      "dur": 2695
+    },
+    {
+      "seed": 700106,
+      "home": "RM",
+      "away": "JT",
+      "score": "54-5",
+      "dur": 2729
+    },
+    {
+      "seed": 700114,
+      "home": "RM",
+      "away": "JT",
+      "score": "8-53",
+      "dur": 2700
+    },
+    {
+      "seed": 700119,
+      "home": "RM",
+      "away": "JT",
+      "score": "54-5",
+      "dur": 2400
+    },
+    {
+      "seed": 700128,
+      "home": "RM",
+      "away": "JT",
+      "score": "56-7",
+      "dur": 2700
+    },
+    {
+      "seed": 700137,
+      "home": "RM",
+      "away": "JT",
+      "score": "68-6",
+      "dur": 2730
+    },
+    {
+      "seed": 700139,
+      "home": "RM",
+      "away": "JT",
+      "score": "9-52",
+      "dur": 2730
+    },
+    {
+      "seed": 700145,
+      "home": "RM",
+      "away": "JT",
+      "score": "8-54",
+      "dur": 2515
+    },
+    {
+      "seed": 700146,
+      "home": "RM",
+      "away": "JT",
+      "score": "0-54",
+      "dur": 2569
+    },
+    {
+      "seed": 700153,
+      "home": "RM",
+      "away": "JT",
+      "score": "12-53",
+      "dur": 2667
+    },
+    {
+      "seed": 700163,
+      "home": "RM",
+      "away": "JT",
+      "score": "59-5",
+      "dur": 2727
+    },
+    {
+      "seed": 700175,
+      "home": "RM",
+      "away": "JT",
+      "score": "10-52",
+      "dur": 2700
+    },
+    {
+      "seed": 700185,
+      "home": "RM",
+      "away": "JT",
+      "score": "10-55",
+      "dur": 2730
+    },
+    {
+      "seed": 700190,
+      "home": "RM",
+      "away": "JT",
+      "score": "52-2",
+      "dur": 2700
+    },
+    {
+      "seed": 700191,
+      "home": "RM",
+      "away": "JT",
+      "score": "9-52",
+      "dur": 2700
+    },
+    {
+      "seed": 700193,
+      "home": "RM",
+      "away": "JT",
+      "score": "6-64",
+      "dur": 2728
+    }
+  ],
+  "detailed": {
+    "label": "seed 700014",
+    "score": "RM 1 - 60 JT",
+    "durationSec": 2700,
+    "killEventCount": 61,
+    "byBucket": {
+      "0-5": {
+        "home": 0,
+        "away": 1
+      },
+      "5-10": {
+        "home": 0,
+        "away": 1
+      },
+      "10-15": {
+        "home": 0,
+        "away": 1
+      },
+      "15-20": {
+        "home": 0,
+        "away": 7
+      },
+      "20-25": {
+        "home": 1,
+        "away": 11
+      },
+      "25-30": {
+        "home": 0,
+        "away": 10
+      },
+      "30-35": {
+        "home": 0,
+        "away": 9
+      },
+      "35-40": {
+        "home": 0,
+        "away": 12
+      },
+      "40-45": {
+        "home": 0,
+        "away": 8
+      },
+      "45-50": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "killRows": [
+      {
+        "t": 128,
+        "clock": "2:08",
+        "type": "first-blood",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [],
+        "context": "lane",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 551,
+        "clock": "9:11",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Nicky",
+        "assists": [],
+        "context": "lane",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 639,
+        "clock": "10:39",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz"
+        ],
+        "context": "lane",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 980,
+        "clock": "16:20",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1056,
+        "clock": "17:36",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1130,
+        "clock": "18:50",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Diya",
+        "assists": [
+          "Doris",
+          "vans",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1131,
+        "clock": "18:51",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Nicky",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1150,
+        "clock": "19:10",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [
+          "vans",
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1151,
+        "clock": "19:11",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Nicky",
+        "assists": [
+          "vans",
+          "Chilyz",
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1152,
+        "clock": "19:12",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "vans",
+          "Chilyz",
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1213,
+        "clock": "20:13",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Luke",
+        "assists": [
+          "vans",
+          "Doris",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1214,
+        "clock": "20:14",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Nicky",
+        "assists": [
+          "vans",
+          "Chilyz",
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1215,
+        "clock": "20:15",
+        "type": "kill",
+        "side": "JT",
+        "killer": "vans",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1244,
+        "clock": "20:44",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Nicky",
+        "assists": [
+          "Doris"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1275,
+        "clock": "21:15",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Union"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1305,
+        "clock": "21:45",
+        "type": "mistake",
+        "side": "RM",
+        "killer": "Luke",
+        "victim": "Dodo",
+        "assists": [],
+        "context": "mistake",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1331,
+        "clock": "22:11",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Nicky",
+        "assists": [
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1332,
+        "clock": "22:12",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Effort",
+        "assists": [
+          "Doris"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1333,
+        "clock": "22:13",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "Doris"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1400,
+        "clock": "23:20",
+        "type": "mistake",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [],
+        "context": "mistake",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1447,
+        "clock": "24:07",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "Doris"
+        ],
+        "context": "gank",
+        "intensity": "gank"
+      },
+      {
+        "t": 1482,
+        "clock": "24:42",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Nicky",
+        "assists": [
+          "Doris"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1518,
+        "clock": "25:18",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Luke",
+        "assists": [
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1519,
+        "clock": "25:19",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Nicky",
+        "assists": [
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1520,
+        "clock": "25:20",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "Doris"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1547,
+        "clock": "25:47",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Luke",
+        "assists": [
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1580,
+        "clock": "26:20",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Effort",
+        "assists": [
+          "Doris"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1604,
+        "clock": "26:44",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz"
+        ],
+        "context": "gank",
+        "intensity": "gank"
+      },
+      {
+        "t": 1661,
+        "clock": "27:41",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Nicky",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1728,
+        "clock": "28:48",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Luke",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1729,
+        "clock": "28:49",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Amity",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1778,
+        "clock": "29:38",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Effort",
+        "assists": [
+          "Doris"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 1847,
+        "clock": "30:47",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Effort",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1848,
+        "clock": "30:48",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1849,
+        "clock": "30:49",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Amity",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1907,
+        "clock": "31:47",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Diya",
+        "assists": [
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1908,
+        "clock": "31:48",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Luke",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1909,
+        "clock": "31:49",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1963,
+        "clock": "32:43",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1964,
+        "clock": "32:44",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 1992,
+        "clock": "33:12",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2170,
+        "clock": "36:10",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Amity",
+        "assists": [
+          "Doris",
+          "vans"
+        ],
+        "context": "gank",
+        "intensity": "gank"
+      },
+      {
+        "t": 2233,
+        "clock": "37:13",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2234,
+        "clock": "37:14",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2235,
+        "clock": "37:15",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2261,
+        "clock": "37:41",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2262,
+        "clock": "37:42",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Nicky",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2327,
+        "clock": "38:47",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Effort",
+        "assists": [
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2328,
+        "clock": "38:48",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2329,
+        "clock": "38:49",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2351,
+        "clock": "39:11",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Luke",
+        "assists": [
+          "Doris",
+          "Chilyz",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2379,
+        "clock": "39:39",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Dodo",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Union"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2380,
+        "clock": "39:40",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Diya",
+        "assists": [
+          "Doris",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2414,
+        "clock": "40:14",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Luke",
+        "assists": [
+          "Doris",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2415,
+        "clock": "40:15",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "Doris",
+          "Chilyz",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2437,
+        "clock": "40:37",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Union",
+        "victim": "Diya",
+        "assists": [
+          "Chilyz",
+          "vans",
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2438,
+        "clock": "40:38",
+        "type": "kill",
+        "side": "JT",
+        "killer": "vans",
+        "victim": "Luke",
+        "assists": [
+          "Chilyz",
+          "Doris",
+          "Union",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2561,
+        "clock": "42:41",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Nicky",
+        "assists": [
+          "Doris"
+        ],
+        "context": "gank",
+        "intensity": "skirmish"
+      },
+      {
+        "t": 2659,
+        "clock": "44:19",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Amity",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2660,
+        "clock": "44:20",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Chilyz",
+        "victim": "Luke",
+        "assists": [
+          "Doris",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      },
+      {
+        "t": 2661,
+        "clock": "44:21",
+        "type": "kill",
+        "side": "JT",
+        "killer": "Doris",
+        "victim": "Nicky",
+        "assists": [
+          "Chilyz",
+          "Dodo"
+        ],
+        "context": "teamfight",
+        "intensity": "teamfight"
+      }
+    ],
+    "teamfightCount": 22,
+    "fightKillStats": [
+      {
+        "t": 980,
+        "clock": "16:20",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "16:20 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1056,
+        "clock": "17:36",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "17:36 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1130,
+        "clock": "18:50",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "18:50 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1150,
+        "clock": "19:10",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "19:10 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1213,
+        "clock": "20:13",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "20:13 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1331,
+        "clock": "22:11",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "22:11 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1518,
+        "clock": "25:18",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "25:18 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1547,
+        "clock": "25:47",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "25:47 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1580,
+        "clock": "26:20",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "26:20 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1728,
+        "clock": "28:48",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "28:48 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1847,
+        "clock": "30:47",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "30:47 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1907,
+        "clock": "31:47",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "31:47 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1963,
+        "clock": "32:43",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "32:43 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 1992,
+        "clock": "33:12",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "33:12 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2233,
+        "clock": "37:13",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "37:13 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2261,
+        "clock": "37:41",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "37:41 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2327,
+        "clock": "38:47",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "38:47 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2351,
+        "clock": "39:11",
+        "side": "JT",
+        "nearbyKills": 1,
+        "summary": "39:11 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2379,
+        "clock": "39:39",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "39:39 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2414,
+        "clock": "40:14",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "40:14 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2437,
+        "clock": "40:37",
+        "side": "JT",
+        "nearbyKills": 2,
+        "summary": "40:37 · 關鍵團戰｜客隊打出團戰勝場"
+      },
+      {
+        "t": 2659,
+        "clock": "44:19",
+        "side": "JT",
+        "nearbyKills": 3,
+        "summary": "44:19 · 關鍵團戰｜客隊打出團戰勝場"
+      }
+    ],
+    "avgKillsNearTeamfight": 2.1363636363636362,
+    "maxKillsNearTeamfight": 3,
+    "objKillStats": [
+      {
+        "t": 320,
+        "clock": "5:20",
+        "type": "dragon",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 622,
+        "clock": "10:22",
+        "type": "dragon",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 942,
+        "clock": "15:42",
+        "type": "dragon",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 1217,
+        "clock": "20:17",
+        "type": "baron",
+        "side": "JT",
+        "relatedKills": 3,
+        "intent": "contest",
+        "opp": "give-up"
+      },
+      {
+        "t": 1250,
+        "clock": "20:50",
+        "type": "dragon-soul",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 1583,
+        "clock": "26:23",
+        "type": "baron",
+        "side": "JT",
+        "relatedKills": 1,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 1646,
+        "clock": "27:26",
+        "type": "elder",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 1944,
+        "clock": "32:24",
+        "type": "baron",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "give-up"
+      },
+      {
+        "t": 2034,
+        "clock": "33:54",
+        "type": "elder",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 2332,
+        "clock": "38:52",
+        "type": "baron",
+        "side": "JT",
+        "relatedKills": 3,
+        "intent": "contest",
+        "opp": "trade"
+      },
+      {
+        "t": 2419,
+        "clock": "40:19",
+        "type": "elder",
+        "side": "JT",
+        "relatedKills": 2,
+        "intent": "contest",
+        "opp": "give-up"
+      },
+      {
+        "t": 2693,
+        "clock": "44:53",
+        "type": "baron",
+        "side": "JT",
+        "relatedKills": 0,
+        "intent": "contest",
+        "opp": "give-up"
+      }
+    ],
+    "shortRespawnSample": [
+      {
+        "victim": "Nicky",
+        "gapSec": 20,
+        "a": "18:51",
+        "b": "19:11"
+      },
+      {
+        "victim": "Diya",
+        "gapSec": 22,
+        "a": "18:50",
+        "b": "19:12"
+      },
+      {
+        "victim": "Luke",
+        "gapSec": 29,
+        "a": "25:18",
+        "b": "25:47"
+      },
+      {
+        "victim": "Effort",
+        "gapSec": 29,
+        "a": "32:43",
+        "b": "33:12"
+      },
+      {
+        "victim": "Effort",
+        "gapSec": 27,
+        "a": "37:14",
+        "b": "37:41"
+      },
+      {
+        "victim": "Luke",
+        "gapSec": 23,
+        "a": "38:48",
+        "b": "39:11"
+      },
+      {
+        "victim": "Luke",
+        "gapSec": 28,
+        "a": "39:11",
+        "b": "39:39"
+      },
+      {
+        "victim": "Diya",
+        "gapSec": 22,
+        "a": "40:15",
+        "b": "40:37"
+      },
+      {
+        "victim": "Luke",
+        "gapSec": 24,
+        "a": "40:14",
+        "b": "40:38"
+      }
+    ],
+    "shortRespawnCount": 9,
+    "minDeathGapSec": 20,
+    "objectives": [
+      {
+        "clock": "5:20",
+        "type": "dragon",
+        "side": "JT"
+      },
+      {
+        "clock": "10:22",
+        "type": "dragon",
+        "side": "JT"
+      },
+      {
+        "clock": "15:42",
+        "type": "dragon",
+        "side": "JT"
+      },
+      {
+        "clock": "20:17",
+        "type": "baron",
+        "side": "JT"
+      },
+      {
+        "clock": "20:50",
+        "type": "dragon-soul",
+        "side": "JT"
+      },
+      {
+        "clock": "26:23",
+        "type": "baron",
+        "side": "JT"
+      },
+      {
+        "clock": "27:26",
+        "type": "elder",
+        "side": "JT"
+      },
+      {
+        "clock": "32:24",
+        "type": "baron",
+        "side": "JT"
+      },
+      {
+        "clock": "33:54",
+        "type": "elder",
+        "side": "JT"
+      },
+      {
+        "clock": "38:52",
+        "type": "baron",
+        "side": "JT"
+      },
+      {
+        "clock": "40:19",
+        "type": "elder",
+        "side": "JT"
+      },
+      {
+        "clock": "44:53",
+        "type": "baron",
+        "side": "JT"
+      }
+    ]
+  }
+}

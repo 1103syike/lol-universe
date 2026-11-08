@@ -6,11 +6,15 @@ import { ATTRIBUTE_KEYS } from '../models/player.model';
 import type { Team } from '../models/team.model';
 import { clampRating } from '../../shared/utils/create-default-attributes';
 import { createDefaultCoachAttributes } from '../../shared/utils/create-default-coach-attributes';
+import { calculateCoachOvr } from '../../shared/utils/player-ovr';
+import { isRarity, suggestRarityFromOvr } from '../models/rarity.model';
+import { TransferWindowService } from './transfer-window.service';
 import { UniverseService } from './universe.service';
 
 @Injectable({ providedIn: 'root' })
 export class CoachService {
   private readonly universeService = inject(UniverseService);
+  private readonly windows = inject(TransferWindowService);
 
   readonly coaches = computed(() => this.universeService.activeUniverse()?.coaches ?? []);
   readonly teams = computed(() => this.universeService.activeUniverse()?.teams ?? []);
@@ -24,6 +28,7 @@ export class CoachService {
   }
 
   createCoach(input: CoachInput): Coach {
+    this.windows.assertOpen();
     const payload = this.normalizeInput(input);
     this.assertUniqueGamertag(payload.gamertag);
     this.assertTeamExists(payload.teamId);
@@ -36,6 +41,7 @@ export class CoachService {
       nationality: payload.nationality,
       teamId: payload.teamId,
       birthday: payload.birthday,
+      rarity: payload.rarity,
       attributes: payload.attributes,
       specialties: payload.specialties,
       contract: payload.contract,
@@ -60,6 +66,9 @@ export class CoachService {
     const payload = this.normalizeInput(input);
     this.assertUniqueGamertag(payload.gamertag, coachId);
     this.assertTeamExists(payload.teamId);
+    if (payload.teamId !== current.teamId) {
+      this.windows.assertOpen();
+    }
 
     const updated: Coach = {
       ...current,
@@ -68,6 +77,7 @@ export class CoachService {
       nationality: payload.nationality,
       teamId: payload.teamId,
       birthday: payload.birthday,
+      rarity: payload.rarity,
       attributes: payload.attributes,
       specialties: payload.specialties,
       contract: payload.contract,
@@ -80,7 +90,32 @@ export class CoachService {
     this.universeService.patchActiveUniverse({ coaches, teams });
   }
 
+  moveCoach(coachId: string, teamId: string | null): void {
+    const current = this.getCoachById(coachId);
+    if (!current) {
+      throw new Error('找不到教練');
+    }
+    if (current.teamId === teamId) {
+      return;
+    }
+    this.updateCoach(coachId, {
+      displayName: current.displayName,
+      gamertag: current.gamertag,
+      nationality: current.nationality,
+      teamId,
+      birthday: current.birthday,
+      rarity: current.rarity,
+      attributes: { ...current.attributes },
+      specialties: [...current.specialties],
+      contract: { ...current.contract },
+    });
+  }
+
   deleteCoach(coachId: string): void {
+    const current = this.getCoachById(coachId);
+    if (current?.teamId) {
+      this.windows.assertOpen();
+    }
     const coaches = this.coaches().filter((coach) => coach.id !== coachId);
     const teams = this.syncTeamCoaches(this.teams(), coaches);
     this.universeService.patchActiveUniverse({ coaches, teams });
@@ -148,7 +183,7 @@ export class CoachService {
     const attributes = createDefaultCoachAttributes();
 
     for (const key of COACH_ATTRIBUTE_KEYS) {
-      attributes[key] = clampRating(sourceAttributes[key] ?? 70);
+      attributes[key] = clampRating(sourceAttributes[key] ?? 85);
     }
 
     const specialties = Array.from(
@@ -159,12 +194,17 @@ export class CoachService {
       ),
     );
 
+    const rarity = isRarity(input.rarity)
+      ? input.rarity
+      : suggestRarityFromOvr(calculateCoachOvr(attributes));
+
     return {
       displayName,
       gamertag,
       nationality: input.nationality,
       teamId: input.teamId,
       birthday,
+      rarity,
       attributes,
       specialties,
       contract: {

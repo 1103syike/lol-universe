@@ -1,8 +1,10 @@
-import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
+  ATTRIBUTE_KEYS,
+  ATTRIBUTE_LABELS,
   PLAYER_NATIONALITY_OPTIONS,
   PLAYER_POSITIONS,
   PLAYER_POSITION_LABELS,
@@ -18,19 +20,31 @@ import {
   buildPlayerBirthYears,
   buildPlayerContractYears,
   contractRangeFromYears,
-  contractYearLabel,
   defaultPlayerBirthYear,
 } from '../../shared/utils/contract-year';
 import { FlagIconComponent } from '../../shared/ui/flag-icon/flag-icon.component';
 import { MenuComponent, yearMenu } from '../../shared/ui/menu/menu.component';
 import type { MenuOption } from '../../shared/ui/menu/menu.component';
+import { RarityBadgeComponent } from '../../shared/ui/rarity-badge/rarity-badge.component';
 import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component';
-import { calculateAge } from '../../shared/utils/player-age';
+import { bindPageScene } from '../../shared/utils/bind-page-scene';
+import { calculatePlayerOvr } from '../../shared/utils/player-ovr';
+import { ratingToGrade } from '../../shared/utils/rating-scale';
+import type { RatingGrade } from '../../shared/utils/rating-scale';
+import type { AttributeKey, Player } from '../../core/models/player.model';
 
 @Component({
   selector: 'app-player-list-page',
-  imports: [ReactiveFormsModule, RouterLink, FlagIconComponent, MenuComponent, RoleIconComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    FlagIconComponent,
+    MenuComponent,
+    RarityBadgeComponent,
+    RoleIconComponent,
+  ],
   templateUrl: './player-list.page.html',
+  styleUrl: './player-list.page.scss',
 })
 export class PlayerListPage {
   private readonly playerService = inject(PlayerService);
@@ -39,6 +53,8 @@ export class PlayerListPage {
 
   readonly positions = PLAYER_POSITIONS;
   readonly positionLabels = PLAYER_POSITION_LABELS;
+  readonly attributeKeys = ATTRIBUTE_KEYS;
+  readonly attributeLabels = ATTRIBUTE_LABELS;
   readonly nationMenu: MenuOption[] = PLAYER_NATIONALITY_OPTIONS.map((nation) => ({
     value: nation.code,
     label: nation.name,
@@ -60,7 +76,10 @@ export class PlayerListPage {
   readonly filterTeamMenu = computed((): MenuOption[] => [
     { value: 'ALL', label: '全部隊伍' },
     { value: 'FREE', label: '自由' },
-    ...this.teams().map((team) => ({ value: team.id, label: team.abbreviation })),
+    ...this.teams().map((team) => ({
+      value: team.id,
+      label: `${team.abbreviation} · ${team.name}`,
+    })),
   ]);
   readonly birthYears = computed(() => buildPlayerBirthYears(this.universeYear()));
   private readonly gamertagInput = viewChild<ElementRef<HTMLInputElement>>('gamertagInput');
@@ -70,12 +89,14 @@ export class PlayerListPage {
   readonly teams = this.playerService.teams;
   readonly selectedPosition = signal<PlayerPosition | 'ALL'>('ALL');
   readonly selectedTeamId = signal<string | 'ALL' | 'FREE'>('ALL');
+  readonly nameQuery = signal('');
   readonly isSigning = signal(false);
   readonly formError = signal<string | null>(null);
 
   readonly filteredPlayers = computed(() => {
     const position = this.selectedPosition();
     const teamId = this.selectedTeamId();
+    const query = this.nameQuery().trim().toLowerCase();
 
     return this.players()
       .filter((player) => {
@@ -84,7 +105,11 @@ export class PlayerListPage {
           teamId === 'ALL' ||
           (teamId === 'FREE' && !player.teamId) ||
           player.teamId === teamId;
-        return matchPosition && matchTeam;
+        const matchName =
+          !query ||
+          player.gamertag.toLowerCase().includes(query) ||
+          player.displayName.toLowerCase().includes(query);
+        return matchPosition && matchTeam && matchName;
       })
       .slice()
       .sort(comparePlayersByRole);
@@ -101,6 +126,7 @@ export class PlayerListPage {
   });
 
   constructor() {
+    bindPageScene(inject(DestroyRef), 'players', '選手');
     this.createForm.controls.teamId.valueChanges.pipe(takeUntilDestroyed()).subscribe((teamId) => {
       this.rememberTeam(teamId);
     });
@@ -128,6 +154,15 @@ export class PlayerListPage {
     this.selectedTeamId.set(String(teamId) as string | 'ALL' | 'FREE');
   }
 
+  setNameQuery(value: string): void {
+    this.nameQuery.set(value);
+  }
+
+  onNameInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.setNameQuery(input.value);
+  }
+
   teamName(teamId: string | null): string {
     if (!teamId) {
       return '自由';
@@ -135,12 +170,16 @@ export class PlayerListPage {
     return this.teams().find((team) => team.id === teamId)?.abbreviation ?? '未知隊伍';
   }
 
-  playerAge(birthday: string): number {
-    return calculateAge(birthday, this.activeUniverse()?.currentDate ?? '2026-01-01');
+  playerOvr(player: Player): number {
+    return calculatePlayerOvr(player.attributes, player.position);
   }
 
-  deal(startDate: string, endDate: string): string {
-    return contractYearLabel(startDate, endDate);
+  playerGrade(player: Player): RatingGrade {
+    return ratingToGrade(this.playerOvr(player));
+  }
+
+  attrGrade(player: Player, key: AttributeKey): RatingGrade {
+    return ratingToGrade(player.attributes[key].current);
   }
 
   createPlayer(): void {
@@ -173,8 +212,9 @@ export class PlayerListPage {
         position: raw.position,
         teamId: raw.teamId || null,
         birthday: birthdayFromYear(Number(raw.birthdayYear)),
-        attributes: createDefaultAttributes(72),
-        form: 50,
+        rarity: 'N',
+        attributes: createDefaultAttributes(85),
+        form: 80,
         contract: {
           startDate: contract.startDate,
           endDate: contract.endDate,
@@ -237,6 +277,10 @@ export class PlayerListPage {
     if (!confirmed) {
       return;
     }
-    this.playerService.deletePlayer(playerId);
+    try {
+      this.playerService.deletePlayer(playerId);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : '沒刪成');
+    }
   }
 }

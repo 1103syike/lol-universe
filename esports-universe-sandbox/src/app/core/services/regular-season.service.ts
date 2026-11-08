@@ -160,7 +160,6 @@ export class RegularSeasonService {
     const rows: RankedTeam[] = field.map((entry) => {
       const total = totals.get(entry.teamId) ?? emptyRecord();
       const shown = this.presentTeam(entry.team);
-      const played = total.seriesWins + total.seriesLosses;
       return {
         rank: 0,
         teamId: entry.teamId,
@@ -171,7 +170,7 @@ export class RegularSeasonService {
         seriesLosses: total.seriesLosses,
         gameWins: total.gameWins,
         gameLosses: total.gameLosses,
-        winRate: played === 0 ? null : total.seriesWins / played,
+        winRate: gameWinRate(total.gameWins, total.gameLosses),
         streak: currentStreak(total.results),
         inPlayoff: false,
         inLeague: entry.team?.leagueTier === league,
@@ -384,8 +383,13 @@ export class RegularSeasonService {
       return false;
     }
     this.playoffBoard.applyLockedSeeds(league, seedIds);
-    this.clock.setPhase('playoff');
+    this.syncClockPhase();
     return true;
+  }
+
+  syncClockPhase(): void {
+    const bothLocked = this.playoffBoard.isLocked('TCS') && this.playoffBoard.isLocked('TCL');
+    this.clock.setPhase(bothLocked ? 'playoff' : 'regular');
   }
 
   advanceToPlayoff(): boolean {
@@ -402,9 +406,7 @@ export class RegularSeasonService {
       return;
     }
     this.playoffBoard.clearLockedSeeds(league);
-    if (!this.playoffBoard.isLocked('TCS') && !this.playoffBoard.isLocked('TCL')) {
-      this.clock.setPhase('regular');
-    }
+    this.syncClockPhase();
   }
 
   reset(): void {
@@ -470,7 +472,6 @@ export class RegularSeasonService {
     const rows: RankedTeam[] = field.map((entry) => {
       const total = totals.get(entry.teamId) ?? emptyRecord();
       const shown = this.presentTeam(entry.team);
-      const played = total.seriesWins + total.seriesLosses;
       return {
         rank: 0,
         teamId: entry.teamId,
@@ -481,7 +482,7 @@ export class RegularSeasonService {
         seriesLosses: total.seriesLosses,
         gameWins: total.gameWins,
         gameLosses: total.gameLosses,
-        winRate: played === 0 ? null : total.seriesWins / played,
+        winRate: gameWinRate(total.gameWins, total.gameLosses),
         streak: currentStreak(total.results),
         inPlayoff: false,
         inLeague: entry.team?.leagueTier === this.league(),
@@ -509,11 +510,9 @@ export class RegularSeasonService {
   }
 
   private compareRank(left: RankedTeam, right: RankedTeam): number {
-    if (left.wins !== right.wins) {
-      return right.wins - left.wins;
-    }
-    if (left.diff !== right.diff) {
-      return right.diff - left.diff;
+    const record = compareSeriesThenGames(left, right);
+    if (record !== 0) {
+      return record;
     }
     const tieWinner = this.tieWinnerId(left.teamId, right.teamId);
     if (tieWinner === left.teamId) {
@@ -540,7 +539,7 @@ export class RegularSeasonService {
     }
     const inside = rows[cut - 1];
     const outside = rows[cut];
-    if (!inside || !outside || inside.seriesWins !== outside.seriesWins || gameMargin(inside) !== gameMargin(outside)) {
+    if (!inside || !outside || !sameSeriesAndGames(inside, outside)) {
       return null;
     }
     const id = this.tieId(inside.teamId, outside.teamId);
@@ -565,7 +564,7 @@ export class RegularSeasonService {
     for (const row of rows) {
       const current = groups[groups.length - 1];
       const previous = current?.[0];
-      if (previous && previous.seriesWins === row.seriesWins && gameMargin(previous) === gameMargin(row)) {
+      if (previous && sameSeriesAndGames(previous, row)) {
         current.push(row);
       } else {
         groups.push([row]);
@@ -613,11 +612,9 @@ export class RegularSeasonService {
   }
 
   private compareWith(left: RankedTeam, right: RankedTeam, progress: RegularProgress): number {
-    if (left.wins !== right.wins) {
-      return right.wins - left.wins;
-    }
-    if (left.diff !== right.diff) {
-      return right.diff - left.diff;
+    const record = compareSeriesThenGames(left, right);
+    if (record !== 0) {
+      return record;
     }
     const tieWinner = progress.tieScores[this.tieId(left.teamId, right.teamId)]?.winnerTeamId ?? null;
     if (tieWinner === left.teamId) {
@@ -827,6 +824,47 @@ function currentStreak(results: { round: number; won: boolean }[]): number {
     streak += 1;
   }
   return latest.won ? streak : -streak;
+}
+
+function gameWinRate(wins: number, losses: number): number | null {
+  const played = wins + losses;
+  if (played === 0) {
+    return null;
+  }
+  return wins / played;
+}
+
+function compareSeriesThenGames(
+  left: { wins: number; seriesLosses: number; winRate: number | null; diff: number },
+  right: { wins: number; seriesLosses: number; winRate: number | null; diff: number },
+): number {
+  if (left.wins !== right.wins) {
+    return right.wins - left.wins;
+  }
+  if (left.seriesLosses !== right.seriesLosses) {
+    return left.seriesLosses - right.seriesLosses;
+  }
+  const leftRate = left.winRate ?? -1;
+  const rightRate = right.winRate ?? -1;
+  if (leftRate !== rightRate) {
+    return rightRate - leftRate;
+  }
+  if (left.diff !== right.diff) {
+    return right.diff - left.diff;
+  }
+  return 0;
+}
+
+function sameSeriesAndGames(
+  left: { seriesWins: number; seriesLosses: number; gameWins: number; gameLosses: number; winRate: number | null },
+  right: { seriesWins: number; seriesLosses: number; gameWins: number; gameLosses: number; winRate: number | null },
+): boolean {
+  return (
+    compareSeriesThenGames(
+      { wins: left.seriesWins, seriesLosses: left.seriesLosses, winRate: left.winRate, diff: gameMargin(left) },
+      { wins: right.seriesWins, seriesLosses: right.seriesLosses, winRate: right.winRate, diff: gameMargin(right) },
+    ) === 0
+  );
 }
 
 function gameMargin(row: { gameWins: number; gameLosses: number }): number {

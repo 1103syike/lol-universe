@@ -1,0 +1,14 @@
+{
+  "left": 32,
+  "top": 0,
+  "extractW": 36,
+  "extractH": 36,
+  "cyanBox": {
+    "minX": 34,
+    "minY": 0,
+    "maxX": 65,
+    "maxY": 31,
+    "w": 32,
+    "h": 32
+  }
+}

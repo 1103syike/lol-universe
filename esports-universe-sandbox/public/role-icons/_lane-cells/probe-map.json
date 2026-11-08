@@ -1,0 +1,162 @@
+{
+  "original": {
+    "format": "png",
+    "mediaType": "image/png",
+    "width": 134,
+    "height": 134,
+    "space": "srgb",
+    "channels": 4,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": true,
+    "autoOrient": {
+      "width": 134,
+      "height": 134
+    }
+  },
+  "scaled": {
+    "format": "png",
+    "mediaType": "image/png",
+    "width": 63,
+    "height": 63,
+    "space": "srgb",
+    "channels": 4,
+    "depth": "uchar",
+    "density": 72,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": true,
+    "autoOrient": {
+      "width": 63,
+      "height": 63
+    }
+  },
+  "probes": [
+    {
+      "x": 0,
+      "y": 0,
+      "name": "p-x0-y0.png"
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "name": "p-x16-y0.png"
+    },
+    {
+      "x": 32,
+      "y": 0,
+      "name": "p-x32-y0.png"
+    },
+    {
+      "x": 48,
+      "y": 0,
+      "name": "p-x48-y0.png"
+    },
+    {
+      "x": 0,
+      "y": 16,
+      "name": "p-x0-y16.png"
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "name": "p-x16-y16.png"
+    },
+    {
+      "x": 32,
+      "y": 16,
+      "name": "p-x32-y16.png"
+    },
+    {
+      "x": 48,
+      "y": 16,
+      "name": "p-x48-y16.png"
+    },
+    {
+      "x": 0,
+      "y": 20,
+      "name": "p-x0-y20.png"
+    },
+    {
+      "x": 16,
+      "y": 20,
+      "name": "p-x16-y20.png"
+    },
+    {
+      "x": 32,
+      "y": 20,
+      "name": "p-x32-y20.png"
+    },
+    {
+      "x": 48,
+      "y": 20,
+      "name": "p-x48-y20.png"
+    },
+    {
+      "x": 0,
+      "y": 24,
+      "name": "p-x0-y24.png"
+    },
+    {
+      "x": 16,
+      "y": 24,
+      "name": "p-x16-y24.png"
+    },
+    {
+      "x": 32,
+      "y": 24,
+      "name": "p-x32-y24.png"
+    },
+    {
+      "x": 48,
+      "y": 24,
+      "name": "p-x48-y24.png"
+    },
+    {
+      "x": 0,
+      "y": 28,
+      "name": "p-x0-y28.png"
+    },
+    {
+      "x": 16,
+      "y": 28,
+      "name": "p-x16-y28.png"
+    },
+    {
+      "x": 32,
+      "y": 28,
+      "name": "p-x32-y28.png"
+    },
+    {
+      "x": 48,
+      "y": 28,
+      "name": "p-x48-y28.png"
+    },
+    {
+      "x": 0,
+      "y": 32,
+      "name": "p-x0-y32.png"
+    },
+    {
+      "x": 16,
+      "y": 32,
+      "name": "p-x16-y32.png"
+    },
+    {
+      "x": 32,
+      "y": 32,
+      "name": "p-x32-y32.png"
+    },
+    {
+      "x": 48,
+      "y": 32,
+      "name": "p-x48-y32.png"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "even": {
+    "avgTotalKills": 29.1,
+    "avgKpm": 0.64,
+    "avgLoserDeaths": 19.4,
+    "avgMaxLoserDeathsIn5Min": 6.3,
+    "pctLoserDeathsIn5MinGe8": 27,
+    "avgLateKpm": 0.57,
+    "avgCombatEngagePerMin": 0.48,
+    "avgTeamfightBurstCount": 6.9,
+    "avgKillsPerTeamfightBurst": 1.69,
+    "avgShortTeamfightGaps90s": 0.6,
+    "behind": {
+      "avgFightsWhenBehind": 2.7,
+      "underdogWinRateWhenBehind": 8.2
+    }
+  },
+  "mid": {
+    "avgTotalKills": 26.1,
+    "avgKpm": 0.6,
+    "avgLoserDeaths": 20.6,
+    "avgMaxLoserDeathsIn5Min": 6.5,
+    "pctLoserDeathsIn5MinGe8": 23,
+    "avgLateKpm": 0.61,
+    "avgCombatEngagePerMin": 0.48,
+    "avgTeamfightBurstCount": 5.3,
+    "avgKillsPerTeamfightBurst": 1.65,
+    "avgShortTeamfightGaps90s": 0.5,
+    "behind": {
+      "avgFightsWhenBehind": 2.7,
+      "underdogWinRateWhenBehind": 4.1
+    }
+  },
+  "stomp": {
+    "avgTotalKills": 27.2,
+    "avgKpm": 0.6,
+    "avgLoserDeaths": 19.7,
+    "avgMaxLoserDeathsIn5Min": 6.2,
+    "pctLoserDeathsIn5MinGe8": 24,
+    "avgLateKpm": 0.61,
+    "avgCombatEngagePerMin": 0.47,
+    "avgTeamfightBurstCount": 6.2,
+    "avgKillsPerTeamfightBurst": 1.68,
+    "avgShortTeamfightGaps90s": 0.5,
+    "behind": {
+      "avgFightsWhenBehind": 2.6,
+      "underdogWinRateWhenBehind": 3.5
+    }
+  }
+}

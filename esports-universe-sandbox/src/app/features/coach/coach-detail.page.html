@@ -8,7 +8,13 @@
         <app-flag-icon [code]="current.nationality" />
         {{ current.gamertag }}
       </h1>
-      <p class="coach-detail__lead">{{ teamName(current.teamId) }}</p>
+      <p class="coach-detail__lead">
+        <span class="coach-detail__grade">
+          <app-rarity-badge [rarity]="current.rarity" />
+          <strong>OVR {{ ovr() }}</strong>
+        </span>
+        <span>{{ teamName(current.teamId) }}</span>
+      </p>
     </div>
 
     <div class="panel">
@@ -39,6 +45,10 @@
             <label class="field">
               <span class="field__label">執教隊伍</span>
               <app-menu formControlName="teamId" [options]="teamMenu()" />
+            </label>
+            <label class="field">
+              <span class="field__label">稀有度</span>
+              <app-menu formControlName="rarity" [options]="rarityMenu" />
             </label>
             <label class="field">
               <span class="field__label">出生年</span>
@@ -81,6 +91,13 @@
             <dd>{{ teamName(current.teamId) }}</dd>
           </div>
           <div>
+            <dt>評級</dt>
+            <dd class="coach-detail__grade">
+              <app-rarity-badge [rarity]="current.rarity" />
+              <strong>OVR {{ ovr() }}</strong>
+            </dd>
+          </div>
+          <div>
             <dt>合約</dt>
             <dd>{{ contractYearLabel(current.contract.startDate, current.contract.endDate) }}</dd>
           </div>
@@ -89,6 +106,19 @@
     </div>
 
     @if (!isEditing()) {
+      <div class="panel">
+        <h2 class="panel__title">能力（0–120）</h2>
+        <div class="attr-list">
+          @for (key of attributeKeys; track key) {
+            <div class="coach-attr">
+              <span class="coach-attr__label">{{ attributeLabels[key] }}</span>
+              <span class="coach-attr__value">{{ current.attributes[key] }}</span>
+              <span class="coach-attr__stars">{{ starsDisplay(current.attributes[key]) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
       <div class="panel">
         <h2 class="panel__title">執教生涯紀錄</h2>
         @if (current.careerRecords.length > 0) {

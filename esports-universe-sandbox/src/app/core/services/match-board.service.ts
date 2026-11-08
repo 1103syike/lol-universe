@@ -5,6 +5,7 @@ import { RegularSeasonService, type RegularMatchView, type RegularStanding } fro
 import { UniverseService } from './universe.service';
 import { YearCalendarService } from './year-calendar.service';
 import { dateForWeekSlot, fromIsoDate, kickoffLabel } from '../../shared/utils/season-calendar';
+import { calculatePlayerOvr, calculateTeamOvr } from '../../shared/utils/player-ovr';
 
 export interface SlateMatch extends RegularMatchView {
   league: 'TCS' | 'TCL';
@@ -20,6 +21,7 @@ export interface RosterSpot {
   id: string;
   position: string;
   gamertag: string;
+  ovr: number;
 }
 
 export interface RosterLine {
@@ -52,6 +54,13 @@ export class MatchBoardService {
     return this.rosterLines(teamId).flatMap((line) => line.players);
   }
 
+  teamOvr(teamId: string): number {
+    if (!teamId) {
+      return 0;
+    }
+    return calculateTeamOvr(this.players.getPlayersByTeamId(teamId));
+  }
+
   rosterLines(teamId: string): RosterLine[] {
     const byRole = new Map<PlayerPosition, RosterSpot[]>(
       PLAYER_POSITIONS.map((position) => [position, []]),
@@ -61,6 +70,7 @@ export class MatchBoardService {
         id: player.id,
         position: PLAYER_POSITION_LABELS[player.position],
         gamertag: player.gamertag,
+        ovr: calculatePlayerOvr(player.attributes, player.position),
       });
     }
     return PLAYER_POSITIONS.map((position) => ({
@@ -104,6 +114,13 @@ export class MatchBoardService {
       return;
     }
     this.withLeague(match.league, () => this.season.addGame(match.id, teamId));
+  }
+
+  finishSeries(match: SlateMatch, winnerTeamId: string): void {
+    if (!this.hasArrived(match) || (winnerTeamId !== match.homeId && winnerTeamId !== match.awayId)) {
+      return;
+    }
+    this.withLeague(match.league, () => this.season.setWinner(match.id, winnerTeamId));
   }
 
   private buildBoard(): MatchBoard {

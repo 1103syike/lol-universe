@@ -1,0 +1,27 @@
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.champion-icon {
+  display: block;
+  object-fit: cover;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.champion-icon.is-bare {
+  border-radius: 0;
+}
+
+.champion-icon.is-empty {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 8%);
+  color: rgb(255 255 255 / 55%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}

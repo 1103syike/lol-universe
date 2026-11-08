@@ -1,41 +1,24 @@
 <section class="team-detail">
+  @if (heroLogoUrl(); as backdrop) {
+    <div class="team-detail__bg" aria-hidden="true">
+      <img [src]="backdrop" alt="" />
+    </div>
+  }
+
   <a class="back-link" routerLink="/teams">← 回到隊伍列表</a>
 
   @if (team(); as current) {
     <div class="team-detail__hero">
-      @if (isEditing()) {
-        <button
-          class="team-detail__logo team-detail__logo--editable"
-          type="button"
-          (click)="openLogoPicker()"
-          aria-label="更換隊伍 Logo"
-        >
-          <app-team-logo
-            [abbreviation]="editForm.controls.abbreviation.value || current.abbreviation"
-            [logoUrl]="editForm.controls.logoUrl.value || null"
-            [name]="editForm.controls.name.value || current.name"
-          />
-          <span class="team-detail__logo-hint">點擊更換</span>
-        </button>
-        <input
-          #logoFileInput
-          class="team-detail__logo-input"
-          type="file"
-          accept="image/*"
-          (change)="onLogoSelected($event)"
+      <div class="team-detail__logo">
+        <app-team-logo
+          [abbreviation]="current.abbreviation"
+          [logoUrl]="current.logoUrl"
+          [name]="current.name"
         />
-      } @else {
-        <div class="team-detail__logo">
-          <app-team-logo
-            [abbreviation]="current.abbreviation"
-            [logoUrl]="current.logoUrl"
-            [name]="current.name"
-          />
-        </div>
-      }
+      </div>
       <div>
-        <p class="team-detail__eyebrow">{{ current.abbreviation }}</p>
-        <h1 class="team-detail__heading">{{ current.name }}</h1>
+        <p class="team-detail__eyebrow">{{ current.abbreviation }} · OVR {{ teamOvr() }}</p>
+        <h1 class="team-detail__heading">{{ displayName(current) }}</h1>
         <p class="team-detail__lead">
           {{ leagueTierLabels[current.leagueTier] }} · 更新於
           {{ current.updatedAt | date: 'yyyy/MM/dd HH:mm' }}
@@ -44,97 +27,7 @@
     </div>
 
     <div class="panel">
-      <div class="panel__head">
-        <h2 class="panel__title">隊伍資料</h2>
-        @if (!isEditing()) {
-          <div class="panel__actions">
-            <button class="btn btn--ghost" type="button" (click)="startEdit()">編輯</button>
-            <button class="btn btn--danger" type="button" (click)="deleteTeam()">刪除</button>
-          </div>
-        }
-      </div>
-
-      @if (isEditing()) {
-        <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()">
-          <div class="edit-form__grid">
-            <label class="field" for="edit-abbreviation">
-              <span class="field__label">縮寫</span>
-              <input id="edit-abbreviation" class="field__input" type="text" formControlName="abbreviation" maxlength="12" />
-            </label>
-            <label class="field" for="edit-name">
-              <span class="field__label">隊伍名稱</span>
-              <input id="edit-name" class="field__input" type="text" formControlName="name" maxlength="60" />
-            </label>
-            <label class="field">
-              <span class="field__label">聯賽層級</span>
-              <app-menu formControlName="leagueTier" [options]="leagueMenu" />
-            </label>
-            <div class="field field--wide">
-              <span class="field__label">Logo 網址（可選）</span>
-              @if (isUploadedLogo(editForm.controls.logoUrl.value)) {
-                <p class="logo-status">已上傳圖片 · 也可點上方 Logo 再換</p>
-              } @else {
-                <input
-                  id="edit-logo-url"
-                  class="field__input"
-                  type="text"
-                  formControlName="logoUrl"
-                  placeholder="/team-logos/gt.svg 或 https://..."
-                />
-              }
-            </div>
-          </div>
-          @if (formError(); as errorMessage) {
-            <p class="form-hint form-hint--error">{{ errorMessage }}</p>
-          }
-          <div class="edit-form__actions">
-            <button class="btn btn--primary" type="submit">儲存</button>
-            <button class="btn btn--ghost" type="button" (click)="cancelEdit()">取消</button>
-            <button class="btn btn--ghost" type="button" (click)="useDefaultLogo()">改用預設路徑</button>
-          </div>
-        </form>
-      } @else {
-        <dl class="meta-grid">
-          <div>
-            <dt>縮寫</dt>
-            <dd>{{ current.abbreviation }}</dd>
-          </div>
-          <div>
-            <dt>聯賽層級</dt>
-            <dd>{{ leagueTierLabels[current.leagueTier] }}</dd>
-          </div>
-          <div>
-            <dt>建立時間</dt>
-            <dd>{{ current.createdAt | date: 'yyyy/MM/dd HH:mm' }}</dd>
-          </div>
-          <div>
-            <dt>Logo</dt>
-            <dd>{{ logoSourceLabel(current.logoUrl) }}</dd>
-          </div>
-        </dl>
-      }
-    </div>
-
-    <div class="panel">
       <h2 class="panel__title">時間軸</h2>
-      <form class="acquire" (ngSubmit)="recordAcquisition()">
-        <label class="field acquire__field" for="buyer-name">
-          <span class="field__label">收購方</span>
-          <input
-            id="buyer-name"
-            class="field__input"
-            type="text"
-            [value]="buyerName()"
-            maxlength="40"
-            placeholder="例如某某電競"
-            (input)="buyerName.set($any($event.target).value)"
-          />
-        </label>
-        <button class="btn btn--primary" type="submit">記錄收購</button>
-      </form>
-      @if (timelineError(); as errorMessage) {
-        <p class="form-hint form-hint--error">{{ errorMessage }}</p>
-      }
       <ol class="timeline">
         @for (item of timeline(); track item.id) {
           <li class="timeline__item" [class.is-season]="item.isSeason">
@@ -154,9 +47,10 @@
                   <p class="timeline__detail">{{ item.detail }}</p>
                 }
               </div>
-              <button class="timeline__delete" type="button" (click)="deleteTimelineItem(item.id)">刪除</button>
             </div>
           </li>
+        } @empty {
+          <li class="timeline__empty">還沒有事件。</li>
         }
       </ol>
     </div>
@@ -168,6 +62,9 @@
           <a [routerLink]="['/coaches', headCoach.id]">
             {{ headCoach.gamertag }}
           </a>
+          @if (coachOvr(); as ovr) {
+            <span class="panel__chip">OVR {{ ovr }}</span>
+          }
         </p>
       } @else {
         <p class="panel__text panel__text--muted">尚未指派主教練。可到教練頁新增並指派到此隊。</p>
@@ -188,7 +85,7 @@
             [options]="incomingMenu()"
             (picked)="setIncomingPlayer($event)"
           />
-          <button class="btn btn--primary" type="button" (click)="addRosterPlayer()">加入這隊</button>
+          <button class="btn btn--primary" type="button" [disabled]="!windowState().isOpen" (click)="addRosterPlayer()">加入這隊</button>
         </div>
       } @else {
         <p class="panel__text panel__text--muted">其他隊伍和自由球員目前沒有選手。</p>
@@ -197,16 +94,42 @@
         <p class="form-hint form-hint--error">{{ errorMessage }}</p>
       }
       @if (roster().length > 0) {
-        <ul class="roster">
+        <div class="roster">
+          <div class="roster__head">
+            <span>選手</span>
+            <span>路線</span>
+            <span>稀有</span>
+            <span>評級</span>
+            @for (key of attributeKeys; track key) {
+              <span>{{ attributeLabels[key] }}</span>
+            }
+            <span>操作</span>
+          </div>
           @for (player of roster(); track player.id) {
-            <li class="roster__item">
+            <div class="roster__item">
               <a class="roster__name" [routerLink]="['/players', player.id]">
                 <app-flag-icon [code]="player.nationality" />
                 <span>{{ player.gamertag }}</span>
               </a>
-              <span class="roster__role" [title]="positionLabels[player.position]">
+              <span class="roster__role">
                 <app-role-icon [position]="player.position" />
+                {{ positionLabels[player.position] }}
               </span>
+              <span class="roster__rarity">
+                <app-rarity-badge [rarity]="player.rarity" />
+              </span>
+              <strong class="roster__letter" [attr.data-grade]="playerGrade(player)" [attr.title]="'OVR ' + playerOvr(player)">
+                {{ playerGrade(player) }}
+              </strong>
+              @for (key of attributeKeys; track key) {
+                <span
+                  class="roster__letter roster__letter--attr"
+                  [attr.data-grade]="attrGrade(player, key)"
+                  [attr.title]="attributeLabels[key] + ' ' + player.attributes[key].current"
+                >
+                  {{ attrGrade(player, key) }}
+                </span>
+              }
               <div class="roster__move">
                 <app-menu
                   variant="lane"
@@ -215,11 +138,11 @@
                   [options]="moveMenu()"
                   (picked)="setMoveChoice(player.id, $event)"
                 />
-                <button class="btn btn--ghost" type="button" (click)="moveRosterPlayer(player)">移動</button>
+                <button class="btn btn--ghost" type="button" [disabled]="!windowState().isOpen" (click)="moveRosterPlayer(player)">移動</button>
               </div>
-            </li>
+            </div>
           }
-        </ul>
+        </div>
       } @else {
         <p class="panel__text panel__text--muted">這隊目前沒有選手。</p>
       }

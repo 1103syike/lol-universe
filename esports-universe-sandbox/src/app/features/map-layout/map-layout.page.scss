@@ -1,0 +1,238 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgb(40 70 58 / 35%), transparent 45%),
+    #0b1210;
+  color: #e8f2ec;
+}
+
+.map-editor {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 1.4rem;
+}
+
+.map-editor__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.map-editor__title a {
+  color: #9fcbb5;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.map-editor__title h1 {
+  margin: 0.2rem 0 0;
+  font-size: 1.45rem;
+}
+
+.map-editor__title p {
+  margin: 0.25rem 0 0;
+  opacity: 0.72;
+  font-size: 0.9rem;
+}
+
+.map-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.map-editor__actions button,
+.map-editor__filters button,
+.map-editor__selected button,
+.map-editor__nudge button,
+.map-editor__list button {
+  border: 1px solid rgb(158 203 181 / 35%);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 6%);
+  color: inherit;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.map-editor__actions .is-primary {
+  background: #2f6b52;
+  border-color: #4f9a76;
+}
+
+.map-editor__status {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 5%);
+  font-size: 0.9rem;
+}
+
+.map-editor__status.is-dirty {
+  outline: 1px solid rgb(214 180 90 / 55%);
+}
+
+.map-editor__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.7fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.map-editor__board {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(126 200 163 / 28%);
+  border-radius: 12px;
+  background: #0b1610;
+  user-select: none;
+  touch-action: none;
+}
+
+.map-editor__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.map-editor__marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  padding: 0;
+  cursor: grab;
+  z-index: 2;
+}
+
+.map-editor__marker span {
+  max-width: 7rem;
+  padding: 0.08rem 0.28rem;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 65%);
+  font-size: 0.62rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-editor__marker i {
+  display: block;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 45%);
+}
+
+.map-editor__marker.is-selected {
+  z-index: 5;
+}
+
+.map-editor__marker.is-selected span {
+  background: #2f6b52;
+}
+
+.map-editor__marker:active {
+  cursor: grabbing;
+}
+
+.map-editor__side {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.map-editor__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.map-editor__filters .is-on,
+.map-editor__list .is-selected {
+  background: #2f6b52;
+  border-color: #4f9a76;
+}
+
+.map-editor__selected {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem;
+  border: 1px solid rgb(158 203 181 / 28%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.map-editor__selected h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.map-editor__selected p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.map-editor__coords {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.map-editor__nudge {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+}
+
+.map-editor__nudge div {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.map-editor__hint {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.map-editor__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.28rem;
+  max-height: 52vh;
+  overflow: auto;
+}
+
+.map-editor__list button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+  font-size: 0.78rem;
+}
+
+.map-editor__list button span:last-child {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .map-editor__body {
+    grid-template-columns: 1fr;
+  }
+
+  .map-editor__list {
+    max-height: 18rem;
+  }
+}

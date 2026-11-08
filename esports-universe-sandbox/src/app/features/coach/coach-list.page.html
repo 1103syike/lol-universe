@@ -10,6 +10,10 @@
       </button>
     </header>
 
+    <p class="window-note" [class.is-open]="windowState().isOpen">
+      <strong>{{ windowState().label }}</strong>{{ windowState().detail }}
+    </p>
+
     @if (isHiring()) {
       <form class="sign" [formGroup]="createForm" (ngSubmit)="createCoach()">
         <label for="coach-tag">
@@ -59,17 +63,22 @@
     </div>
 
     <div class="sheet sheet--staff">
-      <div class="sheet__head">
+      <div class="sheet__head sheet__head--coaches">
         <span>ID</span>
+        <span>評級</span>
         <span>隊伍</span>
         <span>歲</span>
         <span>合約</span>
       </div>
       @for (coach of filteredCoaches(); track coach.id) {
-        <a class="sheet__row" [routerLink]="['/coaches', coach.id]">
+        <a class="sheet__row sheet__row--coaches" [routerLink]="['/coaches', coach.id]">
           <span class="sheet__who">
             <app-flag-icon [code]="coach.nationality" />
             <span>{{ coach.gamertag }}</span>
+          </span>
+          <span class="sheet__grade">
+            <app-rarity-badge [rarity]="coach.rarity" />
+            <strong class="sheet__ovr">{{ coachOvr(coach) }}</strong>
           </span>
           <span>{{ teamName(coach.teamId) }}</span>
           <span>{{ coachAge(coach.birthday) }}</span>
