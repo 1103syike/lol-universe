@@ -420,7 +420,7 @@ function buildPlayer(
 }
 
 function buildCoach(guest: MsiGuestTeam, band: RegionBand, now: string): Coach {
-  const tag = COACH_BY_TEAM[guest.id] ?? `${guest.abbreviation}HC`;
+  const tag = COACH_BY_TEAM[guest.id] ?? 'GuestHC';
   const attributes = buildCoachAttributes(band.coach, tag);
   return {
     id: `msi:${guest.id}:coach`,

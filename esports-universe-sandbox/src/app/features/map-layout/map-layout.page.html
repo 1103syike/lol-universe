@@ -2,85 +2,397 @@
   <header class="map-editor__bar">
     <div class="map-editor__title">
       <a routerLink="/dashboard">← 回主頁</a>
-      <h1>地圖座標編輯</h1>
-      <p>拖曳標記，自動對齊 {{ snap }}。方向鍵也可微調（Shift = 100）。</p>
+      <h1>地圖／畫路</h1>
+      <p>
+        @if (mode() === 'paint') {
+          按住起點拖到終點放開。拖的過程會拉出一條線，線寬可調。對齊 {{ snap }}。
+        } @else if (mode() === 'lanes') {
+          拖控制點調小兵路線。雙擊線段插點，Delete 刪點。對齊 {{ snap }}。
+        } @else {
+          拖曳標記，自動對齊 {{ snap }}。方向鍵也可微調（Shift = 100）。
+        }
+      </p>
     </div>
     <div class="map-editor__actions">
       <button type="button" (click)="saveDraft()">存草稿</button>
       <button type="button" (click)="copyJson()">複製 JSON</button>
-      <button type="button" class="is-primary" (click)="saveFile()">儲存檔案</button>
+      <button type="button" class="is-primary" (click)="saveToProject()">寫入專案</button>
+      <button type="button" (click)="saveFile()">下載 JSON</button>
       <button type="button" (click)="resetAll()">全部還原</button>
     </div>
   </header>
 
+  <div class="map-editor__modes">
+    <button type="button" [class.is-on]="mode() === 'paint'" (click)="setMode('paint')">畫路</button>
+    <button type="button" [class.is-on]="mode() === 'lanes'" (click)="setMode('lanes')">兵線</button>
+    <button type="button" [class.is-on]="mode() === 'markers'" (click)="setMode('markers')">塔／野／泉</button>
+  </div>
+
   <p class="map-editor__status" [class.is-dirty]="dirty()">{{ status() }}</p>
 
   <div class="map-editor__body">
-    <div class="map-editor__board" #board>
+    <div
+      class="map-editor__board"
+      #board
+      [class.is-drawing]="mode() === 'paint' && (paintTool() === 'draw' || paintTool() === 'erase')"
+      (pointerdown)="onBoardPointerDown($event, board)"
+      (pointermove)="onBoardPointerMoveHover($event, board)"
+      (pointerleave)="onBoardPointerLeave()"
+      (dblclick)="onLaneDoubleClick($event, board)"
+    >
       <img class="map-editor__bg" src="/maps/summoners-rift.jpg" alt="召喚峽谷" draggable="false" />
 
-      @for (marker of visibleMarkers(); track marker.id) {
-        <button
-          type="button"
-          class="map-editor__marker"
-          [class.is-selected]="selectedId() === marker.id"
-          [class.is-structure]="marker.group === 'structure'"
-          [class.is-objective]="marker.group === 'objective'"
-          [class.is-camp]="marker.group === 'camp'"
-          [style.left.%]="mapX(marker.x)"
-          [style.top.%]="mapY(marker.y)"
-          [attr.title]="marker.label + ' (' + marker.x + ', ' + marker.y + ')'"
-          (pointerdown)="startDrag($event, marker, board)"
-          (click)="select(marker.id)"
+      @if (mode() === 'paint' && (paintTool() === 'draw' || paintTool() === 'erase') && brushCursorStyle(); as brush) {
+        <div
+          class="map-editor__brush-cursor"
+          [class.is-erase]="paintTool() === 'erase'"
+          [ngStyle]="brush"
+          aria-hidden="true"
+        ></div>
+      }
+
+      @for (ring of rangeRings(); track ring.id + ring.kind) {
+        <div
+          class="map-editor__range"
+          [class.is-fountain]="ring.kind === 'fountain'"
+          [class.is-blue]="ring.side === 'blue'"
+          [class.is-red]="ring.side === 'red'"
+          [ngStyle]="rangeStyle(ring)"
+          [attr.title]="ring.label + ' range ' + ring.range"
+        ></div>
+      }
+
+      <svg
+        class="map-editor__vectors"
+        [attr.viewBox]="'0 0 ' + mapMax + ' ' + mapMax"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        @if (hasPaintMask()) {
+          @for (cell of maskCells(); track cell.key) {
+            <rect
+              class="map-editor__mask-cell"
+              [attr.x]="cell.x"
+              [attr.y]="cell.y"
+              [attr.width]="cell.size"
+              [attr.height]="cell.size"
+            />
+          }
+        }
+
+        @for (shape of shapePaths(); track shape.id) {
+          <path
+            class="map-editor__road-stroke"
+            [class.is-dim]="hasPaintMask() || mode() === 'lanes'"
+            [class.is-selected]="mode() === 'paint' && paintTool() === 'select' && shape.selected"
+            [class.is-passive]="mode() !== 'paint' || paintTool() === 'draw' || paintTool() === 'erase'"
+            [attr.d]="shape.d"
+            fill="none"
+            [attr.stroke-width]="shape.width"
+            (pointerdown)="onShapePointerDown($event, shape.id)"
+          />
+        }
+
+        @for (lane of lanePaths(); track lane.id) {
+          <polyline
+            class="map-editor__lane-stroke"
+            [class.is-top]="lane.id === 'top'"
+            [class.is-mid]="lane.id === 'mid'"
+            [class.is-bot]="lane.id === 'bot'"
+            [class.is-selected]="mode() === 'lanes' && lane.selected"
+            [class.is-dim]="mode() !== 'lanes'"
+            [attr.points]="lane.pointsAttr"
+            fill="none"
+            [attr.stroke-width]="mode() === 'lanes' && lane.selected ? 90 : 70"
+            (pointerdown)="onLanePointerDown($event, lane.id)"
+          />
+        }
+
+        @if (draftLinePoints()) {
+          <polyline
+            class="map-editor__draft-line"
+            [attr.points]="draftLinePoints()"
+            fill="none"
+            [attr.stroke-width]="strokeWidth()"
+          />
+        }
+      </svg>
+
+      @if (mode() === 'lanes' && selectedLane(); as lane) {
+        @for (point of lane.points; track $index) {
+          <button
+            type="button"
+            class="map-editor__lane-point"
+            [class.is-selected]="selectedLanePointIndex() === $index"
+            [style.left.%]="mapX(point.x)"
+            [style.top.%]="mapY(point.y)"
+            (pointerdown)="startLanePointDrag($event, lane.id, $index, board)"
+            (click)="selectLanePoint(lane.id, $index, $event)"
+          ></button>
+        }
+      }
+
+      @if (mode() === 'paint' && paintTool() === 'select' && selectedShape(); as shape) {
+        <svg
+          class="map-editor__handles"
+          [attr.viewBox]="'0 0 ' + mapMax + ' ' + mapMax"
+          preserveAspectRatio="none"
+          aria-hidden="true"
         >
-          <i [ngStyle]="markerStyle(marker)"></i>
-          <span>{{ marker.id }}</span>
-        </button>
+          @for (point of shape.points; track $index) {
+            @if (point.handleIn) {
+              <line
+                class="map-editor__handle-line"
+                [attr.x1]="point.x"
+                [attr.y1]="mapMax - point.y"
+                [attr.x2]="point.handleIn.x"
+                [attr.y2]="mapMax - point.handleIn.y"
+              />
+            }
+            @if (point.handleOut) {
+              <line
+                class="map-editor__handle-line"
+                [attr.x1]="point.x"
+                [attr.y1]="mapMax - point.y"
+                [attr.x2]="point.handleOut.x"
+                [attr.y2]="mapMax - point.handleOut.y"
+              />
+            }
+          }
+        </svg>
+        @for (point of shape.points; track $index) {
+          @if (point.handleIn) {
+            <button
+              type="button"
+              class="map-editor__handle"
+              [style.left.%]="mapX(point.handleIn.x)"
+              [style.top.%]="mapY(point.handleIn.y)"
+              (pointerdown)="startHandleDrag($event, shape.id, $index, 'in', board)"
+            ></button>
+          }
+          @if (point.handleOut) {
+            <button
+              type="button"
+              class="map-editor__handle"
+              [style.left.%]="mapX(point.handleOut.x)"
+              [style.top.%]="mapY(point.handleOut.y)"
+              (pointerdown)="startHandleDrag($event, shape.id, $index, 'out', board)"
+            ></button>
+          }
+          <button
+            type="button"
+            class="map-editor__wall-point"
+            [class.is-selected]="selectedPointIndex() === $index"
+            [style.left.%]="mapX(point.x)"
+            [style.top.%]="mapY(point.y)"
+            (pointerdown)="startShapePointDrag($event, shape.id, $index, board)"
+            (click)="selectShapePoint(shape.id, $index, $event)"
+          ></button>
+        }
+      }
+
+      @if (mode() === 'markers') {
+        @for (marker of visibleMarkers(); track marker.id) {
+          <button
+            type="button"
+            class="map-editor__marker"
+            [class.is-selected]="selectedId() === marker.id"
+            [style.left.%]="mapX(marker.x)"
+            [style.top.%]="mapY(marker.y)"
+            [attr.title]="marker.label + ' (' + marker.x + ', ' + marker.y + ')'"
+            (pointerdown)="startDrag($event, marker, board)"
+            (click)="select(marker.id)"
+          >
+            <i [ngStyle]="markerStyle(marker)"></i>
+            <span>{{ marker.id }}</span>
+          </button>
+        }
+      } @else {
+        @for (marker of markers(); track marker.id) {
+          @if (marker.group === 'structure' || marker.group === 'fountain') {
+            <div
+              class="map-editor__ghost"
+              [style.left.%]="mapX(marker.x)"
+              [style.top.%]="mapY(marker.y)"
+              [attr.title]="marker.id"
+            ></div>
+          }
+        }
       }
     </div>
 
     <aside class="map-editor__side">
-      <div class="map-editor__filters">
-        <button type="button" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">全部</button>
-        <button type="button" [class.is-on]="filter() === 'structure'" (click)="setFilter('structure')">防禦塔</button>
-        <button type="button" [class.is-on]="filter() === 'objective'" (click)="setFilter('objective')">龍巴龍</button>
-        <button type="button" [class.is-on]="filter() === 'camp'" (click)="setFilter('camp')">野怪</button>
-        <button type="button" [class.is-on]="filter() === 'fountain'" (click)="setFilter('fountain')">泉水</button>
-      </div>
-
-      @if (selected(); as current) {
-        <div class="map-editor__selected">
-          <h2>{{ current.id }}</h2>
-          <p>{{ current.label }}</p>
-          <p class="map-editor__coords">x {{ current.x }}　y {{ current.y }}</p>
-          <div class="map-editor__nudge">
-            <button type="button" (click)="nudge(0, 1)">↑</button>
-            <div>
-              <button type="button" (click)="nudge(-1, 0)">←</button>
-              <button type="button" (click)="nudge(1, 0)">→</button>
-            </div>
-            <button type="button" (click)="nudge(0, -1)">↓</button>
-          </div>
-          <button type="button" (click)="resetSelected()">還原此點</button>
-        </div>
-      } @else {
-        <p class="map-editor__hint">點選或拖曳地圖上的標記開始調整。</p>
-      }
-
-      <ul class="map-editor__list">
-        @for (marker of visibleMarkers(); track marker.id) {
-          <li>
-            <button
-              type="button"
-              [class.is-selected]="selectedId() === marker.id"
-              (click)="select(marker.id)"
-            >
-              <span>{{ marker.id }}</span>
-              <span>{{ marker.x }}, {{ marker.y }}</span>
+      @if (mode() === 'lanes') {
+        <div class="map-editor__filters">
+          @for (lane of lanePaths(); track lane.id) {
+            <button type="button" [class.is-on]="selectedLaneId() === lane.id" (click)="selectLane(lane.id)">
+              {{ lane.label }}
             </button>
-          </li>
+          }
+        </div>
+
+        <div class="map-editor__filters">
+          <button type="button" [class.is-on]="showTowerRanges()" (click)="toggleTowerRanges()">塔攻擊範圍</button>
+          <button type="button" [class.is-on]="showFountainRanges()" (click)="toggleFountainRanges()">泉水攻擊範圍</button>
+        </div>
+
+        <div class="map-editor__nudge">
+          <button type="button" class="is-primary" (click)="resetLaneRoads()">還原預設兵線</button>
+        </div>
+
+        @if (selectedLane(); as lane) {
+          <div class="map-editor__selected">
+            <h2>{{ lane.label }}</h2>
+            <p>{{ lane.points.length }} 控制點</p>
+            @if (selectedLanePoint(); as point) {
+              <p class="map-editor__coords">#{{ selectedLanePointIndex() }}　x {{ point.x }}　y {{ point.y }}</p>
+              <div class="map-editor__nudge">
+                <button type="button" (click)="nudgeLanePoint(0, 1)">↑</button>
+                <div>
+                  <button type="button" (click)="nudgeLanePoint(-1, 0)">←</button>
+                  <button type="button" (click)="nudgeLanePoint(1, 0)">→</button>
+                </div>
+                <button type="button" (click)="nudgeLanePoint(0, -1)">↓</button>
+              </div>
+              <button type="button" (click)="deleteSelectedLanePoint()">刪此點</button>
+            } @else {
+              <p class="map-editor__hint">點線上白點可拖；雙擊線段可插點。</p>
+            }
+          </div>
         }
-      </ul>
+
+        <p class="map-editor__hint">這三條是小兵走路路徑，跟綠色可走格分開。平時不穿塔心，靠近塔仍會離開路線拆塔。</p>
+      } @else if (mode() === 'paint') {
+        <div class="map-editor__filters">
+          <button type="button" [class.is-on]="paintTool() === 'draw'" (click)="setPaintTool('draw')">畫線</button>
+          <button type="button" [class.is-on]="paintTool() === 'erase'" (click)="setPaintTool('erase')">橡皮擦</button>
+          <button type="button" [class.is-on]="paintTool() === 'select'" (click)="setPaintTool('select')">選取</button>
+        </div>
+
+        <label class="map-editor__width">
+          <span>{{ paintTool() === 'erase' ? '擦除大小' : '線寬' }} {{ strokeWidth() }}</span>
+          <input
+            type="range"
+            [min]="minStrokeWidth"
+            [max]="maxStrokeWidth"
+            step="20"
+            [value]="strokeWidth()"
+            (input)="setStrokeWidth($any($event.target).value)"
+          />
+        </label>
+
+        <div class="map-editor__filters">
+          <button type="button" [class.is-on]="showTowerRanges()" (click)="toggleTowerRanges()">塔攻擊範圍</button>
+          <button type="button" [class.is-on]="showFountainRanges()" (click)="toggleFountainRanges()">泉水攻擊範圍</button>
+          <button type="button" [class.is-on]="showMaskPreview()" (click)="toggleMaskPreview()">顯示合成預覽</button>
+        </div>
+
+        <div class="map-editor__nudge">
+          <button type="button" class="is-primary" (click)="buildCompleteMask()">合成完整圖</button>
+          <button type="button" (click)="downloadMaskPng()">下載 PNG</button>
+          <button type="button" (click)="clearMaskOnly()">清合成圖</button>
+          <button type="button" (click)="clearPaint()">清空路線</button>
+        </div>
+
+        <p class="map-editor__hint">
+          @if (hasPaintMask()) {
+            已合成可走圖：綠格子＝可走。用橡皮擦拖著擦洞微調。
+          } @else {
+            先畫路線，再按「合成完整圖」變成格子圖，之後才能用橡皮擦微調。
+          }
+        </p>
+
+        @if (selectedShape(); as shape) {
+          <div class="map-editor__selected">
+            <h2>{{ shape.label }}</h2>
+            <p>{{ shape.points.length }} 端點 · 寬 {{ shape.width }}</p>
+            <label class="map-editor__width">
+              <span>這條線寬 {{ shape.width }}</span>
+              <input
+                type="range"
+                [min]="minStrokeWidth"
+                [max]="maxStrokeWidth"
+                step="20"
+                [value]="shape.width"
+                (input)="setSelectedStrokeWidth($any($event.target).value)"
+              />
+            </label>
+            <div class="map-editor__nudge">
+              <button type="button" (click)="bendSelectedShape()">拉彎</button>
+              <button type="button" (click)="straightenSelectedShape()">改直線</button>
+            </div>
+            <button type="button" (click)="deleteSelectedShape()">刪此線</button>
+          </div>
+        } @else {
+          <p class="map-editor__hint">按住地圖某一點，拖到另一點放開就畫完一條路。</p>
+        }
+
+        <p class="map-editor__hint">目前 {{ shapes().length }} 條線</p>
+
+        <ul class="map-editor__list">
+          @for (shape of shapes(); track shape.id) {
+            <li>
+              <button
+                type="button"
+                [class.is-selected]="selectedShapeId() === shape.id"
+                (click)="selectShape(shape.id)"
+              >
+                <span>{{ shape.label }}</span>
+                <span>w {{ shape.width }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+
+        @if (showMaskPreview() && maskPreviewUrl(); as url) {
+          <div class="map-editor__mask-preview">
+            <h2>完整可走圖</h2>
+            <img [src]="url" alt="walkable mask" />
+          </div>
+        }
+      } @else {
+        <div class="map-editor__filters">
+          <button type="button" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">全部</button>
+          <button type="button" [class.is-on]="filter() === 'structure'" (click)="setFilter('structure')">防禦塔</button>
+          <button type="button" [class.is-on]="filter() === 'objective'" (click)="setFilter('objective')">龍巴龍</button>
+          <button type="button" [class.is-on]="filter() === 'camp'" (click)="setFilter('camp')">野怪</button>
+          <button type="button" [class.is-on]="filter() === 'fountain'" (click)="setFilter('fountain')">泉水</button>
+        </div>
+
+        @if (selected(); as current) {
+          <div class="map-editor__selected">
+            <h2>{{ current.id }}</h2>
+            <p>{{ current.label }}</p>
+            <p class="map-editor__coords">x {{ current.x }}　y {{ current.y }}</p>
+            <div class="map-editor__nudge">
+              <button type="button" (click)="nudge(0, 1)">↑</button>
+              <div>
+                <button type="button" (click)="nudge(-1, 0)">←</button>
+                <button type="button" (click)="nudge(1, 0)">→</button>
+              </div>
+              <button type="button" (click)="nudge(0, -1)">↓</button>
+            </div>
+            <button type="button" (click)="resetSelected()">還原此點</button>
+          </div>
+        } @else {
+          <p class="map-editor__hint">點選或拖曳地圖上的標記開始調整。</p>
+        }
+
+        <ul class="map-editor__list">
+          @for (marker of visibleMarkers(); track marker.id) {
+            <li>
+              <button
+                type="button"
+                [class.is-selected]="selectedId() === marker.id"
+                (click)="select(marker.id)"
+              >
+                <span>{{ marker.id }}</span>
+                <span>{{ marker.x }}, {{ marker.y }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
     </aside>
   </div>
 </section>

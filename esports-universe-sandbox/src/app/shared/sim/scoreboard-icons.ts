@@ -3,14 +3,24 @@ export const SCOREBOARD_SPRITE_WIDTH = 366;
 export const SCOREBOARD_SPRITE_HEIGHT = 458;
 export const SCOREBOARD_CELL = 90;
 
-export type ScoreboardIconId = 'voidgrub' | 'dragon' | 'baron' | 'elder' | 'tower' | 'herald';
+export type ScoreboardIconId =
+  | 'voidgrub'
+  | 'dragon'
+  | 'baron'
+  | 'elder'
+  | 'tower'
+  | 'herald'
+  | 'inhibitor'
+  | 'nexus';
 export type ScoreboardSide = 'blue' | 'red';
 
 const ICON_POS: Record<ScoreboardIconId, Record<ScoreboardSide, { x: number; y: number }>> = {
+  nexus: { blue: { x: 90, y: 0 }, red: { x: 180, y: 0 } },
   voidgrub: { blue: { x: 90, y: 0 }, red: { x: 180, y: 0 } },
+  tower: { blue: { x: 270, y: 0 }, red: { x: 0, y: 90 } },
   dragon: { blue: { x: 270, y: 0 }, red: { x: 0, y: 90 } },
   herald: { blue: { x: 270, y: 90 }, red: { x: 0, y: 180 } },
-  tower: { blue: { x: 90, y: 180 }, red: { x: 180, y: 180 } },
+  inhibitor: { blue: { x: 90, y: 180 }, red: { x: 180, y: 180 } },
   baron: { blue: { x: 90, y: 270 }, red: { x: 180, y: 270 } },
   elder: { blue: { x: 270, y: 270 }, red: { x: 0, y: 360 } },
 };
@@ -36,6 +46,9 @@ export function markerToIcon(marker: string | undefined, eventType?: string): Sc
   }
   if (eventType === 'voidgrub') {
     return 'voidgrub';
+  }
+  if (eventType === 'inhibitor') {
+    return 'inhibitor';
   }
   return null;
 }

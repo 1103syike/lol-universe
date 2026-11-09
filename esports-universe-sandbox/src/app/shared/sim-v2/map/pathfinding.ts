@@ -6,6 +6,18 @@ export function dist(a: Vec2, b: Vec2): number {
   return Math.hypot(dx, dy);
 }
 
+export function dashToward(from: Vec2, to: Vec2, maxRange = 650): Vec2 {
+  const gap = dist(from, to);
+  if (gap <= maxRange || gap < 1e-6) {
+    return { ...to };
+  }
+  const ratio = maxRange / gap;
+  return {
+    x: from.x + (to.x - from.x) * ratio,
+    y: from.y + (to.y - from.y) * ratio,
+  };
+}
+
 export function clampToMap(map: MapDefinition, point: Vec2): Vec2 {
   const maxX = map.width * map.cellSize - 1;
   const maxY = map.height * map.cellSize - 1;
@@ -34,6 +46,113 @@ export function isWalkable(map: MapDefinition, point: Vec2): boolean {
   return map.walkable[cy]?.[cx] === 1;
 }
 
+export function nearestWalkable(
+  map: MapDefinition,
+  point: Vec2,
+  maxRadiusCells = 12,
+): Vec2 | null {
+  const clamped = clampToMap(map, point);
+  if (isWalkable(map, clamped)) {
+    return clamped;
+  }
+  const origin = worldToCell(map, clamped);
+  for (let radius = 1; radius <= maxRadiusCells; radius += 1) {
+    let best: Vec2 | null = null;
+    let bestDist = Number.POSITIVE_INFINITY;
+    for (let dy = -radius; dy <= radius; dy += 1) {
+      for (let dx = -radius; dx <= radius; dx += 1) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) {
+          continue;
+        }
+        const cx = origin.cx + dx;
+        const cy = origin.cy + dy;
+        if (cx < 0 || cy < 0 || cx >= map.width || cy >= map.height) {
+          continue;
+        }
+        if (map.walkable[cy][cx] !== 1) {
+          continue;
+        }
+        const candidate = cellToWorld(map, cx, cy);
+        const gap = dist(clamped, candidate);
+        if (gap < bestDist) {
+          bestDist = gap;
+          best = candidate;
+        }
+      }
+    }
+    if (best) {
+      return best;
+    }
+  }
+  return null;
+}
+
+export function hasLineOfSight(map: MapDefinition, from: Vec2, to: Vec2): boolean {
+  const gap = dist(from, to);
+  if (gap < 1e-6) {
+    return isWalkable(map, from);
+  }
+  const steps = Math.max(2, Math.ceil(gap / (map.cellSize * 0.35)));
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
+    const sample = {
+      x: from.x + (to.x - from.x) * t,
+      y: from.y + (to.y - from.y) * t,
+    };
+    if (!isWalkable(map, sample)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function smoothPath(map: MapDefinition, path: readonly Vec2[]): Vec2[] {
+  if (path.length <= 2) {
+    return path.map((point) => ({ ...point }));
+  }
+  const out: Vec2[] = [{ ...path[0] }];
+  let anchor = 0;
+  while (anchor < path.length - 1) {
+    let farthest = anchor + 1;
+    for (let i = path.length - 1; i > anchor + 1; i -= 1) {
+      if (hasLineOfSight(map, path[anchor], path[i])) {
+        farthest = i;
+        break;
+      }
+    }
+    out.push({ ...path[farthest] });
+    anchor = farthest;
+  }
+  return out;
+}
+
+export function dashTowardWalkable(
+  map: MapDefinition,
+  from: Vec2,
+  to: Vec2,
+  maxRange = 650,
+): Vec2 {
+  const raw = dashToward(from, to, maxRange);
+  const steps = Math.max(1, Math.ceil(dist(from, raw) / (map.cellSize * 0.5)));
+  let lastWalkable = isWalkable(map, from) ? { ...from } : nearestWalkable(map, from);
+  if (!lastWalkable) {
+    return { ...from };
+  }
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+    const sample = {
+      x: from.x + (raw.x - from.x) * t,
+      y: from.y + (raw.y - from.y) * t,
+    };
+    if (isWalkable(map, sample)) {
+      lastWalkable = sample;
+      continue;
+    }
+    break;
+  }
+  return lastWalkable;
+}
+
 interface Node {
   cx: number;
   cy: number;
@@ -42,35 +161,30 @@ interface Node {
   parent: Node | null;
 }
 
+const NEIGHBORS: ReadonlyArray<readonly [number, number]> = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+];
+
 export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
-  const start = worldToCell(map, clampToMap(map, from));
-  const goal = worldToCell(map, clampToMap(map, to));
+  const startPoint = isWalkable(map, from) ? clampToMap(map, from) : nearestWalkable(map, from);
+  const goalPoint = clampToMap(map, to);
+  if (!startPoint || !isWalkable(map, goalPoint)) {
+    return [];
+  }
+  const start = worldToCell(map, startPoint);
+  const goal = worldToCell(map, goalPoint);
   if (map.walkable[start.cy][start.cx] !== 1 || map.walkable[goal.cy][goal.cx] !== 1) {
     return [];
   }
   if (start.cx === goal.cx && start.cy === goal.cy) {
-    return [clampToMap(map, to)];
-  }
-  const manhattan = Math.abs(goal.cx - start.cx) + Math.abs(goal.cy - start.cy);
-  if (manhattan <= 2) {
-    return [clampToMap(map, to)];
-  }
-  if (manhattan > 8) {
-    const waypoints: Vec2[] = [];
-    const steps = Math.min(8, Math.ceil(manhattan / 4));
-    for (let i = 1; i <= steps; i += 1) {
-      const t = i / steps;
-      const point = clampToMap(map, {
-        x: from.x + (to.x - from.x) * t,
-        y: from.y + (to.y - from.y) * t,
-      });
-      if (isWalkable(map, point)) {
-        waypoints.push(point);
-      }
-    }
-    if (waypoints.length > 0) {
-      return waypoints;
-    }
+    return [goalPoint];
   }
 
   const open: Node[] = [
@@ -78,12 +192,14 @@ export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
       cx: start.cx,
       cy: start.cy,
       g: 0,
-      f: Math.abs(goal.cx - start.cx) + Math.abs(goal.cy - start.cy),
+      f: Math.hypot(goal.cx - start.cx, goal.cy - start.cy),
       parent: null,
     },
   ];
   const closed = new Set<string>();
+  const bestG = new Map<string, number>();
   const key = (cx: number, cy: number) => `${cx}:${cy}`;
+  bestG.set(key(start.cx, start.cy), 0);
 
   while (open.length > 0) {
     let bestIndex = 0;
@@ -106,20 +222,12 @@ export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
         node = node.parent;
       }
       cells.reverse();
-      cells[cells.length - 1] = clampToMap(map, to);
-      return cells;
+      cells[0] = startPoint;
+      cells[cells.length - 1] = goalPoint;
+      return smoothPath(map, cells);
     }
 
-    for (const [dx, dy] of [
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-    ] as const) {
+    for (const [dx, dy] of NEIGHBORS) {
       const nx = current.cx + dx;
       const ny = current.cy + dy;
       if (nx < 0 || ny < 0 || nx >= map.width || ny >= map.height) {
@@ -128,17 +236,65 @@ export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
       if (map.walkable[ny][nx] !== 1) {
         continue;
       }
+      if (dx !== 0 && dy !== 0) {
+        if (map.walkable[current.cy][nx] !== 1 || map.walkable[ny][current.cx] !== 1) {
+          continue;
+        }
+      }
       const nKey = key(nx, ny);
       if (closed.has(nKey)) {
         continue;
       }
       const step = dx !== 0 && dy !== 0 ? 1.414 : 1;
       const g = current.g + step;
-      const h = Math.abs(goal.cx - nx) + Math.abs(goal.cy - ny);
+      const known = bestG.get(nKey);
+      if (known !== undefined && known <= g) {
+        continue;
+      }
+      bestG.set(nKey, g);
+      const h = Math.hypot(goal.cx - nx, goal.cy - ny);
       open.push({ cx: nx, cy: ny, g, f: g + h, parent: current });
     }
   }
   return [];
+}
+
+export function stitchPath(map: MapDefinition, guides: readonly Vec2[]): Vec2[] {
+  const snapped: Vec2[] = [];
+  for (const guide of guides) {
+    const point = nearestWalkable(map, guide);
+    if (!point) {
+      continue;
+    }
+    const prev = snapped[snapped.length - 1];
+    if (
+      prev &&
+      worldToCell(map, prev).cx === worldToCell(map, point).cx &&
+      worldToCell(map, prev).cy === worldToCell(map, point).cy
+    ) {
+      continue;
+    }
+    snapped.push(point);
+  }
+  if (snapped.length === 0) {
+    return [];
+  }
+  if (snapped.length === 1) {
+    return snapped;
+  }
+  const out: Vec2[] = [];
+  for (let i = 0; i < snapped.length - 1; i += 1) {
+    const segment = findPath(map, snapped[i], snapped[i + 1]);
+    if (segment.length === 0) {
+      continue;
+    }
+    if (out.length === 0) {
+      out.push(...segment);
+    } else {
+      out.push(...segment.slice(1));
+    }
+  }
+  return out;
 }
 
 export function advanceAlongPath(
@@ -170,4 +326,19 @@ export function advanceAlongPath(
     }
   }
   return { position: current, path: nextPath, arrived: nextPath.length === 0 };
+}
+
+export function advanceAlongWalkablePath(
+  map: MapDefinition,
+  position: Vec2,
+  path: Vec2[],
+  moveSpeed: number,
+  dt: number,
+): { position: Vec2; path: Vec2[]; arrived: boolean } {
+  const advanced = advanceAlongPath(position, path, moveSpeed, dt);
+  if (isWalkable(map, advanced.position)) {
+    return advanced;
+  }
+  const snapped = nearestWalkable(map, advanced.position) ?? position;
+  return { ...advanced, position: snapped };
 }

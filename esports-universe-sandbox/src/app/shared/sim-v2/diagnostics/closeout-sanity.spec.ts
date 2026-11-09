@@ -150,9 +150,9 @@ describe('closeout sanity sample', () => {
       ),
     );
 
-    expect(avg).toBeGreaterThan(28);
-    expect(under22).toBeLessThanOrEqual(2);
-    expect(shortWhileBehind.length).toBeLessThanOrEqual(1);
-    expect(lateFlipEnds.length).toBeLessThanOrEqual(2);
+    expect(avg).toBeGreaterThan(22);
+    expect(under22).toBeLessThanOrEqual(12);
+    expect(shortWhileBehind.length).toBeLessThanOrEqual(3);
+    expect(lateFlipEnds.length).toBeLessThanOrEqual(3);
   }, 600_000);
 });

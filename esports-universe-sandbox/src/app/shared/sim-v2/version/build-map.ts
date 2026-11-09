@@ -1,39 +1,13 @@
+import { stitchPath } from '../map/pathfinding';
 import { DEFAULT_MAP_LAYOUT, type MapPoint } from './map-layout';
+import {
+  normalizePaintShapes,
+  rasterizeWalkableFromPaint,
+} from './map-paint';
+
+import { densifyRoadPoints, normalizeRoads } from './map-roads';
+import { FOUNTAIN_ATTACK_RANGE } from './map-walls';
 import type { MapDefinition, Vec2 } from './version-pack';
-
-function makeWalkable(width: number, height: number): Array<Array<0 | 1>> {
-  const grid: Array<Array<0 | 1>> = [];
-  for (let y = 0; y < height; y += 1) {
-    const row: Array<0 | 1> = [];
-    for (let x = 0; x < width; x += 1) {
-      const edge = x < 1 || y < 1 || x >= width - 1 || y >= height - 1;
-      row.push(edge ? 0 : 1);
-    }
-    grid.push(row);
-  }
-  return grid;
-}
-
-function densify(points: Vec2[], step = 320): Vec2[] {
-  if (points.length === 0) {
-    return [];
-  }
-  const out: Vec2[] = [{ ...points[0] }];
-  for (let i = 1; i < points.length; i += 1) {
-    const from = points[i - 1];
-    const to = points[i];
-    const gap = Math.hypot(to.x - from.x, to.y - from.y);
-    const segments = Math.max(1, Math.ceil(gap / step));
-    for (let s = 1; s <= segments; s += 1) {
-      const t = s / segments;
-      out.push({
-        x: from.x + (to.x - from.x) * t,
-        y: from.y + (to.y - from.y) * t,
-      });
-    }
-  }
-  return out;
-}
 
 function struct(id: string): Vec2 {
   const point = DEFAULT_MAP_LAYOUT.structures[id];
@@ -58,106 +32,27 @@ function lerp(a: MapPoint, b: MapPoint, t: number): Vec2 {
   };
 }
 
-const MAP_CENTER = { x: 7500, y: 7500 };
-
-function awayFromCenter(point: MapPoint, amount: number): Vec2 {
-  const dx = point.x - MAP_CENTER.x;
-  const dy = point.y - MAP_CENTER.y;
-  const length = Math.hypot(dx, dy) || 1;
-  return {
-    x: point.x + (dx / length) * amount,
-    y: point.y + (dy / length) * amount,
-  };
-}
-
-function lanePoint(id: string, amount: number): Vec2 {
-  return awayFromCenter(struct(id), amount);
-}
-
-function buildLaneSpines(blueFountain: Vec2, redFountain: Vec2): {
-  top: Vec2[];
-  mid: Vec2[];
-  bot: Vec2[];
-} {
-  const wing = 180;
-  const midBias = 40;
-  const blueTopOuter = lanePoint('blue_top_outer', wing);
-  const redTopOuter = lanePoint('red_top_outer', wing);
-  const blueMidOuter = lanePoint('blue_mid_outer', midBias);
-  const redMidOuter = lanePoint('red_mid_outer', midBias);
-  const blueBotOuter = lanePoint('blue_bot_outer', wing);
-  const redBotOuter = lanePoint('red_bot_outer', wing);
-
-  return {
-    top: [
-      blueFountain,
-      lanePoint('blue_nexus', 80),
-      lanePoint('blue_inhib_top', wing),
-      lanePoint('blue_top_inhib_tower', wing),
-      lanePoint('blue_top_inner', wing),
-      blueTopOuter,
-      awayFromCenter(lerp(blueTopOuter, redTopOuter, 0.5), wing),
-      redTopOuter,
-      lanePoint('red_top_inner', wing),
-      lanePoint('red_top_inhib_tower', wing),
-      lanePoint('red_inhib_top', wing),
-      lanePoint('red_nexus', 80),
-      redFountain,
-    ],
-    mid: [
-      blueFountain,
-      lanePoint('blue_nexus', 40),
-      lanePoint('blue_inhib_mid', midBias),
-      lanePoint('blue_mid_inhib_tower', midBias),
-      lanePoint('blue_mid_inner', midBias),
-      blueMidOuter,
-      lerp(blueMidOuter, redMidOuter, 0.5),
-      redMidOuter,
-      lanePoint('red_mid_inner', midBias),
-      lanePoint('red_mid_inhib_tower', midBias),
-      lanePoint('red_inhib_mid', midBias),
-      lanePoint('red_nexus', 40),
-      redFountain,
-    ],
-    bot: [
-      blueFountain,
-      lanePoint('blue_nexus', 80),
-      lanePoint('blue_inhib_bot', wing),
-      lanePoint('blue_bot_inhib_tower', wing),
-      lanePoint('blue_bot_inner', wing),
-      blueBotOuter,
-      awayFromCenter(lerp(blueBotOuter, redBotOuter, 0.5), wing),
-      redBotOuter,
-      lanePoint('red_bot_inner', wing),
-      lanePoint('red_bot_inhib_tower', wing),
-      lanePoint('red_inhib_bot', wing),
-      lanePoint('red_nexus', 80),
-      redFountain,
-    ],
-  };
-}
-
 export function buildLaneApproaches(): Record<string, { blue: Vec2; red: Vec2 }> {
   return {
     TOP: {
-      blue: lerp(struct('blue_top_inner'), struct('blue_top_outer'), 0.62),
-      red: lerp(struct('red_top_inner'), struct('red_top_outer'), 0.62),
+      blue: lerp(struct('blue_top_outer'), struct('blue_top_inner'), 0.22),
+      red: lerp(struct('red_top_outer'), struct('red_top_inner'), 0.22),
     },
     JUNGLE: {
       blue: camp('wolves'),
       red: camp('red_wolves'),
     },
     MID: {
-      blue: lerp(struct('blue_mid_inner'), struct('blue_mid_outer'), 0.55),
-      red: lerp(struct('red_mid_inner'), struct('red_mid_outer'), 0.55),
+      blue: lerp(struct('blue_mid_outer'), struct('blue_mid_inner'), 0.18),
+      red: lerp(struct('red_mid_outer'), struct('red_mid_inner'), 0.18),
     },
     BOT: {
-      blue: lerp(struct('blue_bot_inner'), struct('blue_bot_outer'), 0.62),
-      red: lerp(struct('red_bot_inner'), struct('red_bot_outer'), 0.62),
+      blue: lerp(struct('blue_bot_outer'), struct('blue_bot_inner'), 0.22),
+      red: lerp(struct('red_bot_outer'), struct('red_bot_inner'), 0.22),
     },
     SUPPORT: {
-      blue: lerp(struct('blue_bot_inner'), struct('blue_bot_outer'), 0.42),
-      red: lerp(struct('red_bot_inner'), struct('red_bot_outer'), 0.42),
+      blue: lerp(struct('blue_bot_outer'), struct('blue_bot_inner'), 0.32),
+      red: lerp(struct('red_bot_outer'), struct('red_bot_inner'), 0.32),
     },
   };
 }
@@ -168,13 +63,24 @@ export function buildCanonicalMap(): MapDefinition {
   const cellSize = 200;
   const blueFountain = { ...DEFAULT_MAP_LAYOUT.fountains.blue };
   const redFountain = { ...DEFAULT_MAP_LAYOUT.fountains.red };
-  const spines = buildLaneSpines(blueFountain, redFountain);
-
-  return {
+  const paintShapes = normalizePaintShapes(DEFAULT_MAP_LAYOUT.paintShapes);
+  const laneGuides = normalizeRoads(DEFAULT_MAP_LAYOUT.laneRoads, DEFAULT_MAP_LAYOUT);
+  const walkable = rasterizeWalkableFromPaint(
     width,
     height,
     cellSize,
-    walkable: makeWalkable(width, height),
+    paintShapes,
+    [
+      { point: blueFountain, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
+      { point: redFountain, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
+    ],
+    DEFAULT_MAP_LAYOUT.paintMask,
+  );
+  const mapBase: MapDefinition = {
+    width,
+    height,
+    cellSize,
+    walkable,
     bushes: [
       { x: 3500, y: 7500 },
       { x: 11500, y: 7500 },
@@ -186,9 +92,18 @@ export function buildCanonicalMap(): MapDefinition {
     blueFountain,
     redFountain,
     lanePaths: {
-      top: densify(spines.top),
-      mid: densify(spines.mid),
-      bot: densify(spines.bot),
+      top: [],
+      mid: [],
+      bot: [],
+    },
+  };
+
+  return {
+    ...mapBase,
+    lanePaths: {
+      top: densifyRoadPoints(stitchPath(mapBase, laneGuides.top.points), 260),
+      mid: densifyRoadPoints(stitchPath(mapBase, laneGuides.mid.points), 260),
+      bot: densifyRoadPoints(stitchPath(mapBase, laneGuides.bot.points), 260),
     },
   };
 }

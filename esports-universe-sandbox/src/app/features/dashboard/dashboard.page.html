@@ -1,4 +1,36 @@
 <section class="home">
+  @if (simBusy()) {
+    <div
+      class="sim-mask"
+      [class.is-tcs]="simOverlayLeague() === 'TCS'"
+      [class.is-tcl]="simOverlayLeague() === 'TCL'"
+      [class.is-msi]="simOverlayLeague() === 'MSI'"
+      role="status"
+      aria-live="polite"
+      [attr.aria-label]="simOverlayLabel()"
+    >
+      <div class="sim-mask__aurora" aria-hidden="true"></div>
+      <div class="sim-mask__beam" aria-hidden="true"></div>
+      <div class="sim-mask__scan" aria-hidden="true"></div>
+      <p class="sim-mask__mark" aria-hidden="true">{{ simOverlayLeague() || 'MATCH' }}</p>
+      <div class="sim-mask__panel">
+        <div class="sim-mask__ring" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </div>
+        <p class="sim-mask__kicker">{{ simOverlayLeague() || 'MATCH' }}</p>
+        <strong class="sim-mask__title">{{ simOverlayLabel() }}</strong>
+        <div class="sim-mask__meter">
+          <div class="sim-mask__track" aria-hidden="true">
+            <i [style.width.%]="simProgress() * 100"></i>
+            <b></b>
+          </div>
+          <span class="sim-mask__pct">{{ (simProgress() * 100) | number: '1.0-0' }}%</span>
+        </div>
+        <p class="sim-mask__hint">演算對局節奏 · 經濟 · 視野</p>
+      </div>
+    </div>
+  }
   @if (activeUniverse()) {
     <header class="home__bar">
       <div>

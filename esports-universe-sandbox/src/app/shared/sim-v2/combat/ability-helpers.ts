@@ -1,10 +1,12 @@
 import { recomputeItemStats } from '../economy/economy';
-import { dist } from '../map/pathfinding';
+import { dashToward, dashTowardWalkable, dist } from '../map/pathfinding';
 import type { ChampionEntity, StatusEffect } from '../state/entities';
 import type { GameState } from '../state/game-state';
 import type { AbilitySlot } from '../types/ids';
 import type { ReplayRecorder } from '../replay/recorder';
 import { applyDamage, type Damageable } from './damage';
+
+const DEFAULT_DASH_RANGE = 650;
 
 export interface AbilityCastContext {
   state: GameState;
@@ -28,7 +30,9 @@ export function pushStatus(target: ChampionEntity, effect: StatusEffect): void {
 }
 
 export function heal(target: ChampionEntity, amount: number, source: ChampionEntity): void {
-  const gained = Math.min(target.maxHp - target.hp, Math.max(0, amount));
+  const grievous = target.statuses.find((status) => status.kind === 'grievous');
+  const reduced = grievous ? amount * Math.max(0.2, 1 - grievous.magnitude) : amount;
+  const gained = Math.min(target.maxHp - target.hp, Math.max(0, reduced));
   target.hp += gained;
   source.healingDone += gained;
 }
@@ -96,6 +100,34 @@ export function applySlow(
   magnitude: number,
 ): void {
   pushStatus(target, { id, kind: 'slow', remainingSec: sec, magnitude });
+}
+
+export function dashCasterTo(
+  caster: ChampionEntity,
+  target: { position: { x: number; y: number } },
+  maxRange = DEFAULT_DASH_RANGE,
+  state?: GameState,
+): void {
+  const map = state?.lockedPack.map;
+  caster.position = map
+    ? dashTowardWalkable(map, caster.position, target.position, maxRange)
+    : dashToward(caster.position, target.position, maxRange);
+  caster.path = [];
+  caster.moving = false;
+}
+
+export function pullTargetTo(
+  caster: ChampionEntity,
+  target: ChampionEntity,
+  maxRange = DEFAULT_DASH_RANGE,
+  state?: GameState,
+): void {
+  const map = state?.lockedPack.map;
+  target.position = map
+    ? dashTowardWalkable(map, target.position, caster.position, maxRange)
+    : dashToward(target.position, caster.position, maxRange);
+  target.path = [];
+  target.moving = false;
 }
 
 export function applyStun(target: ChampionEntity, id: string, sec: number): void {

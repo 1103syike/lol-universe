@@ -24,6 +24,7 @@ import {
 } from '../../sim/narrative';
 import type { MatchDraftReport, MatchPhaseId, MatchReport } from '../../sim/report';
 import type { TeamProfile } from '../../sim/team-profile';
+import { dragonMarker } from '../../sim/timeline';
 import type { SimulateV2Result } from '../engine';
 import type { ChampionEntity, StructureEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
@@ -314,6 +315,10 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
       const kind = String(event.payload?.['kind'] ?? 'tower');
       const actor = byEntity.get(event.actorId ?? '');
       const structure = byStructure.get(event.targetId ?? '') as StructureEntity | undefined;
+      const assistIds = (event.payload?.['assistIds'] as string[] | undefined) ?? [];
+      const assistPlayerIds = assistIds
+        .map((id) => byEntity.get(id)?.playerId)
+        .filter((id): id is string => Boolean(id));
       const defenderTeamId =
         (event.payload?.['defenderTeamId'] as string | undefined) ??
         (structure
@@ -332,6 +337,8 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           type: 'nexus',
           phase: phaseAt(event.t),
           teamId: actor?.teamId ?? event.teamId ?? box.winnerTeamId,
+          actorPlayerId: actor?.playerId,
+          assistPlayerIds,
           payload: { endMethod: 'siege' },
           summary: `${clock(event.t)} · 推掉主堡`,
         });
@@ -342,6 +349,8 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           type: 'inhibitor',
           phase: phaseAt(event.t),
           teamId: actor?.teamId ?? null,
+          actorPlayerId: actor?.playerId,
+          assistPlayerIds,
           payload: { defenderTeamId, towerLane: lane },
           summary: `${clock(event.t)} · 拆除兵營`,
         });
@@ -354,6 +363,8 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
             type: 'tower',
             phase: phaseAt(event.t),
             teamId: actor?.teamId ?? null,
+            actorPlayerId: actor?.playerId,
+            assistPlayerIds,
             payload: {
               marker: 'T',
               towerTier: tier,
@@ -367,18 +378,66 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
     } else if (event.type === 'camp_kill') {
       const campId = String(event.payload?.['campId'] ?? '');
       const actor = byEntity.get(event.actorId ?? '');
+      const assistIds = (event.payload?.['assistIds'] as string[] | undefined) ?? [];
+      const assistPlayerIds = assistIds
+        .map((id) => byEntity.get(id)?.playerId)
+        .filter((id): id is string => Boolean(id));
       if (campId === 'dragon') {
+        const nearbyFight = replay.events.some(
+          (row) =>
+            row.type === 'death' &&
+            Math.abs(row.t - event.t) <= 50 &&
+            row.actorId !== event.actorId,
+        );
+        const nearbyDeaths = replay.events.filter(
+          (row) => row.type === 'death' && Math.abs(row.t - event.t) <= 50,
+        ).length;
+        const stolen = nearbyDeaths === 0;
+        const priorDragons = events.filter(
+          (row) => row.type === 'dragon' && row.teamId === actor?.teamId,
+        ).length;
+        const isSoul = priorDragons >= 3;
         events.push({
           id: `v2_${seq++}`,
           t: event.t,
-          type: 'dragon',
+          type: isSoul ? 'dragon-soul' : 'dragon',
           phase: phaseAt(event.t),
           teamId: actor?.teamId ?? null,
           actorPlayerId: actor?.playerId,
-          payload: { marker: 'D1', decisionReason: '地圖資源交換後收下' },
-          summary: `${clock(event.t)} · 收下小龍`,
+          assistPlayerIds,
+          payload: {
+            marker: dragonMarker(priorDragons + 1),
+            ...(nearbyFight
+              ? {
+                  objectiveIntent: 'contest' as const,
+                  decisionOutcome: 'fight' as const,
+                }
+              : {
+                  decisionOutcome: 'free-take' as const,
+                }),
+            decisionReason: stolen
+              ? isSoul
+                ? '空窗偷龍魂'
+                : '換線空檔偷龍'
+              : nearbyFight
+                ? isSoul
+                  ? '龍魂團後拿下'
+                  : '龍團後拿下'
+                : isSoul
+                  ? '拿下龍魂'
+                  : '控龍節奏',
+          },
+          summary: stolen
+            ? `${clock(event.t)} · ${isSoul ? '偷了龍魂' : '偷了小龍'}`
+            : nearbyFight
+              ? `${clock(event.t)} · ${isSoul ? '龍魂團後拿下龍魂' : '龍團後拿下小龍'}`
+              : `${clock(event.t)} · ${isSoul ? '拿下龍魂' : '拿下小龍'}`,
         });
       } else if (campId === 'baron') {
+        const nearbyFight = replay.events.some(
+          (row) => row.type === 'death' && Math.abs(row.t - event.t) <= 55,
+        );
+        const stolen = !nearbyFight;
         events.push({
           id: `v2_${seq++}`,
           t: event.t,
@@ -386,8 +445,22 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           phase: phaseAt(event.t),
           teamId: actor?.teamId ?? null,
           actorPlayerId: actor?.playerId,
-          payload: { marker: 'B', decisionReason: '趁對方減員強開巴龍' },
-          summary: `${clock(event.t)} · 擊殺巴龍`,
+          assistPlayerIds,
+          payload: {
+            marker: 'B',
+            ...(stolen
+              ? {
+                  decisionOutcome: 'free-take' as const,
+                }
+              : {
+                  objectiveIntent: 'contest' as const,
+                  decisionOutcome: 'fight' as const,
+                }),
+            decisionReason: stolen ? '空窗偷巴龍' : '巴龍團後拿下',
+          },
+          summary: stolen
+            ? `${clock(event.t)} · 偷下巴龍`
+            : `${clock(event.t)} · 巴龍團後拿下巴龍`,
         });
       } else if (campId === 'herald') {
         events.push({
@@ -397,38 +470,42 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           phase: phaseAt(event.t),
           teamId: actor?.teamId ?? null,
           actorPlayerId: actor?.playerId,
+          assistPlayerIds,
           payload: { decisionReason: '用預示者換塔' },
           summary: `${clock(event.t)} · 拿下預示者`,
         });
       }
     } else if (event.type === 'match_end') {
-      const exists = events.some((item) => item.type === 'nexus');
+      const exists = events.some(
+        (item) => item.type === 'nexus' || item.type === 'surrender',
+      );
       if (!exists) {
-        const timedOut = event.payload?.['reason'] === 'timeout';
+        const reason = String(event.payload?.['reason'] ?? '');
+        const timedOut = reason === 'timeout';
         events.push({
           id: `v2_${seq++}`,
           t: event.t,
-          type: 'nexus',
+          type: timedOut ? 'surrender' : 'nexus',
           phase: phaseAt(event.t),
           teamId: event.teamId ?? box.winnerTeamId,
           payload: { endMethod: timedOut ? 'timeout' : 'siege' },
           summary: timedOut
-            ? `${clock(event.t)} · 時間到，依防禦塔／經濟判定勝方`
+            ? `${clock(event.t)} · 時間到，依防禦塔／經濟判定勝方（主堡未被推破）`
             : `${clock(event.t)} · 推掉主堡`,
         });
       }
     }
   }
 
-  if (!events.some((event) => event.type === 'nexus')) {
+  if (!events.some((event) => event.type === 'nexus' || event.type === 'surrender')) {
     events.push({
       id: `v2_${seq++}`,
       t: box.durationSec,
-      type: 'nexus',
+      type: 'surrender',
       phase: 'late',
       teamId: box.winnerTeamId,
       payload: { endMethod: 'timeout' },
-      summary: `${clock(box.durationSec)} · 時間到，依防禦塔／經濟判定勝方`,
+      summary: `${clock(box.durationSec)} · 時間到，依防禦塔／經濟判定勝方（主堡未被推破）`,
     });
   }
 
@@ -637,14 +714,41 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
       y: champ.y,
       hp: Math.round(champ.hp),
       maxHp: Math.round(champ.maxHp),
+      mana: Math.round(champ.mana ?? 0),
+      maxMana: Math.round(champ.maxMana ?? 0),
       gold: Math.round(champ.gold),
+      earnedGold: Math.round(champ.earnedGold ?? champ.gold),
       level: champ.level,
+      exp: Math.round(champ.exp ?? 0),
       alive: champ.alive,
+      kills: champ.kills ?? 0,
+      deaths: champ.deaths ?? 0,
+      assists: champ.assists ?? 0,
+      damageToChamps: Math.round(champ.damageToChamps ?? 0),
+      damageTaken: Math.round(champ.damageTaken ?? 0),
+      damageTakenFromChamps: Math.round(
+        champ.damageTakenFromChamps ?? champ.damageTaken ?? 0,
+      ),
+      cs: champ.cs ?? 0,
       items: [...champ.items],
+      abilities: (champ.abilities ?? []).map((ability) => ({
+        slot: ability.slot,
+        level: ability.level,
+        name: ability.name,
+        cooldownRemaining: ability.cooldownRemaining,
+      })),
+      summonerSpells: (champ.summonerSpells ?? []).map((spell) => ({
+        id: spell.id,
+        slot: spell.slot,
+        cooldownRemaining: spell.cooldownRemaining,
+      })),
+      recalling: !!champ.recalling,
+      recallProgress: champ.recallProgress ?? 0,
     })),
     minions: (snap.minions ?? []).map((minion) => ({ ...minion })),
     monsters: (snap.monsters ?? []).map((monster) => ({ ...monster })),
     structures: (snap.structures ?? []).map((structure) => ({ ...structure })),
+    wards: (snap.wards ?? []).map((ward) => ({ ...ward })),
   }));
 
   const boxScore: MatchBoxScore = {
@@ -660,6 +764,20 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
     mapTrack,
   };
   boxScore.timeline = buildTimeline(state, replay, boxScore);
+  const countSide = (type: TimelineEvent['type'], teamId: string): number =>
+    boxScore.timeline.filter((event) => event.type === type && event.teamId === teamId).length;
+  home.barons = countSide('baron', home.teamId);
+  away.barons = countSide('baron', away.teamId);
+  home.elders = countSide('elder', home.teamId);
+  away.elders = countSide('elder', away.teamId);
+  home.dragons = countSide('dragon', home.teamId);
+  away.dragons = countSide('dragon', away.teamId);
+  home.dragonSoul = boxScore.timeline.some(
+    (event) => event.type === 'dragon-soul' && event.teamId === home.teamId,
+  );
+  away.dragonSoul = boxScore.timeline.some(
+    (event) => event.type === 'dragon-soul' && event.teamId === away.teamId,
+  );
 
   const phases = derivePhaseReports(boxScore);
   phases[0] = {

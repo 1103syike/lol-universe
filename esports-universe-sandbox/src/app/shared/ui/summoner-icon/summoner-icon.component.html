@@ -1,0 +1,17 @@
+@if (spriteStyle(); as style) {
+  <span
+    class="summoner-icon"
+    [class.is-down]="!ready()"
+    [ngStyle]="style"
+    [attr.title]="label()"
+    role="img"
+    [attr.aria-label]="label()"
+  ></span>
+} @else {
+  <span
+    class="summoner-icon is-empty"
+    [style.width.px]="size()"
+    [style.height.px]="size()"
+    [title]="spellId()"
+  >?</span>
+}

@@ -294,7 +294,7 @@ function isObjectiveEvent(event: TimelineEvent): boolean {
     event.type === 'voidgrub' ||
     event.type === 'herald' ||
     event.type === 'inhibitor' ||
-    (event.type === 'tower' && (event.payload?.towerTier === 1 || event.payload?.towerTier === 2))
+    event.type === 'tower'
   );
 }
 
@@ -547,20 +547,20 @@ function describeObjectiveMoment(
       return `${pickName}後，${team}趁視野空窗轉巴龍`;
     }
     if (contested) {
-      return `${team}巴龍坑硬碰硬，最終收下巴龍`;
+      return `${team}巴龍坑硬碰硬，最終拿下巴龍`;
     }
-    return `${team}趁對面收線空檔，偷偷拿下巴龍`;
+    return `${team}趁對面收線空檔，偷下巴龍`;
   }
   if (event.type === 'elder') {
     if (contested || ourNear + theirNear >= 2) {
       return `${team}遠古龍坑敢開，強行拿下遠古龍`;
     }
-    return `${team}人數到位，收下遠古龍`;
+    return `${team}人數到位，拿下遠古龍`;
   }
   if (event.type === 'dragon' || event.type === 'dragon-soul') {
     const label = event.type === 'dragon-soul' ? '龍魂' : '小龍';
     if (afterWipe) {
-      return `${team}打完團順勢收下${label}`;
+      return `${team}打完團順勢拿下${label}`;
     }
     if (pickName) {
       return `${pickName}後，${team}轉${label}`;
@@ -568,10 +568,13 @@ function describeObjectiveMoment(
     if (contested) {
       return `${team}龍坑拉扯後拿下${label}`;
     }
-    if (actor) {
-      return `${team}由${actor}收下${label}`;
+    if (ourNear + theirNear === 0) {
+      return `${team}趁換線空檔，偷了${label}`;
     }
-    return `${team}趁換線空檔收下${label}`;
+    if (actor) {
+      return `${team}控住龍坑，由${actor}拿下${label}`;
+    }
+    return `${team}控住龍坑，拿下${label}`;
   }
   if (event.type === 'herald') {
     if (pickName) {
@@ -744,31 +747,43 @@ export function buildMatchReplayLog(
     if (isObjectiveEvent(event) || event.type === 'nexus') {
       const team = nameOf(event.teamId);
       const icon = objectiveIconOf(event);
+      const killer = replayActor(box, event.actorPlayerId, champIds);
+      const assists = (event.assistPlayerIds ?? [])
+        .map((id) => replayActor(box, id, champIds))
+        .filter((actor): actor is MatchReplayActor => Boolean(actor));
+      const objName = event.type === 'nexus' ? '主堡' : objectiveShortName(event);
+      const assistBit =
+        assists.length > 0
+          ? `（助攻：${assists.map((actor) => actor.gamertag).join('、')}）`
+          : '';
+      const takerBit = killer ? `${killer.gamertag}` : team;
       if (event.type === 'nexus') {
         entries.push({
           t: event.t,
           clock: clockLabel(event.t),
           kind: 'end',
-          text: `${clockLabel(event.t)} ${team} 推掉主堡，比賽結束`,
+          text: `${clockLabel(event.t)} ${takerBit} 推掉主堡，比賽結束${assistBit}`,
           side: sideOfTeam(box, event.teamId),
           icon,
-          killer: replayActor(box, event.actorPlayerId, champIds),
+          killer,
           victim: null,
-          assists: [],
+          assists,
           objectiveLabel: '主堡',
         });
       } else {
+        const verb =
+          event.type === 'tower' || event.type === 'inhibitor' ? '拆除' : '拿下';
         entries.push({
           t: event.t,
           clock: clockLabel(event.t),
           kind: 'objective',
-          text: `${clockLabel(event.t)} ${team} 拿下${objectiveShortName(event)}`,
+          text: `${clockLabel(event.t)} ${takerBit} ${verb}${objName}${assistBit}`,
           side: sideOfTeam(box, event.teamId),
           icon,
-          killer: replayActor(box, event.actorPlayerId, champIds),
+          killer,
           victim: null,
-          assists: [],
-          objectiveLabel: objectiveShortName(event),
+          assists,
+          objectiveLabel: objName,
         });
       }
     }
@@ -977,51 +992,82 @@ export function pickMvpVerdict(
   const teamObjectives = (type: TimelineEvent['type']): TimelineEvent[] =>
     timeline.filter((event) => event.type === type && event.teamId === stats.teamId);
 
+  const isJunglerOrSupport =
+    stats.position === 'JUNGLE' || stats.position === 'SUPPORT';
+
   for (const dragon of teamObjectives('dragon')) {
     const near = killNear(dragon.t);
     const took = dragon.actorPlayerId === playerId;
-    if (took && near.length >= 1) {
-      push(96, '關鍵搶龍');
-    } else if (took) {
-      push(84, '拿下小龍');
-    } else if (near.length >= 3) {
-      push(88, '龍團關鍵發揮');
+    const contested =
+      dragon.payload?.objectiveIntent === 'contest' ||
+      timeline.some(
+        (event) =>
+          Math.abs(event.t - dragon.t) <= 50 &&
+          (event.type === 'kill' || event.type === 'first-blood' || event.type === 'mistake') &&
+          event.teamId &&
+          event.teamId !== stats.teamId,
+      );
+    if (near.length >= 3) {
+      push(took ? 92 : 88, '龍團關鍵發揮');
     } else if (near.length >= 2) {
-      push(80, '龍團收割');
+      push(took ? 84 : 80, '龍團收割');
+    } else if (took && contested) {
+      push(96, '關鍵搶龍');
+    } else if (took && near.length === 0 && !contested) {
+      push(isJunglerOrSupport ? 82 : 58, '偷龍');
+    } else if (!took && near.length >= 1) {
+      push(66, '龍團收割');
+    } else if (took && isJunglerOrSupport) {
+      push(64, '控龍節奏');
     }
   }
 
   for (const soul of teamObjectives('dragon-soul')) {
     const near = killNear(soul.t, 60);
     const took = soul.actorPlayerId === playerId;
-    if (took) {
-      push(94, '拿下龍魂');
-    } else if (near.length >= 2) {
-      push(85, '龍魂團收割');
+    if (near.length >= 2) {
+      push(took ? 90 : 85, '龍魂團收割');
+    } else if (took && near.length === 0) {
+      push(isJunglerOrSupport ? 88 : 60, '偷龍魂');
+    } else if (took) {
+      push(72, '拿下龍魂');
     }
   }
 
   for (const baron of teamObjectives('baron')) {
     const near = killNear(baron.t, 45);
     const took = baron.actorPlayerId === playerId;
-    if (took && near.length >= 1) {
-      push(98, '關鍵搶巴龍');
-    } else if (took) {
-      push(91, '拿下巴龍');
-    } else if (near.length >= 3) {
-      push(87, '巴龍團關鍵發揮');
+    const contested =
+      baron.payload?.objectiveIntent === 'contest' ||
+      timeline.some(
+        (event) =>
+          Math.abs(event.t - baron.t) <= 45 &&
+          (event.type === 'kill' || event.type === 'first-blood' || event.type === 'mistake') &&
+          event.teamId &&
+          event.teamId !== stats.teamId,
+      );
+    if (near.length >= 3) {
+      push(took ? 93 : 87, '巴龍團關鍵發揮');
     } else if (near.length >= 2) {
-      push(79, '巴龍團收割');
+      push(took ? 84 : 79, '巴龍團收割');
+    } else if (took && contested) {
+      push(98, '關鍵搶巴龍');
+    } else if (took && near.length === 0 && !contested) {
+      push(isJunglerOrSupport ? 90 : 62, '偷巴龍');
+    } else if (!took && near.length >= 1) {
+      push(68, '巴龍團收割');
     }
   }
 
   for (const elder of teamObjectives('elder')) {
     const near = killNear(elder.t, 45);
     const took = elder.actorPlayerId === playerId;
-    if (took) {
-      push(97, '拿下遠古龍');
-    } else if (near.length >= 2) {
-      push(86, '遠古龍團收割');
+    if (near.length >= 2) {
+      push(took ? 92 : 86, '遠古龍團收割');
+    } else if (took && near.length === 0) {
+      push(isJunglerOrSupport ? 89 : 61, '偷遠古龍');
+    } else if (took) {
+      push(74, '拿下遠古龍');
     }
   }
 

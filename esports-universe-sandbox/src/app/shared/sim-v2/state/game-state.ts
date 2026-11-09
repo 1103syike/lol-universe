@@ -7,6 +7,7 @@ import type {
   MinionEntity,
   MonsterEntity,
   StructureEntity,
+  WardEntity,
 } from './entities';
 
 export interface TeamRuntime {
@@ -33,6 +34,7 @@ export interface GameState {
   minions: MinionEntity[];
   monsters: MonsterEntity[];
   structures: StructureEntity[];
+  wards: WardEntity[];
   waveIndex: number;
   nextEntitySeq: number;
   goldSamples: Array<{ t: number; blue: number; red: number }>;
@@ -74,6 +76,7 @@ export function createEmptyGameState(
     minions: [],
     monsters: [],
     structures: [],
+    wards: [],
     waveIndex: 0,
     nextEntitySeq: 1,
     goldSamples: [],

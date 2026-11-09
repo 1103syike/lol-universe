@@ -282,10 +282,6 @@ function analyzeReplay(
       if (kind === 'outer_tower' && firstOuterTowerSec === null) {
         firstOuterTowerSec = event.t;
       }
-      if (event.payload?.['overtime']) {
-        forcedEnd = true;
-        endReason = 'nexus_overtime';
-      }
     } else if (event.type === 'camp_kill') {
       const campId = String(event.payload?.['campId'] ?? '');
       if (campId === 'dragon') {
@@ -302,7 +298,11 @@ function analyzeReplay(
       }
     } else if (event.type === 'match_end') {
       const reason = String(event.payload?.['reason'] ?? '');
-      if (reason === 'forced' || reason === 'nexus_overtime') {
+      if (reason === 'timeout') {
+        endReason = 'timeout';
+      } else if (reason === 'nexus') {
+        endReason = 'nexus';
+      } else if (reason === 'forced') {
         forcedEnd = true;
         endReason = reason;
       }

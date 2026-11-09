@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "api": "json-server db/db.json --host 127.0.0.1 --port 3000",
-    "start": "concurrently -k -n api,web -c cyan,magenta \"npm run api\" \"ng serve --proxy-config proxy.conf.json\"",
+    "map:save-server": "node scripts/save-map-layout-server.mjs",
+    "start": "concurrently -k -n api,web,map -c cyan,magenta,yellow \"npm run api\" \"ng serve --proxy-config proxy.conf.json\" \"npm run map:save-server\"",
     "start:web": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

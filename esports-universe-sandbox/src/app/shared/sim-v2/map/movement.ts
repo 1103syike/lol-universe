@@ -2,7 +2,13 @@ import type { ChampionEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
 import type { LaneId } from '../types/ids';
 import type { Vec2 } from '../version/version-pack';
-import { advanceAlongPath, dist, findPath, isWalkable } from './pathfinding';
+import {
+  advanceAlongWalkablePath,
+  dist,
+  findPath,
+  isWalkable,
+  nearestWalkable,
+} from './pathfinding';
 import type { ReplayRecorder } from '../replay/recorder';
 
 function nearestLaneIndex(poly: readonly Vec2[], point: Vec2): number {
@@ -72,22 +78,26 @@ export function orderMove(
   target: Vec2,
   recorder?: ReplayRecorder,
 ): boolean {
-  if (!champion.alive) {
+  if (!champion.alive || champion.recallPhase === 'moving_home') {
     return false;
   }
   const map = state.lockedPack.map;
-  if (!isWalkable(map, target)) {
+  const walkTarget = isWalkable(map, target) ? target : nearestWalkable(map, target);
+  if (!walkTarget) {
     return false;
   }
   if (champion.moving && champion.path.length > 0) {
     const currentEnd = champion.path[champion.path.length - 1];
-    if (dist(currentEnd, target) < 280) {
-      champion.path[champion.path.length - 1] = { ...target };
-      return true;
+    if (dist(currentEnd, walkTarget) < 280) {
+      const trimmed = findPath(map, champion.position, walkTarget);
+      if (trimmed.length > 0) {
+        champion.path = trimmed;
+        return true;
+      }
     }
   }
-  const path = findPath(map, champion.position, target);
-  return applyPath(state, champion, path, target, recorder);
+  const path = findPath(map, champion.position, walkTarget);
+  return applyPath(state, champion, path, walkTarget, recorder);
 }
 
 export function orderMoveOnLane(
@@ -101,40 +111,97 @@ export function orderMoveOnLane(
     return false;
   }
   const map = state.lockedPack.map;
-  if (!isWalkable(map, target)) {
+  const walkTarget = isWalkable(map, target) ? target : nearestWalkable(map, target);
+  if (!walkTarget) {
     return false;
   }
   if (champion.moving && champion.path.length > 0) {
     const currentEnd = champion.path[champion.path.length - 1];
-    if (dist(currentEnd, target) < 280) {
-      champion.path[champion.path.length - 1] = { ...target };
-      return true;
+    if (dist(currentEnd, walkTarget) < 280) {
+      const trimmed = findPath(map, champion.position, walkTarget);
+      if (trimmed.length > 0) {
+        champion.path = trimmed;
+        return true;
+      }
     }
   }
   const lanePath = map.lanePaths[lane];
   if (!lanePath || lanePath.length === 0) {
-    return orderMove(state, champion, target, recorder);
+    return orderMove(state, champion, walkTarget, recorder);
   }
-  const along = pathAlongLane(lanePath, champion.position, target);
+  const along = pathAlongLane(lanePath, champion.position, walkTarget).filter((point) =>
+    isWalkable(map, point),
+  );
   if (along.length === 0) {
-    return orderMove(state, champion, target, recorder);
+    return orderMove(state, champion, walkTarget, recorder);
   }
-  const joinDist = dist(champion.position, along[0]);
-  if (joinDist > 700) {
-    const join = findPath(map, champion.position, along[0]);
-    const merged = join.length > 0 ? [...join, ...along.slice(1)] : along;
-    return applyPath(state, champion, merged, target, recorder);
+  const join = findPath(map, champion.position, along[0]);
+  if (join.length === 0) {
+    return orderMove(state, champion, walkTarget, recorder);
   }
-  return applyPath(state, champion, along, target, recorder);
+  const path = [...join, ...along.slice(1)];
+  const last = path[path.length - 1];
+  if (dist(last, walkTarget) > map.cellSize) {
+    const finish = findPath(map, last, walkTarget);
+    if (finish.length > 0) {
+      path.push(...finish.slice(1));
+    }
+  } else {
+    path[path.length - 1] = { ...walkTarget };
+  }
+  return applyPath(state, champion, path, walkTarget, recorder);
+}
+
+export function separateChampions(state: GameState): void {
+  const living = state.champions.filter(
+    (champ) =>
+      champ.alive &&
+      champ.recallPhase !== 'at_base' &&
+      champ.recallPhase !== 'moving_home',
+  );
+  for (let i = 0; i < living.length; i += 1) {
+    for (let j = i + 1; j < living.length; j += 1) {
+      const left = living[i];
+      const right = living[j];
+      const gap = dist(left.position, right.position);
+      const minSep = left.side === right.side ? 190 : 160;
+      if (gap >= minSep || gap < 0.05) {
+        continue;
+      }
+      const push = (minSep - gap) * 0.5;
+      const nx = (left.position.x - right.position.x) / gap;
+      const ny = (left.position.y - right.position.y) / gap;
+      left.position = {
+        x: left.position.x + nx * push * 0.5,
+        y: left.position.y + ny * push * 0.5,
+      };
+      right.position = {
+        x: right.position.x - nx * push * 0.5,
+        y: right.position.y - ny * push * 0.5,
+      };
+    }
+  }
 }
 
 export function tickMovement(state: GameState, dt: number, recorder?: ReplayRecorder): void {
+  const map = state.lockedPack.map;
   for (const champion of state.champions) {
-    if (!champion.alive || !champion.moving || champion.path.length === 0) {
+    if (
+      !champion.alive ||
+      !champion.moving ||
+      champion.path.length === 0 ||
+      champion.recallPhase === 'moving_home'
+    ) {
       continue;
     }
     const before = { ...champion.position };
-    const advanced = advanceAlongPath(champion.position, champion.path, champion.moveSpeed, dt);
+    const advanced = advanceAlongWalkablePath(
+      map,
+      champion.position,
+      champion.path,
+      champion.moveSpeed,
+      dt,
+    );
     champion.position = advanced.position;
     champion.path = advanced.path;
     if (advanced.arrived) {
@@ -152,4 +219,5 @@ export function tickMovement(state: GameState, dt: number, recorder?: ReplayReco
       });
     }
   }
+  separateChampions(state);
 }

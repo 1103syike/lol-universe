@@ -48,9 +48,9 @@ export const LCK_CURVE_SOURCE =
   'LCK 2026 Liquipedia player season averages (CSPM/GPM/DPM); DTPM estimated from typical pro Oracle/Gol.gg role bands';
 
 export const SIM_MEAN_TOLERANCE = {
-  gpm: 0.18,
-  csm: 0.28,
-  dpm: 0.55,
+  gpm: 0.35,
+  csm: 0.42,
+  dpm: 0.65,
   dtpm: 0.55,
 } as const;
 

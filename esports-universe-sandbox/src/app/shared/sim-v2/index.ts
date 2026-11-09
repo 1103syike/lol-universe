@@ -11,7 +11,16 @@ export { buildChampionIdentity, identityPhasePower } from './version/champion-id
 export { getPatchStrength, patchMultiplier } from './version/patch-strength';
 export { createEmptyGameState } from './state/game-state';
 export type { GameState } from './state/game-state';
-export { findPath, dist, isWalkable } from './map/pathfinding';
+export {
+  findPath,
+  dist,
+  isWalkable,
+  nearestWalkable,
+  stitchPath,
+  smoothPath,
+  hasLineOfSight,
+  dashTowardWalkable,
+} from './map/pathfinding';
 export { orderMove, orderMoveOnLane, pathAlongLane, tickMovement } from './map/movement';
 export { createMatch, simulateV2Match } from './engine';
 export type { SimulateV2Input, SimulateV2Result } from './engine';

@@ -8,12 +8,22 @@ export interface Vec2 {
 export interface AbilityDefinition {
   slot: AbilitySlot;
   name: string;
+  nameZh?: string;
+  iconUrl?: string;
+  description?: string;
+  maxRank?: number;
   cooldownSec: number;
   manaCost: number;
   range: number;
   damageBase: number;
   damagePerLevel: number;
   damageType: 'physical' | 'magic' | 'true';
+  cooldownByRank?: readonly number[];
+  manaCostByRank?: readonly number[];
+  damageByRank?: readonly number[];
+  adRatio?: number;
+  bonusAdRatio?: number;
+  apRatio?: number;
   tags: readonly string[];
   implementationStatus: ImplementationStatus;
 }
@@ -109,6 +119,44 @@ export interface MinionWaveRules {
   attackIntervalSec: number;
 }
 
+export type MonsterUnitKind =
+  | 'blue_sentinel'
+  | 'red_brambleback'
+  | 'gromp'
+  | 'greater_murk_wolf'
+  | 'murk_wolf'
+  | 'crimson_raptor'
+  | 'raptor'
+  | 'ancient_krug'
+  | 'krug'
+  | 'mini_krug'
+  | 'rift_scuttler'
+  | 'dragon'
+  | 'herald'
+  | 'baron';
+
+export type MonsterUnitSize = 'large' | 'medium' | 'small';
+
+export interface MonsterUnitTemplate {
+  kind: MonsterUnitKind;
+  count: number;
+  hp: number;
+  ad: number;
+  gold: number;
+  exp: number;
+  cs: number;
+  size: MonsterUnitSize;
+  splitsInto?: {
+    kind: MonsterUnitKind;
+    count: number;
+    hp: number;
+    ad: number;
+    gold: number;
+    exp: number;
+    cs: number;
+  };
+}
+
 export interface MonsterCampDefinition {
   id: CampId;
   name: string;
@@ -116,10 +164,7 @@ export interface MonsterCampDefinition {
   position: Vec2;
   firstSpawnSec: number;
   respawnSec: number;
-  hp: number;
-  ad: number;
-  gold: number;
-  exp: number;
+  units: readonly MonsterUnitTemplate[];
 }
 
 export interface StructureDefinition {

@@ -23,16 +23,16 @@ export interface CombatProfile {
 }
 
 const CLASS_DAMAGE: Record<ChampionCombatClass, number> = {
-  marksman: 1.55,
-  mage: 1.35,
+  marksman: 1.28,
+  mage: 1.28,
   assassin: 1.22,
-  fighter: 1.32,
+  fighter: 1.28,
   tank: 0.82,
   support: 0.78,
 };
 
 const CLASS_AUTO: Record<ChampionCombatClass, number> = {
-  marksman: 1.22,
+  marksman: 1.08,
   mage: 0.78,
   assassin: 1.0,
   fighter: 1.05,
@@ -120,65 +120,32 @@ export function combatProfile(state: GameState, champion: ChampionEntity): Comba
   const laning = axis01(identity, 'laning');
 
   let damageDealtMult = personalDamageBase(kit, combatClass);
-  damageDealtMult *= 0.84 + closeout * 0.22;
+  damageDealtMult *= 0.88 + closeout * 0.18;
   if (combatClass === 'marksman' || combatClass === 'mage') {
-    damageDealtMult *= 0.92 + team.engage * 0.12 + team.frontline * 0.08;
-    if (team.carryCount >= 2) {
-      damageDealtMult *= 0.96;
-    }
+    damageDealtMult *= 0.94 + team.engage * 0.1 + team.frontline * 0.1;
   } else if (combatClass === 'fighter') {
-    damageDealtMult *= 0.94 + poke * 0.06 + skirmish * 0.08 + team.poke * 0.04;
+    damageDealtMult *= 0.96 + poke * 0.05 + skirmish * 0.06;
   } else if (combatClass === 'assassin') {
-    damageDealtMult *= 0.92 + skirmish * 0.08;
+    damageDealtMult *= 0.94 + skirmish * 0.08;
   } else if (combatClass === 'tank') {
-    damageDealtMult *= 0.9 + team.engage * 0.06;
+    damageDealtMult *= 0.9 + team.engage * 0.05;
   } else {
-    damageDealtMult *= 0.88 + peel * 0.06;
+    damageDealtMult *= 0.86 + peel * 0.08;
   }
-  if (champion.positionLabel === 'BOT') {
-    damageDealtMult *= 1.08;
-  } else if (champion.positionLabel === 'TOP') {
-    damageDealtMult *= 1.22;
-  } else if (champion.positionLabel === 'MID') {
-    damageDealtMult *= 0.7;
-  } else if (champion.positionLabel === 'SUPPORT') {
-    damageDealtMult *= 0.8;
-  }
-  damageDealtMult = clamp(damageDealtMult, 0.5, 1.7);
+  damageDealtMult = clamp(damageDealtMult, 0.55, 1.4);
 
-  let damageTakenMult = 1;
-  if (champion.positionLabel === 'TOP') {
-    damageTakenMult = 0.78;
-  } else if (champion.positionLabel === 'MID') {
-    damageTakenMult = 0.52;
-  } else if (champion.positionLabel === 'JUNGLE') {
-    damageTakenMult = 0.9;
-  } else if (champion.positionLabel === 'BOT') {
-    damageTakenMult = 0.95;
-  } else if (champion.positionLabel === 'SUPPORT') {
-    damageTakenMult = 0.94;
+  let damageTakenMult = combatClass === 'tank' ? 0.9 : combatClass === 'fighter' ? 0.96 : 1;
+  if (combatClass === 'mage' || combatClass === 'marksman') {
+    damageTakenMult *= 1.02;
   }
-  if (combatClass === 'tank') {
-    damageTakenMult *= 0.92;
-  } else if (combatClass === 'mage' || combatClass === 'marksman') {
-    damageTakenMult *= 0.95;
-  }
-  damageTakenMult = clamp(damageTakenMult, 0.45, 1.15);
+  damageTakenMult = clamp(damageTakenMult, 0.75, 1.15);
 
   let autoMult = CLASS_AUTO[combatClass];
-  autoMult *= 0.96 + laning * 0.16;
+  autoMult *= 0.96 + laning * 0.14;
   if (combatClass === 'marksman') {
-    autoMult *= 1.04 + team.frontline * 0.1;
+    autoMult *= 1.02 + team.frontline * 0.08;
   }
-  if (combatClass === 'fighter') {
-    autoMult *= 1.06;
-  }
-  if (champion.positionLabel === 'BOT') {
-    autoMult *= 1.02;
-  } else if (champion.positionLabel === 'TOP') {
-    autoMult *= 1.05;
-  }
-  autoMult = clamp(autoMult, 0.5, 1.45);
+  autoMult = clamp(autoMult, 0.55, 1.35);
 
   const pokeAppetite = clamp(0.24 + poke * 0.55 + team.poke * 0.22 + laning * 0.14, 0.16, 0.95);
   const allInAppetite = clamp(
@@ -187,23 +154,23 @@ export function combatProfile(state: GameState, champion: ChampionEntity): Comba
     0.78,
   );
 
-  let disengageHp = 0.7 - allInAppetite * 0.12 - pokeAppetite * 0.05;
+  let disengageHp = 0.78 - allInAppetite * 0.08 - pokeAppetite * 0.03;
   if (combatClass === 'tank') {
-    disengageHp -= 0.04;
+    disengageHp -= 0.03;
   }
   if (combatClass === 'fighter') {
-    disengageHp -= 0.05;
+    disengageHp -= 0.02;
   }
   if (combatClass === 'mage') {
-    disengageHp += 0.02 - team.frontline * 0.04;
+    disengageHp += 0.04 - team.frontline * 0.03;
   }
   if (combatClass === 'marksman' || champion.positionLabel === 'BOT') {
-    disengageHp -= 0.06;
+    disengageHp += 0.02;
   }
   if (champion.positionLabel === 'MID') {
-    disengageHp += 0.07;
+    disengageHp += 0.05;
   }
-  disengageHp = clamp(disengageHp, 0.42, 0.76);
+  disengageHp = clamp(disengageHp, 0.58, 0.84);
 
   const roleFarmBias =
     champion.positionLabel === 'SUPPORT'

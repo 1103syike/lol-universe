@@ -1,5 +1,6 @@
+import type { SummonerSpellId, SummonerSpellSlot } from '../../../core/data/summoner-spells';
 import type { AbilitySlot, CampId, EntityId, ItemId, LaneId, TeamSide } from '../types/ids';
-import type { Vec2 } from '../version/version-pack';
+import type { MonsterUnitKind, MonsterUnitSize, Vec2 } from '../version/version-pack';
 
 export interface StatusEffect {
   id: string;
@@ -11,6 +12,12 @@ export interface StatusEffect {
 export interface AbilityRuntime {
   slot: AbilitySlot;
   level: number;
+  cooldownUntil: number;
+}
+
+export interface SummonerSpellRuntime {
+  id: SummonerSpellId;
+  slot: SummonerSpellSlot;
   cooldownUntil: number;
 }
 
@@ -43,24 +50,35 @@ export interface ChampionEntity {
   attackRange: number;
   attackSpeed: number;
   nextAttackAt: number;
+  nextSmiteAt: number;
   alive: boolean;
   respawnAt: number;
   items: ItemId[];
   shopPlan: string[] | null;
   abilities: AbilityRuntime[];
+  summonerSpells: SummonerSpellRuntime[];
+  teleportDestination: Vec2 | null;
   statuses: StatusEffect[];
   cs: number;
+  supportSharedRichesCharges: number;
+  supportSharedRichesNextAt: number;
   kills: number;
   deaths: number;
   assists: number;
   damageDealt: number;
   damageToChampions: number;
   damageTaken: number;
+  damageTakenFromChampions: number;
   healingDone: number;
   visionScore: number;
+  wardStock: number;
+  nextWardChargeAt: number;
+  controlWardReady: boolean;
+  wardsPlaced: number;
   currentAction: string;
   recallPhase: 'none' | 'moving_home' | 'at_base';
   recallChannelUntil: number;
+  recallChannelDuration: number;
   recallHpSnapshot: number;
   recallCount: number;
   activitySec: {
@@ -72,6 +90,7 @@ export interface ChampionEntity {
     other: number;
   };
   campKills: number;
+  junglePetFirstLargeClaimed: boolean;
   goldBySource: Record<string, number>;
   expBySource: Record<string, number>;
   levelSamples: Array<{ t: number; level: number }>;
@@ -110,6 +129,8 @@ export interface MonsterEntity {
   id: EntityId;
   kind: 'monster';
   campId: CampId;
+  unitKind: MonsterUnitKind;
+  size: MonsterUnitSize;
   position: Vec2;
   hp: number;
   maxHp: number;
@@ -117,8 +138,20 @@ export interface MonsterEntity {
   alive: boolean;
   gold: number;
   exp: number;
+  csValue: number;
+  splitsInto: {
+    kind: MonsterUnitKind;
+    count: number;
+    hp: number;
+    ad: number;
+    gold: number;
+    exp: number;
+    cs: number;
+  } | null;
   aggroTargetId: EntityId | null;
   nextAttackAt: number;
+  lastCombatAt: number;
+  spawnProtectUntil: number;
   respawnAt: number;
 }
 
@@ -137,6 +170,30 @@ export interface StructureEntity {
   gold: number;
   alive: boolean;
   nextAttackAt: number;
+  aggroTargetId: EntityId | null;
+  aggroUntil: number;
+  respawnAt: number;
 }
 
-export type WorldEntity = ChampionEntity | MinionEntity | MonsterEntity | StructureEntity;
+export type WardKind = 'stealth' | 'control';
+
+export interface WardEntity {
+  id: EntityId;
+  kind: 'ward';
+  wardKind: WardKind;
+  side: TeamSide;
+  ownerId: EntityId;
+  position: Vec2;
+  sight: number;
+  hp: number;
+  maxHp: number;
+  expiresAt: number;
+  alive: boolean;
+}
+
+export type WorldEntity =
+  | ChampionEntity
+  | MinionEntity
+  | MonsterEntity
+  | StructureEntity
+  | WardEntity;

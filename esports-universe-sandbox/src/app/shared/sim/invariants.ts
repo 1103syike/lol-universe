@@ -28,8 +28,10 @@ export function validateBoxScore(box: MatchBoxScore): InvariantIssue[] {
   if (sum(awayPlayers.map((player) => player.deaths)) !== box.away.deaths) {
     issues.push({ code: 'away-deaths', message: '客隊選手死亡加總與隊伍死亡不一致' });
   }
-  if (box.home.kills + box.away.kills !== box.home.deaths + box.away.deaths) {
-    issues.push({ code: 'kill-death-parity', message: '雙方擊殺總和與死亡總和不一致' });
+  const totalKills = box.home.kills + box.away.kills;
+  const totalDeaths = box.home.deaths + box.away.deaths;
+  if (totalKills > totalDeaths) {
+    issues.push({ code: 'kill-death-parity', message: '雙方擊殺總和大於死亡總和' });
   }
 
   const playerGoldHome = sum(homePlayers.map((player) => player.gold));

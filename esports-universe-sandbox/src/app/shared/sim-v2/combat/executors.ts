@@ -8,6 +8,7 @@ import {
   applyMs,
   applySlow,
   applyStun,
+  dashCasterTo,
   dealToTarget,
   heal,
   hitChampionsInRadius,
@@ -33,12 +34,22 @@ function genericDamage(ctx: AbilityCastContext): boolean {
     ctx.target.kind === 'champion'
       ? 0.8 + (identity?.skirmish ?? 55) / 600 + (identity?.closeout ?? 55) / 700
       : 1;
-  const scaling =
-    def.damageType === 'magic'
+  const r = rank(ctx.level);
+  const ranked = def.damageByRank?.[r - 1];
+  const base =
+    ranked != null
+      ? ranked
+      : def.damageBase + def.damagePerLevel * (r - 1);
+  const hasCustomRatio =
+    (def.adRatio ?? 0) > 0 || (def.apRatio ?? 0) > 0 || (def.bonusAdRatio ?? 0) > 0;
+  const scaling = hasCustomRatio
+    ? ctx.caster.ad * (def.adRatio ?? 0) +
+      ctx.caster.ad * (def.bonusAdRatio ?? 0) +
+      ctx.caster.ap * (def.apRatio ?? 0)
+    : def.damageType === 'magic'
       ? ctx.caster.ap * 0.45 + ctx.caster.ad * 0.05
       : ctx.caster.ad * 0.55 + ctx.caster.ap * 0.05;
-  const raw =
-    (def.damageBase + def.damagePerLevel * (rank(ctx.level) - 1) + scaling) * identityMult;
+  const raw = (base + scaling) * identityMult;
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -124,6 +135,12 @@ const garenR: AbilityExecutor = (ctx) => {
   return true;
 };
 
+const asheQ: AbilityExecutor = (ctx) => {
+  const r = rank(ctx.level);
+  applyAs(ctx.caster, 'ashe:q:focus', 4, 0.2 + r * 0.05);
+  return true;
+};
+
 const asheW: AbilityExecutor = (ctx) => {
   if (!ctx.target) {
     return false;
@@ -133,7 +150,7 @@ const asheW: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     ctx.target,
-    20 + (r - 1) * 35 + ctx.caster.ad,
+    20 + (r - 1) * 15 + ctx.caster.ad,
     'physical',
     'ashe:w',
     ctx.recorder,
@@ -144,6 +161,8 @@ const asheW: AbilityExecutor = (ctx) => {
   return true;
 };
 
+const asheE: AbilityExecutor = () => true;
+
 const asheR: AbilityExecutor = (ctx) => {
   if (!ctx.target || ctx.target.kind !== 'champion') {
     return false;
@@ -153,7 +172,7 @@ const asheR: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     ctx.target,
-    200 + (r - 1) * 150 + ctx.caster.ad * 0.1,
+    200 + (r - 1) * 200 + ctx.caster.ad,
     'magic',
     'ashe:r',
     ctx.recorder,
@@ -214,9 +233,7 @@ const leeSinQ: AbilityExecutor = (ctx) => {
     ctx.recorder,
   );
   if (ctx.target.kind === 'champion' || ctx.target.kind === 'monster') {
-    ctx.caster.position = { ...ctx.target.position };
-    ctx.caster.path = [];
-    ctx.caster.moving = false;
+    dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   }
   return true;
 };
@@ -384,7 +401,9 @@ const LEGACY_SPECIAL: Record<string, AbilityExecutor> = {
   'Garen:W': garenW,
   'Garen:E': garenE,
   'Garen:R': garenR,
+  'Ashe:Q': asheQ,
   'Ashe:W': asheW,
+  'Ashe:E': asheE,
   'Ashe:R': asheR,
   'Annie:Q': annieQ,
   'Annie:R': annieR,
@@ -430,7 +449,9 @@ export function tickStatuses(state: GameState, dt: number): void {
     let stunned = false;
     const next: StatusEffect[] = [];
     for (const status of champion.statuses) {
-      status.remainingSec -= dt;
+      if (status.kind !== 'form') {
+        status.remainingSec -= dt;
+      }
       if (status.remainingSec <= 0) {
         continue;
       }

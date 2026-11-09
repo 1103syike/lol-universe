@@ -5,25 +5,25 @@ export const PRO_ECONOMY_MAX_DURATION_SEC = 1800;
 
 export const PRO_GPM = {
   TOP: { min: 320, max: 480 },
-  JUNGLE: { min: 280, max: 430 },
+  JUNGLE: { min: 255, max: 430 },
   MID: { min: 340, max: 520 },
-  BOT: { min: 380, max: 560 },
-  SUPPORT: { min: 230, max: 330 },
+  BOT: { min: 380, max: 580 },
+  SUPPORT: { min: 220, max: 330 },
 } as const;
 
 export const PRO_CSM = {
-  TOP: { min: 7.2, max: 11 },
-  JUNGLE: { min: 5.0, max: 9.5 },
-  MID: { min: 7.8, max: 11.2 },
-  BOT: { min: 8.5, max: 12 },
-  SUPPORT: { min: 0.4, max: 1.6 },
+  TOP: { min: 7.2, max: 11.8 },
+  JUNGLE: { min: 3.8, max: 9.5 },
+  MID: { min: 7.8, max: 12.0 },
+  BOT: { min: 8.5, max: 12.5 },
+  SUPPORT: { min: 0.2, max: 2.0 },
 } as const;
 
 export const PRO_DPM = {
-  TOP: { min: 280, max: 820 },
-  JUNGLE: { min: 280, max: 720 },
-  MID: { min: 380, max: 900 },
-  BOT: { min: 480, max: 980 },
+  TOP: { min: 280, max: 920 },
+  JUNGLE: { min: 220, max: 720 },
+  MID: { min: 380, max: 1000 },
+  BOT: { min: 480, max: 1200 },
   SUPPORT: { min: 120, max: 420 },
 } as const;
 

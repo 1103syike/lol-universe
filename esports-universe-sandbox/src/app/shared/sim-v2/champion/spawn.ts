@@ -1,9 +1,22 @@
+import { assignSummonerSlots, pickSummonerPair } from '../../../core/data/summoner-spells';
 import type { PlayerPosition } from '../../../core/models/player.model';
+import { setForm } from '../combat/form-kits';
+import { recomputeItemStats } from '../economy/economy';
 import { allocEntityId, type GameState } from '../state/game-state';
 import type { ChampionEntity } from '../state/entities';
-import type { LaneId, TeamSide } from '../types/ids';
+import type { ItemId, LaneId, TeamSide } from '../types/ids';
 import { buildLaneApproaches } from '../version/build-map';
 import type { Vec2 } from '../version/version-pack';
+
+const FORM_START: Record<string, { form: 'a' | 'b'; ranges: { a: number; b: number } }> = {
+  Jayce: { form: 'a', ranges: { a: 125, b: 500 } },
+  Nidalee: { form: 'a', ranges: { a: 525, b: 125 } },
+  Elise: { form: 'a', ranges: { a: 550, b: 125 } },
+  Gnar: { form: 'a', ranges: { a: 400, b: 150 } },
+};
+
+const WORLD_ATLAS_COST = 400;
+const SHARED_RICHES_FIRST_CHARGE_SEC = 65;
 
 function laneFromPosition(position: PlayerPosition): LaneId {
   if (position === 'TOP') {
@@ -65,6 +78,11 @@ export function spawnChampion(
     throw new Error(`Champion not in version pack: ${player.championId}`);
   }
   const position = fountainSpawn(state, side, player.position);
+  const startGold = state.lockedPack.economy.startingGold;
+  const startsWithAtlas =
+    player.position === 'SUPPORT' && !!state.lockedPack.items['WorldAtlas'];
+  const pocketGold = startsWithAtlas ? Math.max(0, startGold - WORLD_ATLAS_COST) : startGold;
+  const startItems: ItemId[] = startsWithAtlas ? ['WorldAtlas'] : [];
   const entity: ChampionEntity = {
     id: allocEntityId(state, 'champ'),
     kind: 'champion',
@@ -80,8 +98,8 @@ export function spawnChampion(
     moving: false,
     level: 1,
     exp: 0,
-    gold: state.lockedPack.economy.startingGold,
-    earnedGold: state.lockedPack.economy.startingGold,
+    gold: pocketGold,
+    earnedGold: startGold,
     hp: def.baseHp,
     maxHp: def.baseHp,
     mana: def.baseMana,
@@ -94,28 +112,45 @@ export function spawnChampion(
     attackRange: def.attackRange,
     attackSpeed: def.attackSpeed,
     nextAttackAt: 0,
+    nextSmiteAt: 0,
     alive: true,
     respawnAt: 0,
-    items: [],
+    items: startItems,
     shopPlan: null,
     abilities: def.abilities.map((ability) => ({
       slot: ability.slot,
       level: ability.slot === 'P' ? 1 : 0,
       cooldownUntil: 0,
     })),
+    summonerSpells: assignSummonerSlots(
+      pickSummonerPair(player.position, player.championId),
+    ).map((spell) => ({
+      id: spell.id,
+      slot: spell.slot,
+      cooldownUntil: 0,
+    })),
+    teleportDestination: null,
     statuses: [],
     cs: 0,
+    supportSharedRichesCharges: 0,
+    supportSharedRichesNextAt: startsWithAtlas ? SHARED_RICHES_FIRST_CHARGE_SEC : 0,
     kills: 0,
     deaths: 0,
     assists: 0,
     damageDealt: 0,
     damageToChampions: 0,
     damageTaken: 0,
+    damageTakenFromChampions: 0,
     healingDone: 0,
     visionScore: 0,
+    wardStock: 2,
+    nextWardChargeAt: 0,
+    controlWardReady: player.position === 'SUPPORT' || player.position === 'JUNGLE',
+    wardsPlaced: 0,
     currentAction: 'idle',
     recallPhase: 'none',
     recallChannelUntil: 0,
+    recallChannelDuration: 0,
     recallHpSnapshot: 0,
     recallCount: 0,
     activitySec: {
@@ -127,6 +162,7 @@ export function spawnChampion(
       other: 0,
     },
     campKills: 0,
+    junglePetFirstLargeClaimed: false,
     goldBySource: {},
     expBySource: {},
     levelSamples: [{ t: 0, level: 1 }],
@@ -142,5 +178,12 @@ export function spawnChampion(
     },
   };
   state.champions.push(entity);
+  const formStart = FORM_START[player.championId];
+  if (formStart) {
+    setForm(entity, formStart.form, formStart.ranges, player.championId);
+  }
+  if (startsWithAtlas) {
+    recomputeItemStats(state, entity);
+  }
   return entity;
 }

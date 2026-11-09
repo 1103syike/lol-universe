@@ -6,7 +6,7 @@ export function matchKillTotal(state: GameState): number {
 
 export function expectedKillsAt(timeSec: number): number {
   const mins = Math.max(0, timeSec / 60);
-  return Math.min(30, 3.5 + mins * 0.78);
+  return Math.min(28, 2.8 + mins * 0.7);
 }
 
 export function killOverpace(state: GameState): number {

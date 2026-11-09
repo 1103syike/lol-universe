@@ -1,0 +1,14 @@
+<span
+  class="ability-icon"
+  [class.is-down]="!ready()"
+  [class.is-locked]="locked()"
+  [class.is-empty]="!iconUrl()"
+  [ngStyle]="hostStyle()"
+  [attr.title]="label()"
+  role="img"
+  [attr.aria-label]="label()"
+>
+  @if (!iconUrl()) {
+    {{ slot() }}
+  }
+</span>

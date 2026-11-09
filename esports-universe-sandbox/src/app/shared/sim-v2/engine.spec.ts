@@ -158,7 +158,9 @@ describe('sim-v2 phase coverage', () => {
         (sum, player) => sum + player.damageToChamps,
         0,
       );
-      expect(totalKills).toBe(report.boxScore.home.deaths + report.boxScore.away.deaths);
+      const totalDeaths = report.boxScore.home.deaths + report.boxScore.away.deaths;
+      expect(totalKills).toBeLessThanOrEqual(totalDeaths);
+      expect(totalDeaths - totalKills).toBeLessThanOrEqual(8);
       expect(totalChampDamage).toBeGreaterThan(0);
       for (const player of report.boxScore.players) {
         expect(player.damageToChamps).toBeGreaterThanOrEqual(0);

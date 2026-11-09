@@ -4,9 +4,66 @@ import { dist } from '../map/pathfinding';
 import type { ReplayRecorder } from '../replay/recorder';
 import type { ChampionEntity, StructureEntity } from '../state/entities';
 import { allocEntityId, pushGoldSample, type GameState } from '../state/game-state';
+import type { LaneId } from '../types/ids';
+
+export const BASE_SIEGE_PRESENCE_RANGE = 850;
+export const NEXUS_TOWER_PRESENCE_RANGE = 1050;
+export const LANE_SIEGE_PRESENCE_RANGE = 1400;
+export const TOWER_ATTACK_RANGE = 825;
+export const INHIBITOR_RESPAWN_SEC = 300;
+export const INHIBITOR_SUPER_STOP_BEFORE_RESPAWN_SEC = 60;
 
 function isPassiveStructure(kind: string): boolean {
   return kind === 'nexus' || kind === 'inhibitor';
+}
+
+function isNexusStructure(structure: StructureEntity): boolean {
+  return structure.structureKind === 'nexus';
+}
+
+export function siegePresenceRange(structure: StructureEntity): number {
+  if (structure.structureKind === 'nexus') {
+    return BASE_SIEGE_PRESENCE_RANGE;
+  }
+  if (structure.structureKind === 'nexus_tower') {
+    return NEXUS_TOWER_PRESENCE_RANGE;
+  }
+  return LANE_SIEGE_PRESENCE_RANGE;
+}
+
+export function hasAlliedSiegePresence(
+  state: GameState,
+  side: 'blue' | 'red',
+  structure: StructureEntity,
+): boolean {
+  const range = siegePresenceRange(structure);
+  return state.champions.some(
+    (champ) =>
+      champ.alive &&
+      champ.side === side &&
+      champ.recallPhase === 'none' &&
+      dist(champ.position, structure.position) < range,
+  );
+}
+
+function nearestSiegeAttacker(
+  state: GameState,
+  structure: StructureEntity,
+): ChampionEntity | null {
+  const range = siegePresenceRange(structure);
+  let best: ChampionEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const champ of state.champions) {
+    if (!champ.alive || champ.side === structure.side || champ.recallPhase !== 'none') {
+      continue;
+    }
+    const d = dist(champ.position, structure.position);
+    if (d < range && d < bestDist) {
+      best = champ;
+      bestDist = d;
+    }
+  }
+  return best;
 }
 
 export function bootstrapStructures(state: GameState): void {
@@ -23,10 +80,13 @@ export function bootstrapStructures(state: GameState): void {
       hp: def.hp,
       maxHp: def.hp,
       ad: passive ? 0 : def.ad,
-      range: passive ? 0 : def.range,
+      range: passive ? 0 : Math.max(def.range, TOWER_ATTACK_RANGE),
       gold: def.gold,
       alive: true,
       nextAttackAt: 0,
+      aggroTargetId: null,
+      aggroUntil: 0,
+      respawnAt: 0,
     };
     state.structures.push(entity);
   }
@@ -80,7 +140,92 @@ export function canSiege(state: GameState, structure: StructureEntity): boolean 
   return false;
 }
 
+function towerFountain(state: GameState, structure: StructureEntity) {
+  return structure.side === 'blue'
+    ? state.lockedPack.map.blueFountain
+    : state.lockedPack.map.redFountain;
+}
+
+function isPastTowerTowardBase(
+  state: GameState,
+  structure: StructureEntity,
+  point: { x: number; y: number },
+): boolean {
+  const fountain = towerFountain(state, structure);
+  return dist(point, fountain) + 60 < dist(structure.position, fountain);
+}
+
+function pickTowerChampionTarget(
+  state: GameState,
+  structure: StructureEntity,
+): ChampionEntity | null {
+  const t = state.scheduler.time;
+  if (structure.aggroTargetId && structure.aggroUntil > t) {
+    const locked = state.champions.find(
+      (champ) =>
+        champ.id === structure.aggroTargetId &&
+        champ.alive &&
+        champ.side !== structure.side &&
+        dist(champ.position, structure.position) <= structure.range,
+    );
+    if (locked) {
+      return locked;
+    }
+    structure.aggroTargetId = null;
+    structure.aggroUntil = 0;
+  }
+  let best: ChampionEntity | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (const champ of state.champions) {
+    if (!champ.alive || champ.side === structure.side) {
+      continue;
+    }
+    const d = dist(champ.position, structure.position);
+    if (d > structure.range) {
+      continue;
+    }
+    const past = isPastTowerTowardBase(state, structure, champ.position) ? -400 : 0;
+    const score = d + past;
+    if (score < bestScore) {
+      best = champ;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
+function respawnInhibitor(state: GameState, structure: StructureEntity, recorder?: ReplayRecorder): void {
+  structure.alive = true;
+  structure.hp = structure.maxHp;
+  structure.respawnAt = 0;
+  structure.aggroTargetId = null;
+  structure.aggroUntil = 0;
+  recorder?.record(state, {
+    type: 'structure_kill',
+    targetId: structure.id,
+    payload: {
+      structureId: structure.structureId,
+      kind: structure.structureKind,
+      lane: structure.lane ?? null,
+      event: 'respawn',
+      defenderSide: structure.side,
+      defenderTeamId: structure.side === 'blue' ? state.blue.teamId : state.red.teamId,
+    },
+  });
+}
+
 export function tickStructures(state: GameState, recorder?: ReplayRecorder): void {
+  const now = state.scheduler.time;
+  for (const structure of state.structures) {
+    if (
+      !structure.alive &&
+      structure.structureKind === 'inhibitor' &&
+      structure.respawnAt > 0 &&
+      now >= structure.respawnAt
+    ) {
+      respawnInhibitor(state, structure, recorder);
+    }
+  }
   for (const structure of state.structures) {
     if (!structure.alive || isPassiveStructure(structure.structureKind)) {
       continue;
@@ -89,6 +234,28 @@ export function tickStructures(state: GameState, recorder?: ReplayRecorder): voi
       continue;
     }
     if (state.scheduler.time < structure.nextAttackAt) {
+      continue;
+    }
+    const recallingEnemy = state.champions.find(
+      (champ) =>
+        champ.alive &&
+        champ.side !== structure.side &&
+        champ.recallPhase === 'moving_home' &&
+        dist(champ.position, structure.position) <= structure.range,
+    );
+    if (recallingEnemy) {
+      applyDamage(state, null, recallingEnemy, structure.ad * 0.85, 'physical', recorder, 'tower');
+      structure.nextAttackAt = state.scheduler.time + 1.25;
+      continue;
+    }
+    const aggroChamp = pickTowerChampionTarget(state, structure);
+    if (
+      aggroChamp &&
+      (structure.aggroTargetId === aggroChamp.id ||
+        isPastTowerTowardBase(state, structure, aggroChamp.position))
+    ) {
+      applyDamage(state, null, aggroChamp, structure.ad * 0.85, 'physical', recorder, 'tower');
+      structure.nextAttackAt = state.scheduler.time + 1.25;
       continue;
     }
     const enemyMinion = state.minions.find(
@@ -106,16 +273,10 @@ export function tickStructures(state: GameState, recorder?: ReplayRecorder): voi
       structure.nextAttackAt = state.scheduler.time + 1.25;
       continue;
     }
-    const target = state.champions.find(
-      (champ) =>
-        champ.alive &&
-        champ.side !== structure.side &&
-        dist(champ.position, structure.position) <= structure.range,
-    );
-    if (!target) {
+    if (!aggroChamp) {
       continue;
     }
-    applyDamage(state, null, target, structure.ad * 0.85, 'physical', recorder, 'tower');
+    applyDamage(state, null, aggroChamp, structure.ad * 0.85, 'physical', recorder, 'tower');
     structure.nextAttackAt = state.scheduler.time + 1.25;
   }
 }
@@ -125,7 +286,6 @@ export function resolveStructureKill(
   structure: StructureEntity,
   killer: ChampionEntity | null,
   recorder?: ReplayRecorder,
-  overtime = false,
 ): void {
   if (killer) {
     grantGold(state, killer, structure.gold, 'tower', recorder);
@@ -136,14 +296,35 @@ export function resolveStructureKill(
     }
   } else {
     const beneficiaries = state.champions.filter(
-      (champ) => champ.alive && champ.side !== structure.side,
+      (champ) =>
+        champ.alive &&
+        champ.side !== structure.side &&
+        champ.recallPhase === 'none' &&
+        dist(champ.position, structure.position) < siegePresenceRange(structure),
     );
-    const share = structure.gold / Math.max(1, beneficiaries.length);
-    for (const champ of beneficiaries) {
+    const pool =
+      beneficiaries.length > 0
+        ? beneficiaries
+        : state.champions.filter((champ) => champ.alive && champ.side !== structure.side);
+    const share = structure.gold / Math.max(1, pool.length);
+    for (const champ of pool) {
       grantGold(state, champ, share, 'tower_share', recorder);
     }
   }
-  const actor = killer ?? state.champions.find((champ) => champ.side !== structure.side);
+  const actor = killer ?? nearestSiegeAttacker(state, structure);
+  const assistRange = siegePresenceRange(structure);
+  const assistIds = actor
+    ? state.champions
+        .filter(
+          (champ) =>
+            champ.alive &&
+            champ.side === actor.side &&
+            champ.id !== actor.id &&
+            champ.recallPhase === 'none' &&
+            dist(champ.position, structure.position) < assistRange,
+        )
+        .map((champ) => champ.id)
+    : [];
   recorder?.record(state, {
     type: 'structure_kill',
     actorId: actor?.id,
@@ -154,10 +335,13 @@ export function resolveStructureKill(
       lane: structure.lane ?? null,
       defenderSide: structure.side,
       defenderTeamId: structure.side === 'blue' ? state.blue.teamId : state.red.teamId,
-      overtime: overtime || undefined,
+      assistIds,
     },
   });
   pushGoldSample(state);
+  if (structure.structureKind === 'inhibitor') {
+    structure.respawnAt = state.scheduler.time + INHIBITOR_RESPAWN_SEC;
+  }
   if (structure.structureKind === 'nexus') {
     state.ended = true;
     state.endReason = 'nexus';
@@ -167,9 +351,45 @@ export function resolveStructureKill(
     recorder?.record(state, {
       type: 'match_end',
       teamId: state.winnerTeamId,
-      payload: { reason: overtime ? 'nexus_overtime' : 'nexus' },
+      payload: { reason: 'nexus' },
     });
   }
+}
+
+export function laneInhibitorDownForSupers(
+  state: GameState,
+  attackingSide: 'blue' | 'red',
+  lane: LaneId,
+): boolean {
+  const defenderSide = attackingSide === 'blue' ? 'red' : 'blue';
+  const inhib = state.structures.find(
+    (structure) =>
+      structure.side === defenderSide &&
+      structure.structureKind === 'inhibitor' &&
+      structure.lane === lane,
+  );
+  if (!inhib || inhib.alive) {
+    return false;
+  }
+  if (
+    inhib.respawnAt > 0 &&
+    inhib.respawnAt - state.scheduler.time <= INHIBITOR_SUPER_STOP_BEFORE_RESPAWN_SEC
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function allInhibitorsDownForSupers(
+  state: GameState,
+  attackingSide: 'blue' | 'red',
+): boolean {
+  for (const lane of ['top', 'mid', 'bot'] as const) {
+    if (!laneInhibitorDownForSupers(state, attackingSide, lane)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function isBaseStructure(structure: StructureEntity): boolean {
@@ -235,6 +455,9 @@ export function attackStructure(
   if (now < champion.nextAttackAt) {
     return;
   }
+  if (champion.recallPhase !== 'none') {
+    return;
+  }
   if (dist(champion.position, structure.position) > champion.attackRange + 80) {
     return;
   }
@@ -280,14 +503,16 @@ export function minionAttackStructure(
   if (dist(minion.position, structure.position) > minion.attackRange + 60) {
     return;
   }
-  const alliedChampNear = state.champions.some(
-    (champ) =>
-      champ.alive &&
-      champ.side === minion.side &&
-      dist(champ.position, structure.position) < 1400,
-  );
+  const alliedChampNear = hasAlliedSiegePresence(state, minion.side, structure);
   const isSuper = minion.role === 'super';
-  if (!alliedChampNear && !isSuper) {
+  const needsChampion =
+    isNexusStructure(structure) ||
+    structure.structureKind === 'nexus_tower' ||
+    isBaseStructure(structure);
+  if (!alliedChampNear && (needsChampion || !isSuper)) {
+    return;
+  }
+  if (isNexusStructure(structure) && !alliedChampNear) {
     return;
   }
   const t = state.scheduler.time;
@@ -315,20 +540,6 @@ export function minionAttackStructure(
     structure.alive = false;
     resolveStructureKill(state, structure, null, recorder);
   }
-}
-
-export function destroyStructureForSiege(
-  state: GameState,
-  structure: StructureEntity,
-  killer: ChampionEntity,
-  recorder?: ReplayRecorder,
-): void {
-  if (!structure.alive || !canSiege(state, structure)) {
-    return;
-  }
-  structure.hp = 0;
-  structure.alive = false;
-  resolveStructureKill(state, structure, killer, recorder, true);
 }
 
 export function wavePressuringStructure(

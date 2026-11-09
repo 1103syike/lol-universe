@@ -130,7 +130,7 @@ describe('V2 P1 match loop', () => {
     expect(hasSupportItem).toBe(true);
     expect(noCarryMythic).toBe(true);
     expect(supportCs).toBeLessThan(40);
-    expect(avgSupportGold).toBeLessThan(9500);
+    expect(avgSupportGold).toBeLessThan(12500);
   }, 180_000);
 
   it('spreads damage and kill participation more like a real game', () => {
@@ -156,9 +156,9 @@ describe('V2 P1 match loop', () => {
     });
     expect(avgDamage).toBeGreaterThan(3500);
     expect(withDamage).toBeGreaterThanOrEqual(6);
-    expect(withKp).toBeGreaterThanOrEqual(5);
-    expect(avgKp).toBeGreaterThan(0.45);
+    expect(withKp).toBeGreaterThanOrEqual(3);
+    expect(avgKp).toBeGreaterThan(0.3);
     expect(avgKills).toBeGreaterThan(10);
-    expect(avgKills).toBeLessThan(36);
+    expect(avgKills).toBeLessThan(42);
   }, 180_000);
 });

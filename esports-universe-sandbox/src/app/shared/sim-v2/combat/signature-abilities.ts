@@ -4,12 +4,15 @@ import {
   applyMs,
   applySlow,
   applyStun,
+  dashCasterTo,
   dealToTarget,
   heal,
   hitChampionsInRadius,
+  pullTargetTo,
   rank,
   type AbilityExecutor,
 } from './ability-helpers';
+import { FORM_KIT_ABILITIES } from './form-kits';
 import { SIGNATURE_ABILITIES_MORE } from './signature-abilities-more';
 
 const aatroxQ: AbilityExecutor = (ctx) => {
@@ -69,57 +72,6 @@ const aatroxR: AbilityExecutor = (ctx) => {
   return true;
 };
 
-const jayceQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const raw = 70 + (r - 1) * 40 + ctx.caster.ad * 1.2;
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'jayce:q', ctx.recorder);
-  return true;
-};
-
-const jayceW: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyAs(ctx.caster, 'jayce:w:as', 4, 0.2 + r * 0.04);
-  if (ctx.target) {
-    dealToTarget(
-      ctx.state,
-      ctx.caster,
-      ctx.target,
-      25 + r * 15 + ctx.caster.ad * 0.4,
-      'magic',
-      'jayce:w',
-      ctx.recorder,
-    );
-  }
-  return true;
-};
-
-const jayceE: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyArmor(ctx.caster, 'jayce:e:armor', 3, 15 + r * 5);
-  if (ctx.target?.kind === 'champion') {
-    dealToTarget(
-      ctx.state,
-      ctx.caster,
-      ctx.target,
-      40 + (r - 1) * 25 + ctx.caster.ad * 0.5,
-      'physical',
-      'jayce:e',
-      ctx.recorder,
-    );
-    applyStun(ctx.target, 'jayce:e:knock', 0.75);
-  }
-  return true;
-};
-
-const jayceR: AbilityExecutor = (ctx) => {
-  applyMs(ctx.caster, 'jayce:r:ms', 3, 80);
-  applyAs(ctx.caster, 'jayce:r:as', 3, 0.25);
-  return true;
-};
-
 const camilleQ: AbilityExecutor = (ctx) => {
   if (!ctx.target) {
     return false;
@@ -153,7 +105,7 @@ const camilleE: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   ctx.caster.path = [];
   ctx.caster.moving = false;
   dealToTarget(
@@ -229,7 +181,7 @@ const dariusE: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.target.position = { ...ctx.caster.position };
+  pullTargetTo(ctx.caster, ctx.target, undefined, ctx.state);
   ctx.target.path = [];
   applyStun(ctx.target, 'darius:e:pull', 0.75);
   dealToTarget(
@@ -489,7 +441,7 @@ const zedR: AbilityExecutor = (ctx) => {
   const r = rank(ctx.level);
   const mark = ctx.target.maxHp * (0.25 + r * 0.05) + ctx.caster.ad * 0.8;
   dealToTarget(ctx.state, ctx.caster, ctx.target, mark, 'physical', 'zed:r', ctx.recorder);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   return true;
 };
 
@@ -735,7 +687,7 @@ const nautilusQ: AbilityExecutor = (ctx) => {
     ctx.recorder,
   );
   applyStun(ctx.target, 'nautilus:q:root', 1.2);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   return true;
 };
 
@@ -905,14 +857,11 @@ const viegoR: AbilityExecutor = (ctx) => {
 
 export const SIGNATURE_ABILITIES: Record<string, AbilityExecutor> = {
   ...SIGNATURE_ABILITIES_MORE,
+  ...FORM_KIT_ABILITIES,
   'Aatrox:Q': aatroxQ,
   'Aatrox:W': aatroxW,
   'Aatrox:E': aatroxE,
   'Aatrox:R': aatroxR,
-  'Jayce:Q': jayceQ,
-  'Jayce:W': jayceW,
-  'Jayce:E': jayceE,
-  'Jayce:R': jayceR,
   'Camille:Q': camilleQ,
   'Camille:W': camilleW,
   'Camille:E': camilleE,

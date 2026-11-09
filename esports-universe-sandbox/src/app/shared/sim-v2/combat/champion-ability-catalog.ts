@@ -508,43 +508,43 @@ export const CHAMPION_ABILITY_CATALOG: Record<string, ChampionAbilityProfile> = 
     "damageType": "physical",
     "flavor": "void",
     "Q": {
-      "kind": "poke",
-      "base": 88,
-      "perLevel": 31,
-      "ad": 0.86,
-      "ap": 0.05,
+      "kind": "steroid",
+      "base": 0,
+      "perLevel": 0,
+      "ad": 0,
+      "ap": 0,
       "heal": 0,
-      "cc": 0.59
+      "ms": 0,
+      "cc": 0
     },
     "W": {
       "kind": "poke",
-      "base": 54,
-      "perLevel": 24,
-      "ad": 0.35,
-      "ap": 0.1,
-      "heal": 0.05,
-      "shield": 0.08,
-      "cc": 0.33
+      "base": 20,
+      "perLevel": 15,
+      "ad": 1.0,
+      "ap": 0,
+      "heal": 0,
+      "cc": 0.35
     },
     "E": {
-      "kind": "dash",
-      "base": 54,
-      "perLevel": 20,
-      "ad": 0.59,
-      "ap": 0.08,
-      "ms": 67,
-      "cc": 0.26
+      "kind": "fade",
+      "base": 0,
+      "perLevel": 0,
+      "ad": 0,
+      "ap": 0,
+      "ms": 0,
+      "cc": 0
     },
     "R": {
       "kind": "executeUlt",
-      "base": 203,
-      "perLevel": 102,
-      "ad": 1.45,
-      "ap": 0.1,
-      "execute": 0.43,
-      "aoe": true,
+      "base": 200,
+      "perLevel": 200,
+      "ad": 1.0,
+      "ap": 0,
+      "execute": 0,
+      "aoe": false,
       "heal": 0,
-      "cc": 0.55
+      "cc": 0.8
     }
   },
   "AurelionSol": {

@@ -73,7 +73,7 @@ const SEED_ROWS: SeedRow[] = [
     ],
   } },
   { abbreviation: 'PSG', name: 'PSG Talon', leagueTier: 'TCS', roster: {
-    coach: 'Talo',
+    coach: 'Riris',
     players: [
       { gamertag: 'Spear', position: 'TOP' },
       { gamertag: 'River', birthday: '1999-07-23', nationality: 'KR', position: 'JUNGLE' },
@@ -122,10 +122,28 @@ const SEED_ROWS: SeedRow[] = [
       { gamertag: 'Shields', birthday: '2000-01-01' },
     ],
   } },
-  { abbreviation: 'MAD', name: 'MAD Team', leagueTier: 'TCS', roster: ['Hexa', 'Rock', 'Gemini', 'Pulse', 'Bruce', 'Koala'] },
-  { abbreviation: 'HKA', name: 'Hong Kong Attitude', leagueTier: 'TCS', roster: ['Atude', 'Zoom', 'Lark', 'Moon', 'MnM', 'Kaix'] },
+  { abbreviation: 'MAD', name: 'MAD Team', leagueTier: 'TCS', roster: {
+    coach: 'Hexa',
+    players: [
+      { gamertag: 'Rock' },
+      { gamertag: 'Gemini' },
+      { gamertag: 'Pulse' },
+      { gamertag: 'Bruce' },
+      { gamertag: 'Koala' },
+    ],
+  } },
+  { abbreviation: 'HKA', name: 'Hong Kong Attitude', leagueTier: 'TCS', roster: {
+    coach: 'Torpedo',
+    players: [
+      { gamertag: 'Zoom' },
+      { gamertag: 'Lark' },
+      { gamertag: 'Moon' },
+      { gamertag: 'MnM' },
+      { gamertag: 'Kaix' },
+    ],
+  } },
   { abbreviation: 'DCG', name: 'Deep Cross Gaming', leagueTier: 'TCS', roster: {
-    coach: 'Dex',
+    coach: 'Latch',
     players: [
       { gamertag: 'Pika', position: 'TOP' },
       { gamertag: 'Burrow', position: 'JUNGLE' },
@@ -140,12 +158,39 @@ const SEED_ROWS: SeedRow[] = [
     leagueTier: 'TCL',
     titleSponsor: 'Cathay',
     titleSponsorSide: 'prefix',
-    roster: ['Cath', 'Driver', 'Cube', 'Hong', 'Shunn', 'Kino'],
+    roster: {
+      coach: 'Nest',
+      players: [
+        { gamertag: 'Driver' },
+        { gamertag: 'Kea' },
+        { gamertag: 'Hong' },
+        { gamertag: 'Shunn' },
+        { gamertag: 'Kino' },
+      ],
+    },
   },
-  { abbreviation: 'ANK', name: 'ANK Gaming', leagueTier: 'TCL', roster: ['Anko', 'Sez', 'Topz', 'Midk', 'Art', 'Eason'] },
-  { abbreviation: 'NVM', name: 'Nova MS', leagueTier: 'TCL', roster: ['Nov', 'Sheng', 'Hole', 'Mist', 'Doggo', 'Yurs'] },
+  { abbreviation: 'ANK', name: 'ANK Gaming', leagueTier: 'TCL', roster: {
+    coach: 'Kelsa',
+    players: [
+      { gamertag: 'Sez' },
+      { gamertag: 'Topz' },
+      { gamertag: 'Midk' },
+      { gamertag: 'Art' },
+      { gamertag: 'Eason' },
+    ],
+  } },
+  { abbreviation: 'NVM', name: 'Nova MS', leagueTier: 'TCL', roster: {
+    coach: 'Mirage',
+    players: [
+      { gamertag: 'Sheng' },
+      { gamertag: 'Hole' },
+      { gamertag: 'Mist' },
+      { gamertag: 'Doggo' },
+      { gamertag: 'Yurs' },
+    ],
+  } },
   { abbreviation: 'BMG', name: 'Ban Mei Gaming', leagueTier: 'TCL', roster: {
-    coach: 'Banmei',
+    coach: 'Wuji',
     players: [
       { gamertag: 'Gunner', position: 'TOP' },
       { gamertag: 'Spider', position: 'JUNGLE' },
@@ -155,7 +200,7 @@ const SEED_ROWS: SeedRow[] = [
     ],
   } },
   { abbreviation: 'GRX', name: 'G-Rex Gaming', leagueTier: 'TCL', roster: {
-    coach: 'Rex',
+    coach: 'Kairos',
     players: [
       { gamertag: 'Scale', position: 'TOP' },
       { gamertag: 'Hunt', position: 'JUNGLE' },
@@ -164,18 +209,63 @@ const SEED_ROWS: SeedRow[] = [
       { gamertag: 'Tail', position: 'SUPPORT' },
     ],
   } },
-  { abbreviation: 'SMG', name: 'Still Moving Under Gunfire', leagueTier: 'TCL', roster: ['Still', 'Moving', 'Under', 'Gunfire', 'Smoke', 'Cover'] },
+  { abbreviation: 'SMG', name: 'Still Moving Under Gunfire', leagueTier: 'TCL', roster: {
+    coach: 'Ashen',
+    players: [
+      { gamertag: 'Moving' },
+      { gamertag: 'Under' },
+      { gamertag: 'Gunfire' },
+      { gamertag: 'Smoke' },
+      { gamertag: 'Cover' },
+    ],
+  } },
   {
     abbreviation: 'BYG',
     name: 'Beyond Gaming',
     leagueTier: 'TCL',
     titleSponsor: 'Mega Bank',
     titleSponsorSide: 'prefix',
-    roster: ['Bay', 'Yon', 'Over', 'Line', 'Edge', 'Limit'],
+    roster: {
+      coach: 'Haku',
+      players: [
+        { gamertag: 'Yon' },
+        { gamertag: 'Over' },
+        { gamertag: 'Line' },
+        { gamertag: 'Edge' },
+        { gamertag: 'Limit' },
+      ],
+    },
   },
-  { abbreviation: 'OCE', name: 'Ocean Rovers', leagueTier: 'TCL', roster: ['Tide', 'Wave', 'Reef', 'Coral', 'Drift', 'Harbor'] },
-  { abbreviation: 'MCX', name: 'Machi E-Sports', leagueTier: 'TCL', roster: ['Machi', 'Macchi', 'Chi', 'Espo', 'Ort', 'Play'] },
-  { abbreviation: 'TXO', name: 'Tongxin', leagueTier: 'TCL', roster: ['Tong', 'Xin', 'Oath', 'Bond', 'Link', 'Pact'] },
+  { abbreviation: 'OCE', name: 'Ocean Rovers', leagueTier: 'TCL', roster: {
+    coach: 'Cove',
+    players: [
+      { gamertag: 'Wave' },
+      { gamertag: 'Reef' },
+      { gamertag: 'Coral' },
+      { gamertag: 'Drift' },
+      { gamertag: 'Harbor' },
+    ],
+  } },
+  { abbreviation: 'MCX', name: 'Machi E-Sports', leagueTier: 'TCL', roster: {
+    coach: 'Boom',
+    players: [
+      { gamertag: 'Macchi' },
+      { gamertag: 'Chi' },
+      { gamertag: 'Espo' },
+      { gamertag: 'Ort' },
+      { gamertag: 'Play' },
+    ],
+  } },
+  { abbreviation: 'TXO', name: 'Tongxin', leagueTier: 'TCL', roster: {
+    coach: 'Vesper',
+    players: [
+      { gamertag: 'Xin' },
+      { gamertag: 'Oath' },
+      { gamertag: 'Bond' },
+      { gamertag: 'Link' },
+      { gamertag: 'Pact' },
+    ],
+  } },
 ];
 
 export const INITIAL_TEAMS: InitialTeamSeed[] = SEED_ROWS.map((row) => ({
@@ -250,7 +340,8 @@ export function buildOpeningLeague(now: string, startYear: number): OpeningLeagu
 
     if (roster) {
       const named = isNamedRoster(roster) ? roster : toNamedRoster(roster, startYear, teamIndex);
-      const coachTag = named.coach ?? SEED_COACH_BY_TEAM[row.abbreviation] ?? `${row.abbreviation}HC`;
+      const coachTag =
+        named.coach ?? SEED_COACH_BY_TEAM[row.abbreviation] ?? uniqueCoachTag(row.abbreviation, seen);
       rememberTag(seen, coachTag);
       const coach = buildCoach(coachTag, teamId, now, startYear, base, teamIndex);
       coachId = coach.id;
@@ -315,17 +406,46 @@ function seedCoachTag(row: SeedRow): string | undefined {
   return row.roster[0];
 }
 
+const FALLBACK_COACH_TAGS = [
+  'Nest',
+  'Ashen',
+  'Vesper',
+  'Kairos',
+  'Latch',
+  'Mirage',
+  'Haku',
+  'Boom',
+  'Cove',
+  'Torpedo',
+  'Kelsa',
+  'Wuji',
+  'Riris',
+  'Hexa',
+  'Pyre',
+  'Quill',
+  'Nimbus',
+  'Sable',
+  'Fjord',
+  'Orbit',
+] as const;
+
 function uniqueCoachTag(teamAbbr: string, usedTags: Set<string>): string {
-  const preferred = SEED_COACH_BY_TEAM[teamAbbr] ?? `${teamAbbr}HC`;
-  if (!usedTags.has(preferred.toLowerCase())) {
+  const preferred = SEED_COACH_BY_TEAM[teamAbbr];
+  if (preferred && !usedTags.has(preferred.toLowerCase())) {
     return preferred;
   }
 
-  let tag = `${teamAbbr}HC`;
+  for (const tag of FALLBACK_COACH_TAGS) {
+    if (!usedTags.has(tag.toLowerCase())) {
+      return tag;
+    }
+  }
+
   let index = 2;
+  let tag = `Coach${index}`;
   while (usedTags.has(tag.toLowerCase())) {
-    tag = `${teamAbbr}HC${index}`;
     index += 1;
+    tag = `Coach${index}`;
   }
   return tag;
 }

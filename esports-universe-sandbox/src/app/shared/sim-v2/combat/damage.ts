@@ -1,19 +1,23 @@
 import { combatProfile } from '../champion/combat-profile';
 import { combatPowerMult } from '../champion/identity-runtime';
-import { grantExp, grantGold, shareSupportGold } from '../economy/economy';
+import {
+  grantExp,
+  grantGold,
+  nearestSharedRichesAlly,
+  paySharedRichesMinionKill,
+  tryPaySharedRichesCombat,
+} from '../economy/economy';
 import type { ChampionEntity, MinionEntity, MonsterEntity, StructureEntity } from '../state/entities';
 import { pushGoldSample, type GameState } from '../state/game-state';
 import type { ReplayRecorder } from '../replay/recorder';
-import { killOverpace, matchKillTotal } from './kill-pace';
 
 export type Damageable = ChampionEntity | MinionEntity | MonsterEntity | StructureEntity;
 
-const THREAT_WINDOW_SEC = 18;
-const PROXIMITY_ASSIST_RANGE = 3200;
-const KILLER_ASSIST_RANGE = 3000;
-const LANE_MATE_ASSIST_RANGE = 5200;
-const CHAMPION_DAMAGE_SCALE = 1.85;
-const CHAMPION_HIT_HP_CAP = 0.078;
+const THREAT_WINDOW_SEC = 12;
+const PROXIMITY_ASSIST_RANGE = 1400;
+const KILLER_ASSIST_RANGE = 1400;
+const LANE_MATE_ASSIST_RANGE = 1800;
+const CHAMPION_DAMAGE_SCALE = 0.88;
 const MINION_XP_RANGE = 1200;
 
 const BASE_RESPAWN_WAIT = [
@@ -38,15 +42,6 @@ export function deathTimerSec(level: number, timeSec: number): number {
   }
   tif = Math.min(0.5, tif);
   return brw * (1 + tif);
-}
-
-function isFightingAction(action: string): boolean {
-  return (
-    action === 'fight' ||
-    action === 'trade' ||
-    action === 'gank' ||
-    action === 'skirmish'
-  );
 }
 
 function shareMinionExp(
@@ -132,15 +127,18 @@ function softLastHitFarmer(
     if (d > reach) {
       continue;
     }
+    if (champ.positionLabel === 'SUPPORT') {
+      continue;
+    }
     const roleBias =
       champ.positionLabel === 'BOT'
-        ? 36
+        ? 40
         : champ.positionLabel === 'MID'
-          ? 28
+          ? 32
           : champ.positionLabel === 'TOP'
-            ? 26
-            : 6;
-    const actionBias = farming ? 34 : 12;
+            ? 34
+            : 8;
+    const actionBias = farming ? 36 : 14;
     const score = champ.skills.laning + actionBias + roleBias - d / 55;
     if (score > bestScore) {
       best = champ;
@@ -150,23 +148,18 @@ function softLastHitFarmer(
   if (!best) {
     return null;
   }
-  if (best.positionLabel === 'SUPPORT') {
-    const supportChance =
-      0.42 +
-      best.skills.laning / 300 +
-      (best.currentAction === 'farm' || best.currentAction === 'lane' ? 0.12 : 0);
-    return state.rng() < Math.min(0.62, supportChance) ? best : null;
-  }
   const farming =
     best.currentAction === 'farm' ||
     best.currentAction === 'lane' ||
     best.currentAction === 'siege';
+  const earlyBoost = state.scheduler.time < 240 ? 0.08 : 0;
   const chance =
-    0.7 +
-    best.skills.laning / 280 +
-    (farming ? 0.12 : 0.02) +
-    (best.positionLabel === 'BOT' ? 0.06 : best.positionLabel === 'MID' ? 0.04 : 0.03);
-  return state.rng() < Math.min(0.94, chance) ? best : null;
+    0.84 +
+    best.skills.laning / 320 +
+    (farming ? 0.1 : 0.03) +
+    earlyBoost +
+    (best.positionLabel === 'BOT' ? 0.05 : best.positionLabel === 'MID' ? 0.04 : 0.05);
+  return state.rng() < Math.min(0.98, chance) ? best : null;
 }
 
 function laneOwnerFarmer(
@@ -198,13 +191,30 @@ function laneOwnerFarmer(
     owner.currentAction === 'gank' ||
     owner.currentAction === 'skirmish' ||
     owner.currentAction === 'roam';
-  const base = role === 'BOT' ? 0.6 : role === 'MID' ? 0.34 : 0.36;
+  const base = role === 'BOT' ? 0.78 : role === 'MID' ? 0.72 : 0.74;
+  const earlyBoost = state.scheduler.time < 240 ? 0.1 : 0;
   const chance =
     base +
-    owner.skills.laning / 400 +
+    owner.skills.laning / 450 +
     (farming ? 0.1 : 0) +
-    (fighting ? -0.32 : 0);
-  return state.rng() < Math.min(0.84, Math.max(0.14, chance)) ? owner : null;
+    earlyBoost +
+    (fighting ? -0.22 : 0);
+  return state.rng() < Math.min(0.96, Math.max(0.28, chance)) ? owner : null;
+}
+
+function creditLaneFarmBonuses(
+  state: GameState,
+  credited: ChampionEntity,
+  minionGold: number,
+  recorder?: ReplayRecorder,
+): void {
+  if (credited.positionLabel === 'BOT') {
+    grantGold(state, credited, Math.round(minionGold * 0.22), 'lane_quest', recorder);
+  } else if (credited.positionLabel === 'MID') {
+    grantGold(state, credited, Math.round(minionGold * 0.06), 'lane_quest', recorder);
+  } else if (credited.positionLabel === 'TOP') {
+    grantGold(state, credited, Math.round(minionGold * 0.05), 'lane_quest', recorder);
+  }
 }
 
 export function creditMinionKill(
@@ -214,8 +224,50 @@ export function creditMinionKill(
   recorder?: ReplayRecorder,
   via = 'auto',
 ): void {
-  let credited = source?.kind === 'champion' ? source : null;
+  let credited: ChampionEntity | null = null;
   let creditVia = via;
+
+  if (source?.kind === 'champion' && source.positionLabel === 'SUPPORT') {
+    const ally = paySharedRichesMinionKill(state, source, minion.gold, recorder);
+    if (ally) {
+      source.cs += 1;
+      creditLaneFarmBonuses(state, ally, minion.gold, recorder);
+      recorder?.record(state, {
+        type: 'minion_death',
+        actorId: source.id,
+        targetId: minion.id,
+        amount: minion.gold,
+        payload: {
+          via: 'support_shared_riches',
+          cs: source.cs,
+          sharedWith: ally.id,
+        },
+      });
+      shareMinionExp(state, minion, ally, recorder);
+      return;
+    }
+    const redirect = nearestSharedRichesAlly(state, source);
+    if (redirect) {
+      redirect.cs += 1;
+      grantGold(state, redirect, minion.gold, 'cs', recorder);
+      creditLaneFarmBonuses(state, redirect, minion.gold, recorder);
+      recorder?.record(state, {
+        type: 'minion_death',
+        actorId: redirect.id,
+        targetId: minion.id,
+        amount: minion.gold,
+        payload: { via: 'support_redirect', cs: redirect.cs, supportId: source.id },
+      });
+      shareMinionExp(state, minion, redirect, recorder);
+      return;
+    }
+    shareMinionExp(state, minion, null, recorder);
+    return;
+  }
+  if (source?.kind === 'champion') {
+    credited = source;
+  }
+
   if (!credited && (via === 'minion' || via === 'tower')) {
     credited = softLastHitFarmer(state, minion);
     if (credited) {
@@ -226,36 +278,34 @@ export function creditMinionKill(
         creditVia = 'lane_owner';
       }
     }
-    if (
-      credited?.positionLabel === 'BOT' &&
-      minion.lane === 'bot' &&
-      state.rng() < 0.085
-    ) {
-      const support = state.champions.find(
-        (champ) =>
-          champ.alive &&
-          champ.side === credited!.side &&
-          champ.positionLabel === 'SUPPORT' &&
-          champ.currentAction !== 'dead' &&
-          champ.currentAction !== 'recall',
-      );
-      if (support) {
-        credited = support;
-        creditVia = 'support_tax';
-      }
-    }
   }
+
   if (credited) {
+    if (credited.positionLabel === 'SUPPORT') {
+      const ally = paySharedRichesMinionKill(state, credited, minion.gold, recorder);
+      if (ally) {
+        credited.cs += 1;
+        creditLaneFarmBonuses(state, ally, minion.gold, recorder);
+        recorder?.record(state, {
+          type: 'minion_death',
+          actorId: credited.id,
+          targetId: minion.id,
+          amount: minion.gold,
+          payload: {
+            via: 'support_shared_riches',
+            cs: credited.cs,
+            sharedWith: ally.id,
+          },
+        });
+        shareMinionExp(state, minion, ally, recorder);
+      } else {
+        shareMinionExp(state, minion, null, recorder);
+      }
+      return;
+    }
     credited.cs += 1;
     grantGold(state, credited, minion.gold, 'cs', recorder);
-    if (credited.positionLabel === 'BOT') {
-      grantGold(state, credited, Math.round(minion.gold * 0.22), 'lane_quest', recorder);
-    } else if (credited.positionLabel === 'MID') {
-      grantGold(state, credited, Math.round(minion.gold * 0.06), 'lane_quest', recorder);
-    } else if (credited.positionLabel === 'TOP') {
-      grantGold(state, credited, Math.round(minion.gold * 0.05), 'lane_quest', recorder);
-    }
-    shareSupportGold(state, credited, minion.gold, recorder);
+    creditLaneFarmBonuses(state, credited, minion.gold, recorder);
     recorder?.record(state, {
       type: 'minion_death',
       actorId: credited.id,
@@ -363,26 +413,9 @@ export function applyDamage(
     if (via === 'auto') {
       powerScaled *= profile.autoMult;
     }
-    if (source.positionLabel === 'TOP') {
-      powerScaled *= via === 'auto' ? 1.05 : via === 'lane_harass' ? 1.02 : 1.03;
-    }
-    const overpace = killOverpace(state);
-    const kills = matchKillTotal(state);
-    if (overpace > 1.15) {
-      powerScaled *= 1 / (1 + (overpace - 1.15) * 1.15);
-    }
-    if (kills >= 32) {
-      powerScaled *= 0.9;
-    }
-    if (kills >= 38) {
-      powerScaled *= 0.82;
-    }
-    if (kills >= 42) {
-      powerScaled *= 0.7;
-    }
-    const minutes = state.scheduler.time / 60;
-    if (minutes > 30) {
-      powerScaled *= 1 / (1 + (minutes - 30) * 0.018);
+    const exhausted = source.statuses.find((status) => status.kind === 'exhaust');
+    if (exhausted) {
+      powerScaled *= Math.max(0.4, 1 - exhausted.magnitude);
     }
   }
   if (target.kind === 'champion') {
@@ -391,9 +424,16 @@ export function applyDamage(
   }
   const scaledRaw = target.kind === 'champion' ? powerScaled * CHAMPION_DAMAGE_SCALE : powerScaled;
   let dealt = mitigate(scaledRaw, damageType, armor, mr);
-  if (target.kind === 'champion' && damageType !== 'true') {
-    const hpCap = target.maxHp * CHAMPION_HIT_HP_CAP;
-    dealt = Math.min(dealt, hpCap);
+  if (target.kind === 'champion') {
+    const shield = target.statuses.find((status) => status.kind === 'shield' && status.magnitude > 0);
+    if (shield) {
+      const absorbed = Math.min(shield.magnitude, dealt);
+      shield.magnitude -= absorbed;
+      dealt -= absorbed;
+      if (shield.magnitude <= 0.5) {
+        target.statuses = target.statuses.filter((status) => status.id !== shield.id);
+      }
+    }
   }
   target.hp = Math.max(0, target.hp - dealt);
   if (source && source.kind === 'champion') {
@@ -401,13 +441,45 @@ export function applyDamage(
     if (target.kind === 'champion') {
       source.damageToChampions += dealt;
       noteThreat(target, source, dealt, state.scheduler.time);
+      if (dealt > 0) {
+        for (const structure of state.structures) {
+          if (
+            !structure.alive ||
+            structure.side !== target.side ||
+            structure.ad <= 0 ||
+            structure.range <= 0
+          ) {
+            continue;
+          }
+          const towerGap = Math.hypot(
+            source.position.x - structure.position.x,
+            source.position.y - structure.position.y,
+          );
+          if (towerGap > structure.range) {
+            continue;
+          }
+          structure.aggroTargetId = source.id;
+          structure.aggroUntil = state.scheduler.time + 3.2;
+        }
+      }
+      if (source.positionLabel === 'SUPPORT' && dealt > 0) {
+        tryPaySharedRichesCombat(state, source, recorder);
+      }
     }
   }
   if (target.kind === 'champion') {
     target.damageTaken += dealt;
-    if (dealt > 0 && target.recallPhase === 'moving_home') {
+    if (source && source.kind === 'champion') {
+      target.damageTakenFromChampions += dealt;
+    }
+    if (
+      dealt > 0 &&
+      target.recallPhase === 'moving_home' &&
+      target.recallChannelUntil - state.scheduler.time > 0.1
+    ) {
       target.recallPhase = 'none';
       target.recallChannelUntil = 0;
+      target.recallChannelDuration = 0;
       target.currentAction = 'idle';
     }
   }
@@ -420,15 +492,6 @@ export function applyDamage(
   });
   if (target.hp <= 0) {
     if (target.kind === 'champion') {
-      const overpace = killOverpace(state);
-      const kills = matchKillTotal(state);
-      const escapeChance =
-        overpace > 0.85 ? 0.92 : overpace > 0.75 ? 0.78 : kills >= 20 ? 0.62 : 0.34;
-      if (source?.kind === 'champion' && state.rng() < escapeChance) {
-        target.alive = true;
-        forceRecall(state, target, recorder);
-        return dealt;
-      }
       target.alive = false;
       handleChampionDeath(state, source, target, recorder, via);
     } else if (target.kind === 'minion') {
@@ -441,28 +504,6 @@ export function applyDamage(
   return dealt;
 }
 
-function nearestEnemyChampion(
-  state: GameState,
-  victim: ChampionEntity,
-  radius: number,
-): ChampionEntity | null {
-  let best: ChampionEntity | null = null;
-  let bestDist = Number.POSITIVE_INFINITY;
-  for (const enemy of state.champions) {
-    if (!enemy.alive || enemy.side === victim.side) {
-      continue;
-    }
-    const dx = enemy.position.x - victim.position.x;
-    const dy = enemy.position.y - victim.position.y;
-    const d = Math.hypot(dx, dy);
-    if (d <= radius && d < bestDist) {
-      best = enemy;
-      bestDist = d;
-    }
-  }
-  return best;
-}
-
 function handleChampionDeath(
   state: GameState,
   source: ChampionEntity | null,
@@ -470,16 +511,9 @@ function handleChampionDeath(
   recorder?: ReplayRecorder,
   via = 'auto',
 ): void {
-  let credited = resolveKiller(state, source, victim);
   const environmental = via === 'tower' || via === 'minion' || via === 'monster' || via === 'camp';
-  if (!credited && environmental) {
-    credited =
-      nearestEnemyChampion(state, victim, 1800) ?? nearestEnemyChampion(state, victim, 20000);
-  }
-  if (!credited) {
-    credited = state.champions.find((champ) => champ.side !== victim.side) ?? null;
-  }
-  if (!credited) {
+  let credited = resolveKiller(state, source, victim);
+  if (!credited && !environmental) {
     victim.alive = true;
     forceRecall(state, victim, recorder);
     return;
@@ -498,9 +532,7 @@ function handleChampionDeath(
   const assistIds: string[] = [];
   if (credited) {
     credited.kills += 1;
-    const killPay =
-      state.lockedPack.economy.killGold *
-      (credited.positionLabel === 'SUPPORT' ? 0.55 : credited.positionLabel === 'JUNGLE' ? 0.9 : 1);
+    const killPay = state.lockedPack.economy.killGold;
     grantGold(state, credited, killPay, 'kill', recorder);
     pushGoldSample(state);
     const killXp = 80 + victim.level * 28 + Math.max(0, victim.level - credited.level) * 18;
@@ -556,40 +588,20 @@ function handleChampionDeath(
         ally.positionLabel === 'JUNGLE' && Math.min(toVictim, toKiller) <= LANE_MATE_ASSIST_RANGE;
       if (sameLaneMate || junglerNearby) {
         assisted.add(ally.id);
-        continue;
-      }
-      if (
-        isFightingAction(ally.currentAction) &&
-        (toVictim <= PROXIMITY_ASSIST_RANGE + 600 || toKiller <= KILLER_ASSIST_RANGE + 600)
-      ) {
-        assisted.add(ally.id);
-        continue;
-      }
-      let dealtRecently = false;
-      for (const enemy of state.champions) {
-        if (enemy.side === ally.side) {
-          continue;
-        }
-        const threat = enemy.threatTable[ally.id] ?? threatSnapshot[ally.id];
-        if (threat && t - threat.at <= THREAT_WINDOW_SEC && threat.amount > 0) {
-          dealtRecently = true;
-          break;
-        }
-      }
-      if (dealtRecently && Math.min(toVictim, toKiller) <= PROXIMITY_ASSIST_RANGE + 800) {
-        assisted.add(ally.id);
       }
     }
+    const assistPool = Math.max(
+      state.lockedPack.economy.assistGold,
+      state.lockedPack.economy.killGold * 0.5,
+    );
+    const assistShare = assisted.size > 0 ? assistPool / assisted.size : 0;
     for (const allyId of assisted) {
       const ally = state.champions.find((champ) => champ.id === allyId);
       if (!ally) {
         continue;
       }
       ally.assists += 1;
-      const assistPay =
-        state.lockedPack.economy.assistGold *
-        (ally.positionLabel === 'SUPPORT' ? 0.7 : 1);
-      grantGold(state, ally, assistPay, 'assist', recorder);
+      grantGold(state, ally, assistShare, 'assist', recorder);
       assistIds.push(ally.playerId);
     }
   }
@@ -597,6 +609,8 @@ function handleChampionDeath(
     type: 'death',
     actorId: victim.id,
     targetId: credited?.id,
+    x: victim.position.x,
+    y: victim.position.y,
     payload: { respawnAt: victim.respawnAt, assistPlayerIds: assistIds, via },
   });
   state.scheduler.schedule(victim.respawnAt, 'respawn', () => {

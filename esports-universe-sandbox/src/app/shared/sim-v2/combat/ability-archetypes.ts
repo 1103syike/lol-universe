@@ -6,6 +6,7 @@ import {
   applyMs,
   applySlow,
   applyStun,
+  dashCasterTo,
   dealToTarget,
   heal,
   hitChampionsInRadius,
@@ -210,9 +211,7 @@ function assassinQ(ctx: AbilityCastContext): boolean {
     ctx.recorder,
   );
   if (ctx.target.kind === 'champion' || ctx.target.kind === 'monster') {
-    ctx.caster.position = { ...ctx.target.position };
-    ctx.caster.path = [];
-    ctx.caster.moving = false;
+    dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   }
   return true;
 }

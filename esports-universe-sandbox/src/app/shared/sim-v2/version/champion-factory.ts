@@ -1,3 +1,4 @@
+import { CHAMPION_COMBAT_BY_ID } from '../../../core/data/champion-combat';
 import { CHAMPION_KITS } from '../../../core/data/champion-kits';
 import { CHAMPIONS } from '../../../core/data/champions';
 import type { ChampionId, ImplementationStatus } from '../types/ids';
@@ -17,6 +18,13 @@ function isMagicKit(championId: string, tags: readonly string[]): boolean {
       return kit.combatClass === 'mage' || tags.includes('Mage');
     }
   }
+  const combat = CHAMPION_COMBAT_BY_ID[championId];
+  if (combat?.adaptiveType?.includes('MAGIC')) {
+    return true;
+  }
+  if (combat?.adaptiveType?.includes('PHYSICAL')) {
+    return false;
+  }
   if (tags.includes('Marksman')) {
     return false;
   }
@@ -29,16 +37,12 @@ function isMagicKit(championId: string, tags: readonly string[]): boolean {
   return false;
 }
 
-function isRanged(tags: readonly string[]): boolean {
-  return tags.includes('Marksman') || tags.includes('Mage');
-}
-
 function usesMana(resource: string): boolean {
   const key = resource.toLowerCase();
   return key.includes('mana') || key === '';
 }
 
-function abilities(
+function fallbackAbilities(
   name: string,
   magic: boolean,
   manaUser: boolean,
@@ -120,6 +124,39 @@ function abilities(
   ];
 }
 
+function abilitiesFromCombat(
+  championId: string,
+  status: ImplementationStatus,
+  magicFallback: boolean,
+): AbilityDefinition[] | null {
+  const combat = CHAMPION_COMBAT_BY_ID[championId];
+  if (!combat) {
+    return null;
+  }
+  return combat.abilities.map((ability) => ({
+    slot: ability.slot,
+    name: ability.nameZh || ability.name,
+    nameZh: ability.nameZh,
+    iconUrl: ability.iconUrl,
+    description: ability.description,
+    maxRank: ability.maxRank,
+    cooldownSec: ability.cooldownSec,
+    manaCost: ability.manaCost,
+    range: ability.range,
+    damageBase: ability.damageBase,
+    damagePerLevel: ability.damagePerLevel,
+    damageType: ability.damageType || (magicFallback ? 'magic' : 'physical'),
+    cooldownByRank: ability.cooldownByRank,
+    manaCostByRank: ability.manaCostByRank,
+    damageByRank: ability.damageByRank,
+    adRatio: ability.adRatio,
+    bonusAdRatio: ability.bonusAdRatio,
+    apRatio: ability.apRatio,
+    tags: ability.tags,
+    implementationStatus: status,
+  }));
+}
+
 export function buildChampionTable(
   fullIds: readonly ChampionId[],
   hpBias = 0,
@@ -128,11 +165,11 @@ export function buildChampionTable(
   const table: Record<string, ChampionDefinition> = {};
   for (const champ of CHAMPIONS) {
     const magic = isMagicKit(champ.id, champ.tags);
-    const ranged = isRanged(champ.tags);
     const manaUser = usesMana(champ.resource);
     const status: ImplementationStatus = full.has(champ.id) ? 'full' : 'partial';
-    const combatClass = CHAMPION_KITS[champ.id]?.combatClass
-      ?? (champ.tags.includes('Marksman')
+    const combatClass =
+      CHAMPION_KITS[champ.id]?.combatClass ??
+      (champ.tags.includes('Marksman')
         ? 'marksman'
         : champ.tags.includes('Mage')
           ? 'mage'
@@ -141,25 +178,38 @@ export function buildChampionTable(
             : champ.tags.includes('Support')
               ? 'support'
               : 'fighter');
+    const combat = CHAMPION_COMBAT_BY_ID[champ.id];
+    const abilities =
+      abilitiesFromCombat(champ.id, status, magic) ??
+      fallbackAbilities(champ.name, magic, manaUser, status, combatClass);
     table[champ.id] = {
       id: champ.id,
       name: champ.name,
       tags: [...champ.tags],
       primaryDamage: magic ? 'magic' : 'physical',
-      baseHp: (champ.tags.includes('Tank') ? 680 : 610) + hpBias,
-      hpPerLevel: champ.tags.includes('Tank') ? 112 : 102,
-      baseMana: manaUser ? 340 : 0,
-      manaPerLevel: manaUser ? 45 : 0,
-      baseAd: magic ? 53 : champ.tags.includes('Marksman') ? 59 : 62,
-      adPerLevel: magic ? 3.1 : champ.tags.includes('Marksman') ? 3.4 : 3.6,
-      baseArmor: champ.tags.includes('Tank') ? 36 : 27,
-      armorPerLevel: champ.tags.includes('Tank') ? 4.7 : 4.3,
-      baseMr: champ.tags.includes('Tank') ? 32 : 30,
-      mrPerLevel: champ.tags.includes('Tank') ? 2.05 : 1.3,
-      moveSpeed: 340,
-      attackRange: ranged ? 550 : 175,
-      attackSpeed: champ.tags.includes('Marksman') ? 0.75 : 0.72,
-      abilities: abilities(champ.name, magic, manaUser, status, combatClass),
+      baseHp: (combat?.baseHp ?? (champ.tags.includes('Tank') ? 680 : 610)) + hpBias,
+      hpPerLevel: combat?.hpPerLevel ?? (champ.tags.includes('Tank') ? 112 : 102),
+      baseMana: combat ? combat.baseMana : manaUser ? 340 : 0,
+      manaPerLevel: combat ? combat.manaPerLevel : manaUser ? 45 : 0,
+      baseAd: combat?.baseAd ?? (magic ? 53 : champ.tags.includes('Marksman') ? 59 : 62),
+      adPerLevel:
+        combat?.adPerLevel ?? (magic ? 3.1 : champ.tags.includes('Marksman') ? 3.4 : 3.6),
+      baseArmor: combat?.baseArmor ?? (champ.tags.includes('Tank') ? 36 : 27),
+      armorPerLevel: combat?.armorPerLevel ?? (champ.tags.includes('Tank') ? 4.7 : 4.3),
+      baseMr: combat?.baseMr ?? (champ.tags.includes('Tank') ? 32 : 30),
+      mrPerLevel: combat?.mrPerLevel ?? (champ.tags.includes('Tank') ? 2.05 : 1.3),
+      moveSpeed: combat?.moveSpeed ?? 340,
+      attackRange: (() => {
+        if (!combat) {
+          return champ.tags.includes('Marksman') || champ.tags.includes('Mage') ? 550 : 175;
+        }
+        if (combat.attackType === 'RANGED' && combat.attackRange < 300) {
+          return 500;
+        }
+        return combat.attackRange;
+      })(),
+      attackSpeed: combat?.attackSpeed ?? (champ.tags.includes('Marksman') ? 0.75 : 0.72),
+      abilities,
       implementationStatus: status,
       identity: buildChampionIdentity(champ.id),
     };

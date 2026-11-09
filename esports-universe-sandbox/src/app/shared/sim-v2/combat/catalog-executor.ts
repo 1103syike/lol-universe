@@ -5,6 +5,7 @@ import {
   applyMs,
   applySlow,
   applyStun,
+  dashCasterTo,
   dealToTarget,
   heal,
   hitChampionsInRadius,
@@ -113,9 +114,7 @@ function executeSlot(ctx: AbilityCastContext, profile: ChampionAbilityProfile, s
       }
       dealToTarget(ctx.state, ctx.caster, ctx.target, raw, dtype, via, ctx.recorder);
       if (ctx.target.kind === 'champion' || ctx.target.kind === 'monster') {
-        ctx.caster.position = { ...ctx.target.position };
-        ctx.caster.path = [];
-        ctx.caster.moving = false;
+        dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
       }
       return true;
     }
@@ -126,14 +125,16 @@ function executeSlot(ctx: AbilityCastContext, profile: ChampionAbilityProfile, s
       dealToTarget(ctx.state, ctx.caster, ctx.target, raw, dtype, via, ctx.recorder);
       applyStun(ctx.target, `${via}:hook`, 1 + (spec.cc ?? 0.5) * 0.4);
       if ((spec.kind === 'hook' && profile.combatClass === 'tank') || profile.combatClass === 'support') {
-        ctx.caster.position = { ...ctx.target.position };
+        dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
       }
       return true;
     }
     case 'steroid': {
       applyAs(ctx.caster, `${via}:as`, 3.5, 0.12 + r * 0.03);
-      applyMs(ctx.caster, `${via}:ms`, 2.5, spec.ms ?? 50);
-      if (ctx.target) {
+      if ((spec.ms ?? 0) > 0) {
+        applyMs(ctx.caster, `${via}:ms`, 2.5, spec.ms ?? 50);
+      }
+      if (ctx.target && raw > 1) {
         dealToTarget(ctx.state, ctx.caster, ctx.target, raw * 0.7, dtype, via, ctx.recorder);
       }
       return true;

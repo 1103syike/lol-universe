@@ -1,0 +1,28 @@
+export type BuildingIconKind = 'tower' | 'inhibitor' | 'nexus';
+export type BuildingIconSide = 'blue' | 'red';
+
+export function buildingIconUrl(kind: BuildingIconKind, side: BuildingIconSide): string {
+  return `/buildings/${kind}_building_${side}.png`;
+}
+
+export function structureKindToBuildingIcon(
+  structureKind: string,
+): BuildingIconKind {
+  if (structureKind === 'inhibitor') {
+    return 'inhibitor';
+  }
+  if (structureKind === 'nexus') {
+    return 'nexus';
+  }
+  return 'tower';
+}
+
+export function buildingIconSize(kind: BuildingIconKind): number {
+  if (kind === 'nexus') {
+    return 36;
+  }
+  if (kind === 'inhibitor') {
+    return 28;
+  }
+  return 26;
+}

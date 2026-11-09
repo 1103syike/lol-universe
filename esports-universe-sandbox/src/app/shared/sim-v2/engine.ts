@@ -1,11 +1,16 @@
 import type { MatchDraftReport } from '../sim/report';
-import { runAiTick } from './ai/decision';
+import { runAiTick } from './ai/match-ai';
 import { laneApproachOf, spawnChampion, type V2RosterPlayer } from './champion/spawn';
 import { basicAttack, castAbility } from './combat/combat';
-import { applyDamage } from './combat/damage';
 import { tickStatuses } from './combat/executors';
+import { maybeTickSummonerDots } from './combat/summoner-spells';
 import { tickPassiveGold, tickSupportItemIncome } from './economy/economy';
-import { attackCamp, bootstrapCamps, nearestFriendlyCamp, tickMonsters } from './jungle/jungle-system';
+import {
+  bootstrapCamps,
+  nearestFriendlyCamp,
+  runJungleClearStep,
+  tickMonsters,
+} from './jungle/jungle-system';
 import { orderMove, orderMoveOnLane, tickMovement } from './map/movement';
 import { dist } from './map/pathfinding';
 import type { LaneId } from './types/ids';
@@ -14,8 +19,6 @@ import { waveIntervalSec } from './version/shared-content';
 import {
   attackStructure,
   bootstrapStructures,
-  canSiege,
-  destroyStructureForSiege,
   nearestAttackableStructure,
   tickStructures,
   wavePressuringStructure,
@@ -30,7 +33,7 @@ import {
   type GameState,
 } from './state/game-state';
 import { lockVersion } from './version/registry';
-import { updateVision } from './vision/vision';
+import { bootstrapVision, updateVision } from './vision/vision';
 
 export interface SimulateV2Input {
   matchId?: string;
@@ -92,6 +95,7 @@ export function createMatch(input: SimulateV2Input): { state: GameState; recorde
   }
   bootstrapStructures(state);
   bootstrapCamps(state);
+  bootstrapVision(state);
 
   const rules = pack.minions;
   state.scheduler.schedule(rules.firstSpawnSec, 'first_wave', () => {
@@ -126,6 +130,7 @@ function tickFountainRegen(state: GameState, dt: number): void {
       if (champion.recallPhase === 'moving_home') {
         champion.recallPhase = 'at_base';
         champion.recallChannelUntil = 0;
+        champion.recallChannelDuration = 0;
         champion.moving = false;
         champion.path = [];
       }
@@ -196,7 +201,9 @@ function isCombatAction(action: string): boolean {
     action === 'fight' ||
     action === 'trade' ||
     action === 'gank' ||
-    action === 'skirmish'
+    action === 'skirmish' ||
+    action === 'tower_hold' ||
+    action === 'tower_bail'
   );
 }
 
@@ -218,6 +225,9 @@ function botLanePressure(
   if (champion.positionLabel !== 'BOT' || !champion.alive) {
     return;
   }
+  if (state.scheduler.time < 210) {
+    return;
+  }
   if (
     champion.currentAction === 'dead' ||
     champion.currentAction === 'recall' ||
@@ -225,8 +235,15 @@ function botLanePressure(
   ) {
     return;
   }
+  if (
+    champion.currentAction !== 'trade' &&
+    champion.currentAction !== 'fight' &&
+    champion.currentAction !== 'lane'
+  ) {
+    return;
+  }
   const hpRatio = champion.hp / Math.max(1, champion.maxHp);
-  if (hpRatio < 0.28) {
+  if (hpRatio < 0.42) {
     return;
   }
   let target: (typeof state.champions)[number] | null = null;
@@ -244,20 +261,14 @@ function botLanePressure(
       target = enemy;
     }
   }
-  if (!target || best > 1600) {
+  if (!target || best > champion.attackRange + 180) {
     return;
   }
-  if (state.rng() >= 0.16) {
+  if (state.rng() >= 0.08) {
     return;
   }
-  const harass =
-    champion.ad * (0.18 + champion.skills.mechanics / 420) + champion.level * 2.2 + 10;
-  applyDamage(state, champion, target, harass, 'physical', recorder, 'lane_harass');
-  if (best <= champion.attackRange + 60 && state.rng() < 0.28) {
+  if (best <= champion.attackRange + 40) {
     basicAttack(state, champion, target, recorder);
-  }
-  if (state.rng() < 0.14) {
-    castAbility(state, champion, 'Q', target, recorder);
   }
 }
 
@@ -279,16 +290,100 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
         champion.currentAction === 'lane' ||
         champion.currentAction === 'siege');
 
-    if (jungling || (champion.positionLabel === 'JUNGLE' && !fighting && hpRatio > 0.25)) {
-      const camp = nearestFriendlyCamp(state, champion);
-      if (camp && dist(champion.position, camp.position) <= champion.attackRange + 80) {
-        attackCamp(state, champion, camp, recorder);
-        if (state.rng() < 0.55) {
-          castAbility(state, champion, 'Q', camp, recorder);
-        }
+    if (champion.recallPhase !== 'none') {
+      continue;
+    }
+    let nearbyEnemyChamp: (typeof state.champions)[number] | null = null;
+    let nearbyEnemyDist = Number.POSITIVE_INFINITY;
+    for (const enemy of state.champions) {
+      if (!enemy.alive || enemy.side === champion.side) {
         continue;
       }
-      if (!fighting && !laning) {
+      const gap = dist(champion.position, enemy.position);
+      if (gap < nearbyEnemyDist) {
+        nearbyEnemyDist = gap;
+        nearbyEnemyChamp = enemy;
+      }
+    }
+    const fightReach = Math.max(champion.attackRange + 240, 720);
+    const junglerClearing =
+      champion.positionLabel === 'JUNGLE' &&
+      jungling &&
+      champion.currentAction !== 'gank' &&
+      champion.currentAction !== 'skirmish' &&
+      champion.currentAction !== 'roam' &&
+      champion.currentAction !== 'rotate';
+    const junglerBehind =
+      champion.positionLabel === 'JUNGLE' &&
+      champion.deaths >= champion.kills + 1;
+    const junglerShouldContest =
+      junglerClearing &&
+      !junglerBehind &&
+      !!nearbyEnemyChamp &&
+      (nearbyEnemyDist <= champion.attackRange + 120 ||
+        (nearbyEnemyDist <= 520 &&
+          (nearbyEnemyChamp.positionLabel === 'JUNGLE' ||
+            nearbyEnemyChamp.currentAction === 'gank' ||
+            nearbyEnemyChamp.currentAction === 'skirmish')));
+    const shouldContestChamp =
+      !!nearbyEnemyChamp &&
+      nearbyEnemyDist <= fightReach &&
+      (fighting ||
+        champion.currentAction === 'gank' ||
+        champion.currentAction === 'skirmish' ||
+        junglerShouldContest);
+    if (shouldContestChamp && nearbyEnemyChamp) {
+      const enemyUnderTower = state.structures.some(
+        (structure) =>
+          structure.alive &&
+          structure.side === nearbyEnemyChamp!.side &&
+          structure.ad > 0 &&
+          dist(nearbyEnemyChamp!.position, structure.position) <= structure.range + 40,
+      );
+      const selfUnderTower = state.structures.some(
+        (structure) =>
+          structure.alive &&
+          structure.side !== champion.side &&
+          structure.ad > 0 &&
+          dist(champion.position, structure.position) <= structure.range + 40,
+      );
+      if (selfUnderTower || (enemyUnderTower && nearbyEnemyDist > champion.attackRange + 80)) {
+        // leave dive decisions to AI tick; do not hard-commit through tower here
+      } else if (nearbyEnemyDist <= champion.attackRange + 50) {
+        basicAttack(state, champion, nearbyEnemyChamp, recorder);
+        if (state.rng() < 0.7) {
+          castAbility(state, champion, 'Q', nearbyEnemyChamp, recorder);
+        }
+        if (state.rng() < 0.35) {
+          castAbility(state, champion, 'W', nearbyEnemyChamp, recorder);
+        }
+        if (state.rng() < 0.28) {
+          castAbility(state, champion, 'E', nearbyEnemyChamp, recorder);
+        }
+        continue;
+      } else {
+        orderMove(state, champion, nearbyEnemyChamp.position, recorder);
+        continue;
+      }
+    }
+    if (junglerClearing && hpRatio > 0.25) {
+      const camp = nearestFriendlyCamp(state, champion);
+      if (camp) {
+        runJungleClearStep(
+          state,
+          champion,
+          camp,
+          (target) => {
+            orderMove(state, champion, target, recorder);
+          },
+          recorder,
+        );
+        if (
+          dist(champion.position, camp.position) <= champion.attackRange + 80 &&
+          state.rng() < 0.55
+        ) {
+          castAbility(state, champion, 'Q', camp, recorder);
+        }
         continue;
       }
     }
@@ -298,7 +393,15 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
       const minion = nearestEnemyMinionOnLane(state, champion, laneId);
       const canSupportFarm =
         champion.positionLabel !== 'SUPPORT' ||
-        (farming && minion?.role === 'cannon');
+        (minion != null &&
+          champion.supportSharedRichesCharges > 0 &&
+          state.champions.some(
+            (ally) =>
+              ally.alive &&
+              ally.side === champion.side &&
+              ally.id !== champion.id &&
+              dist(champion.position, ally.position) <= 1050,
+          ));
       let lanePoke: (typeof state.champions)[number] | null = null;
       let lanePokeDist = Number.POSITIVE_INFINITY;
       for (const enemy of state.champions) {
@@ -327,26 +430,50 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
         (champion.positionLabel === 'BOT' ? 320 : champion.positionLabel === 'TOP' ? 220 : 180);
       const spellRange =
         champion.positionLabel === 'BOT' ? 950 : champion.positionLabel === 'MID' ? 900 : 820;
-      const canPoke = !!lanePoke && lanePokeDist <= pokeRange && hpRatio >= 0.32;
+      const supportSafe =
+        champion.positionLabel !== 'SUPPORT' ||
+        (hpRatio >= 0.62 &&
+          state.champions.some(
+            (ally) =>
+              ally.alive &&
+              ally.side === champion.side &&
+              ally.positionLabel === 'BOT' &&
+              dist(champion.position, ally.position) <= 900,
+          ));
+      const canPoke =
+        !!lanePoke &&
+        lanePokeDist <= pokeRange &&
+        hpRatio >= (champion.positionLabel === 'SUPPORT' ? 0.68 : 0.32) &&
+        supportSafe;
       const canSpellPoke =
-        !!lanePoke && lanePokeDist <= spellRange && lanePokeDist > pokeRange && hpRatio >= 0.36;
+        !!lanePoke &&
+        lanePokeDist <= spellRange &&
+        lanePokeDist > pokeRange &&
+        hpRatio >= (champion.positionLabel === 'SUPPORT' ? 0.7 : 0.36) &&
+        supportSafe;
+      const earlyFactor =
+        state.scheduler.time < 180 ? 0.08 : state.scheduler.time < 480 ? 0.2 : 0.48;
       const pokeChance =
-        champion.positionLabel === 'BOT'
-          ? 0.34
+        (champion.positionLabel === 'BOT'
+          ? 0.18
           : champion.positionLabel === 'MID'
             ? 0.26
             : champion.positionLabel === 'TOP'
               ? 0.4
-              : 0.22;
+              : champion.positionLabel === 'SUPPORT'
+                ? state.scheduler.time < 480
+                  ? 0.04
+                  : 0.12
+                : 0.22) * earlyFactor;
       if (canPoke && state.rng() < pokeChance) {
         basicAttack(state, champion, lanePoke!, recorder);
-        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.45 : 0.55)) {
+        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.28 : 0.55)) {
           castAbility(state, champion, 'Q', lanePoke!, recorder);
         }
-        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.18 : 0.22)) {
+        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.1 : 0.22)) {
           castAbility(state, champion, 'W', lanePoke!, recorder);
         }
-        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.12 : 0.14)) {
+        if (state.rng() < (champion.positionLabel === 'BOT' ? 0.06 : 0.14)) {
           castAbility(state, champion, 'E', lanePoke!, recorder);
         }
         continue;
@@ -360,17 +487,6 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
           castAbility(state, champion, 'E', lanePoke!, recorder);
         }
         continue;
-      }
-      if (
-        champion.positionLabel === 'BOT' &&
-        lanePoke &&
-        lanePokeDist <= 1400 &&
-        hpRatio >= 0.34 &&
-        state.rng() < 0.14
-      ) {
-        const harass =
-          champion.ad * (0.2 + champion.skills.mechanics / 380) + champion.level * 2.4 + 10;
-        applyDamage(state, champion, lanePoke, harass, 'physical', recorder, 'lane_harass');
       }
       if (
         canSupportFarm &&
@@ -401,11 +517,28 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
     if (!fighting && !laning) {
       continue;
     }
+    const t = state.scheduler.time;
+    const laningLock = t < 480;
+    const ownLane = laneIdOfChampion(champion);
     let target = null as (typeof state.champions)[number] | null;
     let bestDist = Number.POSITIVE_INFINITY;
     for (const enemy of state.champions) {
       if (!enemy.alive || enemy.side === champion.side) {
         continue;
+      }
+      if (laningLock && champion.positionLabel !== 'JUNGLE') {
+        const enemyLane =
+          enemy.assignedLane ??
+          (enemy.positionLabel === 'TOP'
+            ? 'top'
+            : enemy.positionLabel === 'MID'
+              ? 'mid'
+              : enemy.positionLabel === 'BOT' || enemy.positionLabel === 'SUPPORT'
+                ? 'bot'
+                : null);
+        if (enemyLane && enemyLane !== ownLane) {
+          continue;
+        }
       }
       const d = dist(champion.position, enemy.position);
       if (d < bestDist) {
@@ -414,8 +547,8 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
       }
     }
     const engageRange = fighting
-      ? champion.attackRange + 160
-      : champion.attackRange + 90;
+      ? champion.attackRange + (laningLock ? 80 : 160)
+      : champion.attackRange + (laningLock ? 40 : 90);
     if (!target || bestDist > engageRange) {
       continue;
     }
@@ -437,16 +570,17 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
       }
       continue;
     }
-    if (fighting || state.rng() < 0.55) {
+    const botCastScale = champion.positionLabel === 'BOT' ? 0.55 : 1;
+    if (fighting || state.rng() < 0.55 * botCastScale) {
       castAbility(state, champion, 'Q', target, recorder);
     }
-    if (fighting || state.rng() < 0.4) {
+    if (fighting || state.rng() < 0.4 * botCastScale) {
       castAbility(state, champion, 'E', target, recorder);
     }
-    if (fighting && state.rng() < 0.35) {
+    if (fighting && state.rng() < 0.35 * botCastScale) {
       castAbility(state, champion, 'W', target, recorder);
     }
-    if (champion.level >= 6 && fighting && state.rng() < 0.28) {
+    if (champion.level >= 6 && fighting && state.rng() < 0.28 * botCastScale) {
       castAbility(state, champion, 'R', target, recorder);
     }
   }
@@ -455,6 +589,9 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
 function tickWorld(state: GameState, dt: number, recorder: ReplayRecorder): void {
   tickStatuses(state, dt);
   for (const champion of state.champions) {
+    if (champion.alive) {
+      maybeTickSummonerDots(state, champion, dt, recorder);
+    }
     if (!champion.alive || champion.maxMana <= 1) {
       continue;
     }
@@ -476,39 +613,41 @@ function livingStructureCount(state: GameState, side: 'blue' | 'red'): number {
   return state.structures.filter((structure) => structure.alive && structure.side === side).length;
 }
 
-function ensureSiegeMomentum(state: GameState): void {
-  const blueCount = livingStructureCount(state, 'blue');
-  const redCount = livingStructureCount(state, 'red');
-  const leaderSide =
-    blueCount === redCount
-      ? teamGold(state, 'blue') >= teamGold(state, 'red')
-        ? 'blue'
-        : 'red'
-      : blueCount < redCount
-        ? 'red'
-        : 'blue';
-  const leader = leaderSide === 'blue' ? state.blue : state.red;
-  if (!leader.hasBaron) {
-    leader.hasBaron = true;
+function pickTimeoutWinnerSide(state: GameState): 'blue' | 'red' {
+  const blueLiving = livingStructureCount(state, 'blue');
+  const redLiving = livingStructureCount(state, 'red');
+  if (blueLiving !== redLiving) {
+    return blueLiving < redLiving ? 'red' : 'blue';
   }
+  const blueGold = teamGold(state, 'blue');
+  const redGold = teamGold(state, 'red');
+  if (blueGold !== redGold) {
+    return blueGold > redGold ? 'blue' : 'red';
+  }
+  return state.rng() < 0.5 ? 'blue' : 'red';
 }
 
-function finishOpenNexus(state: GameState, recorder: ReplayRecorder): boolean {
-  for (const champ of livingChampions(state)) {
-    const nexus = state.structures.find(
-      (structure) =>
-        structure.alive &&
-        structure.side !== champ.side &&
-        structure.structureKind === 'nexus' &&
-        canSiege(state, structure),
-    );
-    if (!nexus) {
-      continue;
-    }
-    destroyStructureForSiege(state, nexus, champ, recorder);
-    return state.ended;
+function endMatchByTimeout(state: GameState, recorder: ReplayRecorder): void {
+  if (state.ended) {
+    return;
   }
-  return false;
+  const winnerSide = pickTimeoutWinnerSide(state);
+  const winner = winnerSide === 'blue' ? state.blue : state.red;
+  state.ended = true;
+  state.endReason = 'timeout';
+  state.winnerTeamId = winner.teamId;
+  pushGoldSample(state);
+  recorder.record(state, {
+    type: 'match_end',
+    teamId: state.winnerTeamId,
+    payload: {
+      reason: 'timeout',
+      blueStructuresAlive: livingStructureCount(state, 'blue'),
+      redStructuresAlive: livingStructureCount(state, 'red'),
+      blueGold: teamGold(state, 'blue'),
+      redGold: teamGold(state, 'red'),
+    },
+  });
 }
 
 export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
@@ -518,7 +657,6 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
   let nextAi = 0;
   let nextSample = GOLD_SAMPLE_INTERVAL_SEC;
   let nextSnapshot = 1;
-  let momentumArmed = false;
   pushGoldSample(state);
 
   while (!state.ended && state.scheduler.time < safetyCap) {
@@ -568,13 +706,9 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
       }
     }
 
-    if (!state.ended && !momentumArmed && state.scheduler.time >= maxDuration) {
-      momentumArmed = true;
-      ensureSiegeMomentum(state);
-    }
-
-    if (!state.ended && state.scheduler.time >= safetyCap - 1) {
-      finishOpenNexus(state, recorder);
+    if (!state.ended && state.scheduler.time + 1e-9 >= maxDuration) {
+      endMatchByTimeout(state, recorder);
+      break;
     }
 
     if (dt <= 0 && !state.scheduler.peek()) {
@@ -583,7 +717,7 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
   }
 
   if (!state.ended) {
-    finishOpenNexus(state, recorder);
+    endMatchByTimeout(state, recorder);
   }
   if (input.forceWinnerTeamId) {
     state.winnerTeamId = input.forceWinnerTeamId;

@@ -81,4 +81,62 @@ describe('shop purchase soft order', () => {
     expect(champ.items).toContain('BerserkersGreaves');
     expect(champ.items).not.toContain('LordDominiksRegards');
   });
+
+  it('does not buy-sell already finished recipe parts after a full build', () => {
+    const state = makeState(44);
+    const champ = blueBot(state);
+    champ.items = [
+      'InfinityEdge',
+      'BerserkersGreaves',
+      'PhantomDancer',
+      'LordDominiksRegards',
+      'Bloodthirster',
+    ];
+    champ.gold = 5000;
+    const prefer = [
+      'DoransBlade',
+      'Boots',
+      'BFSword',
+      'CloakofAgility',
+      'Pickaxe',
+      'InfinityEdge',
+      'BerserkersGreaves',
+      'Zeal',
+      'PhantomDancer',
+      'LastWhisper',
+      'LordDominiksRegards',
+      'VampiricScepter',
+      'Bloodthirster',
+    ];
+    const before = [...champ.items].sort();
+    const beforeGold = champ.gold;
+    buyAffordableItems(state, champ, prefer);
+    expect([...champ.items].sort()).toEqual(before);
+    expect(champ.gold).toBe(beforeGold);
+  });
+
+  it('sells stuck components to finish the next legendary when inventory is full', () => {
+    const state = makeState(55);
+    const champ = blueBot(state);
+    champ.items = [
+      'InfinityEdge',
+      'BerserkersGreaves',
+      'PhantomDancer',
+      'Pickaxe',
+      'LongSword',
+      'ClothArmor',
+    ];
+    champ.gold = 2500;
+    const prefer = [
+      'InfinityEdge',
+      'BerserkersGreaves',
+      'PhantomDancer',
+      'LastWhisper',
+      'LordDominiksRegards',
+      'Bloodthirster',
+    ];
+    buyAffordableItems(state, champ, prefer);
+    expect(champ.items).toContain('LordDominiksRegards');
+    expect(champ.items).not.toContain('ClothArmor');
+  });
 });

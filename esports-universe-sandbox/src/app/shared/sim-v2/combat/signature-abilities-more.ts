@@ -4,9 +4,11 @@ import {
   applyMs,
   applySlow,
   applyStun,
+  dashCasterTo,
   dealToTarget,
   heal,
   hitChampionsInRadius,
+  pullTargetTo,
   rank,
   type AbilityExecutor,
 } from './ability-helpers';
@@ -36,7 +38,7 @@ const yasuoE: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -161,7 +163,7 @@ const kaisaR: AbilityExecutor = (ctx) => {
     return false;
   }
   applyMs(ctx.caster, 'kaisa:r:ms', 2, 100);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   applyArmor(ctx.caster, 'kaisa:r:shield', 2.5, 30);
   return true;
 };
@@ -200,7 +202,7 @@ const akaliE: AbilityExecutor = (ctx) => {
     'akali:e',
     ctx.recorder,
   );
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   return true;
 };
 const akaliR: AbilityExecutor = (ctx) => {
@@ -246,7 +248,7 @@ const katarinaE: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -401,7 +403,7 @@ const fioraQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -457,7 +459,7 @@ const jaxQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -822,7 +824,7 @@ const sejuaniQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -903,7 +905,7 @@ const jarvanR: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -987,7 +989,7 @@ const ireliaQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  ctx.caster.position = { ...ctx.target.position };
+  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
   dealToTarget(
     ctx.state,
     ctx.caster,
@@ -1066,7 +1068,7 @@ const blitzcrankQ: AbilityExecutor = (ctx) => {
     ctx.recorder,
   );
   applyStun(ctx.target, 'blitz:q:grab', 1.2);
-  ctx.target.position = { ...ctx.caster.position };
+  pullTargetTo(ctx.caster, ctx.target, undefined, ctx.state);
   return true;
 };
 const blitzcrankW: AbilityExecutor = (ctx) => {

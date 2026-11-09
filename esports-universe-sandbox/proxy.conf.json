@@ -6,5 +6,13 @@
     "pathRewrite": {
       "^/api": ""
     }
+  },
+  "/dev/save-map-layout": {
+    "target": "http://127.0.0.1:8765",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/dev/save-map-layout": "/save-map-layout"
+    }
   }
 }

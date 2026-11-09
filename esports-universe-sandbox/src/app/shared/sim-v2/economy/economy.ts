@@ -1,8 +1,44 @@
 import type { ChampionEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
-import type { ItemId } from '../types/ids';
+import type { AbilitySlot, ItemId } from '../types/ids';
 import type { ReplayRecorder } from '../replay/recorder';
 import { dist } from '../map/pathfinding';
+import { levelAbility } from '../combat/combat';
+
+function investAbilityPoints(champion: ChampionEntity): void {
+  const expected = champion.level;
+  let invested = champion.abilities.reduce(
+    (sum, ability) => sum + (ability.slot === 'P' ? 0 : ability.level),
+    0,
+  );
+  const wantR =
+    champion.level >= 16 ? 3 : champion.level >= 11 ? 2 : champion.level >= 6 ? 1 : 0;
+  while (invested < expected) {
+    let gained = false;
+    const currentR = champion.abilities.find((ability) => ability.slot === 'R')?.level ?? 0;
+    const order: AbilitySlot[] =
+      currentR < wantR ? ['R', 'Q', 'E', 'W'] : ['Q', 'E', 'W', 'R'];
+    for (const slot of order) {
+      if (slot === 'P') {
+        continue;
+      }
+      const before = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
+      if (slot === 'R' && (champion.level < 6 || before >= wantR)) {
+        continue;
+      }
+      levelAbility(champion, slot);
+      const after = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
+      if (after > before) {
+        invested += 1;
+        gained = true;
+        break;
+      }
+    }
+    if (!gained) {
+      break;
+    }
+  }
+}
 
 export function grantGold(
   state: GameState,
@@ -38,13 +74,16 @@ export function grantExp(
   champion.exp += amount;
   champion.expBySource[reason] = (champion.expBySource[reason] ?? 0) + amount;
   const curve = state.lockedPack.economy.xpPerLevel;
+  const levelBefore = champion.level;
   let leveled = false;
   while (champion.level < curve.length && champion.exp >= curve[champion.level]) {
     champion.level += 1;
     leveled = true;
   }
   if (leveled) {
+    investAbilityPoints(champion);
     recomputeItemStats(state, champion);
+    champion.levelSamples.push({ t: state.scheduler.time, level: champion.level });
   }
   recorder?.record(state, {
     type: 'exp',
@@ -52,6 +91,22 @@ export function grantExp(
     amount,
     payload: { level: champion.level, exp: champion.exp, reason },
   });
+  if (leveled) {
+    recorder?.record(state, {
+      type: 'level_up',
+      actorId: champion.id,
+      amount: champion.level - levelBefore,
+      payload: {
+        level: champion.level,
+        from: levelBefore,
+        exp: champion.exp,
+        abilities: champion.abilities.map((ability) => ({
+          slot: ability.slot,
+          level: ability.level,
+        })),
+      },
+    });
+  }
 }
 
 const PASSIVE_GOLD_START_SEC = 65;
@@ -326,55 +381,8 @@ export function focusShopPrefer(
   if (!hasSupportQuestProgress(champion) && champion.positionLabel === 'SUPPORT') {
     focus.push('WorldAtlas');
   }
-  let target: ItemId | null = null;
-  for (const itemId of prefer) {
-    const item = state.lockedPack.items[itemId];
-    if (!item) {
-      continue;
-    }
-    if ((STARTER_ITEMS as readonly string[]).includes(itemId)) {
-      continue;
-    }
-    if (isBootItem(itemId, item)) {
-      continue;
-    }
-    if (
-      (SUPPORT_QUEST_LINE as readonly string[]).includes(itemId) ||
-      (SUPPORT_FINISHED as readonly string[]).includes(itemId)
-    ) {
-      continue;
-    }
-    if (preferGoalOwned(state, champion, prefer, itemId)) {
-      continue;
-    }
-    if (isLegendaryItem(item)) {
-      target = itemId;
-      break;
-    }
-  }
-  if (!target) {
-    for (const itemId of prefer) {
-      const item = state.lockedPack.items[itemId];
-      if (!item || preferGoalOwned(state, champion, prefer, itemId)) {
-        continue;
-      }
-      if ((STARTER_ITEMS as readonly string[]).includes(itemId)) {
-        continue;
-      }
-      if (isBootItem(itemId, item)) {
-        continue;
-      }
-      if (
-        (SUPPORT_QUEST_LINE as readonly string[]).includes(itemId) ||
-        (SUPPORT_FINISHED as readonly string[]).includes(itemId)
-      ) {
-        continue;
-      }
-      target = itemId;
-      break;
-    }
-  }
-  if (target) {
+  const goals = primaryShopGoals(state, champion, prefer);
+  for (const target of goals) {
     const parts = new Set<string>();
     collectRecipeParts(state, target, parts);
     for (const partId of parts) {
@@ -383,17 +391,17 @@ export function focusShopPrefer(
   }
   if (!hasUpgradedBoots(champion)) {
     const bootUpgrade = preferredBootUpgrade(prefer);
-    if (bootUpgrade) {
+    if (bootUpgrade && !goals.includes(bootUpgrade)) {
       const parts = new Set<string>();
       collectRecipeParts(state, bootUpgrade, parts);
       for (const partId of parts) {
         focus.push(partId as ItemId);
       }
-    } else if (ownsBoots) {
+    } else if (ownsBoots && !preferredBootUpgrade(prefer)) {
       focus.push('Boots');
     }
   }
-  return focus.length > 0 ? [...new Set(focus)] : [...prefer];
+  return [...new Set(focus)];
 }
 
 export function canFinishPreferredLegendary(
@@ -676,6 +684,46 @@ function countRemainingNeed(
   return need;
 }
 
+function isShopGoalItem(
+  state: GameState,
+  itemId: ItemId,
+  item: { cost: number; buildsFrom: readonly string[]; buildsInto?: readonly string[]; tags?: readonly string[] },
+): boolean {
+  if (isBootItem(itemId, item)) {
+    return itemId !== 'Boots';
+  }
+  if ((STARTER_ITEMS as readonly string[]).includes(itemId as (typeof STARTER_ITEMS)[number])) {
+    return false;
+  }
+  if (
+    (SUPPORT_QUEST_LINE as readonly string[]).includes(itemId) ||
+    (SUPPORT_FINISHED as readonly string[]).includes(itemId)
+  ) {
+    return true;
+  }
+  return isLegendaryItem(item);
+}
+
+function partFeedsOwnedLegendary(
+  state: GameState,
+  champion: ChampionEntity,
+  prefer: readonly ItemId[],
+  partId: ItemId,
+): boolean {
+  for (const preferId of prefer) {
+    const item = state.lockedPack.items[preferId];
+    if (!item || !isLegendaryItem(item) || !champion.items.includes(preferId)) {
+      continue;
+    }
+    const parts = new Set<string>();
+    collectRecipeParts(state, preferId, parts);
+    if (parts.has(partId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function primaryShopGoals(
   state: GameState,
   champion: ChampionEntity,
@@ -687,28 +735,19 @@ function primaryShopGoals(
     if (!item || champion.items.includes(preferId)) {
       continue;
     }
-    if (isLegendaryItem(item)) {
-      goals.push(preferId);
-      break;
+    if (!isShopGoalItem(state, preferId, item)) {
+      continue;
     }
+    if (isBootItem(preferId, item)) {
+      continue;
+    }
+    goals.push(preferId);
+    break;
   }
   if (!hasUpgradedBoots(champion)) {
     const bootUpgrade = preferredBootUpgrade(prefer);
     if (bootUpgrade && !champion.items.includes(bootUpgrade)) {
       goals.push(bootUpgrade);
-    }
-  }
-  if (goals.length === 0) {
-    for (const preferId of prefer) {
-      const item = state.lockedPack.items[preferId];
-      if (!item || champion.items.includes(preferId) || isBootItem(preferId, item)) {
-        continue;
-      }
-      if ((STARTER_ITEMS as readonly string[]).includes(preferId)) {
-        continue;
-      }
-      goals.push(preferId);
-      break;
     }
   }
   return goals;
@@ -802,6 +841,15 @@ export function canTryBuyItem(
     return false;
   }
   if (prefer.length > 0 && preferGoalOwned(state, champion, prefer, itemId)) {
+    return false;
+  }
+  if (
+    prefer.length > 0 &&
+    item.buildsFrom.length === 0 &&
+    !isBootItem(itemId, item) &&
+    !(STARTER_ITEMS as readonly string[]).includes(itemId as (typeof STARTER_ITEMS)[number]) &&
+    remainingNeedAcrossPrefer(state, champion, prefer, itemId) <= 0
+  ) {
     return false;
   }
   const owned = itemCount(champion.items, itemId);
@@ -1066,7 +1114,12 @@ function sellOrphanComponents(
   if (prefer.length === 0) {
     return false;
   }
-  if (champion.items.length < 5) {
+  const goals = primaryShopGoals(state, champion, prefer);
+  const needsRoom =
+    champion.items.length >= 6 ||
+    (champion.items.length >= 5 && goals.length > 0) ||
+    (champion.items.length >= 4 && goals.length > 0 && champion.gold >= 900);
+  if (!needsRoom) {
     return false;
   }
   const useful = usefulPartsForCurrentGoals(state, champion, prefer);
@@ -1085,6 +1138,12 @@ function sellOrphanComponents(
       (SUPPORT_QUEST_LINE as readonly string[]).includes(itemId) ||
       (SUPPORT_FINISHED as readonly string[]).includes(itemId)
     ) {
+      continue;
+    }
+    if (partFeedsOwnedLegendary(state, champion, prefer, itemId) && remainingNeedAcrossPrefer(state, champion, prefer, itemId) <= 0) {
+      if (sellOwnedItem(state, champion, itemId, recorder)) {
+        return true;
+      }
       continue;
     }
     if (sellOwnedItem(state, champion, itemId, recorder)) {
@@ -1185,53 +1244,137 @@ export function buyAffordableItems(
   return bought;
 }
 
-export function shareSupportGold(
+const SHARED_RICHES_MAX_CHARGES = 3;
+const SHARED_RICHES_CHARGE_SEC = 20;
+const SHARED_RICHES_ALLY_RANGE = 1050;
+const SHARED_RICHES_GOLD = 18;
+
+export function hasSupportSharedRichesItem(champion: ChampionEntity): boolean {
+  return (
+    SUPPORT_QUEST_LINE.some((id) => champion.items.includes(id)) ||
+    SUPPORT_FINISHED.some((id) => champion.items.includes(id))
+  );
+}
+
+export function nearestSharedRichesAlly(
   state: GameState,
-  earner: ChampionEntity,
-  amount: number,
-  recorder?: ReplayRecorder,
-): void {
-  if (amount <= 0 || earner.positionLabel === 'SUPPORT') {
-    return;
-  }
+  support: ChampionEntity,
+): ChampionEntity | null {
+  let best: ChampionEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
   for (const ally of state.champions) {
-    if (!ally.alive || ally.side !== earner.side || ally.id === earner.id) {
+    if (!ally.alive || ally.side !== support.side || ally.id === support.id) {
       continue;
     }
-    if (ally.positionLabel !== 'SUPPORT') {
+    const gap = dist(ally.position, support.position);
+    if (gap > SHARED_RICHES_ALLY_RANGE || gap >= bestDist) {
       continue;
     }
-    if (dist(ally.position, earner.position) > 1400) {
+    best = ally;
+    bestDist = gap;
+  }
+  return best;
+}
+
+export function supportCanSharedRichesExecute(
+  state: GameState,
+  support: ChampionEntity,
+): boolean {
+  return (
+    support.positionLabel === 'SUPPORT' &&
+    hasSupportSharedRichesItem(support) &&
+    support.supportSharedRichesCharges > 0 &&
+    nearestSharedRichesAlly(state, support) !== null
+  );
+}
+
+export function tryConsumeSharedRichesCharge(
+  state: GameState,
+  support: ChampionEntity,
+): boolean {
+  if (!supportCanSharedRichesExecute(state, support)) {
+    return false;
+  }
+  support.supportSharedRichesCharges -= 1;
+  if (
+    support.supportSharedRichesCharges < SHARED_RICHES_MAX_CHARGES &&
+    support.supportSharedRichesNextAt <= state.scheduler.time
+  ) {
+    support.supportSharedRichesNextAt = state.scheduler.time + SHARED_RICHES_CHARGE_SEC;
+  }
+  return true;
+}
+
+export function tryPaySharedRichesCombat(
+  state: GameState,
+  support: ChampionEntity,
+  recorder?: ReplayRecorder,
+): boolean {
+  if (!tryConsumeSharedRichesCharge(state, support)) {
+    return false;
+  }
+  grantGold(state, support, SHARED_RICHES_GOLD, 'support_item', recorder);
+  support.goldBySource['support_quest'] =
+    (support.goldBySource['support_quest'] ?? 0) + SHARED_RICHES_GOLD;
+  return true;
+}
+
+export function paySharedRichesMinionKill(
+  state: GameState,
+  support: ChampionEntity,
+  minionGold: number,
+  recorder?: ReplayRecorder,
+): ChampionEntity | null {
+  if (!tryConsumeSharedRichesCharge(state, support)) {
+    return null;
+  }
+  grantGold(state, support, SHARED_RICHES_GOLD, 'support_item', recorder);
+  support.goldBySource['support_quest'] =
+    (support.goldBySource['support_quest'] ?? 0) + SHARED_RICHES_GOLD;
+  const ally = nearestSharedRichesAlly(state, support);
+  if (ally) {
+    grantGold(state, ally, minionGold, 'cs', recorder);
+  }
+  return ally;
+}
+
+export function tickSupportSharedRiches(state: GameState): void {
+  const now = state.scheduler.time;
+  for (const champion of state.champions) {
+    if (champion.positionLabel !== 'SUPPORT' || !hasSupportSharedRichesItem(champion)) {
       continue;
     }
-    const share = Math.max(5, Math.round(amount * 0.1));
-    grantGold(state, ally, share, 'support_share', recorder);
-    ally.goldBySource['support_quest'] = (ally.goldBySource['support_quest'] ?? 0) + share * 0.5;
+    if (champion.supportSharedRichesNextAt <= 0) {
+      champion.supportSharedRichesNextAt = Math.max(now, 65);
+    }
+    while (
+      champion.supportSharedRichesCharges < SHARED_RICHES_MAX_CHARGES &&
+      now + 1e-9 >= champion.supportSharedRichesNextAt
+    ) {
+      champion.supportSharedRichesCharges += 1;
+      champion.supportSharedRichesNextAt += SHARED_RICHES_CHARGE_SEC;
+    }
   }
 }
 
+export function shareSupportGold(
+  _state: GameState,
+  _earner: ChampionEntity,
+  _amount: number,
+  _recorder?: ReplayRecorder,
+): void {
+}
+
 export function tickSupportItemIncome(state: GameState, dt: number, recorder?: ReplayRecorder): void {
+  tickSupportSharedRiches(state);
   for (const champion of state.champions) {
     if (!champion.alive || champion.positionLabel !== 'SUPPORT') {
       continue;
     }
-    const hasQuest =
-      SUPPORT_QUEST_LINE.some((id) => champion.items.includes(id)) ||
-      SUPPORT_FINISHED.some((id) => champion.items.includes(id));
-    if (!hasQuest) {
+    if (!hasSupportSharedRichesItem(champion)) {
       continue;
     }
-    const nearAlly = state.champions.some(
-      (ally) =>
-        ally.alive &&
-        ally.side === champion.side &&
-        ally.id !== champion.id &&
-        dist(ally.position, champion.position) < 1600,
-    );
-    if (!nearAlly) {
-      continue;
-    }
-    const rate = 0.32 * dt;
+    const rate = 0.58 * dt;
     grantGold(state, champion, rate, 'support_item', recorder);
     champion.goldBySource['support_quest'] = (champion.goldBySource['support_quest'] ?? 0) + rate;
   }

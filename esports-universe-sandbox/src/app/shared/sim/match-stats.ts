@@ -127,6 +127,13 @@ export interface PlayerMatchStats {
   items: string[];
 }
 
+export interface MatchMapAbilityRank {
+  slot: string;
+  level: number;
+  name: string;
+  cooldownRemaining: number;
+}
+
 export interface MatchMapChampionFrame {
   playerId: string;
   teamId: string;
@@ -138,10 +145,29 @@ export interface MatchMapChampionFrame {
   y: number;
   hp: number;
   maxHp: number;
+  mana?: number;
+  maxMana?: number;
   gold: number;
+  earnedGold: number;
   level: number;
+  exp?: number;
   alive: boolean;
+  kills: number;
+  deaths: number;
+  assists: number;
+  damageToChamps: number;
+  damageTaken: number;
+  damageTakenFromChamps: number;
+  cs: number;
   items: string[];
+  abilities?: MatchMapAbilityRank[];
+  summonerSpells?: Array<{
+    id: string;
+    slot: string;
+    cooldownRemaining: number;
+  }>;
+  recalling?: boolean;
+  recallProgress?: number;
 }
 
 export interface MatchMapMinionFrame {
@@ -171,12 +197,25 @@ export interface MatchMapStructureFrame {
   alive: boolean;
 }
 
+export interface MatchMapWardFrame {
+  id: string;
+  side: 'blue' | 'red';
+  wardKind: 'stealth' | 'control';
+  x: number;
+  y: number;
+  sight: number;
+  ownerId?: string;
+  ownerGamertag?: string;
+  ownerChampionId?: string;
+}
+
 export interface MatchMapFrame {
   t: number;
   champions: MatchMapChampionFrame[];
   minions: MatchMapMinionFrame[];
   monsters: MatchMapMonsterFrame[];
   structures: MatchMapStructureFrame[];
+  wards?: MatchMapWardFrame[];
 }
 
 export interface MatchBoxScore {

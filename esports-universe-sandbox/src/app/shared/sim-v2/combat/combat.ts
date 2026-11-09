@@ -1,3 +1,4 @@
+import { CHAMPION_COMBAT_BY_ID } from '../../../core/data/champion-combat';
 import { dist } from '../map/pathfinding';
 import type { ChampionEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
@@ -26,17 +27,10 @@ export function basicAttack(
     return false;
   }
   const skill = attacker.skills.mechanics / 100;
-  const raw = attacker.ad * (1.08 + 0.5 * skill);
+  const roleScale = attacker.positionLabel === 'BOT' ? 0.88 : 1;
+  const raw = attacker.ad * (1 + 0.12 * skill) * roleScale;
   applyDamage(state, attacker, target, raw, 'physical', recorder, 'auto');
-  const asFloor =
-    target.kind === 'champion'
-      ? attacker.positionLabel === 'BOT'
-        ? 1.05
-        : attacker.positionLabel === 'TOP'
-          ? 0.72
-          : 0.64
-      : 0.35;
-  attacker.nextAttackAt = t + 1 / Math.max(asFloor, attacker.attackSpeed);
+  attacker.nextAttackAt = t + 1 / Math.max(0.2, attacker.attackSpeed);
   recorder?.record(state, {
     type: 'attack',
     actorId: attacker.id,
@@ -71,7 +65,10 @@ export function castAbility(
   if (t < runtime.cooldownUntil) {
     return false;
   }
-  const manaCost = caster.maxMana <= 1 ? 0 : def.manaCost;
+  const rankIndex = Math.max(0, runtime.level - 1);
+  const rankedCost = def.manaCostByRank?.[rankIndex];
+  const manaCost =
+    caster.maxMana <= 1 ? 0 : rankedCost != null ? rankedCost : def.manaCost;
   if (caster.mana < manaCost) {
     return false;
   }
@@ -85,7 +82,9 @@ export function castAbility(
   const combatTarget = target && 'kind' in target && target.kind === 'champion';
   const cdScale = combatTarget ? 0.85 : 0.95;
   const minCd = caster.positionLabel === 'SUPPORT' ? 2.5 : 1.8;
-  runtime.cooldownUntil = t + Math.max(minCd, def.cooldownSec * cdScale);
+  const rankedCd = def.cooldownByRank?.[rankIndex];
+  const cooldownSec = rankedCd != null ? rankedCd : def.cooldownSec;
+  runtime.cooldownUntil = t + Math.max(minCd, cooldownSec * cdScale);
   recorder?.record(state, {
     type: 'ability',
     actorId: caster.id,
@@ -108,7 +107,11 @@ export function levelAbility(champion: ChampionEntity, slot: AbilitySlot): void 
   if (!ability || slot === 'P') {
     return;
   }
-  const max = slot === 'R' ? 3 : 5;
+  const dataMax = CHAMPION_COMBAT_BY_ID[champion.championId]?.abilities.find(
+    (item) => item.slot === slot,
+  )?.maxRank;
+  const max =
+    slot === 'R' ? 3 : Math.max(1, Math.min(6, dataMax ?? 5));
   if (ability.level >= max) {
     return;
   }

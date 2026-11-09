@@ -274,6 +274,9 @@ export class DashboardPage {
   readonly lastMatchReport = signal<MatchReport | null>(null);
   readonly lastSeriesReports = signal<MatchReport[]>([]);
   readonly simBusy = signal(false);
+  readonly simProgress = signal(0);
+  readonly simOverlayLabel = signal('模擬比賽中');
+  readonly simOverlayLeague = signal<'TCS' | 'TCL' | 'MSI' | null>(null);
   readonly lastSimBoard = signal<{
     foot: string | null;
     league: 'TCS' | 'TCL' | null;
@@ -287,6 +290,7 @@ export class DashboardPage {
     awaySeriesWins: number;
   } | null>(null);
   private pendingReportAdvance = false;
+  private simProgressTimer: ReturnType<typeof setInterval> | null = null;
   readonly phaseLabels = PHASE_LABELS;
 
   seasonTitle(): string {
@@ -741,7 +745,14 @@ export class DashboardPage {
     if (!homeTeamId || !awayTeamId || this.simBusy()) {
       return null;
     }
-    this.simBusy.set(true);
+    const league = board?.league ?? board?.slate?.league ?? this.leagueOfTeam(homeTeamId);
+    const overlayLeague =
+      board?.competition === 'MSI' || this.msiIsOn()
+        ? 'MSI'
+        : league === 'TCS' || league === 'TCL'
+          ? league
+          : null;
+    this.beginSimOverlay(overlayLeague, board?.need && board.need > 1 ? '系列賽模擬中' : '模擬比賽中');
     try {
       const report = await simulateGameAsync({
         home: this.simSide(homeTeamId),
@@ -749,7 +760,7 @@ export class DashboardPage {
         forceWinnerTeamId: board?.forceWinnerTeamId,
         dateIso: this.activeUniverse()?.currentDate,
       });
-      const league = board?.league ?? board?.slate?.league ?? this.leagueOfTeam(homeTeamId);
+      this.simProgress.set(1);
       const competition = board?.competition ?? league;
       this.recordMatchMvp(report, league);
       this.competitionStats.record(report, competition);
@@ -759,8 +770,39 @@ export class DashboardPage {
       this.rememberSimBoard(homeTeamId, awayTeamId, board);
       return report;
     } finally {
-      this.simBusy.set(false);
+      this.endSimOverlay();
     }
+  }
+
+  private beginSimOverlay(league: 'TCS' | 'TCL' | 'MSI' | null, label: string): void {
+    this.simBusy.set(true);
+    this.simProgress.set(0.06);
+    this.simOverlayLabel.set(label);
+    this.simOverlayLeague.set(league);
+    if (this.simProgressTimer) {
+      clearInterval(this.simProgressTimer);
+    }
+    this.simProgressTimer = setInterval(() => {
+      const current = this.simProgress();
+      if (current >= 0.92) {
+        return;
+      }
+      this.simProgress.set(Math.min(0.92, current + (current < 0.4 ? 0.045 : 0.02)));
+    }, 120);
+  }
+
+  private endSimOverlay(): void {
+    if (this.simProgressTimer) {
+      clearInterval(this.simProgressTimer);
+      this.simProgressTimer = null;
+    }
+    this.simProgress.set(1);
+    window.setTimeout(() => {
+      this.simBusy.set(false);
+      this.simProgress.set(0);
+      this.simOverlayLabel.set('模擬比賽中');
+      this.simOverlayLeague.set(null);
+    }, 220);
   }
 
 
@@ -1887,6 +1929,10 @@ export class DashboardPage {
         this.finishSimAdvance();
       }
     });
+  }
+
+  msiIsOn(): boolean {
+    return this.promotion.isDone('spring') && this.msi.hero() !== null && !this.msi.isFinished();
   }
 
   msiScene(): MsiHero | null {

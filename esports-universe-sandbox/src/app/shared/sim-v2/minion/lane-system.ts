@@ -1,25 +1,63 @@
 import { basicAttack } from '../combat/combat';
 import { applyDamage, creditMinionKill } from '../combat/damage';
-import { dist, advanceAlongPath } from '../map/pathfinding';
-import { canSiege, minionAttackStructure } from '../objectives/structures';
+import { supportCanSharedRichesExecute } from '../economy/economy';
+import {
+  advanceAlongWalkablePath,
+  dist,
+  findPath,
+  nearestWalkable,
+} from '../map/pathfinding';
+import {
+  allInhibitorsDownForSupers,
+  canSiege,
+  laneInhibitorDownForSupers,
+  minionAttackStructure,
+} from '../objectives/structures';
 import type { ReplayRecorder } from '../replay/recorder';
 import type { ChampionEntity, MinionEntity } from '../state/entities';
 import { allocEntityId, type GameState } from '../state/game-state';
 import type { LaneId, TeamSide } from '../types/ids';
 import { shouldSpawnCannon } from '../version/shared-content';
 
-function enemyInhibDown(state: GameState, side: TeamSide, lane: LaneId): boolean {
-  const enemySide = side === 'blue' ? 'red' : 'blue';
-  return state.structures.some(
-    (structure) =>
-      !structure.alive &&
-      structure.side === enemySide &&
-      structure.lane === lane &&
-      structure.structureKind === 'inhibitor',
-  );
+const MINION_SPAWN_GAP_SEC = 0.792;
+
+function waveRoles(
+  state: GameState,
+  side: TeamSide,
+  lane: LaneId,
+  waveIndex: number,
+): Array<MinionEntity['role']> {
+  const timeSec = state.scheduler.time;
+  const allDown = allInhibitorsDownForSupers(state, side);
+  const withSuper = allDown || laneInhibitorDownForSupers(state, side, lane);
+  const withCannon = !withSuper && shouldSpawnCannon(timeSec, waveIndex);
+  const roles: Array<MinionEntity['role']> = [];
+  if (withSuper) {
+    roles.push('super');
+    if (allDown) {
+      roles.push('super');
+    }
+  }
+  const meleeCount = timeSec >= 14 * 60 && withCannon ? 2 : 3;
+  const casterCount = timeSec >= 30 * 60 ? 2 : 3;
+  for (let i = 0; i < meleeCount; i += 1) {
+    roles.push('melee');
+  }
+  if (withCannon) {
+    roles.push('cannon');
+  }
+  for (let i = 0; i < casterCount; i += 1) {
+    roles.push('caster');
+  }
+  return roles;
 }
 
-function spawnWaveSide(state: GameState, side: TeamSide, lane: LaneId, waveIndex: number): void {
+function spawnOneMinion(
+  state: GameState,
+  side: TeamSide,
+  lane: LaneId,
+  role: MinionEntity['role'],
+): void {
   const rules = state.lockedPack.minions;
   const path =
     side === 'blue'
@@ -29,74 +67,79 @@ function spawnWaveSide(state: GameState, side: TeamSide, lane: LaneId, waveIndex
     return;
   }
   const timeSec = state.scheduler.time;
-  const withSuper = enemyInhibDown(state, side, lane);
-  const withCannon = !withSuper && shouldSpawnCannon(timeSec, waveIndex);
-  const roles: Array<MinionEntity['role']> = [];
-  if (withSuper) {
-    roles.push('super', 'super', 'caster', 'caster', 'caster');
-  } else {
-    const meleeCount = timeSec >= 14 * 60 && withCannon ? 2 : 3;
-    const casterCount = timeSec >= 30 * 60 ? 2 : 3;
-    for (let i = 0; i < meleeCount; i += 1) {
-      roles.push('melee');
-    }
-    if (withCannon) {
-      roles.push('cannon');
-    }
-    for (let i = 0; i < casterCount; i += 1) {
-      roles.push('caster');
-    }
-  }
   const cannonGold = rules.cannonGold + Math.floor(timeSec / 90);
   const team = side === 'blue' ? state.blue : state.red;
   const ageBoost = 1 + Math.min(0.55, Math.floor(timeSec / 180) * 0.04);
+  const hp =
+    role === 'super'
+      ? 2800 + Math.floor(timeSec / 30) * 40
+      : role === 'cannon'
+        ? Math.round(rules.cannonHp * ageBoost)
+        : role === 'caster'
+          ? Math.round(rules.casterHp * ageBoost)
+          : Math.round(rules.meleeHp * ageBoost);
+  const ad =
+    role === 'super'
+      ? 180 + Math.floor(timeSec / 60) * 4
+      : role === 'cannon'
+        ? Math.round(rules.cannonAd * ageBoost)
+        : role === 'caster'
+          ? Math.round(rules.casterAd * ageBoost)
+          : Math.round(rules.meleeAd * ageBoost);
+  const gold =
+    role === 'super' ? 0 : role === 'cannon' ? cannonGold : role === 'caster' ? rules.casterGold : rules.meleeGold;
+  const minion: MinionEntity = {
+    id: allocEntityId(state, 'minion'),
+    kind: 'minion',
+    side,
+    lane,
+    role,
+    position: { ...path[0] },
+    pathIndex: 0,
+    hp,
+    maxHp: hp,
+    ad: team.hasBaron ? Math.round(ad * 1.5) : ad,
+    moveSpeed:
+      rules.moveSpeed * (team.hasBaron ? 1.25 : role === 'super' ? 1.1 : 1),
+    attackRange: role === 'caster' ? 550 : role === 'super' ? 200 : rules.attackRange,
+    nextAttackAt: 0,
+    alive: true,
+    gold,
+    targetId: null,
+  };
+  state.minions.push(minion);
+}
+
+function scheduleWaveSide(
+  state: GameState,
+  side: TeamSide,
+  lane: LaneId,
+  waveIndex: number,
+): void {
+  const roles = waveRoles(state, side, lane, waveIndex);
   roles.forEach((role, roleIndex) => {
-    const hp =
-      role === 'super'
-        ? 2800 + Math.floor(timeSec / 30) * 40
-        : role === 'cannon'
-          ? Math.round(rules.cannonHp * ageBoost)
-          : role === 'caster'
-            ? Math.round(rules.casterHp * ageBoost)
-            : Math.round(rules.meleeHp * ageBoost);
-    const ad =
-      role === 'super'
-        ? 180 + Math.floor(timeSec / 60) * 4
-        : role === 'cannon'
-          ? Math.round(rules.cannonAd * ageBoost)
-          : role === 'caster'
-            ? Math.round(rules.casterAd * ageBoost)
-            : Math.round(rules.meleeAd * ageBoost);
-    const gold =
-      role === 'super' ? 0 : role === 'cannon' ? cannonGold : role === 'caster' ? rules.casterGold : rules.meleeGold;
-    const startIndex = Math.min(roleIndex * 2, Math.max(0, path.length - 1));
-    const minion: MinionEntity = {
-      id: allocEntityId(state, 'minion'),
-      kind: 'minion',
-      side,
-      lane,
-      role,
-      position: { ...path[startIndex] },
-      pathIndex: startIndex,
-      hp,
-      maxHp: hp,
-      ad: team.hasBaron ? Math.round(ad * 1.5) : ad,
-      moveSpeed: rules.moveSpeed * (team.hasBaron ? 1.25 : role === 'super' ? 1.1 : 1),
-      attackRange: role === 'caster' ? 550 : role === 'super' ? 200 : rules.attackRange,
-      nextAttackAt: 0,
-      alive: true,
-      gold,
-      targetId: null,
-    };
-    state.minions.push(minion);
+    if (roleIndex === 0) {
+      spawnOneMinion(state, side, lane, role);
+      return;
+    }
+    state.scheduler.scheduleAfter(
+      roleIndex * MINION_SPAWN_GAP_SEC,
+      `minion_spawn_${side}_${lane}_${waveIndex}_${roleIndex}`,
+      () => {
+        if (state.ended) {
+          return;
+        }
+        spawnOneMinion(state, side, lane, role);
+      },
+    );
   });
 }
 
 export function spawnWave(state: GameState, recorder?: ReplayRecorder): void {
   state.waveIndex += 1;
   for (const lane of ['top', 'mid', 'bot'] as LaneId[]) {
-    spawnWaveSide(state, 'blue', lane, state.waveIndex);
-    spawnWaveSide(state, 'red', lane, state.waveIndex);
+    scheduleWaveSide(state, 'blue', lane, state.waveIndex);
+    scheduleWaveSide(state, 'red', lane, state.waveIndex);
   }
   recorder?.record(state, {
     type: 'minion_spawn',
@@ -106,14 +149,28 @@ export function spawnWave(state: GameState, recorder?: ReplayRecorder): void {
 
 export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecorder): void {
   const rules = state.lockedPack.minions;
+  const map = state.lockedPack.map;
   for (const minion of state.minions) {
     if (!minion.alive) {
       continue;
     }
     const path =
       minion.side === 'blue'
-        ? state.lockedPack.map.lanePaths[minion.lane]
-        : [...state.lockedPack.map.lanePaths[minion.lane]].reverse();
+        ? map.lanePaths[minion.lane]
+        : [...map.lanePaths[minion.lane]].reverse();
+    const champAcquire = Math.max(minion.attackRange + 40, 380);
+    let enemyChamp: (typeof state.champions)[number] | null = null;
+    let enemyChampDist = Number.POSITIVE_INFINITY;
+    for (const champ of state.champions) {
+      if (!champ.alive || champ.side === minion.side || champ.recallPhase === 'at_base') {
+        continue;
+      }
+      const d = dist(minion.position, champ.position);
+      if (d <= champAcquire && d < enemyChampDist) {
+        enemyChamp = champ;
+        enemyChampDist = d;
+      }
+    }
     const enemyMinion = state.minions.find(
       (other) =>
         other.alive &&
@@ -121,6 +178,43 @@ export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecor
         other.lane === minion.lane &&
         dist(minion.position, other.position) <= minion.attackRange + 40,
     );
+    const champDrewAggro =
+      !!enemyChamp &&
+      Object.values(enemyChamp.threatTable).some(
+        (threat) => state.scheduler.time - threat.at <= 3.5 && threat.amount > 0,
+      );
+    const preferChamp =
+      !!enemyChamp &&
+      !enemyMinion &&
+      (champDrewAggro || enemyChamp.hp / Math.max(1, enemyChamp.maxHp) < 0.42);
+    if (preferChamp && enemyChamp) {
+      if (enemyChampDist > minion.attackRange + 40) {
+        const approach = nearestWalkable(map, enemyChamp.position) ?? enemyChamp.position;
+        const chasePath = findPath(map, minion.position, approach);
+        const moved = advanceAlongWalkablePath(
+          map,
+          minion.position,
+          chasePath.length > 0 ? chasePath : [approach],
+          minion.moveSpeed,
+          dt,
+        );
+        minion.position = moved.position;
+      } else if (state.scheduler.time >= minion.nextAttackAt) {
+        const t = state.scheduler.time;
+        const earlyScale = t < 480 ? 0.22 : t < 720 ? 0.38 : t < 1200 ? 0.55 : 0.72;
+        applyDamage(
+          state,
+          null,
+          enemyChamp,
+          minion.ad * earlyScale,
+          'physical',
+          recorder,
+          'minion',
+        );
+        minion.nextAttackAt = state.scheduler.time + rules.attackIntervalSec;
+      }
+      continue;
+    }
     if (enemyMinion) {
       if (state.scheduler.time >= minion.nextAttackAt) {
         enemyMinion.hp -= minion.ad;
@@ -130,17 +224,6 @@ export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecor
           creditMinionKill(state, null, enemyMinion, recorder, 'minion');
         }
       }
-      continue;
-    }
-    const enemyChamp = state.champions.find(
-      (champ) =>
-        champ.alive &&
-        champ.side !== minion.side &&
-        dist(minion.position, champ.position) <= minion.attackRange + 40,
-    );
-    if (enemyChamp && state.scheduler.time >= minion.nextAttackAt) {
-      applyDamage(state, null, enemyChamp, minion.ad, 'physical', recorder, 'minion');
-      minion.nextAttackAt = state.scheduler.time + rules.attackIntervalSec;
       continue;
     }
     const structure = state.structures.find(
@@ -154,9 +237,13 @@ export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecor
     if (structure) {
       const hitRange = minion.attackRange + 80;
       if (dist(minion.position, structure.position) > hitRange) {
-        const moved = advanceAlongPath(
+        const approach =
+          nearestWalkable(map, structure.position) ?? structure.position;
+        const siegePath = findPath(map, minion.position, approach);
+        const moved = advanceAlongWalkablePath(
+          map,
           minion.position,
-          [{ ...structure.position }],
+          siegePath.length > 0 ? siegePath : [approach],
           minion.moveSpeed,
           dt,
         );
@@ -169,7 +256,13 @@ export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecor
     }
     if (minion.pathIndex < path.length - 1) {
       const target = path[minion.pathIndex + 1];
-      const moved = advanceAlongPath(minion.position, [target], minion.moveSpeed, dt);
+      const moved = advanceAlongWalkablePath(
+        map,
+        minion.position,
+        [target],
+        minion.moveSpeed,
+        dt,
+      );
       minion.position = moved.position;
       if (moved.arrived) {
         minion.pathIndex += 1;
@@ -201,33 +294,62 @@ export function expectedAutoDamage(champion: ChampionEntity): number {
   return champion.ad * (1.05 + 0.55 * skill) * roleMult;
 }
 
+export type LastHitMode = 'default' | 'freeze' | 'shove';
+
 export function tryLastHit(
   state: GameState,
   champion: ChampionEntity,
   minion: MinionEntity,
   recorder?: ReplayRecorder,
+  mode: LastHitMode = 'default',
 ): boolean {
   if (!minion.alive) {
     return false;
   }
+  if (champion.positionLabel === 'SUPPORT') {
+    if (!supportCanSharedRichesExecute(state, champion)) {
+      return false;
+    }
+    const executeRatio = champion.attackRange > 300 ? 0.3 : 0.5;
+    const hpRatio = minion.hp / Math.max(1, minion.maxHp);
+    if (hpRatio <= executeRatio) {
+      minion.hp = 0;
+      minion.alive = false;
+      creditMinionKill(state, champion, minion, recorder, 'support_execute');
+      return true;
+    }
+    if (minion.hp > expectedAutoDamage(champion) * 1.15) {
+      return false;
+    }
+    return attackMinion(state, champion, minion, recorder);
+  }
   const expected = expectedAutoDamage(champion);
-  const canExecute = minion.hp <= expected * 1.2;
-  const carry =
-    champion.positionLabel === 'BOT' ||
-    champion.positionLabel === 'MID' ||
-    champion.positionLabel === 'TOP';
-  const farmPush =
-    carry &&
-    (champion.currentAction === 'farm' ||
-      champion.currentAction === 'lane' ||
-      champion.currentAction === 'siege') &&
-    (minion.hp <= expected * 3.4 ||
-      state.rng() <
-        (champion.positionLabel === 'BOT' ? 0.86 : champion.positionLabel === 'MID' ? 0.78 : 0.8));
-  const shove =
+  const skill = champion.skills.laning / 100;
+  const canExecute = minion.hp <= expected * (1.05 + skill * 0.35);
+  if (mode === 'freeze') {
+    if (!canExecute) {
+      return false;
+    }
+    return attackMinion(state, champion, minion, recorder);
+  }
+  const shoving =
+    mode === 'shove' ||
     champion.currentAction === 'siege' ||
-    (champion.skills.laning < 55 && state.rng() < 0.4);
-  if (!canExecute && !farmPush && !shove) {
+    champion.currentAction === 'wave_shove';
+  const underWave =
+    shoving ||
+    champion.currentAction === 'farm' ||
+    champion.currentAction === 'lane' ||
+    champion.currentAction === 'wave_freeze';
+  const contestHit =
+    underWave &&
+    minion.hp <= expected * (1.8 + skill * 0.8) &&
+    state.rng() < (shoving ? 0.55 + skill * 0.3 : 0.18 + skill * 0.35);
+  const shoveHit =
+    shoving &&
+    minion.hp <= expected * (shoving ? 3.2 : 2.4) &&
+    state.rng() < 0.55 + skill * 0.25;
+  if (!canExecute && !contestHit && !shoveHit) {
     return false;
   }
   return attackMinion(state, champion, minion, recorder);

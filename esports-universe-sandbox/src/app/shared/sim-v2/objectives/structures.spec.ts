@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { createRng } from '../rng';
 import { createEmptyGameState } from '../state/game-state';
 import { lockVersion } from '../version/registry';
-import { bootstrapStructures, canSiege, tickStructures } from './structures';
+import {
+  bootstrapStructures,
+  canSiege,
+  INHIBITOR_RESPAWN_SEC,
+  laneInhibitorDownForSupers,
+  resolveStructureKill,
+  tickStructures,
+} from './structures';
 
 describe('passive structures', () => {
   it('keeps nexus and inhibitor from attacking', () => {
@@ -45,6 +52,30 @@ describe('passive structures', () => {
     });
     tickStructures(state);
     expect(state.minions[0].hp).toBe(500);
+  });
+});
+
+describe('inhibitor respawn', () => {
+  it('respawns after five minutes and stops supers shortly before', () => {
+    const pack = lockVersion('demo-a');
+    const state = createEmptyGameState('m', pack, 1, createRng(1), 'blue', 'red');
+    bootstrapStructures(state);
+    const inhib = state.structures.find((item) => item.structureId === 'red_inhib_mid')!;
+    inhib.alive = false;
+    inhib.hp = 0;
+    resolveStructureKill(state, inhib, null);
+    expect(inhib.respawnAt).toBe(state.scheduler.time + INHIBITOR_RESPAWN_SEC);
+    expect(laneInhibitorDownForSupers(state, 'blue', 'mid')).toBe(true);
+
+    state.scheduler.setTime(inhib.respawnAt - 30);
+    expect(laneInhibitorDownForSupers(state, 'blue', 'mid')).toBe(false);
+
+    state.scheduler.setTime(inhib.respawnAt);
+    tickStructures(state);
+    expect(inhib.alive).toBe(true);
+    expect(inhib.hp).toBe(inhib.maxHp);
+    expect(inhib.respawnAt).toBe(0);
+    expect(laneInhibitorDownForSupers(state, 'blue', 'mid')).toBe(false);
   });
 });
 
