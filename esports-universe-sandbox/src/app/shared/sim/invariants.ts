@@ -58,6 +58,48 @@ export function validateBoxScore(box: MatchBoxScore): InvariantIssue[] {
     }
   }
 
+  const track = box.mapTrack;
+  if (track && track.length > 0) {
+    const endFrame = track[track.length - 1];
+    const hasEarned = endFrame.champions.some(
+      (champ) => typeof champ.earnedGold === 'number' && champ.earnedGold > 0,
+    );
+    if (hasEarned) {
+      for (const player of box.players) {
+        const champ = endFrame.champions.find((row) => row.playerId === player.playerId);
+        if (!champ) {
+          issues.push({
+            code: 'map-track-missing-player',
+            message: `地圖軌跡終幀缺少選手 ${player.gamertag}`,
+          });
+          continue;
+        }
+        if (Math.abs((champ.earnedGold ?? 0) - player.gold) > 1) {
+          issues.push({
+            code: 'map-track-earned-gold',
+            message: `${player.gamertag} 地圖 earnedGold 與對陣經濟不一致`,
+          });
+        }
+      }
+      const trackHome = sum(
+        endFrame.champions
+          .filter((champ) => champ.teamId === box.homeTeamId)
+          .map((champ) => champ.earnedGold ?? 0),
+      );
+      const trackAway = sum(
+        endFrame.champions
+          .filter((champ) => champ.teamId === box.awayTeamId)
+          .map((champ) => champ.earnedGold ?? 0),
+      );
+      if (Math.abs(trackHome - box.home.totalGold) > 1) {
+        issues.push({ code: 'map-track-home-gold', message: '地圖終幀主隊 earnedGold 加總不一致' });
+      }
+      if (Math.abs(trackAway - box.away.totalGold) > 1) {
+        issues.push({ code: 'map-track-away-gold', message: '地圖終幀客隊 earnedGold 加總不一致' });
+      }
+    }
+  }
+
   let homeTowers = 0;
   let awayTowers = 0;
   let homeDragons = 0;

@@ -9,20 +9,21 @@ export type { WardEntity, WardKind };
 
 export const CHAMPION_SIGHT = 1350;
 export const TOWER_SIGHT = 1350;
-export const INHIBITOR_SIGHT = 1100;
-export const NEXUS_SIGHT = 1200;
+export const INHIBITOR_SIGHT = 0;
+export const NEXUS_SIGHT = 0;
 export const FOUNTAIN_SIGHT = 1350;
-export const MINION_SIGHT = 650;
+export const MINION_SIGHT = 1200;
+export const SUPER_MINION_SIGHT = 1350;
 export const STEALTH_WARD_SIGHT = 900;
 export const CONTROL_WARD_SIGHT = 900;
-export const SCUTTLE_SHRINE_SIGHT = 900;
-export const SCUTTLE_SHRINE_DURATION = 75;
+export const SCUTTLE_SHRINE_SIGHT = 525;
+export const SCUTTLE_SHRINE_DURATION = 90;
 export const WARD_ICON_STEALTH = '/items/tiles/3340.png';
 export const WARD_ICON_CONTROL = '/items/tiles/2055.png';
-const STEALTH_WARD_DURATION = 90 + 30;
+const STEALTH_WARD_DURATION = 120;
 const CONTROL_WARD_DURATION = 99999;
 const STEALTH_CHARGE_MAX = 2;
-const STEALTH_CHARGE_SEC = 90;
+const STEALTH_CHARGE_SEC = 150;
 const CONTROL_WARD_COST = 75;
 const MEMORY_SHARE_AGE = 14;
 const TEAM_STEALTH_CAP = 3;
@@ -132,7 +133,8 @@ function pointVisibleToSide(state: GameState, side: TeamSide, point: Vec2): bool
     if (!minion.alive || minion.side !== side) {
       continue;
     }
-    if (dist(minion.position, point) <= MINION_SIGHT) {
+    const sight = minion.role === 'super' ? SUPER_MINION_SIGHT : MINION_SIGHT;
+    if (dist(minion.position, point) <= sight) {
       return true;
     }
   }

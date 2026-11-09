@@ -717,7 +717,7 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
       mana: Math.round(champ.mana ?? 0),
       maxMana: Math.round(champ.maxMana ?? 0),
       gold: Math.round(champ.gold),
-      earnedGold: Math.round(champ.earnedGold ?? champ.gold),
+      earnedGold: Math.round(champ.earnedGold),
       level: champ.level,
       exp: Math.round(champ.exp ?? 0),
       alive: champ.alive,

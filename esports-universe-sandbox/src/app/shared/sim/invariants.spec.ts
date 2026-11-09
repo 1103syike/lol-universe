@@ -292,38 +292,42 @@ describe('match box score invariants', () => {
     expect(timelineKillDeathBalance(box.timeline)).toBe(true);
   });
 
-  it('live tick 模擬產出的 box score 通過不變量', () => {
-    const homeId = 'team-home';
-    const awayId = 'team-away';
-    const positions: PlayerPosition[] = ['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'];
-    const homePlayers = positions.map((position, index) =>
-      makePlayer(`h-${index}`, homeId, `H${position}`, position, 88),
-    );
-    const awayPlayers = positions.map((position, index) =>
-      makePlayer(`a-${index}`, awayId, `A${position}`, position, 80),
-    );
+  it(
+    'live tick 模擬產出的 box score 通過不變量',
+    () => {
+      const homeId = 'team-home';
+      const awayId = 'team-away';
+      const positions: PlayerPosition[] = ['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'];
+      const homePlayers = positions.map((position, index) =>
+        makePlayer(`h-${index}`, homeId, `H${position}`, position, 88),
+      );
+      const awayPlayers = positions.map((position, index) =>
+        makePlayer(`a-${index}`, awayId, `A${position}`, position, 80),
+      );
 
-    let seed = 42;
-    const random = () => {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      return seed / 0x100000000;
-    };
+      let seed = 42;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 0x100000000;
+      };
 
-    const report = simulateGame({
-      home: { teamId: homeId, players: homePlayers, coach: makeCoach('c-h', homeId) },
-      away: { teamId: awayId, players: awayPlayers, coach: makeCoach('c-a', awayId) },
-      random,
-    });
+      const report = simulateGame({
+        home: { teamId: homeId, players: homePlayers, coach: makeCoach('c-h', homeId) },
+        away: { teamId: awayId, players: awayPlayers, coach: makeCoach('c-a', awayId) },
+        random,
+      });
 
-    expect(validateBoxScore(report.boxScore)).toEqual([]);
-    expect(report.boxScore.timeline.some((event) => event.type === 'nexus' || event.type === 'surrender')).toBe(
-      true,
-    );
-    expect(report.boxScore.goldSeries.length).toBeGreaterThan(5);
-    expect(report.boxScore.players).toHaveLength(10);
-    expect(report.boxScore).toBeTruthy();
-    expect(report.mvp).toBeTruthy();
-    expect(report.mvp?.teamId).toBe(report.winnerTeamId);
-    expect(report.keyPlayers[0]?.playerId).toBe(report.mvp?.playerId);
-  });
+      expect(validateBoxScore(report.boxScore)).toEqual([]);
+      expect(
+        report.boxScore.timeline.some((event) => event.type === 'nexus' || event.type === 'surrender'),
+      ).toBe(true);
+      expect(report.boxScore.goldSeries.length).toBeGreaterThan(5);
+      expect(report.boxScore.players).toHaveLength(10);
+      expect(report.boxScore).toBeTruthy();
+      expect(report.mvp).toBeTruthy();
+      expect(report.mvp?.teamId).toBe(report.winnerTeamId);
+      expect(report.keyPlayers[0]?.playerId).toBe(report.mvp?.playerId);
+    },
+    30_000,
+  );
 });

@@ -34,9 +34,8 @@ import {
 import {
   CHAMPION_SIGHT,
   FOUNTAIN_SIGHT,
-  INHIBITOR_SIGHT,
   MINION_SIGHT,
-  NEXUS_SIGHT,
+  SUPER_MINION_SIGHT,
   TOWER_SIGHT,
   WARD_ICON_CONTROL,
   WARD_ICON_STEALTH,
@@ -128,7 +127,7 @@ function interpolateChampions(
             Math.min(1, (left.recallProgress ?? 0.7) + u * 0.25),
           ),
           hp: lerp(left.hp, right.hp, u),
-          earnedGold: left.earnedGold ?? left.gold,
+          earnedGold: left.earnedGold ?? 0,
           kills: left.kills ?? 0,
           deaths: left.deaths ?? 0,
           assists: left.assists ?? 0,
@@ -146,7 +145,7 @@ function interpolateChampions(
         alive: right.alive,
         level: right.level,
         items: right.items,
-        earnedGold: right.earnedGold ?? right.gold,
+        earnedGold: right.earnedGold ?? 0,
         kills: right.kills ?? 0,
         deaths: right.deaths ?? 0,
         assists: right.assists ?? 0,
@@ -166,7 +165,7 @@ function interpolateChampions(
       alive: stats.alive,
       level: stats.level,
       gold: lerp(left.gold, right.gold, u),
-      earnedGold: lerp(left.earnedGold ?? left.gold, right.earnedGold ?? right.gold, u),
+      earnedGold: lerp(left.earnedGold ?? 0, right.earnedGold ?? 0, u),
       kills: stats.kills ?? 0,
       deaths: stats.deaths ?? 0,
       assists: stats.assists ?? 0,
@@ -381,28 +380,15 @@ export class MatchMapTrackComponent {
       if (!structure.alive || !includeSide(structure.side)) {
         continue;
       }
-      const kind = structure.kind.includes('tower')
-        ? 'tower'
-        : structure.kind === 'inhibitor'
-          ? 'inhibitor'
-          : structure.kind === 'nexus'
-            ? 'nexus'
-            : null;
-      if (!kind) {
+      if (!structure.kind.includes('tower')) {
         continue;
       }
-      const sight =
-        kind === 'tower'
-          ? TOWER_SIGHT
-          : kind === 'inhibitor'
-            ? INHIBITOR_SIGHT
-            : NEXUS_SIGHT;
       blobs.push({
         id: `struct-${structure.id}`,
         x: structure.x,
         y: structure.y,
-        sight,
-        kind,
+        sight: TOWER_SIGHT,
+        kind: 'tower',
         side: structure.side,
       });
     }
@@ -414,7 +400,7 @@ export class MatchMapTrackComponent {
         id: `minion-${minion.id}`,
         x: minion.x,
         y: minion.y,
-        sight: MINION_SIGHT,
+        sight: minion.role === 'super' ? SUPER_MINION_SIGHT : MINION_SIGHT,
         kind: 'minion',
         side: minion.side,
       });
