@@ -1,7 +1,12 @@
+import { PATCH_META_2021_SPRING } from '../../../core/data/patch-meta-2021';
 import { buildCanonicalMap } from './build-map';
 import { buildChampionTable } from './champion-factory';
 import { buildItemTable } from './item-table';
-import { PATCH_STRENGTH_DEMO_A, PATCH_STRENGTH_DEMO_B } from './patch-strength';
+import {
+  fillPatchStrengthFromMeta,
+  PATCH_STRENGTH_DEMO_A,
+  PATCH_STRENGTH_DEMO_B,
+} from './patch-strength';
 import {
   buildEconomy,
   buildMinionRules,
@@ -14,6 +19,28 @@ import type { VersionPack } from './version-pack';
 function checksum(id: string, riotPatch: string): string {
   return `sha:${id}:${riotPatch}`;
 }
+
+const SPRING_2021_CHAMPION_IDS = Object.keys(PATCH_META_2021_SPRING);
+
+export const VERSION_PACK_2021_SPRING: VersionPack = {
+  manifest: {
+    id: '2021-spring',
+    riotPatch: '11.6',
+    label: 'LCK 2021 Spring (11.6)',
+    createdAt: '2021-03-01',
+    checksum: checksum('2021-spring', '11.6'),
+    schemaVersion: 1,
+  },
+  champions: buildChampionTable(SPRING_2021_CHAMPION_IDS, 0),
+  items: buildItemTable(),
+  minions: buildMinionRules(0),
+  monsters: buildMonsters(),
+  structures: buildStructures(),
+  objectives: buildObjectives(),
+  economy: buildEconomy(500),
+  map: buildCanonicalMap(),
+  patchStrength: fillPatchStrengthFromMeta(PATCH_META_2021_SPRING),
+};
 
 export const VERSION_PACK_DEMO_A: VersionPack = {
   manifest: {
@@ -126,4 +153,8 @@ export const VERSION_PACK_DEMO_B: VersionPack = {
   patchStrength: PATCH_STRENGTH_DEMO_B,
 };
 
-export const ALL_VERSION_PACKS: readonly VersionPack[] = [VERSION_PACK_DEMO_A, VERSION_PACK_DEMO_B];
+export const ALL_VERSION_PACKS: readonly VersionPack[] = [
+  VERSION_PACK_2021_SPRING,
+  VERSION_PACK_DEMO_A,
+  VERSION_PACK_DEMO_B,
+];

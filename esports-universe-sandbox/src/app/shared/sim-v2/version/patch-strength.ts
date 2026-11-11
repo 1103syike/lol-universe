@@ -1,4 +1,5 @@
 import { CHAMPIONS } from '../../../core/data/champions';
+import type { PatchMetaTable } from '../../../core/models/patch.model';
 import type { PatchChampionStrength, PatchStrengthTable } from './version-pack';
 
 const DEFAULT: PatchChampionStrength = { power: 48, presence: 0.08 };
@@ -25,6 +26,17 @@ function fill(
     table[champ.id] = { ...DEFAULT };
   }
   return table;
+}
+
+export function fillPatchStrengthFromMeta(meta: PatchMetaTable): PatchStrengthTable {
+  const highlights: Record<string, PatchChampionStrength> = {};
+  for (const [championId, entry] of Object.entries(meta)) {
+    highlights[championId] = {
+      power: entry.power,
+      presence: entry.presence,
+    };
+  }
+  return fill(highlights);
 }
 
 export const PATCH_STRENGTH_DEMO_A: PatchStrengthTable = fill(

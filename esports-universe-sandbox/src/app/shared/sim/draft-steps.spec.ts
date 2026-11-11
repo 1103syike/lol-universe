@@ -112,31 +112,32 @@ describe('draft steps timeline', () => {
   });
 
   it('prepareV2Match keeps steps inside the version pack', () => {
-    const pack = getVersionPack('demo-a');
-    const allowed = new Set(Object.keys(pack.champions));
-    const homePlayers = (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
-      player(`home-${position}`, 'home', position),
-    );
-    const awayPlayers = (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
-      player(`away-${position}`, 'away', position),
-    );
     const prepared = prepareV2Match(
       {
-        home: { teamId: 'home', players: homePlayers, coach: coach('home') },
-        away: { teamId: 'away', players: awayPlayers, coach: coach('away') },
+        home: { teamId: 'home', players: (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
+          player(`home-${position}`, 'home', position),
+        ), coach: coach('home') },
+        away: { teamId: 'away', players: (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
+          player(`away-${position}`, 'away', position),
+        ), coach: coach('away') },
         dateIso: '2021-02-15',
         random: mulberry(21),
       },
       77,
     );
+    expect(prepared.input.versionId).toBe('2021-spring');
+    const pack = getVersionPack(prepared.input.versionId);
+    const allowed = new Set(Object.keys(pack.champions));
 
     expect(prepared.steps.length).toBeGreaterThan(0);
     expect(prepared.input.draft?.steps?.length).toBe(prepared.steps.length);
     for (const step of prepared.steps) {
       if (step.kind === 'ban') {
         expect(allowed.has(step.championId)).toBe(true);
+        expect(step.championId).not.toBe('Zed');
       } else {
         expect(allowed.has(step.pick.championId)).toBe(true);
+        expect(step.pick.championId).not.toBe('Zed');
       }
     }
     expect(prepared.input.blue).toHaveLength(5);

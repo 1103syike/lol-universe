@@ -135,11 +135,11 @@ describe('version pack champion lock', () => {
     expect(hasChampionMetaEntry(base, 'Zed')).toBe(false);
     const meta = mergeVersionPatchMeta(base, 'demo-a');
     expect(hasChampionMetaEntry(meta, 'Zed')).toBe(true);
+    expect(meta.Zed.presence).toBeLessThan(0.05);
 
     const pack = getVersionPack('demo-a');
     const allowedChampionIds = new Set(Object.keys(pack.champions));
-    let zedHits = 0;
-    for (let seed = 0; seed < 80; seed += 1) {
+    for (let seed = 0; seed < 40; seed += 1) {
       let cursor = seed * 13 + 7;
       const random = () => {
         cursor = (cursor * 1103515245 + 12345) % 2147483648;
@@ -157,11 +157,100 @@ describe('version pack champion lock', () => {
       expect(draft.away.picks.length).toBe(5);
       for (const pick of [...draft.home.picks, ...draft.away.picks]) {
         expect(allowedChampionIds.has(pick.championId)).toBe(true);
-        if (pick.championId === 'Zed') {
-          zedHits += 1;
+      }
+    }
+  });
+
+  it('2021-spring pack drafts stay in real LCK pool and favor meta staples', () => {
+    const patch = resolvePatchVersion('2021-02-15');
+    const pack = getVersionPack('2021-spring');
+    const allowedChampionIds = new Set(Object.keys(pack.champions));
+    const meta = mergeVersionPatchMeta(resolvePatchMeta(patch), '2021-spring');
+    expect(allowedChampionIds.has('Zed')).toBe(false);
+    expect(allowedChampionIds.has('Gnar')).toBe(true);
+    expect(allowedChampionIds.has('Kaisa')).toBe(true);
+    expect(allowedChampionIds.has('Rell')).toBe(true);
+
+    let gnarOrRenektonPresence = 0;
+    let kaisaPresence = 0;
+    let rellOrAlistarPresence = 0;
+    let kaisaPicks = 0;
+
+    for (let seed = 0; seed < 60; seed += 1) {
+      let cursor = seed * 17 + 3;
+      const random = () => {
+        cursor = (cursor * 1103515245 + 12345) % 2147483648;
+        return cursor / 2147483648;
+      };
+      const draft = runClassicDraft({
+        home: side('blue'),
+        away: side('red'),
+        patch,
+        meta,
+        random,
+        allowedChampionIds,
+      });
+      expect(draft.home.picks.length).toBe(5);
+      expect(draft.away.picks.length).toBe(5);
+      const seen = new Set<string>();
+      for (const entry of [...draft.home.picks, ...draft.away.picks, ...draft.bans]) {
+        expect(allowedChampionIds.has(entry.championId), entry.championId).toBe(true);
+        expect(entry.championId).not.toBe('Zed');
+        seen.add(entry.championId);
+      }
+      if (seen.has('Gnar') || seen.has('Renekton')) {
+        gnarOrRenektonPresence += 1;
+      }
+      if (seen.has('Kaisa')) {
+        kaisaPresence += 1;
+      }
+      if (seen.has('Rell') || seen.has('Alistar')) {
+        rellOrAlistarPresence += 1;
+      }
+      for (const pick of [...draft.home.picks, ...draft.away.picks]) {
+        if (pick.championId === 'Kaisa') {
+          kaisaPicks += 1;
         }
       }
     }
-    expect(zedHits).toBeGreaterThan(0);
+
+    expect(gnarOrRenektonPresence).toBeGreaterThan(40);
+    expect(kaisaPresence).toBeGreaterThan(35);
+    expect(rellOrAlistarPresence).toBeGreaterThan(35);
+    expect(kaisaPicks).toBeGreaterThan(20);
+  });
+
+  it('buildV2Input on 2021 date locks 2021-spring and never ships Zed', () => {
+    const homePlayers = (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
+      player(`home-${position}`, 'home', position),
+    );
+    const awayPlayers = (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((position) =>
+      player(`away-${position}`, 'away', position),
+    );
+    let cursor = 41;
+    const random = () => {
+      cursor = (cursor * 1103515245 + 12345) % 2147483648;
+      return cursor / 2147483648;
+    };
+    const input = buildV2Input(
+      {
+        home: { teamId: 'home', players: homePlayers, coach: coach('home') },
+        away: { teamId: 'away', players: awayPlayers, coach: coach('away') },
+        dateIso: '2021-02-15',
+        random,
+      },
+      2021,
+    );
+    expect(input.versionId).toBe('2021-spring');
+    const pack = getVersionPack(input.versionId);
+    const allowed = new Set(Object.keys(pack.champions));
+    for (const row of [...input.blue, ...input.red]) {
+      expect(allowed.has(row.championId), row.championId).toBe(true);
+      expect(row.championId).not.toBe('Zed');
+    }
+    for (const pick of [...input.draft!.home.picks, ...input.draft!.away.picks, ...input.draft!.bans]) {
+      expect(allowed.has(pick.championId), pick.championId).toBe(true);
+      expect(pick.championId).not.toBe('Zed');
+    }
   });
 });

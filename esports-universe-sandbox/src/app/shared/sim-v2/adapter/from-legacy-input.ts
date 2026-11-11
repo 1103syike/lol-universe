@@ -1,3 +1,4 @@
+import { getChampionKit } from '../../../core/data/champion-kits';
 import { getChampionById } from '../../../core/data/champions';
 import type { Player, PlayerPosition } from '../../../core/models/player.model';
 import { calculateChemistry } from '../../sim/chemistry';
@@ -19,9 +20,9 @@ export interface PreparedV2Match {
 }
 
 const PACK_SYNTH_META = {
-  presence: 0.06,
-  pickRate: 0.03,
-  banRate: 0.02,
+  presence: 0.01,
+  pickRate: 0.005,
+  banRate: 0.005,
   winRate: 0.5,
 } as const;
 
@@ -46,18 +47,18 @@ export function mergeVersionPatchMeta(base: PatchMetaTable, versionId: string): 
       pickRate: PACK_SYNTH_META.pickRate,
       banRate: PACK_SYNTH_META.banRate,
       winRate: PACK_SYNTH_META.winRate,
-      power: Math.round(strengthPower),
+      power: Math.round(strengthPower * 0.55),
     };
   }
   return merged;
 }
 
-const ROLE_FALLBACK: Record<PlayerPosition, string> = {
-  TOP: 'Garen',
-  JUNGLE: 'LeeSin',
-  MID: 'Annie',
-  BOT: 'Ashe',
-  SUPPORT: 'Thresh',
+const ROLE_FALLBACK_PREF: Record<PlayerPosition, readonly string[]> = {
+  TOP: ['Gnar', 'Renekton', 'Camille', 'Aatrox', 'Garen'],
+  JUNGLE: ['Udyr', 'Gragas', 'Olaf', 'Graves', 'LeeSin'],
+  MID: ['Orianna', 'Syndra', 'Azir', 'Zoe', 'Annie'],
+  BOT: ['Kaisa', 'Samira', 'Aphelios', 'Ezreal', 'Ashe'],
+  SUPPORT: ['Rell', 'Alistar', 'Thresh', 'Leona', 'Nautilus'],
 };
 
 function starters(players: readonly Player[]): Player[] {
@@ -74,13 +75,38 @@ function starters(players: readonly Player[]): Player[] {
 export function resolveV2VersionId(dateIso?: string): string {
   const ids = listVersionIds();
   if (!dateIso) {
-    return ids[0] ?? 'demo-a';
+    if (ids.includes('2021-spring')) {
+      return '2021-spring';
+    }
+    return ids.includes('demo-a') ? 'demo-a' : (ids[0] ?? 'demo-a');
   }
   const year = Number(dateIso.slice(0, 4));
+  if (year === 2021 && ids.includes('2021-spring')) {
+    return '2021-spring';
+  }
   if (year >= 2024 && ids.includes('demo-b')) {
     return 'demo-b';
   }
+  if (ids.includes('demo-a')) {
+    return 'demo-a';
+  }
   return ids[0] ?? 'demo-a';
+}
+
+function packRoleFallback(versionId: string, position: PlayerPosition): string {
+  const pack = getVersionPack(versionId);
+  for (const candidate of ROLE_FALLBACK_PREF[position]) {
+    if (pack.champions[candidate]) {
+      return candidate;
+    }
+  }
+  for (const championId of Object.keys(pack.champions)) {
+    const kit = getChampionKit(championId);
+    if (kit?.positions.includes(position)) {
+      return championId;
+    }
+  }
+  return Object.keys(pack.champions)[0] ?? ROLE_FALLBACK_PREF[position][0];
 }
 
 function ensureChampion(versionId: string, championId: string, position: PlayerPosition): string {
@@ -88,7 +114,7 @@ function ensureChampion(versionId: string, championId: string, position: PlayerP
   if (pack.champions[championId]) {
     return championId;
   }
-  return ROLE_FALLBACK[position];
+  return packRoleFallback(versionId, position);
 }
 
 export function toMatchDraftReport(draft: DraftResult): MatchDraftReport {
@@ -175,7 +201,11 @@ export function prepareV2Match(input: SimulateGameInput, seed?: string | number)
       if (pickMap.has(player.id)) {
         continue;
       }
-      const championId = ensureChampion(versionId, ROLE_FALLBACK[player.position], player.position);
+      const championId = ensureChampion(
+        versionId,
+        packRoleFallback(versionId, player.position),
+        player.position,
+      );
       const pick: DraftPickEntry = {
         teamId: side.teamId,
         playerId: player.id,
@@ -207,7 +237,7 @@ export function prepareV2Match(input: SimulateGameInput, seed?: string | number)
       position: player.position,
       championId: ensureChampion(
         versionId,
-        pickMap.get(player.id) ?? ROLE_FALLBACK[player.position],
+        pickMap.get(player.id) ?? packRoleFallback(versionId, player.position),
         player.position,
       ),
       laning: player.attributes.laning.current,
