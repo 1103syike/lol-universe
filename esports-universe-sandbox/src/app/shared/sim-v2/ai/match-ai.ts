@@ -1,5 +1,8 @@
+import { beginWaveAssessFrame, endWaveAssessFrame } from '../minion/wave-state';
+import { beginChampionProximityFrame } from '../perf/champion-proximity';
 import type { ReplayRecorder } from '../replay/recorder';
 import type { GameState } from '../state/game-state';
+import { updateCloseoutPlans } from './closeout-director';
 import { updateLaneAssignments } from './decision';
 import { updatePhases } from './phase-director';
 import { planTeamTick } from './team-planner';
@@ -11,13 +14,22 @@ export interface MatchAi {
 
 class MatchAiModule implements MatchAi {
   runAiTick(state: GameState, recorder?: ReplayRecorder): void {
-    updatePhases(state);
-    planTeamTick(state);
-    updateLaneAssignments(state);
-    const blueFirst = state.rng() < 0.5;
-    const order = blueFirst ? [...state.champions] : [...state.champions].reverse();
-    for (const champion of order) {
-      executeUnitTick(state, champion, recorder);
+    beginWaveAssessFrame();
+    beginChampionProximityFrame(state);
+    try {
+      updatePhases(state);
+      updateCloseoutPlans(state);
+      planTeamTick(state);
+      updateLaneAssignments(state);
+      const blueFirst = state.rng() < 0.5;
+      const champs = state.champions;
+      const last = champs.length - 1;
+      for (let i = 0; i < champs.length; i += 1) {
+        const champion = blueFirst ? champs[i] : champs[last - i];
+        executeUnitTick(state, champion, recorder);
+      }
+    } finally {
+      endWaveAssessFrame();
     }
   }
 }

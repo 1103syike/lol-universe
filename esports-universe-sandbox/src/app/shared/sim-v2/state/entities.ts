@@ -94,8 +94,9 @@ export interface ChampionEntity {
   goldBySource: Record<string, number>;
   expBySource: Record<string, number>;
   levelSamples: Array<{ t: number; level: number }>;
-  threatTable: Record<string, { amount: number; at: number }>;
+  threatTable: Record<string, { amount: number; at: number; callHelp?: boolean }>;
   knownEnemyPositions: Record<string, { position: Vec2; seenAt: number }>;
+  abilityBag: ChampionAbilityBag;
   skills: {
     laning: number;
     mechanics: number;
@@ -104,6 +105,101 @@ export interface ChampionEntity {
     consistency: number;
     adaptability: number;
   };
+}
+
+export interface LeeSinAbilityBag {
+  qMarkTargetId: string | null;
+  qMarkUntil: number;
+  qIsRecast: boolean;
+  rFlashArmedUntil: number;
+}
+
+export interface AnnieAbilityBag {
+  pyromania: number;
+}
+
+export interface SyndraSphere {
+  id: string;
+  x: number;
+  y: number;
+  expiresAt: number;
+}
+
+export interface SyndraAbilityBag {
+  spheres: SyndraSphere[];
+  nextSphereId: number;
+}
+
+export interface AatroxAbilityBag {
+  qStage: 0 | 1 | 2 | 3;
+  qWindowUntil: number;
+  sweetUntil: number;
+  wTetherTargetId: string | null;
+  wTetherUntil: number;
+  wAnchorX: number;
+  wAnchorY: number;
+  rUntil: number;
+  rHealMult: number;
+  passiveReadyAt: number;
+}
+
+export interface CamilleAbilityBag {
+  qEmpoweredUntil: number;
+}
+
+export interface AkaliAbilityBag {
+  eMarkedTargetId: string | null;
+  eMarkedUntil: number;
+  rStage: 0 | 1;
+  rWindowUntil: number;
+}
+
+export interface AniviaAbilityBag {
+  chilledTargetId: string | null;
+  chilledUntil: number;
+}
+
+export interface AhriAbilityBag {
+  essenceStacks: number;
+  rChargesLeft: number;
+  rWindowUntil: number;
+}
+
+export interface LeblancAbilityBag {
+  markTargetId: string | null;
+  markUntil: number;
+}
+
+export interface KassadinAbilityBag {
+  rStacks: number;
+  rStackUntil: number;
+}
+
+export interface EkkoAbilityBag {
+  wSlowUntil: number;
+}
+
+export interface EzrealAbilityBag {
+  wMarkTargetId: string | null;
+  wMarkUntil: number;
+  passiveStacks: number;
+  passiveUntil: number;
+}
+
+export interface ChampionAbilityBag {
+  leeSin?: LeeSinAbilityBag;
+  annie?: AnnieAbilityBag;
+  syndra?: SyndraAbilityBag;
+  aatrox?: AatroxAbilityBag;
+  camille?: CamilleAbilityBag;
+  akali?: AkaliAbilityBag;
+  anivia?: AniviaAbilityBag;
+  ahri?: AhriAbilityBag;
+  leblanc?: LeblancAbilityBag;
+  kassadin?: KassadinAbilityBag;
+  ekko?: EkkoAbilityBag;
+  ezreal?: EzrealAbilityBag;
+  customCooldownApplied?: boolean;
 }
 
 export interface MinionEntity {
@@ -123,6 +219,8 @@ export interface MinionEntity {
   alive: boolean;
   gold: number;
   targetId: EntityId | null;
+  aggroUntil: number;
+  aggroAnchor: Vec2 | null;
 }
 
 export interface MonsterEntity {
@@ -139,6 +237,7 @@ export interface MonsterEntity {
   gold: number;
   exp: number;
   csValue: number;
+  dragonType?: 'ocean' | 'mountain' | 'infernal' | 'cloud' | 'hextech' | 'chemtech';
   splitsInto: {
     kind: MonsterUnitKind;
     count: number;
@@ -167,12 +266,19 @@ export interface StructureEntity {
   maxHp: number;
   ad: number;
   range: number;
+  armor: number;
+  mr: number;
   gold: number;
   alive: boolean;
   nextAttackAt: number;
   aggroTargetId: EntityId | null;
   aggroUntil: number;
   respawnAt: number;
+  platesTotal: number;
+  platesBroken: number;
+  platingEndsAt: number;
+  bulwarkStacks: number;
+  bulwarkUntil: number;
 }
 
 export type WardKind = 'stealth' | 'control';

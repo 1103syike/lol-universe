@@ -52,8 +52,12 @@ export interface ChampionDefinition {
   primaryDamage: 'physical' | 'magic';
   baseHp: number;
   hpPerLevel: number;
+  baseHpRegen: number;
+  hpRegenPerLevel: number;
   baseMana: number;
   manaPerLevel: number;
+  baseManaRegen: number;
+  manaRegenPerLevel: number;
   baseAd: number;
   adPerLevel: number;
   baseArmor: number;
@@ -132,6 +136,7 @@ export type MonsterUnitKind =
   | 'mini_krug'
   | 'rift_scuttler'
   | 'dragon'
+  | 'elder'
   | 'herald'
   | 'baron';
 
@@ -177,11 +182,14 @@ export interface StructureDefinition {
   ad: number;
   range: number;
   gold: number;
+  armor?: number;
+  mr?: number;
 }
 
 export interface ObjectiveRules {
   dragonFirstSpawnSec: number;
   dragonRespawnSec: number;
+  elderRespawnSec: number;
   heraldSpawnSec: number;
   heraldDespawnSec: number;
   baronSpawnSec: number;

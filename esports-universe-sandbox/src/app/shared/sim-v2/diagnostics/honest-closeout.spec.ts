@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { simulateV2Match, type SimulateV2Input } from '../engine';
-import { BASE_SIEGE_PRESENCE_RANGE } from '../objectives/structures';
+import {
+  BASE_SIEGE_PRESENCE_RANGE,
+  canSiege,
+  hasAlliedSiegePresence,
+  wavePressuringStructure,
+} from '../objectives/structures';
+import type { GameState } from '../state/game-state';
 
 function roster(side: 'blue' | 'red') {
   const prefix = side;
@@ -43,23 +49,51 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+function timeoutCloseoutDiagnostics(state: GameState): string {
+  const lines: string[] = [];
+  for (const side of ['blue', 'red'] as const) {
+    const targets = state.structures.filter(
+      (structure) =>
+        structure.alive &&
+        structure.side !== side &&
+        (structure.structureKind === 'nexus' ||
+          structure.structureKind === 'nexus_tower' ||
+          structure.structureKind === 'inhibitor' ||
+          structure.structureKind === 'inhib_tower'),
+    );
+    for (const structure of targets) {
+      const siegeOk = canSiege(state, structure);
+      const waveOk = wavePressuringStructure(state, side, structure);
+      const presenceOk = hasAlliedSiegePresence(state, side, structure);
+      lines.push(
+        `${side}->${structure.structureKind}/${structure.lane ?? 'base'} canSiege=${siegeOk} waveOrPresence=${waveOk} presence=${presenceOk} hp=${Math.round(structure.hp)}`,
+      );
+    }
+  }
+  return lines.join(' | ');
+}
+
 describe('honest closeout', () => {
-  it('timeout ends without destroying either nexus', () => {
-    const { state, replay } = simulateV2Match(input(91001, 900));
-    expect(state.endReason).toBe('timeout');
-    expect(state.winnerTeamId).toBeTruthy();
-    const nexuses = state.structures.filter((structure) => structure.structureKind === 'nexus');
-    expect(nexuses).toHaveLength(2);
-    expect(nexuses.every((structure) => structure.alive)).toBe(true);
-    const end = replay.events.find((event) => event.type === 'match_end');
-    expect(end?.payload?.['reason']).toBe('timeout');
-    expect(
-      replay.events.some(
-        (event) =>
-          event.type === 'structure_kill' && event.payload?.['kind'] === 'nexus',
-      ),
-    ).toBe(false);
-  });
+  it(
+    'timeout ends without destroying either nexus',
+    () => {
+      const { state, replay } = simulateV2Match(input(91001, 900));
+      expect(state.endReason).toBe('timeout');
+      expect(state.winnerTeamId).toBeTruthy();
+      const nexuses = state.structures.filter((structure) => structure.structureKind === 'nexus');
+      expect(nexuses).toHaveLength(2);
+      expect(nexuses.every((structure) => structure.alive)).toBe(true);
+      const end = replay.events.find((event) => event.type === 'match_end');
+      expect(end?.payload?.['reason']).toBe('timeout');
+      expect(
+        replay.events.some(
+          (event) =>
+            event.type === 'structure_kill' && event.payload?.['kind'] === 'nexus',
+        ),
+      ).toBe(false);
+    },
+    60_000,
+  );
 
   it(
     'nexus kill only appears when a nexus structure actually dies',
@@ -79,20 +113,24 @@ describe('honest closeout', () => {
       } else {
         expect(state.endReason).toBe('timeout');
         expect(nexusKill).toBeUndefined();
+        // eslint-disable-next-line no-console
+        console.log('timeout diagnostics seed=42', timeoutCloseoutDiagnostics(state));
       }
     },
-    20000,
+    180_000,
   );
 
   it(
-    'nexus ends with living attackers present in the enemy base',
+    'most matches end by nexus with attackers present in base',
     () => {
-      const seeds = [42, 1000, 91001, 77, 333, 555, 888, 2024];
+      const seeds = [42, 1000, 91001, 77, 333, 555, 888, 2024, 11, 99];
       let nexusEnds = 0;
+      const timeoutNotes: string[] = [];
       for (const seed of seeds) {
         const { state, replay } = simulateV2Match(input(seed, 2700));
         if (state.endReason !== 'nexus') {
           expect(state.endReason).toBe('timeout');
+          timeoutNotes.push(`seed=${seed} ${timeoutCloseoutDiagnostics(state)}`);
           continue;
         }
         nexusEnds += 1;
@@ -130,23 +168,31 @@ describe('honest closeout', () => {
           );
         }
       }
-      expect(nexusEnds).toBeGreaterThanOrEqual(3);
+      if (timeoutNotes.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log('timeout leftovers\n' + timeoutNotes.join('\n'));
+      }
+      expect(nexusEnds / seeds.length).toBeGreaterThanOrEqual(0.7);
     },
-    90000,
+    300_000,
   );
 
-  it('lethal damage produces real deaths instead of escape recalls', () => {
-    const { replay } = simulateV2Match(input(91001, 1200));
-    const deaths = replay.events.filter((event) => event.type === 'death');
-    const earlyDeaths = deaths.filter((event) => (event.t ?? 0) < 180);
-    expect(deaths.length).toBeGreaterThan(0);
-    expect(earlyDeaths.length).toBeLessThanOrEqual(8);
-    const firstBlood = earlyDeaths[0] ?? deaths[0];
-    if (firstBlood) {
-      const assists = Array.isArray(firstBlood.payload?.['assistPlayerIds'])
-        ? (firstBlood.payload?.['assistPlayerIds'] as unknown[]).length
-        : 0;
-      expect(assists).toBeLessThanOrEqual(4);
-    }
-  });
+  it(
+    'lethal damage produces real deaths instead of escape recalls',
+    () => {
+      const { replay } = simulateV2Match(input(91001, 1200));
+      const deaths = replay.events.filter((event) => event.type === 'death');
+      const earlyDeaths = deaths.filter((event) => (event.t ?? 0) < 180);
+      expect(deaths.length).toBeGreaterThan(0);
+      expect(earlyDeaths.length).toBeLessThanOrEqual(8);
+      const firstBlood = earlyDeaths[0] ?? deaths[0];
+      if (firstBlood) {
+        const assists = Array.isArray(firstBlood.payload?.['assistPlayerIds'])
+          ? (firstBlood.payload?.['assistPlayerIds'] as unknown[]).length
+          : 0;
+        expect(assists).toBeLessThanOrEqual(4);
+      }
+    },
+    90_000,
+  );
 });

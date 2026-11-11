@@ -1,5 +1,6 @@
 import { CHAMPIONS } from '../src/app/core/data/champions.ts';
 import { CHAMPION_KITS } from '../src/app/core/data/champion-kits.ts';
+import { CHAMPION_ABILITY_EFFECTS } from '../src/app/shared/sim-v2/combat/ability-effect-tags.ts';
 import { resolveAbilityExecutor } from '../src/app/shared/sim-v2/combat/executors.ts';
 import { resolveArchetypeExecutor } from '../src/app/shared/sim-v2/combat/ability-archetypes.ts';
 import { SIGNATURE_ABILITIES } from '../src/app/shared/sim-v2/combat/signature-abilities.ts';
@@ -62,6 +63,27 @@ for (const champ of CHAMPIONS) {
   }
 }
 
+const effectCounts = {
+  champions: Object.keys(CHAMPION_ABILITY_EFFECTS).length,
+  selfDash: 0,
+  pull: 0,
+  knockup: 0,
+  knockback: 0,
+  hardCc: 0,
+  softCc: 0,
+};
+for (const slots of Object.values(CHAMPION_ABILITY_EFFECTS)) {
+  for (const fx of Object.values(slots)) {
+    if (!fx) continue;
+    if (fx.selfDash) effectCounts.selfDash += 1;
+    if (fx.pull) effectCounts.pull += 1;
+    if (fx.knockup) effectCounts.knockup += 1;
+    if (fx.knockback) effectCounts.knockback += 1;
+    if (fx.hardCc) effectCounts.hardCc += 1;
+    if (fx.softCc) effectCounts.softCc += 1;
+  }
+}
+
 console.log(
   JSON.stringify(
     {
@@ -77,6 +99,8 @@ console.log(
       archetypeOnlyCount: archetypeOnly.length,
       signatureAbilityEntries: Object.keys(SIGNATURE_ABILITIES).length,
       allHaveQWER: missingExec.length === 0,
+      parsedEffects: effectCounts,
+      note: '施法時依 wiki 敘述套用 selfDash/pull/knockup/knockback/hardCc',
     },
     null,
     2,

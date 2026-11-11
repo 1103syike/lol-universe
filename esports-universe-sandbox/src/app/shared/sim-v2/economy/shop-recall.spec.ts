@@ -24,7 +24,7 @@ function botChamp() {
     blueTeamId: 'blue',
     redTeamId: 'red',
     blue: roster('b', ['Aatrox', 'LeeSin', 'Ahri', 'Jinx', 'Thresh']),
-    red: roster('r', ['Garen', 'Viego', 'Syndra', 'Ashe', 'Lulu']),
+    red: roster('r', ['Garen', 'Viego', 'Syndra', 'Ashe', 'Leona']),
   }).state;
   const champ = state.champions.find((row) => row.side === 'blue' && row.positionLabel === 'BOT')!;
   return { state, champ };

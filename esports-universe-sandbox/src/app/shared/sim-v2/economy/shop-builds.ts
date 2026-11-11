@@ -2,6 +2,7 @@ import { CHAMPION_KITS, type ChampionCombatClass, type ChampionDamageType } from
 import type { PlayerPosition } from '../../../core/models/player.model';
 import type { ChampionEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
+import opggItemBuilds from './opgg-item-builds.json';
 
 export type BuildPlan = {
   id: string;
@@ -977,6 +978,73 @@ function pickWeighted(plans: WeightedPlan[], roll: number): BuildPlan {
   return plans[plans.length - 1]?.plan ?? ADC_CRIT_CLASSIC;
 }
 
+type OpggItemRow = {
+  role: PlayerPosition | 'ANY';
+  items: readonly string[];
+  source?: string;
+};
+
+const OPGG_SKIP_ITEMS = new Set([
+  'HealthPotion',
+  'RefillablePotion',
+  'CorruptingPotion',
+  'ControlWard',
+  'TotalBiscuitofEverlastingWill',
+]);
+
+const JUNGLE_PET_ITEMS = new Set([
+  'ScorchclawPup',
+  'GustwalkerHatchling',
+  'MosstomperSeedling',
+]);
+
+const OPGG_ITEM_ROWS: Readonly<Record<string, readonly OpggItemRow[]>> = Object.fromEntries(
+  Object.entries(
+    (opggItemBuilds as { champions: Record<string, OpggItemRow[]> }).champions,
+  ).map(([championId, rows]) => [
+    championId,
+    rows.map((row) => ({
+      role: row.role,
+      items: row.items.filter((itemId) => !OPGG_SKIP_ITEMS.has(itemId)),
+      source: row.source,
+    })),
+  ]),
+);
+
+function sanitizeOpggItems(
+  items: readonly string[],
+  position: PlayerPosition,
+): string[] {
+  return items.filter((itemId) => {
+    if (OPGG_SKIP_ITEMS.has(itemId)) {
+      return false;
+    }
+    if (position !== 'JUNGLE' && JUNGLE_PET_ITEMS.has(itemId)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function resolveOpggItems(
+  championId: string,
+  position: PlayerPosition,
+): readonly string[] | null {
+  const rows = OPGG_ITEM_ROWS[championId];
+  if (!rows || rows.length === 0) {
+    return null;
+  }
+  const exact = rows.find((row) => row.role === position);
+  if (exact && exact.items.length > 0) {
+    return sanitizeOpggItems(exact.items, position);
+  }
+  const any = rows.find((row) => row.role === 'ANY');
+  if (any && any.items.length > 0) {
+    return sanitizeOpggItems(any.items, position);
+  }
+  return rows[0]?.items?.length ? sanitizeOpggItems(rows[0].items, position) : null;
+}
+
 export function resolveShopPrefer(args: {
   championId: string;
   position: string;
@@ -989,7 +1057,6 @@ export function resolveShopPrefer(args: {
   const position = asPosition(args.position);
   const { combatClass, damageType } = resolveClass(args.championId, args.tags);
   const kit = CHAMPION_KITS[args.championId];
-  const pool = [...(CHAMPION_PLAN_POOL[args.championId] ?? defaultPool(combatClass, damageType, position))];
   const ctx =
     args.state && args.side
       ? analyzeComp(args.state, args.side)
@@ -1004,6 +1071,11 @@ export function resolveShopPrefer(args: {
           allyAd: 3,
           goldLead: 0,
         };
+  const opggItems = resolveOpggItems(args.championId, position);
+  if (opggItems && opggItems.length > 0) {
+    return adaptPlanItems(opggItems, ctx);
+  }
+  const pool = [...(CHAMPION_PLAN_POOL[args.championId] ?? defaultPool(combatClass, damageType, position))];
   const weighted: WeightedPlan[] = pool.map((plan) => ({
     plan,
     weight: weightPlan(

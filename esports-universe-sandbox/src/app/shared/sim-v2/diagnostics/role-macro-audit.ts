@@ -298,15 +298,18 @@ function countGankDecisions(replay: ReplayDocument, junglerIds: Set<string>): nu
 function campKillsByTime(replay: ReplayDocument, junglerIds: Set<string>, beforeSec: number): number {
   const cleared = new Set<string>();
   for (const event of replay.events) {
-    if (event.type !== 'camp_kill' || !event.actorId || !junglerIds.has(event.actorId)) {
+    if (event.type !== 'camp_clear' || !event.actorId || !junglerIds.has(event.actorId)) {
       continue;
     }
     if ((event.t ?? 0) > beforeSec) {
       continue;
     }
     const campId = String(event.payload?.['campId'] ?? event.targetId ?? '');
-    const bucket = Math.floor((event.t ?? 0) / 5);
-    cleared.add(`${event.actorId}:${campId}:${bucket}`);
+    const campKills = Number(event.payload?.['campKills'] ?? NaN);
+    if (!campId || !Number.isFinite(campKills)) {
+      continue;
+    }
+    cleared.add(`${event.actorId}:${campId}:${campKills}`);
   }
   return cleared.size;
 }

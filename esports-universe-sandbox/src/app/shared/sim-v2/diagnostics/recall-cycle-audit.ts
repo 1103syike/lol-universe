@@ -307,6 +307,8 @@ export function auditRecallCycleScenarios(): RecallAuditRow[] {
         alive: true,
         gold: 20,
         targetId: null,
+      aggroUntil: 0,
+      aggroAnchor: null,
       };
       state.minions.push(pressureMinion);
     }

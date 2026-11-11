@@ -236,6 +236,29 @@
           <button type="button" [class.is-on]="showFountainRanges()" (click)="toggleFountainRanges()">泉水攻擊範圍</button>
         </div>
 
+        <label class="map-editor__width">
+          <span>防禦塔攻擊範圍 {{ towerAttackRange() }}</span>
+          <input
+            type="range"
+            min="300"
+            max="1500"
+            step="25"
+            [value]="towerAttackRange()"
+            (input)="setTowerAttackRange($any($event.target).value)"
+          />
+        </label>
+        <label class="map-editor__width">
+          <span>溫泉塔攻擊範圍 {{ fountainAttackRange() }}</span>
+          <input
+            type="range"
+            min="400"
+            max="2000"
+            step="25"
+            [value]="fountainAttackRange()"
+            (input)="setFountainAttackRange($any($event.target).value)"
+          />
+        </label>
+
         <div class="map-editor__nudge">
           <button type="button" class="is-primary" (click)="resetLaneRoads()">還原預設兵線</button>
         </div>
@@ -286,6 +309,29 @@
           <button type="button" [class.is-on]="showFountainRanges()" (click)="toggleFountainRanges()">泉水攻擊範圍</button>
           <button type="button" [class.is-on]="showMaskPreview()" (click)="toggleMaskPreview()">顯示合成預覽</button>
         </div>
+
+        <label class="map-editor__width">
+          <span>防禦塔攻擊範圍 {{ towerAttackRange() }}</span>
+          <input
+            type="range"
+            min="300"
+            max="1500"
+            step="25"
+            [value]="towerAttackRange()"
+            (input)="setTowerAttackRange($any($event.target).value)"
+          />
+        </label>
+        <label class="map-editor__width">
+          <span>溫泉塔攻擊範圍 {{ fountainAttackRange() }}</span>
+          <input
+            type="range"
+            min="400"
+            max="2000"
+            step="25"
+            [value]="fountainAttackRange()"
+            (input)="setFountainAttackRange($any($event.target).value)"
+          />
+        </label>
 
         <div class="map-editor__nudge">
           <button type="button" class="is-primary" (click)="buildCompleteMask()">合成完整圖</button>
@@ -358,6 +404,34 @@
           <button type="button" [class.is-on]="filter() === 'camp'" (click)="setFilter('camp')">野怪</button>
           <button type="button" [class.is-on]="filter() === 'fountain'" (click)="setFilter('fountain')">泉水</button>
         </div>
+
+        <div class="map-editor__filters">
+          <button type="button" [class.is-on]="showTowerRanges()" (click)="toggleTowerRanges()">塔攻擊範圍</button>
+          <button type="button" [class.is-on]="showFountainRanges()" (click)="toggleFountainRanges()">泉水攻擊範圍</button>
+        </div>
+
+        <label class="map-editor__width">
+          <span>防禦塔攻擊範圍 {{ towerAttackRange() }}</span>
+          <input
+            type="range"
+            min="300"
+            max="1500"
+            step="25"
+            [value]="towerAttackRange()"
+            (input)="setTowerAttackRange($any($event.target).value)"
+          />
+        </label>
+        <label class="map-editor__width">
+          <span>溫泉塔攻擊範圍 {{ fountainAttackRange() }}</span>
+          <input
+            type="range"
+            min="400"
+            max="2000"
+            step="25"
+            [value]="fountainAttackRange()"
+            (input)="setFountainAttackRange($any($event.target).value)"
+          />
+        </label>
 
         @if (selected(); as current) {
           <div class="map-editor__selected">

@@ -1,3 +1,6 @@
+import { noteAhriFragmentKill } from '../combat/ahri-passives';
+import { basicAttack, castAbility } from '../combat/combat';
+import { castChampionCombo, hasChampionCombo } from '../combat/combo-cast';
 import { applyDamage } from '../combat/damage';
 import { castSmite, hasSummoner, smiteDamageFor, summonerReady } from '../combat/summoner-spells';
 import { grantExp, grantGold } from '../economy/economy';
@@ -8,12 +11,17 @@ import type { ChampionEntity, MonsterEntity } from '../state/entities';
 import { allocEntityId, type GameState } from '../state/game-state';
 import type { MonsterCampDefinition, MonsterUnitTemplate, Vec2 } from '../version/version-pack';
 import { spawnScuttleShrine } from '../vision/vision';
-import { jungleClearAttackPower, jungleClearProfile } from './jungle-clear-profile';
+import {
+  hasJungleCompanion,
+  jungleFarmBehindAmount,
+  jungleFarmPace,
+  junglePetHitDamage,
+} from './jungle-clear-profile';
 
 const MONSTER_ATTACK_INTERVAL_SEC = 1.4;
 const SMALL_DESPAWN_OOC_SEC = 10;
 const KRUG_SPLIT_PROTECT_SEC = 1.65;
-const SCUTTLE_FLEE_DIST = 280;
+const SCUTTLE_FLEE_DIST = 140;
 const UNIT_OFFSETS: readonly Vec2[] = [
   { x: 0, y: 0 },
   { x: 55, y: -35 },
@@ -25,18 +33,59 @@ const UNIT_OFFSETS: readonly Vec2[] = [
   { x: 90, y: -10 },
 ];
 
+function despawnCamp(state: GameState, campId: string): void {
+  for (const monster of state.monsters) {
+    if (monster.campId === campId && monster.alive) {
+      monster.alive = false;
+      monster.hp = 0;
+    }
+  }
+  purgeDeadCampUnits(state, campId);
+}
+
+function heraldWindowOpen(state: GameState): boolean {
+  return state.scheduler.time < state.lockedPack.objectives.heraldDespawnSec;
+}
+
 export function bootstrapCamps(state: GameState): void {
   for (const camp of state.lockedPack.monsters) {
-    if (camp.id === 'baron') {
+    if (camp.id === 'baron' || camp.id === 'elder') {
       continue;
     }
     state.scheduler.schedule(camp.firstSpawnSec, `camp_spawn_${camp.id}`, () => {
       spawnCamp(state, camp.id);
     });
   }
+  state.scheduler.schedule(
+    state.lockedPack.objectives.heraldDespawnSec,
+    'herald_despawn',
+    () => {
+      despawnCamp(state, 'herald');
+    },
+  );
   state.scheduler.schedule(state.lockedPack.objectives.baronSpawnSec, 'baron_spawn', () => {
+    despawnCamp(state, 'herald');
     spawnCamp(state, 'baron');
   });
+}
+
+function soulAlreadyTaken(state: GameState): boolean {
+  return state.blue.hasSoul || state.red.hasSoul;
+}
+
+function scheduleDragonPitRespawn(state: GameState): void {
+  if (soulAlreadyTaken(state)) {
+    const delay = state.lockedPack.objectives.elderRespawnSec;
+    state.scheduler.schedule(state.scheduler.time + delay, 'elder_respawn', () => {
+      spawnCamp(state, 'elder');
+    });
+    return;
+  }
+  state.scheduler.schedule(
+    state.scheduler.time + state.lockedPack.objectives.dragonRespawnSec,
+    'dragon_respawn',
+    () => spawnCamp(state, 'dragon'),
+  );
 }
 
 function campDefOf(state: GameState, campId: string): MonsterCampDefinition | undefined {
@@ -70,6 +119,31 @@ function monsterLevelScale(state: GameState): number {
   return 1 + (monsterLevel - 1) * 0.035;
 }
 
+const ELEMENTAL_DRAGON_TYPES = [
+  'infernal',
+  'mountain',
+  'ocean',
+  'cloud',
+  'hextech',
+  'chemtech',
+] as const;
+
+function drawDragonType(
+  state: GameState,
+): (typeof ELEMENTAL_DRAGON_TYPES)[number] {
+  if (state.dragonTypeBag.length === 0) {
+    const bag = [...ELEMENTAL_DRAGON_TYPES];
+    for (let i = bag.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(state.rng() * (i + 1));
+      const tmp = bag[i]!;
+      bag[i] = bag[j]!;
+      bag[j] = tmp;
+    }
+    state.dragonTypeBag = bag;
+  }
+  return state.dragonTypeBag.shift()!;
+}
+
 function createMonsterEntity(
   state: GameState,
   camp: MonsterCampDefinition,
@@ -91,6 +165,7 @@ function createMonsterEntity(
     gold: template.gold,
     exp: Math.round(template.exp * scale),
     csValue: template.cs,
+    dragonType: camp.id === 'dragon' ? drawDragonType(state) : undefined,
     splitsInto: template.splitsInto ? { ...template.splitsInto } : null,
     aggroTargetId: null,
     nextAttackAt: 0,
@@ -121,10 +196,33 @@ function spawnCamp(state: GameState, campId: string): void {
   if (!camp) {
     return;
   }
+  if (campId === 'herald' && !heraldWindowOpen(state)) {
+    return;
+  }
+  if (campId === 'baron' && campHasAlive(state, 'herald')) {
+    despawnCamp(state, 'herald');
+  }
+  if (campId === 'dragon' && soulAlreadyTaken(state)) {
+    return;
+  }
+  if (campId === 'elder' && !soulAlreadyTaken(state)) {
+    return;
+  }
+  if (campHasAlive(state, 'dragon') || campHasAlive(state, 'elder')) {
+    if (campId === 'dragon' || campId === 'elder') {
+      return;
+    }
+  }
   if (campHasAlive(state, camp.id)) {
     return;
   }
   purgeDeadCampUnits(state, camp.id);
+  if (campId === 'elder') {
+    purgeDeadCampUnits(state, 'dragon');
+  }
+  if (campId === 'dragon') {
+    purgeDeadCampUnits(state, 'elder');
+  }
   let index = 0;
   for (const template of camp.units) {
     index = spawnUnitsFromTemplate(state, camp, template, index);
@@ -200,10 +298,6 @@ function splashCampDamage(
     const splashScale = monster.unitKind === 'mini_krug' ? 0.08 : monster.size === 'small' ? 0.85 : 1;
     applyDamage(state, champion, monster, amount * splashScale, 'physical', recorder, 'camp');
     monster.aggroTargetId = champion.id;
-    if (!monster.alive) {
-      creditMonsterKill(state, champion, monster, recorder);
-      spawnSplitUnits(state, monster);
-    }
   }
 }
 
@@ -252,7 +346,12 @@ function despawnLeftoverSmalls(state: GameState, campId: string): void {
 }
 
 function scheduleCampRespawn(state: GameState, camp: MonsterCampDefinition): void {
-  if (camp.id === 'baron' || camp.id === 'dragon' || camp.id === 'herald') {
+  if (
+    camp.id === 'baron' ||
+    camp.id === 'dragon' ||
+    camp.id === 'elder' ||
+    camp.id === 'herald'
+  ) {
     return;
   }
   const respawnAt = state.scheduler.time + camp.respawnSec;
@@ -260,6 +359,8 @@ function scheduleCampRespawn(state: GameState, camp: MonsterCampDefinition): voi
     spawnCamp(state, camp.id);
   });
 }
+
+const CAMP_CLEAR_CS = 4;
 
 function resolveCampCleared(
   state: GameState,
@@ -271,21 +372,34 @@ function resolveCampCleared(
     return;
   }
   champion.campKills += 1;
+  champion.cs += CAMP_CLEAR_CS;
+  recorder?.record(state, {
+    type: 'camp_clear',
+    actorId: champion.id,
+    targetId: monster.campId,
+    payload: {
+      campId: monster.campId,
+      cs: champion.cs,
+      campKills: champion.campKills,
+    },
+  });
   const camp = campDefOf(state, monster.campId);
   if (!camp) {
     return;
   }
   if (camp.id === 'dragon') {
     const team = champion.side === 'blue' ? state.blue : state.red;
-    team.dragonStacks += 1;
-    if (team.dragonStacks >= 4) {
-      team.hasSoul = true;
+    if (!soulAlreadyTaken(state)) {
+      team.dragonStacks += 1;
+      if (team.dragonStacks >= 4) {
+        team.hasSoul = true;
+      }
     }
-    state.scheduler.schedule(
-      state.scheduler.time + state.lockedPack.objectives.dragonRespawnSec,
-      'dragon_respawn',
-      () => spawnCamp(state, 'dragon'),
-    );
+    scheduleDragonPitRespawn(state);
+    return;
+  }
+  if (camp.id === 'elder') {
+    scheduleDragonPitRespawn(state);
     return;
   }
   if (camp.id === 'baron') {
@@ -325,11 +439,10 @@ function resolveCampCleared(
         resolveStructureKill(state, target, champion, recorder);
       }
     }
-    state.scheduler.schedule(
-      state.scheduler.time + camp.respawnSec,
-      'herald_respawn',
-      () => spawnCamp(state, 'herald'),
-    );
+    const heraldRespawnAt = state.scheduler.time + camp.respawnSec;
+    if (heraldRespawnAt < state.lockedPack.objectives.heraldDespawnSec) {
+      state.scheduler.schedule(heraldRespawnAt, 'herald_respawn', () => spawnCamp(state, 'herald'));
+    }
     return;
   }
   scheduleCampRespawn(state, camp);
@@ -359,6 +472,7 @@ function junglePetBonusExp(
   }
   if (
     monster.campId === 'dragon' ||
+    monster.campId === 'elder' ||
     monster.campId === 'baron' ||
     monster.campId === 'herald'
   ) {
@@ -390,6 +504,9 @@ function grantEpicGlobalGold(
   } else if (monster.campId === 'dragon') {
     globalGold = 25;
     localBonus = 25;
+  } else if (monster.campId === 'elder') {
+    globalGold = 150;
+    localBonus = 100;
   } else if (monster.campId === 'herald') {
     globalGold = 0;
     localBonus = monster.gold;
@@ -409,15 +526,61 @@ function grantEpicGlobalGold(
   }
 }
 
+const resolvedMonsterKills = new WeakSet<MonsterEntity>();
+
+export function finalizeMonsterKill(
+  state: GameState,
+  source: ChampionEntity | null,
+  monster: MonsterEntity,
+  recorder?: ReplayRecorder,
+): void {
+  if (resolvedMonsterKills.has(monster)) {
+    return;
+  }
+  resolvedMonsterKills.add(monster);
+  monster.alive = false;
+  monster.hp = 0;
+  const killer =
+    source ??
+    state.champions
+      .filter((champ) => champ.alive)
+      .sort(
+        (left, right) =>
+          dist(left.position, monster.position) - dist(right.position, monster.position),
+      )[0] ??
+    null;
+  if (killer) {
+    creditMonsterKill(state, killer, monster, recorder);
+    spawnSplitUnits(state, monster);
+    resolveCampCleared(state, killer, monster, recorder);
+    return;
+  }
+  spawnSplitUnits(state, monster);
+  if (!campHasAlive(state, monster.campId)) {
+    const camp = campDefOf(state, monster.campId);
+    if (!camp) {
+      return;
+    }
+    if (camp.id === 'dragon' || camp.id === 'elder') {
+      scheduleDragonPitRespawn(state);
+      return;
+    }
+    if (camp.id === 'baron' || camp.id === 'herald') {
+      return;
+    }
+    scheduleCampRespawn(state, camp);
+  }
+}
+
 function creditMonsterKill(
   state: GameState,
   champion: ChampionEntity,
   monster: MonsterEntity,
   recorder?: ReplayRecorder,
 ): void {
-  champion.cs += monster.csValue;
   const isEpic =
     monster.campId === 'dragon' ||
+    monster.campId === 'elder' ||
     monster.campId === 'baron' ||
     monster.campId === 'herald';
   if (isEpic) {
@@ -425,6 +588,7 @@ function creditMonsterKill(
   } else {
     grantGold(state, champion, monster.gold, 'camp', recorder);
   }
+  noteAhriFragmentKill(champion);
   grantExp(state, champion, monster.exp, recorder, 'camp');
   const petBonus = junglePetBonusExp(state, champion, monster);
   if (petBonus > 0) {
@@ -434,7 +598,10 @@ function creditMonsterKill(
     spawnScuttleShrine(state, champion, monster.position, recorder);
   }
   const assistRange =
-    monster.campId === 'dragon' || monster.campId === 'baron' || monster.campId === 'herald'
+    monster.campId === 'dragon' ||
+    monster.campId === 'elder' ||
+    monster.campId === 'baron' ||
+    monster.campId === 'herald'
       ? 1200
       : 700;
   const assistIds = state.champions
@@ -454,6 +621,7 @@ function creditMonsterKill(
     payload: {
       campId: monster.campId,
       unitKind: monster.unitKind,
+      dragonType: monster.dragonType,
       cs: champion.cs,
       gold: monster.gold,
       petBonus,
@@ -495,7 +663,7 @@ export function tickMonsters(state: GameState, recorder?: ReplayRecorder): void 
         target.positionLabel === 'JUNGLE' && hasSummoner(target, 'Smite') ? 0.5 : 1;
       applyDamage(
         state,
-        null,
+        monster,
         target,
         monster.ad * 0.45 * towardJungler,
         'physical',
@@ -505,6 +673,85 @@ export function tickMonsters(state: GameState, recorder?: ReplayRecorder): void 
       monster.nextAttackAt = state.scheduler.time + MONSTER_ATTACK_INTERVAL_SEC;
       markCampCombat(state, monster.campId, state.scheduler.time);
     }
+  }
+}
+
+function isEpicCamp(campId: string): boolean {
+  return (
+    campId === 'dragon' ||
+    campId === 'elder' ||
+    campId === 'baron' ||
+    campId === 'herald'
+  );
+}
+
+function tryCampSmite(
+  state: GameState,
+  champion: ChampionEntity,
+  monster: MonsterEntity,
+  recorder?: ReplayRecorder,
+): boolean {
+  const now = state.scheduler.time;
+  const campSplitting = state.monsters.some(
+    (item) => item.campId === monster.campId && item.spawnProtectUntil > now,
+  );
+  if (campSplitting) {
+    return false;
+  }
+  if (champion.positionLabel !== 'JUNGLE' || !hasSummoner(champion, 'Smite')) {
+    return false;
+  }
+  if (!summonerReady(state, champion, 'Smite')) {
+    return false;
+  }
+  const smiteDmg = smiteDamageFor(champion);
+  const smiteOkTarget =
+    monster.size === 'large' ||
+    monster.size === 'medium' ||
+    monster.unitKind === 'rift_scuttler';
+  if (!smiteOkTarget) {
+    return false;
+  }
+  const smiteOkNow =
+    monster.unitKind === 'rift_scuttler' ? monster.hp <= smiteDmg : true;
+  if (!smiteOkNow) {
+    return false;
+  }
+  castSmite(state, champion, monster, recorder);
+  monster.aggroTargetId = champion.id;
+  markCampCombat(state, monster.campId, now);
+  fleeScuttle(state, monster, champion);
+  return true;
+}
+
+export function castJungleClearAbilities(
+  state: GameState,
+  champion: ChampionEntity,
+  monster: MonsterEntity,
+  recorder?: ReplayRecorder,
+): void {
+  if (!champion.alive || !monster.alive) {
+    return;
+  }
+  if (dist(champion.position, monster.position) > Math.max(champion.attackRange + 220, 750)) {
+    return;
+  }
+  if (monster.unitKind === 'rift_scuttler') {
+    castAbility(state, champion, 'Q', monster, recorder);
+    if (monster.hp / Math.max(1, monster.maxHp) < 0.55) {
+      castAbility(state, champion, 'E', monster, recorder);
+    }
+    return;
+  }
+  if (hasChampionCombo(champion.championId)) {
+    castChampionCombo(state, champion, monster, recorder);
+    return;
+  }
+  castAbility(state, champion, 'Q', monster, recorder);
+  castAbility(state, champion, 'E', monster, recorder);
+  castAbility(state, champion, 'W', monster, recorder);
+  if (isEpicCamp(monster.campId) && champion.level >= 6) {
+    castAbility(state, champion, 'R', monster, recorder);
   }
 }
 
@@ -525,119 +772,47 @@ export function attackCamp(
   }
   const now = state.scheduler.time;
   if (now < champion.nextAttackAt) {
-    const campSplitting = state.monsters.some(
-      (item) => item.campId === monster.campId && item.spawnProtectUntil > now,
-    );
-    const smiteDmg = smiteDamageFor(champion);
-    const smiteOkTarget =
-      monster.size === 'large' ||
-      monster.size === 'medium' ||
-      monster.unitKind === 'rift_scuttler';
-    const smiteOkNow =
-      monster.unitKind === 'rift_scuttler' ? monster.hp <= smiteDmg * 1.2 : true;
-    if (
-      !campSplitting &&
-      champion.positionLabel === 'JUNGLE' &&
-      hasSummoner(champion, 'Smite') &&
-      !!summonerReady(state, champion, 'Smite') &&
-      smiteOkTarget &&
-      smiteOkNow
-    ) {
-      castSmite(state, champion, monster, recorder);
-      monster.aggroTargetId = champion.id;
-      markCampCombat(state, monster.campId, now);
-      fleeScuttle(state, monster, champion);
-      if (!monster.alive) {
-        creditMonsterKill(state, champion, monster, recorder);
-        spawnSplitUnits(state, monster);
-        resolveCampCleared(state, champion, monster, recorder);
-      }
-      return true;
-    }
-    return false;
+    return tryCampSmite(state, champion, monster, recorder);
   }
 
-  const profile = jungleClearProfile(state, champion);
-  const clearPower = jungleClearAttackPower(state, champion);
-  const sizeMult =
-    monster.size === 'large'
-      ? profile.largeMult * 0.9
-      : monster.size === 'medium'
-        ? profile.autoMult
-        : profile.autoMult * 1.08;
+  const beforeHp = monster.hp;
+  const didAuto = basicAttack(state, champion, monster, recorder);
   const isScuttle = monster.unitKind === 'rift_scuttler';
-  const isKrug =
-    monster.unitKind === 'ancient_krug' ||
-    monster.unitKind === 'krug' ||
-    monster.unitKind === 'mini_krug';
-  const scuttleTax = isScuttle ? 0.62 : 1;
-  const krugTax =
-    monster.unitKind === 'mini_krug' ? 0.78 : monster.unitKind === 'krug' ? 0.88 : isKrug ? 0.9 : 1;
-  const campTax = scuttleTax * krugTax;
-  const monsterAmp =
-    champion.positionLabel === 'JUNGLE' && hasSummoner(champion, 'Smite') ? 1.18 : 1;
-  const rawAuto = clearPower * sizeMult * campTax * monsterAmp;
-  const petLevel = 20 + champion.level * 7.5;
-  const pet =
-    clearPower * 0.32 * profile.petMult * (isScuttle ? 0.55 : isKrug ? 0.85 : 1) +
-    petLevel * profile.petMult * (isScuttle ? 0.55 : 1);
-  const abilityPulse =
-    clearPower *
-    (0.9 + champion.skills.mechanics / 180) *
-    profile.autoMult *
-    (isScuttle ? 0.55 : isKrug ? 0.78 : 1.12);
-  applyDamage(
-    state,
-    champion,
-    monster,
-    rawAuto + pet + abilityPulse,
-    'physical',
-    recorder,
-    'camp',
-  );
-  champion.nextAttackAt = now + 1 / Math.max(0.55, champion.attackSpeed);
-
-  const campmates = state.monsters.filter(
-    (item) => item.alive && item.campId === monster.campId && item.id !== monster.id,
-  ).length;
-  if (campmates > 0) {
-    splashCampDamage(
-      state,
-      champion,
-      monster,
-      (clearPower * 0.55 + abilityPulse * 0.35) * profile.aoeMult,
-      recorder,
-    );
+  if (didAuto && hasJungleCompanion(champion) && !isScuttle) {
+    const pet = junglePetHitDamage(champion);
+    if (pet > 0) {
+      applyDamage(state, champion, monster, pet, 'physical', recorder, 'jungle_pet');
+      const campmates = state.monsters.some(
+        (item) => item.alive && item.campId === monster.campId && item.id !== monster.id,
+      );
+      if (campmates) {
+        splashCampDamage(state, champion, monster, pet * 0.55, recorder);
+      }
+    }
   }
 
   const canSmiteTarget =
     monster.size === 'large' ||
     monster.size === 'medium' ||
-    monster.unitKind === 'rift_scuttler';
+    isScuttle;
   const smiteDmg = smiteDamageFor(champion);
-  const smiteExecute = monster.hp <= smiteDmg * 1.2;
+  const smiteExecute = isScuttle ? monster.hp <= smiteDmg : monster.hp <= smiteDmg * 1.15;
   const smiteOpen =
-    monster.unitKind !== 'rift_scuttler' && monster.hp / monster.maxHp > 0.7;
+    monster.unitKind !== 'rift_scuttler' && monster.hp / Math.max(1, monster.maxHp) > 0.7;
   if (
-    champion.positionLabel === 'JUNGLE' &&
-    hasSummoner(champion, 'Smite') &&
-    !!summonerReady(state, champion, 'Smite') &&
     monster.hp > 0 &&
     canSmiteTarget &&
     (smiteExecute || smiteOpen)
   ) {
-    castSmite(state, champion, monster, recorder);
+    tryCampSmite(state, champion, monster, recorder);
   }
 
-  monster.aggroTargetId = champion.id;
-  markCampCombat(state, monster.campId, now);
-  fleeScuttle(state, monster, champion);
-  if (!monster.alive) {
-    creditMonsterKill(state, champion, monster, recorder);
-    spawnSplitUnits(state, monster);
+  if (monster.alive) {
+    monster.aggroTargetId = champion.id;
+    markCampCombat(state, monster.campId, now);
+    fleeScuttle(state, monster, champion);
   }
-  resolveCampCleared(state, champion, monster, recorder);
-  return true;
+  return didAuto || monster.hp < beforeHp;
 }
 
 function campSideOf(state: GameState, campId: string): 'blue' | 'red' | 'neutral' {
@@ -673,6 +848,7 @@ export function runJungleClearStep(
     return;
   }
 
+  castJungleClearAbilities(state, champion, monster, recorder);
   attackCamp(state, champion, monster, recorder);
   if (!monster.alive) {
     return;
@@ -711,7 +887,12 @@ function engagedCampId(state: GameState, champion: ChampionEntity): string | nul
   let bestScore = Number.POSITIVE_INFINITY;
   const campIds = new Set(state.monsters.filter((monster) => monster.alive).map((m) => m.campId));
   for (const campId of campIds) {
-    if (campId === 'dragon' || campId === 'baron' || campId === 'herald') {
+    if (
+      campId === 'dragon' ||
+      campId === 'elder' ||
+      campId === 'baron' ||
+      campId === 'herald'
+    ) {
       continue;
     }
     const units = state.monsters.filter((monster) => monster.alive && monster.campId === campId);
@@ -734,10 +915,10 @@ function engagedCampId(state: GameState, champion: ChampionEntity): string | nul
       (best, monster) => Math.min(best, dist(champion.position, monster.position)),
       Number.POSITIVE_INFINITY,
     );
-    if (nearest > 1400) {
+    if (nearest > 2400) {
       continue;
     }
-    const score = nearest + (incomplete ? -500 : 0) + (touched ? -200 : 0);
+    const score = nearest + (incomplete ? -900 : 0) + (touched ? -280 : 0);
     if (score < bestScore) {
       bestScore = score;
       bestId = campId;
@@ -757,20 +938,24 @@ export function nearestFriendlyCamp(
     if (!monster.alive || monster.spawnProtectUntil > t) {
       return false;
     }
-    if (monster.campId === 'dragon' || monster.campId === 'baron' || monster.campId === 'herald') {
+    if (
+      monster.campId === 'dragon' ||
+      monster.campId === 'elder' ||
+      monster.campId === 'baron' ||
+      monster.campId === 'herald'
+    ) {
       return false;
     }
     return campSideOf(state, monster.campId) === champion.side;
   });
-  const expectedCamps =
-    t < 180 ? 5 : t < 360 ? 9 : t < 600 ? 14 : t < 900 ? 20 : t < 1200 ? 26 : 32;
-  const farmDebt = Math.max(0, expectedCamps - champion.campKills);
+  const pace = jungleFarmPace(champion, t);
+  const farmBehind = jungleFarmBehindAmount(pace);
   const behindOnScore =
-    champion.deaths >= champion.kills + 2 || (farmDebt >= 4 && champion.deaths > champion.kills);
+    champion.deaths >= champion.kills + 2 || (farmBehind >= 0.55 && champion.deaths > champion.kills);
   const canInvade =
     t >= 210 &&
     !behindOnScore &&
-    ((ownCampAlive && farmDebt >= 2) || (!ownCampAlive && farmDebt <= 2) || t >= 720);
+    ((ownCampAlive && farmBehind < 0.45) || (!ownCampAlive && pace >= 0.7) || t >= 720);
   let best: MonsterEntity | null = null;
   let bestScore = Number.POSITIVE_INFINITY;
   for (const monster of state.monsters) {
@@ -780,7 +965,12 @@ export function nearestFriendlyCamp(
     if (monster.spawnProtectUntil > state.scheduler.time) {
       continue;
     }
-    if (monster.campId === 'dragon' || monster.campId === 'baron' || monster.campId === 'herald') {
+    if (
+      monster.campId === 'dragon' ||
+      monster.campId === 'elder' ||
+      monster.campId === 'baron' ||
+      monster.campId === 'herald'
+    ) {
       continue;
     }
     const side = campSideOf(state, monster.campId);
@@ -788,6 +978,12 @@ export function nearestFriendlyCamp(
       continue;
     }
     const d = dist(champion.position, monster.position);
+    const enemyFountain =
+      champion.side === 'blue'
+        ? state.lockedPack.map.redFountain
+        : state.lockedPack.map.blueFountain;
+    const deepInvade =
+      side === enemySide && dist(monster.position, enemyFountain) < 5200;
     const sideBias =
       side === champion.side
         ? 0
@@ -796,16 +992,14 @@ export function nearestFriendlyCamp(
             ? 360
             : 120
           : ownCampAlive
-            ? farmDebt >= 2
-              ? 420
-              : 760
-            : 160;
+            ? 720 + farmBehind * 520 + (deepInvade ? 900 : 280) + (t < 480 ? 420 : 0)
+            : 280 + (deepInvade ? 640 : 120) + (t < 480 ? 240 : 0);
     const sizeBias = monster.size === 'large' ? -80 : monster.size === 'medium' ? -40 : 0;
     const lockBias =
       lockedCampId && monster.campId === lockedCampId
-        ? -1400
+        ? -1800
         : lockedCampId
-          ? 600
+          ? 1100
           : 0;
     const score = d + sideBias + sizeBias + lockBias;
     if (score < bestScore) {
@@ -826,7 +1020,12 @@ export function nearestObjectiveCamp(
     if (!monster.alive) {
       continue;
     }
-    if (monster.campId !== 'dragon' && monster.campId !== 'baron' && monster.campId !== 'herald') {
+    if (
+      monster.campId !== 'dragon' &&
+      monster.campId !== 'elder' &&
+      monster.campId !== 'baron' &&
+      monster.campId !== 'herald'
+    ) {
       continue;
     }
     if (monster.campId === 'baron' && state.scheduler.time < state.lockedPack.objectives.baronSpawnSec) {
@@ -834,7 +1033,13 @@ export function nearestObjectiveCamp(
     }
     const d = dist(champion.position, monster.position);
     const priority =
-      monster.campId === 'baron' ? 0 : monster.campId === 'dragon' ? 80 : 120;
+      monster.campId === 'baron'
+        ? 0
+        : monster.campId === 'elder'
+          ? 20
+          : monster.campId === 'dragon'
+            ? 80
+            : 120;
     const score = d + priority;
     if (score < bestScore) {
       best = monster;
@@ -853,6 +1058,9 @@ export function objectiveSpawnSec(state: GameState, campId: string): number | nu
 }
 
 export function isObjectiveSetupWindow(state: GameState, campId: string): boolean {
+  if (state.monsters.some((monster) => monster.alive && monster.campId === campId)) {
+    return true;
+  }
   const spawn = objectiveSpawnSec(state, campId);
   if (spawn == null) {
     return false;
@@ -875,7 +1083,7 @@ export function objectiveWindowBoost(state: GameState, campId: string): number {
   if (!alive) {
     return 0;
   }
-  if (campId === 'baron' || campId === 'dragon') {
+  if (campId === 'baron' || campId === 'dragon' || campId === 'elder') {
     return 0.9;
   }
   return 0.75;

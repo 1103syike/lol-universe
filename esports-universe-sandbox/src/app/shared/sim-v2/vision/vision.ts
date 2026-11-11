@@ -32,20 +32,37 @@ const PLAYER_CONTROL_CAP = 1;
 const ORACLE_CLEAR_RADIUS = 750;
 
 const PLACE_CHANCE: Record<string, number> = {
-  SUPPORT: 0.42,
-  JUNGLE: 0.18,
-  MID: 0.08,
-  BOT: 0.05,
-  TOP: 0.04,
+  SUPPORT: 0.94,
+  JUNGLE: 0.12,
+  MID: 0.07,
+  BOT: 0.38,
+  TOP: 0.26,
 };
 
 const CONTROL_BUY_CHANCE: Record<string, number> = {
-  SUPPORT: 0.85,
-  JUNGLE: 0.55,
-  MID: 0.22,
-  TOP: 0.18,
-  BOT: 0.12,
+  SUPPORT: 0.95,
+  JUNGLE: 0.68,
+  MID: 0.28,
+  TOP: 0.22,
+  BOT: 0.2,
 };
+
+const WARD_PLACE_RANGE: Record<string, number> = {
+  SUPPORT: 1450,
+  JUNGLE: 880,
+  MID: 850,
+  BOT: 1250,
+  TOP: 1150,
+};
+const STEALTH_WARD_VS = 2.4;
+const CONTROL_WARD_VS = 3.6;
+const SHRINE_VS = 0.7;
+const SWEEP_TICK_VS = 0.45;
+const WARD_KILL_VS = 2.4;
+const REVEAL_WARD_VS = 0.01;
+const REVEAL_CHAMP_VS = 0.005;
+const WARD_UPTIME_VS = 0.007;
+const CONTROL_UPTIME_VS = 0.01;
 
 export function bootstrapVision(state: GameState): void {
   for (const champion of state.champions) {
@@ -58,20 +75,31 @@ export function bootstrapVision(state: GameState): void {
   state.wards = [];
 }
 
+function wardChargeSec(champion: ChampionEntity): number {
+  if (champion.positionLabel === 'SUPPORT') {
+    return 95;
+  }
+  if (champion.positionLabel === 'JUNGLE') {
+    return 120;
+  }
+  return STEALTH_CHARGE_SEC;
+}
+
 function tickWardCharges(state: GameState): void {
   const t = state.scheduler.time;
   for (const champion of state.champions) {
     if (champion.wardStock >= STEALTH_CHARGE_MAX) {
       continue;
     }
+    const chargeSec = wardChargeSec(champion);
     if (champion.nextWardChargeAt <= 0) {
-      champion.nextWardChargeAt = t + STEALTH_CHARGE_SEC;
+      champion.nextWardChargeAt = t + chargeSec;
       continue;
     }
     if (t >= champion.nextWardChargeAt) {
       champion.wardStock = Math.min(STEALTH_CHARGE_MAX, champion.wardStock + 1);
       champion.nextWardChargeAt =
-        champion.wardStock >= STEALTH_CHARGE_MAX ? 0 : t + STEALTH_CHARGE_SEC;
+        champion.wardStock >= STEALTH_CHARGE_MAX ? 0 : t + chargeSec;
     }
   }
 }
@@ -223,6 +251,18 @@ export function updateVision(state: GameState): void {
     }
   }
 
+  for (const ward of state.wards) {
+    if (!ward.alive) {
+      continue;
+    }
+    const owner = state.champions.find((champ) => champ.id === ward.ownerId);
+    if (!owner) {
+      continue;
+    }
+    owner.visionScore +=
+      ward.wardKind === 'control' ? CONTROL_UPTIME_VS : WARD_UPTIME_VS;
+  }
+
   for (const enemy of state.champions) {
     if (!enemy.alive) {
       continue;
@@ -231,14 +271,11 @@ export function updateVision(state: GameState): void {
       if (enemy.side === side) {
         continue;
       }
-      if (pointVisibleToSide(state, side, enemy.position)) {
-        shareSight(state, side, enemy, t);
-        for (const viewer of state.champions) {
-          if (viewer.side === side && viewer.alive) {
-            viewer.visionScore += 0.008;
-          }
-        }
+      if (!pointVisibleToSide(state, side, enemy.position)) {
+        continue;
       }
+      shareSight(state, side, enemy, t);
+      awardRevealVisionScore(state, side, enemy);
     }
   }
 
@@ -258,6 +295,60 @@ export function updateVision(state: GameState): void {
   }
 }
 
+function awardRevealVisionScore(
+  state: GameState,
+  side: TeamSide,
+  enemy: ChampionEntity,
+): void {
+  let bestWard: WardEntity | null = null;
+  let bestWardGap = Number.POSITIVE_INFINITY;
+  for (const ward of state.wards) {
+    if (!ward.alive || ward.side !== side) {
+      continue;
+    }
+    const gap = dist(ward.position, enemy.position);
+    if (gap <= ward.sight && gap < bestWardGap) {
+      bestWard = ward;
+      bestWardGap = gap;
+    }
+  }
+  if (bestWard) {
+    const owner = state.champions.find((champ) => champ.id === bestWard?.ownerId);
+    if (owner) {
+      owner.visionScore +=
+        bestWard.wardKind === 'control' ? REVEAL_WARD_VS * 1.25 : REVEAL_WARD_VS;
+      return;
+    }
+  }
+
+  let nearest: ChampionEntity | null = null;
+  let nearestGap = Number.POSITIVE_INFINITY;
+  for (const champ of state.champions) {
+    if (!champ.alive || champ.side !== side) {
+      continue;
+    }
+    const gap = dist(champ.position, enemy.position);
+    if (gap <= CHAMPION_SIGHT && gap < nearestGap) {
+      nearest = champ;
+      nearestGap = gap;
+    }
+  }
+  if (!nearest) {
+    return;
+  }
+  const roleMul =
+    nearest.positionLabel === 'SUPPORT'
+      ? 1.35
+      : nearest.positionLabel === 'JUNGLE'
+        ? 0.85
+        : nearest.positionLabel === 'MID'
+          ? 0.95
+          : nearest.positionLabel === 'BOT'
+            ? 1.1
+            : 1;
+  nearest.visionScore += REVEAL_CHAMP_VS * roleMul;
+}
+
 function campPos(state: GameState, campId: string, fallback: Vec2): Vec2 {
   const camp = state.lockedPack.monsters.find((item) => item.id === campId);
   return camp ? { ...camp.position } : fallback;
@@ -274,10 +365,33 @@ function wardSpotsFor(state: GameState, champion: ChampionEntity): Vec2[] {
   const riverMid = { x: 7500, y: 7500 };
   const pixel = bushes[2] ?? { x: 9200, y: 5200 };
 
-  if (champion.positionLabel === 'SUPPORT' || champion.positionLabel === 'BOT') {
+  const botLaneBush = bushes[1] ?? { x: 10500, y: 3500 };
+  const topLaneBush = bushes[0] ?? { x: 3500, y: 11500 };
+  if (champion.positionLabel === 'SUPPORT') {
     return champion.side === 'blue'
-      ? [scuttleBot, { x: dragon.x - 400, y: dragon.y + 200 }, riverMid, blueTri, pixel]
-      : [scuttleBot, { x: dragon.x + 350, y: dragon.y - 250 }, riverMid, redTri, pixel];
+      ? [
+          scuttleBot,
+          { x: dragon.x - 400, y: dragon.y + 200 },
+          riverMid,
+          blueTri,
+          pixel,
+          botLaneBush,
+          { x: dragon.x - 150, y: dragon.y - 350 },
+        ]
+      : [
+          scuttleBot,
+          { x: dragon.x + 350, y: dragon.y - 250 },
+          riverMid,
+          redTri,
+          pixel,
+          botLaneBush,
+          { x: dragon.x + 180, y: dragon.y + 320 },
+        ];
+  }
+  if (champion.positionLabel === 'BOT') {
+    return champion.side === 'blue'
+      ? [botLaneBush, pixel, scuttleBot, { x: dragon.x - 280, y: dragon.y + 120 }]
+      : [botLaneBush, pixel, scuttleBot, { x: dragon.x + 280, y: dragon.y - 120 }];
   }
   if (champion.positionLabel === 'JUNGLE') {
     return [
@@ -289,12 +403,12 @@ function wardSpotsFor(state: GameState, champion: ChampionEntity): Vec2[] {
     ];
   }
   if (champion.positionLabel === 'MID') {
-    return [riverMid, scuttleTop, scuttleBot, pixel];
+    return [riverMid, scuttleTop, scuttleBot];
   }
   if (champion.positionLabel === 'TOP') {
     return champion.side === 'blue'
-      ? [scuttleTop, { x: baron.x - 300, y: baron.y - 200 }, blueTri]
-      : [scuttleTop, { x: baron.x + 300, y: baron.y + 200 }, redTri];
+      ? [topLaneBush, scuttleTop, { x: baron.x - 300, y: baron.y - 200 }, blueTri]
+      : [topLaneBush, scuttleTop, { x: baron.x + 300, y: baron.y + 200 }, redTri];
   }
   return [riverMid];
 }
@@ -355,7 +469,7 @@ export function spawnScuttleShrine(
     alive: true,
   };
   state.wards.push(shrine);
-  champion.visionScore += 0.6;
+  champion.visionScore += SHRINE_VS;
   recorder?.record(state, {
     type: 'ward_place',
     actorId: champion.id,
@@ -385,7 +499,7 @@ export function placeWard(
     }
     champion.wardStock -= 1;
     if (champion.nextWardChargeAt <= 0) {
-      champion.nextWardChargeAt = state.scheduler.time + STEALTH_CHARGE_SEC;
+      champion.nextWardChargeAt = state.scheduler.time + wardChargeSec(champion);
     }
   } else {
     if (!champion.controlWardReady) {
@@ -423,7 +537,7 @@ export function placeWard(
   };
   state.wards.push(ward);
   champion.wardsPlaced += 1;
-  champion.visionScore += wardKind === 'control' ? 1.2 : 0.8;
+  champion.visionScore += wardKind === 'control' ? CONTROL_WARD_VS : STEALTH_WARD_VS;
   recorder?.record(state, {
     type: 'ward_place',
     actorId: champion.id,
@@ -465,10 +579,17 @@ export function maybeActOnVision(
   if (enemyWard && canSweep) {
     const clearPower =
       champion.positionLabel === 'SUPPORT' || champion.positionLabel === 'JUNGLE' ? 1.6 : 1.1;
+    const clearMul =
+      champion.positionLabel === 'SUPPORT'
+        ? 1
+        : champion.positionLabel === 'JUNGLE'
+          ? 0.5
+          : 0.7;
     enemyWard.hp -= clearPower;
-    champion.visionScore += 0.35;
+    champion.visionScore += SWEEP_TICK_VS * clearMul;
     if (enemyWard.hp <= 0) {
       enemyWard.alive = false;
+      champion.visionScore += WARD_KILL_VS * clearMul;
       recorder?.record(state, {
         type: 'ward_clear',
         actorId: champion.id,
@@ -489,31 +610,48 @@ export function maybeActOnVision(
   const spots = wardSpotsFor(state, champion);
   let best: Vec2 | null = null;
   let bestScore = 0;
+  const placeRange = WARD_PLACE_RANGE[champion.positionLabel] ?? 900;
+  const overlap =
+    champion.positionLabel === 'SUPPORT'
+      ? 520
+      : champion.positionLabel === 'BOT' || champion.positionLabel === 'TOP'
+        ? 640
+        : champion.positionLabel === 'JUNGLE'
+          ? 820
+          : 760;
   for (const spot of spots) {
-    if (allyWardNear(state, champion.side, spot, 780)) {
+    if (allyWardNear(state, champion.side, spot, overlap)) {
       continue;
     }
     const gap = dist(champion.position, spot);
-    if (gap > 620) {
+    if (gap > placeRange) {
       continue;
     }
     const pressure = teamVisionPressure(state, champion.side, spot, 1200);
-    const score = 14 - pressure * 3 - gap / 140;
+    const roleBonus =
+      champion.positionLabel === 'SUPPORT'
+        ? 6
+        : champion.positionLabel === 'BOT' || champion.positionLabel === 'TOP'
+          ? 3
+          : champion.positionLabel === 'JUNGLE'
+            ? 0
+            : 0;
+    const score = 18 + roleBonus - pressure * 2.4 - gap / 160;
     if (score > bestScore) {
       best = spot;
       bestScore = score;
     }
   }
-  if (!best || bestScore < 3.5) {
+  if (!best || bestScore < 2.8) {
     return false;
   }
 
-  const roleBias = PLACE_CHANCE[champion.positionLabel] ?? 0.03;
+  const roleBias = PLACE_CHANCE[champion.positionLabel] ?? 0.08;
   if (state.rng() > roleBias) {
     return false;
   }
 
-  if (wantsControl && (bestScore >= 6 || t > 540)) {
+  if (wantsControl && (bestScore >= 5 || t > 420)) {
     return placeWard(state, champion, best, 'control', recorder);
   }
   if (champion.wardStock > 0) {
@@ -653,7 +791,7 @@ export function canCoverVisionThreat(
     return gap < 3800;
   }
   if (champion.positionLabel === 'MID') {
-    return gap < 3200 && hpRatio > 0.55;
+    return gap < 4200 && hpRatio > 0.48;
   }
   if (champion.positionLabel === 'TOP') {
     return gap < 2800 && hpRatio > 0.6 && state.scheduler.time > 480;

@@ -103,8 +103,10 @@ describe('V2 economy acceptance (LCK curve)', () => {
           (PRO_LEGENDARY_ITEMS as readonly string[]).includes(itemId),
         ).length;
         if (champ.positionLabel === 'JUNGLE') {
-          const campCs = champ.campKills * 4;
-          jungleLaneShare.push(champ.cs <= 0 ? 0 : Math.max(0, champ.cs - campCs) / champ.cs);
+          const campGold = champ.goldBySource['camp'] ?? 0;
+          const laneCsGold = champ.goldBySource['cs'] ?? 0;
+          const denom = campGold + laneCsGold;
+          jungleLaneShare.push(denom <= 0 ? 0 : laneCsGold / denom);
         }
       }
     }

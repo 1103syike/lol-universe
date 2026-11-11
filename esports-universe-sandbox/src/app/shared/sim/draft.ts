@@ -1,4 +1,9 @@
-import { getChampionKit, listChampionKits, type ChampionKit } from '../../core/data/champion-kits';
+import {
+  getChampionKit,
+  listChampionKits,
+  type ChampionCombatClass,
+  type ChampionKit,
+} from '../../core/data/champion-kits';
 import { getChampionById } from '../../core/data/champions';
 import type { Coach } from '../../core/models/coach.model';
 import type {
@@ -9,9 +14,14 @@ import type {
 import { COMP_INTENT_LABELS } from '../../core/models/patch.model';
 import type { AttributeKey, PlayerPosition } from '../../core/models/player.model';
 import { PLAYER_POSITIONS } from '../../core/models/player.model';
-import { championMetaOf } from './resolve-patch';
+import { championMetaOf, hasChampionMetaEntry } from './resolve-patch';
 import type { EffectiveAttributes, TeamStyleAxes } from './report';
 import type { SimPlayerView, TeamProfile } from './team-profile';
+
+// Classic BP: Ban1(6) → Pick1(6) → Ban2(4) → Pick2(4) → fill.
+// 合法池（硬）：release ∩ allowedChampionIds ∩ 分路 ∩ 未 ban/pick。
+// 季節 meta（軟）：presence / pickRate / power 只調權重，缺 entry 不出局。
+// 另加陣容缺口軟加分（前排／開團／傷害類型）；ban 對薄路做稀缺保護。
 
 export interface DraftBanEntry {
   teamId: string;
@@ -39,6 +49,24 @@ export interface DraftSideResult {
   notes: string[];
 }
 
+export type DraftStepSide = 'blue' | 'red';
+
+export type DraftStep =
+  | {
+      kind: 'ban';
+      side: DraftStepSide;
+      teamId: string;
+      championId: string;
+      index: number;
+    }
+  | {
+      kind: 'pick';
+      side: DraftStepSide;
+      teamId: string;
+      pick: DraftPickEntry;
+      index: number;
+    };
+
 export interface DraftResult {
   patch: PatchVersion;
   blueTeamId: string;
@@ -48,6 +76,7 @@ export interface DraftResult {
   away: DraftSideResult;
   draftEdge: number;
   notes: string[];
+  steps: DraftStep[];
 }
 
 type SideCtx = {
@@ -133,8 +162,17 @@ function isReleased(kit: ChampionKit, dateIso: string): boolean {
   return kit.releasedAt.slice(0, 10) <= dateIso.slice(0, 10);
 }
 
-function poolForPatch(patch: PatchVersion): ChampionKit[] {
-  return listChampionKits().filter((kit) => isReleased(kit, patch.startsOn));
+function isAllowedInPool(kit: ChampionKit, allowedChampionIds?: ReadonlySet<string>): boolean {
+  if (!allowedChampionIds) {
+    return true;
+  }
+  return allowedChampionIds.has(kit.id);
+}
+
+function poolForPatch(patch: PatchVersion, allowedChampionIds?: ReadonlySet<string>): ChampionKit[] {
+  return listChampionKits().filter(
+    (kit) => isReleased(kit, patch.startsOn) && isAllowedInPool(kit, allowedChampionIds),
+  );
 }
 
 function playerFitScore(view: SimPlayerView, kit: ChampionKit): number {
@@ -167,6 +205,83 @@ function intentFit(kit: ChampionKit, intent: CompIntent, patchDate: string): num
   return styleScore;
 }
 
+function isFrontlineClass(combatClass: ChampionCombatClass): boolean {
+  return combatClass === 'tank' || combatClass === 'fighter';
+}
+
+function compNeedBonus(kit: ChampionKit, teamPicks: readonly DraftPickEntry[]): number {
+  if (teamPicks.length === 0) {
+    return 0;
+  }
+  let frontline = 0;
+  let engageSum = 0;
+  let mage = 0;
+  let marksman = 0;
+  let assassin = 0;
+  let apLike = 0;
+  let adLike = 0;
+  for (const pick of teamPicks) {
+    const ally = getChampionKit(pick.championId);
+    if (!ally) {
+      continue;
+    }
+    if (isFrontlineClass(ally.combatClass)) {
+      frontline += 1;
+    }
+    engageSum += ally.style.engage;
+    if (ally.combatClass === 'mage') {
+      mage += 1;
+    }
+    if (ally.combatClass === 'marksman') {
+      marksman += 1;
+    }
+    if (ally.combatClass === 'assassin') {
+      assassin += 1;
+    }
+    if (ally.damageType === 'ap' || ally.damageType === 'hybrid') {
+      apLike += 1;
+    }
+    if (ally.damageType === 'ad' || ally.damageType === 'hybrid') {
+      adLike += 1;
+    }
+  }
+  const n = teamPicks.length;
+  const avgEngage = engageSum / n;
+  let bonus = 0;
+
+  if (frontline === 0 && isFrontlineClass(kit.combatClass)) {
+    bonus += 0.08;
+  } else if (frontline === 0 && kit.style.engage >= 70) {
+    bonus += 0.05;
+  } else if (frontline >= 2 && isFrontlineClass(kit.combatClass) && kit.combatClass === 'tank') {
+    bonus -= 0.03;
+  }
+
+  if (avgEngage < 45 && kit.style.engage >= 70) {
+    bonus += 0.06;
+  } else if (avgEngage >= 70 && kit.style.engage >= 75) {
+    bonus -= 0.02;
+  }
+
+  if (mage === 0 && kit.combatClass === 'mage') {
+    bonus += 0.04;
+  }
+  if (apLike === 0 && (kit.damageType === 'ap' || kit.damageType === 'hybrid')) {
+    bonus += 0.04;
+  }
+  if (adLike >= n && n >= 2 && kit.damageType === 'ad' && kit.combatClass !== 'tank') {
+    bonus -= 0.04;
+  }
+  if (marksman >= 2 && kit.combatClass === 'marksman') {
+    bonus -= 0.06;
+  }
+  if (assassin >= 2 && kit.combatClass === 'assassin') {
+    bonus -= 0.05;
+  }
+
+  return clamp(bonus, -0.08, 0.12);
+}
+
 function pickScore(args: {
   kit: ChampionKit;
   view: SimPlayerView;
@@ -175,8 +290,10 @@ function pickScore(args: {
   patch: PatchVersion;
   banned: Set<string>;
   picked: Set<string>;
+  teamPicks?: readonly DraftPickEntry[];
+  allowedChampionIds?: ReadonlySet<string>;
 }): number {
-  const { kit, view, meta, intent, patch, banned, picked } = args;
+  const { kit, view, meta, intent, patch, banned, picked, teamPicks, allowedChampionIds } = args;
   if (banned.has(kit.id) || picked.has(kit.id)) {
     return -1;
   }
@@ -186,20 +303,122 @@ function pickScore(args: {
   if (!isReleased(kit, patch.startsOn)) {
     return -1;
   }
+  if (!isAllowedInPool(kit, allowedChampionIds)) {
+    return -1;
+  }
+  const inMeta = hasChampionMetaEntry(meta, kit.id);
   const entry = championMetaOf(meta, kit.id);
   const fit = playerFitScore(view, kit) / 100;
   const intentScore = intentFit(kit, intent, patch.startsOn);
   const metaPower = entry.power / 100;
-  const presence = entry.presence;
-  const offMetaPenalty = presence < 0.04 ? 0.82 : presence < 0.1 ? 0.92 : 1;
-  const primaryPos = kit.positions[0];
-  const roleBias =
-    view.player.position === primaryPos ? 1 : kit.positions.indexOf(view.player.position) === 1 ? 0.62 : 0.45;
-  const spice = ((kit.id.charCodeAt(0) + view.player.id.charCodeAt(0)) % 17) / 200;
+  const roleIndex = kit.positions.indexOf(view.player.position);
+  const roleBias = roleIndex === 0 ? 1 : roleIndex === 1 ? 0.55 : 0.35;
+  const spice = ((kit.id.charCodeAt(0) + view.player.id.charCodeAt(0)) % 17) / 400;
+  const lowPresenceCut = entry.presence < 0.1 ? 0.72 : entry.presence < 0.18 ? 0.88 : 1;
+  const thinPickCut = entry.pickRate <= 0 ? 0.55 : 1;
+  const offMetaMult = inMeta ? 1 : 0.4;
+  const need = compNeedBonus(kit, teamPicks ?? []);
   return (
-    (metaPower * 0.36 + fit * 0.34 + intentScore * 0.22 * offMetaPenalty + presence * 0.08 + spice) *
-    roleBias
+    (Math.max(0.01, entry.pickRate) * 0.5 +
+      Math.max(0.01, entry.presence) * 0.22 +
+      metaPower * 0.1 +
+      fit * 0.1 +
+      intentScore * 0.06 +
+      spice +
+      need) *
+    roleBias *
+    lowPresenceCut *
+    thinPickCut *
+    offMetaMult
   );
+}
+
+function weightedPickIndex(
+  weights: readonly number[],
+  random: () => number,
+): number {
+  let total = 0;
+  for (const weight of weights) {
+    total += Math.max(0, weight);
+  }
+  if (total <= 0) {
+    return 0;
+  }
+  let cursor = random() * total;
+  for (let index = 0; index < weights.length; index += 1) {
+    cursor -= Math.max(0, weights[index]);
+    if (cursor <= 0) {
+      return index;
+    }
+  }
+  return weights.length - 1;
+}
+
+function remainingAfterBan(
+  kitId: string,
+  position: PlayerPosition,
+  pool: ChampionKit[],
+  banned: Set<string>,
+  picked: Set<string>,
+  patch: PatchVersion,
+  allowedChampionIds?: ReadonlySet<string>,
+): number {
+  let count = 0;
+  for (const candidate of pool) {
+    if (candidate.id === kitId) {
+      continue;
+    }
+    if (banned.has(candidate.id) || picked.has(candidate.id)) {
+      continue;
+    }
+    if (!candidate.positions.includes(position)) {
+      continue;
+    }
+    if (!isReleased(candidate, patch.startsOn)) {
+      continue;
+    }
+    if (!isAllowedInPool(candidate, allowedChampionIds)) {
+      continue;
+    }
+    count += 1;
+  }
+  return count;
+}
+
+function roleScarcityBanMult(
+  kit: ChampionKit,
+  enemy: SideCtx,
+  self: SideCtx,
+  pool: ChampionKit[],
+  banned: Set<string>,
+  picked: Set<string>,
+  patch: PatchVersion,
+  allowedChampionIds?: ReadonlySet<string>,
+): number {
+  let mult = 1;
+  for (const side of [enemy, self]) {
+    for (const position of side.openPositions) {
+      if (!kit.positions.includes(position)) {
+        continue;
+      }
+      const remaining = remainingAfterBan(
+        kit.id,
+        position,
+        pool,
+        banned,
+        picked,
+        patch,
+        allowedChampionIds,
+      );
+      if (remaining <= 0) {
+        return 0;
+      }
+      if (remaining <= 1) {
+        mult = Math.min(mult, 0.12);
+      }
+    }
+  }
+  return mult;
 }
 
 function banScore(args: {
@@ -207,15 +426,40 @@ function banScore(args: {
   meta: PatchMetaTable;
   enemy: SideCtx;
   self: SideCtx;
+  pool: ChampionKit[];
   banned: Set<string>;
   picked: Set<string>;
   patch: PatchVersion;
+  allowedChampionIds?: ReadonlySet<string>;
 }): number {
-  const { kit, meta, enemy, self, banned, picked, patch } = args;
+  const { kit, meta, enemy, self, pool, banned, picked, patch, allowedChampionIds } = args;
   if (banned.has(kit.id) || picked.has(kit.id) || !isReleased(kit, patch.startsOn)) {
     return -1;
   }
+  if (!isAllowedInPool(kit, allowedChampionIds)) {
+    return -1;
+  }
+  const hitsEnemyOpenRole = kit.positions.some((position) => enemy.openPositions.has(position));
+  if (!hitsEnemyOpenRole) {
+    return -1;
+  }
+  const scarcityMult = roleScarcityBanMult(
+    kit,
+    enemy,
+    self,
+    pool,
+    banned,
+    picked,
+    patch,
+    allowedChampionIds,
+  );
+  if (scarcityMult <= 0) {
+    return -1;
+  }
+  const inMeta = hasChampionMetaEntry(meta, kit.id);
   const entry = championMetaOf(meta, kit.id);
+  const obscureCut =
+    !inMeta ? 0.35 : entry.presence < 0.05 && entry.banRate < 0.04 ? 0.4 : 1;
   let enemyDesire = 0;
   for (const view of enemy.starters) {
     if (!enemy.openPositions.has(view.player.position)) {
@@ -232,6 +476,8 @@ function banScore(args: {
       patch,
       banned,
       picked,
+      teamPicks: enemy.picks,
+      allowedChampionIds,
     });
     enemyDesire = Math.max(enemyDesire, score);
   }
@@ -251,10 +497,16 @@ function banScore(args: {
       patch,
       banned,
       picked,
+      teamPicks: self.picks,
+      allowedChampionIds,
     });
     selfDesire = Math.max(selfDesire, score);
   }
-  return entry.banRate * 0.55 + entry.presence * 0.25 + enemyDesire * 0.35 - selfDesire * 0.2;
+  return (
+    (entry.banRate * 0.55 + entry.presence * 0.25 + enemyDesire * 0.35 - selfDesire * 0.2) *
+    obscureCut *
+    scarcityMult
+  );
 }
 
 function chooseBan(
@@ -266,11 +518,22 @@ function chooseBan(
   picked: Set<string>,
   patch: PatchVersion,
   random: () => number,
+  allowedChampionIds?: ReadonlySet<string>,
 ): string | null {
   const ranked = pool
     .map((kit) => ({
       kit,
-      score: banScore({ kit, meta, enemy, self: side, banned, picked, patch }),
+      score: banScore({
+        kit,
+        meta,
+        enemy,
+        self: side,
+        pool,
+        banned,
+        picked,
+        patch,
+        allowedChampionIds,
+      }),
     }))
     .filter((item) => item.score >= 0)
     .sort((a, b) => b.score - a.score);
@@ -280,13 +543,30 @@ function chooseBan(
   const coach = side.profile.coach;
   const draftSkill = coach ? coach.attributes.draftStrategy / 120 : 0.55;
   const metaSkill = coach ? coach.attributes.metaAdaptation / 120 : 0.55;
-  const depth = clamp(Math.round(2 + (1 - (draftSkill + metaSkill) / 2) * 5 + random() * 2), 1, 8);
-  const pick = ranked[Math.floor(random() * Math.min(depth, ranked.length))];
-  return pick?.kit.id ?? ranked[0].kit.id;
+  const depth = clamp(Math.round(3 + (1 - (draftSkill + metaSkill) / 2) * 4 + random() * 2), 2, 8);
+  const shortlist = ranked.slice(0, Math.min(depth, ranked.length));
+  const weights = shortlist.map((item) => {
+    const entry = championMetaOf(meta, item.kit.id);
+    return Math.pow(Math.max(0.01, item.score), 1.35) * (0.35 + entry.banRate * 2.4 + entry.presence);
+  });
+  return shortlist[weightedPickIndex(weights, random)]?.kit.id ?? shortlist[0].kit.id;
+}
+
+const EARLY_PICK_ORDER: PlayerPosition[] = ['BOT', 'JUNGLE', 'MID', 'TOP', 'SUPPORT'];
+const LATE_PICK_ORDER: PlayerPosition[] = ['TOP', 'SUPPORT', 'MID', 'JUNGLE', 'BOT'];
+
+function pickPositionOrder(side: SideCtx): PlayerPosition[] {
+  if (side.picks.length < 2) {
+    return EARLY_PICK_ORDER;
+  }
+  if (side.picks.length < 4) {
+    return LATE_PICK_ORDER;
+  }
+  return [...PLAYER_POSITIONS];
 }
 
 function nextOpenView(side: SideCtx, preferred: PlayerPosition[] | null): SimPlayerView | null {
-  const order = preferred ?? [...PLAYER_POSITIONS];
+  const order = preferred ?? pickPositionOrder(side);
   for (const position of order) {
     if (!side.openPositions.has(position)) {
       continue;
@@ -304,6 +584,24 @@ function nextOpenView(side: SideCtx, preferred: PlayerPosition[] | null): SimPla
   return null;
 }
 
+function softRolePool(
+  view: SimPlayerView,
+  pool: ChampionKit[],
+  banned: Set<string>,
+  picked: Set<string>,
+  patch: PatchVersion,
+  allowedChampionIds?: ReadonlySet<string>,
+): ChampionKit[] {
+  return pool.filter(
+    (kit) =>
+      !banned.has(kit.id) &&
+      !picked.has(kit.id) &&
+      kit.positions.includes(view.player.position) &&
+      isReleased(kit, patch.startsOn) &&
+      isAllowedInPool(kit, allowedChampionIds),
+  );
+}
+
 function choosePick(
   side: SideCtx,
   pool: ChampionKit[],
@@ -312,45 +610,79 @@ function choosePick(
   picked: Set<string>,
   patch: PatchVersion,
   random: () => number,
+  allowedChampionIds?: ReadonlySet<string>,
 ): DraftPickEntry | null {
-  const view = nextOpenView(side, null);
-  if (!view) {
-    return null;
-  }
-  const ranked = pool
-    .map((kit) => ({
-      kit,
-      score: pickScore({
+  const order = pickPositionOrder(side);
+  const seen = new Set<PlayerPosition>();
+  const tryOrder = [...order, ...PLAYER_POSITIONS];
+  for (const position of tryOrder) {
+    if (!side.openPositions.has(position) || seen.has(position)) {
+      continue;
+    }
+    seen.add(position);
+    const view = side.profile.byPosition[position];
+    if (!view) {
+      continue;
+    }
+    let ranked = pool
+      .map((kit) => ({
         kit,
-        view,
-        meta,
-        intent: side.intent,
-        patch,
-        banned,
-        picked,
-      }),
-    }))
-    .filter((item) => item.score >= 0)
-    .sort((a, b) => b.score - a.score);
-  if (ranked.length === 0) {
-    return null;
+        score: pickScore({
+          kit,
+          view,
+          meta,
+          intent: side.intent,
+          patch,
+          banned,
+          picked,
+          teamPicks: side.picks,
+          allowedChampionIds,
+        }),
+      }))
+      .filter((item) => item.score >= 0)
+      .sort((a, b) => b.score - a.score);
+    if (ranked.length === 0) {
+      ranked = softRolePool(view, pool, banned, picked, patch, allowedChampionIds).map((kit) => ({
+        kit,
+        score: 0.02,
+      }));
+    }
+    if (ranked.length === 0) {
+      continue;
+    }
+    const coach = side.profile.coach;
+    const draftSkill = coach ? coach.attributes.draftStrategy / 120 : 0.55;
+    const metaSkill = coach ? coach.attributes.metaAdaptation / 120 : 0.55;
+    const depth = clamp(
+      Math.round(4 + (1 - (draftSkill + metaSkill) / 2) * 5 + random() * 2),
+      3,
+      10,
+    );
+    const shortlist = ranked.slice(0, Math.min(depth, ranked.length));
+    const weights = shortlist.map((item) => {
+      const entry = hasChampionMetaEntry(meta, item.kit.id)
+        ? championMetaOf(meta, item.kit.id)
+        : null;
+      const pickRate = entry?.pickRate ?? 0.05;
+      return Math.pow(Math.max(0.01, item.score), 1.25) * (0.2 + pickRate * 3.2);
+    });
+    const chosen = shortlist[weightedPickIndex(weights, random)] ?? shortlist[0];
+    const entry = hasChampionMetaEntry(meta, chosen.kit.id)
+      ? championMetaOf(meta, chosen.kit.id)
+      : { power: 40 };
+    const fit = playerFitScore(view, chosen.kit);
+    return {
+      teamId: side.teamId,
+      playerId: view.player.id,
+      gamertag: view.player.gamertag,
+      position: view.player.position,
+      championId: chosen.kit.id,
+      championNameZh: championNameZh(chosen.kit.id),
+      fitScore: Number(fit.toFixed(1)),
+      metaPower: entry.power,
+    };
   }
-  const coach = side.profile.coach;
-  const draftSkill = coach ? coach.attributes.draftStrategy / 120 : 0.55;
-  const depth = clamp(Math.round(1 + (1 - draftSkill) * 4 + random() * 2), 1, 6);
-  const chosen = ranked[Math.floor(random() * Math.min(depth, ranked.length))] ?? ranked[0];
-  const entry = championMetaOf(meta, chosen.kit.id);
-  const fit = playerFitScore(view, chosen.kit);
-  return {
-    teamId: side.teamId,
-    playerId: view.player.id,
-    gamertag: view.player.gamertag,
-    position: view.player.position,
-    championId: chosen.kit.id,
-    championNameZh: championNameZh(chosen.kit.id),
-    fitScore: Number(fit.toFixed(1)),
-    metaPower: entry.power,
-  };
+  return null;
 }
 
 function applyPick(side: SideCtx, pick: DraftPickEntry, picked: Set<string>): void {
@@ -437,21 +769,36 @@ export function runClassicDraft(input: {
   patch: PatchVersion;
   meta: PatchMetaTable;
   random?: () => number;
+  allowedChampionIds?: ReadonlySet<string>;
 }): DraftResult {
   const random = input.random ?? Math.random;
-  const pool = poolForPatch(input.patch);
+  const allowedChampionIds = input.allowedChampionIds;
+  const pool = poolForPatch(input.patch, allowedChampionIds);
   const blue = makeSide(input.home);
   const red = makeSide(input.away);
   const banned = new Set<string>();
   const picked = new Set<string>();
   const bans: DraftBanEntry[] = [];
+  const steps: DraftStep[] = [];
+  let stepIndex = 0;
 
   const sideOf = (color: 'blue' | 'red'): SideCtx => (color === 'blue' ? blue : red);
   const enemyOf = (color: 'blue' | 'red'): SideCtx => (color === 'blue' ? red : blue);
+  const sideColor = (side: SideCtx): DraftStepSide => (side === blue ? 'blue' : 'red');
 
   for (const color of BAN1) {
     const side = sideOf(color);
-    const id = chooseBan(side, enemyOf(color), pool, input.meta, banned, picked, input.patch, random);
+    const id = chooseBan(
+      side,
+      enemyOf(color),
+      pool,
+      input.meta,
+      banned,
+      picked,
+      input.patch,
+      random,
+      allowedChampionIds,
+    );
     if (!id) {
       continue;
     }
@@ -461,19 +808,54 @@ export function runClassicDraft(input: {
       championId: id,
       championNameZh: championNameZh(id),
     });
+    steps.push({
+      kind: 'ban',
+      side: color,
+      teamId: side.teamId,
+      championId: id,
+      index: stepIndex,
+    });
+    stepIndex += 1;
   }
 
   for (const color of PICK1) {
     const side = sideOf(color);
-    const pick = choosePick(side, pool, input.meta, banned, picked, input.patch, random);
+    const pick = choosePick(
+      side,
+      pool,
+      input.meta,
+      banned,
+      picked,
+      input.patch,
+      random,
+      allowedChampionIds,
+    );
     if (pick) {
       applyPick(side, pick, picked);
+      steps.push({
+        kind: 'pick',
+        side: color,
+        teamId: side.teamId,
+        pick: { ...pick },
+        index: stepIndex,
+      });
+      stepIndex += 1;
     }
   }
 
   for (const color of BAN2) {
     const side = sideOf(color);
-    const id = chooseBan(side, enemyOf(color), pool, input.meta, banned, picked, input.patch, random);
+    const id = chooseBan(
+      side,
+      enemyOf(color),
+      pool,
+      input.meta,
+      banned,
+      picked,
+      input.patch,
+      random,
+      allowedChampionIds,
+    );
     if (!id) {
       continue;
     }
@@ -483,23 +865,65 @@ export function runClassicDraft(input: {
       championId: id,
       championNameZh: championNameZh(id),
     });
+    steps.push({
+      kind: 'ban',
+      side: color,
+      teamId: side.teamId,
+      championId: id,
+      index: stepIndex,
+    });
+    stepIndex += 1;
   }
 
   for (const color of PICK2) {
     const side = sideOf(color);
-    const pick = choosePick(side, pool, input.meta, banned, picked, input.patch, random);
+    const pick = choosePick(
+      side,
+      pool,
+      input.meta,
+      banned,
+      picked,
+      input.patch,
+      random,
+      allowedChampionIds,
+    );
     if (pick) {
       applyPick(side, pick, picked);
+      steps.push({
+        kind: 'pick',
+        side: color,
+        teamId: side.teamId,
+        pick: { ...pick },
+        index: stepIndex,
+      });
+      stepIndex += 1;
     }
   }
 
   for (const side of [blue, red]) {
     while (side.openPositions.size > 0) {
-      const pick = choosePick(side, pool, input.meta, banned, picked, input.patch, random);
+      const pick = choosePick(
+        side,
+        pool,
+        input.meta,
+        banned,
+        picked,
+        input.patch,
+        random,
+        allowedChampionIds,
+      );
       if (!pick) {
         break;
       }
       applyPick(side, pick, picked);
+      steps.push({
+        kind: 'pick',
+        side: sideColor(side),
+        teamId: side.teamId,
+        pick: { ...pick },
+        index: stepIndex,
+      });
+      stepIndex += 1;
     }
   }
 
@@ -535,5 +959,6 @@ export function runClassicDraft(input: {
     },
     draftEdge: Number(draftEdge.toFixed(2)),
     notes,
+    steps,
   };
 }

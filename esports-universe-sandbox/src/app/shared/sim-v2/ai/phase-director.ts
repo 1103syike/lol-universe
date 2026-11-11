@@ -1,9 +1,20 @@
 import { dist } from '../map/pathfinding';
+import { canSiege } from '../objectives/structures';
 import type { GameState } from '../state/game-state';
 import type { TeamSide } from '../types/ids';
 import { objectiveWindowBoost } from '../jungle/jungle-system';
 import { getMatchAiRuntime } from './runtime';
 import type { MatchPhase } from './types';
+
+function hasOpenEnemyBase(state: GameState, side: TeamSide): boolean {
+  return state.structures.some(
+    (structure) =>
+      structure.alive &&
+      structure.side !== side &&
+      (structure.structureKind === 'nexus' || structure.structureKind === 'nexus_tower') &&
+      canSiege(state, structure),
+  );
+}
 
 function livingCount(state: GameState, side: TeamSide): number {
   return state.champions.filter((champ) => champ.alive && champ.side === side).length;
@@ -51,7 +62,7 @@ function baseThreatLevel(state: GameState, side: TeamSide): number {
 
 function bestObjectiveBoost(state: GameState): number {
   let best = 0;
-  for (const campId of ['dragon', 'baron', 'herald'] as const) {
+  for (const campId of ['dragon', 'elder', 'baron', 'herald'] as const) {
     const alive = state.monsters.some((monster) => monster.alive && monster.campId === campId);
     if (!alive) {
       continue;
@@ -72,8 +83,13 @@ export function decidePhase(state: GameState, side: TeamSide): MatchPhase {
     return 'defend';
   }
 
+  const openBase = hasOpenEnemyBase(state, side);
+  if (openBase && t >= 1200) {
+    return 'closeout';
+  }
+
   const objBoost = bestObjectiveBoost(state);
-  if (objBoost > 0.55 && t >= 300) {
+  if (objBoost > 0.55 && t >= 300 && !openBase) {
     return 'objective-setup';
   }
 
@@ -89,7 +105,7 @@ export function decidePhase(state: GameState, side: TeamSide): MatchPhase {
             dist(minion.position, structure.position) < 900,
         ),
     );
-    if (pressured || t >= 1680) {
+    if (pressured || t >= 1680 || openBase) {
       return 'closeout';
     }
   }

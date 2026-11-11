@@ -52,7 +52,7 @@ export const CHAMPION_KITS: Readonly<Record<string, ChampionKit>> = {
   Akali: {
     id: 'Akali',
     positions: ['MID', 'TOP'],
-    damageType: 'ad',
+    damageType: 'ap',
     combatClass: 'assassin',
     scaling: { early: 70, mid: 80, late: 55 },
     style: { laning: 70, teamfight: 65, splitPush: 60, poke: 35, engage: 70 },
@@ -92,7 +92,7 @@ export const CHAMPION_KITS: Readonly<Record<string, ChampionKit>> = {
   Amumu: {
     id: 'Amumu',
     positions: ['TOP', 'SUPPORT', 'JUNGLE'],
-    damageType: 'ad',
+    damageType: 'ap',
     combatClass: 'tank',
     scaling: { early: 55, mid: 70, late: 65 },
     style: { laning: 40, teamfight: 88, splitPush: 25, poke: 20, engage: 92 },
@@ -632,7 +632,7 @@ export const CHAMPION_KITS: Readonly<Record<string, ChampionKit>> = {
   Katarina: {
     id: 'Katarina',
     positions: ['MID', 'JUNGLE'],
-    damageType: 'ad',
+    damageType: 'ap',
     combatClass: 'assassin',
     scaling: { early: 70, mid: 80, late: 55 },
     style: { laning: 58, teamfight: 85, splitPush: 45, poke: 25, engage: 85 },

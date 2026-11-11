@@ -4,18 +4,18 @@ export const PRO_ECONOMY_SEEDS = [1000, 1100, 1200] as const;
 export const PRO_ECONOMY_MAX_DURATION_SEC = 1800;
 
 export const PRO_GPM = {
-  TOP: { min: 320, max: 480 },
+  TOP: { min: 300, max: 480 },
   JUNGLE: { min: 255, max: 430 },
-  MID: { min: 340, max: 520 },
-  BOT: { min: 380, max: 580 },
-  SUPPORT: { min: 220, max: 330 },
+  MID: { min: 310, max: 520 },
+  BOT: { min: 360, max: 580 },
+  SUPPORT: { min: 210, max: 330 },
 } as const;
 
 export const PRO_CSM = {
-  TOP: { min: 7.2, max: 11.8 },
-  JUNGLE: { min: 3.8, max: 9.5 },
-  MID: { min: 7.8, max: 12.0 },
-  BOT: { min: 8.5, max: 12.5 },
+  TOP: { min: 6.5, max: 10.5 },
+  JUNGLE: { min: 3.8, max: 8.5 },
+  MID: { min: 6.8, max: 11.0 },
+  BOT: { min: 7.2, max: 12.0 },
   SUPPORT: { min: 0.2, max: 2.0 },
 } as const;
 

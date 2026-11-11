@@ -1,7 +1,9 @@
 import { combatProfile } from '../champion/combat-profile';
 import { CHAMPION_KITS } from '../../../core/data/champion-kits';
 import { axis01, championIdentity } from '../champion/identity-runtime';
-import { basicAttack, castAbility, levelAbility } from '../combat/combat';
+import { castChampionCombo, hasChampionCombo } from '../combat/combo-cast';
+import { basicAttack, castAbility } from '../combat/combat';
+import { investAbilityPoints } from '../champion/skill-order';
 import {
   castBarrier,
   castCleanse,
@@ -11,6 +13,7 @@ import {
   castHeal,
   castIgnite,
   castTeleport,
+  clearTeleportChannel,
   finishTeleportIfReady,
   hasSummoner,
   summonerReady,
@@ -26,6 +29,12 @@ import {
 } from '../economy/economy';
 import { resolveShopPreferForChampion } from '../economy/shop-builds';
 import {
+  jungleFarmAheadAmount,
+  jungleFarmBehindAmount,
+  jungleFarmPace,
+  jungleFarmSlack,
+} from '../jungle/jungle-clear-profile';
+import {
   nearestFriendlyCamp,
   runJungleClearStep,
   nearestObjectiveCamp,
@@ -33,17 +42,23 @@ import {
   objectiveWindowBoost,
 } from '../jungle/jungle-system';
 import { faceOffLanePoint, humanizeLaneStand } from '../map/lane-stand';
-import { orderMove, orderMoveOnLane } from '../map/movement';
+import { orderMove, orderMoveOnLane, orderShortMove } from '../map/movement';
 import { dist } from '../map/pathfinding';
 import {
   alliedWaveAnchor,
+  enemyWaveAnchor,
+  minionRawDamageToChampion,
   nearestEnemyMinionOnLane,
   tryLastHit,
   type LastHitMode,
 } from '../minion/lane-system';
 import {
   assessChampionLaneWave,
+  beginWaveAssessFrame,
+  endWaveAssessFrame,
   freezeHoldProgress,
+  hasLanePriority,
+  shouldSlowPush,
   waveNearFreezeSpot,
   waveNeedsShoveForRecall,
   type LaneWaveState,
@@ -55,6 +70,7 @@ import {
   nearestAttackableStructure,
   wavePressuringStructure,
 } from '../objectives/structures';
+import { getChampionProximity } from '../perf/champion-proximity';
 import type { ReplayRecorder } from '../replay/recorder';
 import type { ChampionEntity, MonsterEntity, StructureEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
@@ -71,6 +87,35 @@ import {
   teamVisionPressure,
   visionCoverScore,
 } from '../vision/vision';
+import {
+  closeoutTargetStructure,
+  getCloseoutPlan,
+  isCloseoutActive,
+} from './closeout-director';
+import {
+  allySaveUrgency,
+  championGankDangerIndex,
+  disengageHpBoost,
+  hardContactCommitFactor,
+  laneDistress,
+  laneMatchupRead,
+  sameMapHalf,
+  shoveCommitFactor,
+  standProgressBias,
+  tradeCommitFactor,
+} from './lane-read';
+import {
+  enterCommitAllIn,
+  enterHoldWave,
+  enterLastHit,
+  enterResetAggro,
+  enterTowerFarm,
+  enterTradeWindow,
+  getLaningPhase,
+  isFarmingLaningPhase,
+  isResetAggroPhase,
+  refreshLaningPhaseClock,
+} from './laning-phase';
 import { applyMissionBounds } from './mission-bounds';
 import {
   getMatchAiRuntime,
@@ -195,9 +240,8 @@ function enemiesNearPoint(
   point: { x: number; y: number },
   range: number,
 ): number {
-  return state.champions.filter(
-    (enemy) => enemy.alive && enemy.side !== side && dist(enemy.position, point) < range,
-  ).length;
+  const prox = getChampionProximity(state);
+  return prox.countNearPoint(side, point, range, false);
 }
 
 function alliesNearPoint(
@@ -206,9 +250,8 @@ function alliesNearPoint(
   point: { x: number; y: number },
   range: number,
 ): number {
-  return state.champions.filter(
-    (ally) => ally.alive && ally.side === side && dist(ally.position, point) < range,
-  ).length;
+  const prox = getChampionProximity(state);
+  return prox.countNearPoint(side, point, range, true);
 }
 
 function outerTowerAlive(state: GameState, side: ChampionEntity['side'], lane: LaneId): boolean {
@@ -260,25 +303,39 @@ function maybeUpdateLaneAssignment(state: GameState, champion: ChampionEntity): 
   const crossLane: LaneId =
     homeLane === 'mid' ? 'bot' : homeLane === 'top' ? 'bot' : 'top';
   const assignment = getUnitAssignment(state, champion.id);
-  if (
-    assignment?.lane &&
-    assignment.play !== 'hold-lanes' &&
-    assignment.expiresAt > t
-  ) {
+  if (assignment?.lane && assignment.expiresAt > t) {
+    const onObjectiveOrCloseout =
+      assignment.play === 'contest-objective' ||
+      assignment.play === 'siege-lane' ||
+      assignment.mission === 'setup-objective' ||
+      assignment.mission === 'take-objective' ||
+      assignment.mission === 'siege' ||
+      isCloseoutActive(state, champion.side);
+    const earlyHoldHome =
+      assignment.play === 'hold-lanes' &&
+      t < LANE_LOCK_UNTIL_SEC &&
+      assignment.lane !== homeLane &&
+      !onObjectiveOrCloseout;
     const coverCrossEarly =
       assignment.mission === 'cover-side' &&
       assignment.lane !== homeLane &&
       t < LANE_LOCK_UNTIL_SEC &&
-      (champion.positionLabel === 'BOT' || champion.positionLabel === 'TOP');
-    if (coverCrossEarly) {
+      (champion.positionLabel === 'BOT' || champion.positionLabel === 'TOP') &&
+      !onObjectiveOrCloseout;
+    if (earlyHoldHome || coverCrossEarly) {
       commitLaneLease(state, champion, homeLane, LANE_LOCK_UNTIL_SEC - t);
       return;
     }
     commitLaneLease(state, champion, assignment.lane, Math.max(4, assignment.expiresAt - t));
     return;
   }
-  const dragon = state.monsters.find((monster) => monster.campId === 'dragon' && monster.alive);
-  const dragonBoost = dragon ? objectiveWindowBoost(state, 'dragon') : 0;
+  const dragon = state.monsters.find(
+    (monster) =>
+      (monster.campId === 'dragon' || monster.campId === 'elder') && monster.alive,
+  );
+  const dragonBoost = dragon
+    ? objectiveWindowBoost(state, dragon.campId === 'elder' ? 'elder' : 'dragon')
+    : 0;
   const roamUseful = (lane: LaneId): boolean => {
     const enemyOnLane = state.champions.some(
       (enemy) =>
@@ -361,20 +418,56 @@ function maybeUpdateLaneAssignment(state: GameState, champion: ChampionEntity): 
   }
 
   if (dragon && dragonBoost > 0.7 && !splitPrefer) {
-    if (champion.positionLabel === 'BOT') {
-      commitLaneLease(state, champion, 'bot');
+    if (
+      champion.positionLabel === 'BOT' &&
+      assignment?.mission !== 'setup-objective' &&
+      assignment?.mission !== 'take-objective'
+    ) {
+      commitLaneLease(state, champion, 'mid');
       return;
     }
     if (
       (champion.positionLabel === 'MID' || champion.positionLabel === 'TOP') &&
-      dragonBoost > 0.85
+      dragonBoost > 0.85 &&
+      (assignment?.mission === 'setup-objective' ||
+        assignment?.mission === 'take-objective')
     ) {
       commitLaneLease(state, champion, 'bot', 18);
       return;
     }
   }
 
+  if (champion.positionLabel === 'BOT' && t >= 660) {
+    commitLaneLease(state, champion, 'mid');
+    return;
+  }
+
   if (champion.positionLabel === 'MID') {
+    if (t >= 480) {
+      const topDistress = laneDistress(state, champion.side, 'top');
+      const botDistress = laneDistress(state, champion.side, 'bot');
+      const homeWave = assessChampionLaneWave(state, champion, 'mid');
+      const homeSafeEnough =
+        homeWave.zone !== 'enemy' ||
+        homeWave.isCrashingOuter ||
+        homeWave.allyAdvantage > 0.45;
+      const helpTop =
+        homeSafeEnough &&
+        topDistress >= 0.36 &&
+        topDistress >= botDistress + 0.06 &&
+        roamUseful('top');
+      const helpBot =
+        homeSafeEnough &&
+        botDistress >= 0.36 &&
+        botDistress >= topDistress + 0.06 &&
+        roamUseful('bot');
+      if (helpTop || helpBot) {
+        const helpLane: LaneId = helpTop ? 'top' : 'bot';
+        const distress = helpTop ? topDistress : botDistress;
+        commitLaneLease(state, champion, helpLane, 12 + Math.round(distress * 14));
+        return;
+      }
+    }
     if (t > 1500) {
       const pressured = (['mid', 'top', 'bot'] as LaneId[]).find((lane) =>
         state.structures.some(
@@ -396,6 +489,25 @@ function maybeUpdateLaneAssignment(state: GameState, champion: ChampionEntity): 
     }
     commitLaneLease(state, champion, 'mid');
     return;
+  }
+
+  if (t >= LANE_LOCK_UNTIL_SEC && t <= 1500) {
+    const homeDistress = laneDistress(state, champion.side, homeLane);
+    const crossDistress = laneDistress(state, champion.side, crossLane);
+    const homeWave = assessChampionLaneWave(state, champion, homeLane);
+    const canLeaveHome =
+      homeWave.zone !== 'enemy' ||
+      homeWave.allyAdvantage > 0.8 ||
+      homeDistress <= 0.28;
+    if (
+      canLeaveHome &&
+      crossDistress >= 0.42 &&
+      crossDistress >= homeDistress + 0.12 &&
+      roamUseful(crossLane)
+    ) {
+      commitLaneLease(state, champion, crossLane, 12 + Math.round(crossDistress * 12));
+      return;
+    }
   }
 
   if (t >= 900 && t <= 1500 && !enemyCrossOuter && enemyHomeOuter && roamUseful(crossLane)) {
@@ -457,8 +569,29 @@ export function updateLaneAssignments(state: GameState): void {
   }
 }
 
-const LANE_MOVE_DEADZONE = 70;
-const LANE_MOVE_MICRO = 36;
+const LANE_MOVE_DEADZONE = 150;
+const LANE_MOVE_MICRO = 120;
+const LANE_STAND_HOLD_SEC = 1.4;
+const LANE_STAND_STICKY_RANGE = 320;
+const LANE_STAND_RECENTER = 280;
+const LANE_CLICK_STEP = 210;
+const LANE_CLICK_STEP_CS = 240;
+
+function stickyLaneStand(
+  state: GameState,
+  champion: ChampionEntity,
+  raw: { x: number; y: number },
+): { x: number; y: number } {
+  const runtime = getMatchAiRuntime(state);
+  const hold = runtime.laneStandHold.get(champion.id);
+  const now = state.scheduler.time;
+  if (hold && now < hold.until && dist(hold, raw) < LANE_STAND_STICKY_RANGE) {
+    return { x: hold.x, y: hold.y };
+  }
+  const next = { x: raw.x, y: raw.y, until: now + LANE_STAND_HOLD_SEC };
+  runtime.laneStandHold.set(champion.id, next);
+  return { x: next.x, y: next.y };
+}
 
 function moveAlongLane(
   state: GameState,
@@ -467,20 +600,33 @@ function moveAlongLane(
   target: { x: number; y: number },
   recorder?: ReplayRecorder,
 ): void {
-  const gap = dist(champion.position, target);
+  const safeTarget = clampAwayFromEmptyEnemyTower(state, champion, target);
+  const gap = dist(champion.position, safeTarget);
   if (gap < LANE_MOVE_MICRO) {
     return;
   }
-  if (champion.moving && champion.path.length > 0) {
-    const currentEnd = champion.path[champion.path.length - 1];
-    const endGap = dist(currentEnd, target);
-    if (endGap < LANE_MOVE_DEADZONE && gap < LANE_MOVE_DEADZONE * 1.6) {
-      return;
+  if (gap > 900) {
+    if (champion.moving && champion.path.length > 0) {
+      const currentEnd = champion.path[champion.path.length - 1];
+      if (dist(currentEnd, safeTarget) < LANE_MOVE_DEADZONE) {
+        return;
+      }
     }
-  } else if (gap < LANE_MOVE_DEADZONE * 0.55) {
+    orderMoveOnLane(state, champion, lane, safeTarget, recorder);
     return;
   }
-  orderMoveOnLane(state, champion, lane, target, recorder);
+  orderShortMove(state, champion, safeTarget, LANE_CLICK_STEP, recorder);
+}
+
+function clickToward(
+  state: GameState,
+  champion: ChampionEntity,
+  goal: { x: number; y: number },
+  recorder?: ReplayRecorder,
+  step = LANE_CLICK_STEP,
+): void {
+  const safe = clampAwayFromEmptyEnemyTower(state, champion, goal);
+  orderShortMove(state, champion, safe, step, recorder);
 }
 
 function ownOuterProgress(state: GameState, champion: ChampionEntity, lane: LaneId): number {
@@ -554,22 +700,39 @@ function laningDeepCap(state: GameState, champion: ChampionEntity, lane: LaneId)
   return enemyInnerProgress(state, champion, lane);
 }
 
+function standDeepCap(
+  state: GameState,
+  champion: ChampionEntity,
+  lane: LaneId,
+  allyProgress: number | null,
+): number {
+  const base = laningDeepCap(state, champion, lane);
+  if (allyProgress === null) {
+    return base;
+  }
+  if (champion.side === 'blue') {
+    return Math.max(base, allyProgress + 0.02);
+  }
+  return Math.min(base, allyProgress - 0.02);
+}
+
 function laningWaveAnchor(
   state: GameState,
   champion: ChampionEntity,
   lane: LaneId,
 ): { x: number; y: number } | null {
+  const front = alliedWaveAnchor(state, champion, lane);
   const allies = state.minions.filter(
     (minion) => minion.alive && minion.side === champion.side && minion.lane === lane,
   );
   if (allies.length === 0) {
-    return null;
+    return front;
   }
   const enemies = state.minions.filter(
     (minion) => minion.alive && minion.side !== champion.side && minion.lane === lane,
   );
   if (enemies.length === 0) {
-    return alliedWaveAnchor(state, champion, lane);
+    return front;
   }
   let bestAlly = allies[0];
   let bestDist = Number.POSITIVE_INFINITY;
@@ -582,7 +745,15 @@ function laningWaveAnchor(
       }
     }
   }
-  return { x: bestAlly.position.x, y: bestAlly.position.y };
+  const clash = { x: bestAlly.position.x, y: bestAlly.position.y };
+  if (!front) {
+    return clash;
+  }
+  const frontProgress = laneProgress(state, lane, front);
+  const clashProgress = laneProgress(state, lane, clash);
+  const frontIsDeeper =
+    champion.side === 'blue' ? frontProgress > clashProgress + 0.02 : frontProgress < clashProgress - 0.02;
+  return frontIsDeeper ? front : clash;
 }
 
 function pointOnLaneProgress(
@@ -614,7 +785,8 @@ function clampStandToWave(
   let progress = laneProgress(state, lane, wavePoint);
   const allyProgress = ally ? laneProgress(state, lane, ally) : null;
   const wait = outerWaitProgress(state, champion, lane);
-  const deepCap = laningDeepCap(state, champion, lane);
+  const deepCap = standDeepCap(state, champion, lane, allyProgress);
+  const followEnemyOnly = !ally && hasEnemyWave;
 
   if (!ally && !hasEnemyWave) {
     progress = wait;
@@ -623,21 +795,34 @@ function clampStandToWave(
       if (allyProgress < wait) {
         progress = wait;
       } else {
-        progress = Math.min(progress, allyProgress + 0.05, deepCap - 0.04);
-        progress = Math.max(progress, allyProgress - 0.04);
+        progress = Math.min(progress, allyProgress + 0.06);
+        progress = Math.max(progress, allyProgress - 0.03);
       }
     } else if (allyProgress > wait) {
       progress = wait;
     } else {
-      progress = Math.max(progress, allyProgress - 0.05, deepCap + 0.04);
-      progress = Math.min(progress, allyProgress + 0.04);
+      progress = Math.max(progress, allyProgress - 0.06);
+      progress = Math.min(progress, allyProgress + 0.03);
     }
-  } else if (!ally && hasEnemyWave) {
+  } else if (followEnemyOnly) {
     if (champion.side === 'blue') {
-      progress = Math.min(progress, wait + 0.06, deepCap - 0.08);
+      progress = Math.max(wait, Math.min(deepCap, progress));
     } else {
-      progress = Math.max(progress, wait - 0.06, deepCap + 0.08);
+      progress = Math.min(wait, Math.max(deepCap, progress));
     }
+  }
+
+  const bias = standProgressBias(laneMatchupRead(state, champion, lane));
+  if (followEnemyOnly) {
+    if (champion.side === 'blue') {
+      progress = Math.max(wait, Math.min(deepCap, progress + bias));
+    } else {
+      progress = Math.min(wait, Math.max(deepCap, progress - bias));
+    }
+  } else if (champion.side === 'blue') {
+    progress = Math.max(wait - 0.02, Math.min(deepCap, progress + bias));
+  } else {
+    progress = Math.min(wait + 0.02, Math.max(deepCap, progress - bias));
   }
 
   return pointOnLaneProgress(state, lane, progress) ?? wavePoint;
@@ -648,18 +833,19 @@ function laningStand(
   champion: ChampionEntity,
   lane: LaneId,
 ): { x: number; y: number } {
-  const enemy = nearestEnemyMinionOnLane(state, champion, lane);
+  const enemy = enemyWaveAnchor(state, champion, lane);
   const ally = laningWaveAnchor(state, champion, lane);
   let wavePoint: { x: number; y: number } | null = null;
   if (ally && enemy) {
+    const reach = Math.min(0.55, Math.max(0.28, champion.attackRange / 1100));
     wavePoint = {
-      x: ally.x * 0.65 + enemy.position.x * 0.35,
-      y: ally.y * 0.65 + enemy.position.y * 0.35,
+      x: ally.x * (1 - reach) + enemy.x * reach,
+      y: ally.y * (1 - reach) + enemy.y * reach,
     };
   } else if (ally) {
     wavePoint = { ...ally };
   } else if (enemy) {
-    wavePoint = { ...enemy.position };
+    wavePoint = { ...enemy };
   } else {
     const wait = outerWaitProgress(state, champion, lane);
     wavePoint = pointOnLaneProgress(state, lane, wait);
@@ -669,7 +855,7 @@ function laningStand(
   }
   wavePoint = clampStandToWave(state, champion, lane, wavePoint, ally, !!enemy);
   const stand = faceOffLanePoint(state, champion, lane, wavePoint);
-  return humanizeLaneStand(state, champion, lane, stand);
+  return stickyLaneStand(state, champion, humanizeLaneStand(state, champion, lane, stand));
 }
 
 function laneTarget(state: GameState, champion: ChampionEntity) {
@@ -712,11 +898,15 @@ function freezeStand(
   if (!point) {
     return laningStand(state, champion, lane);
   }
-  return humanizeLaneStand(
+  return stickyLaneStand(
     state,
     champion,
-    lane,
-    faceOffLanePoint(state, champion, lane, point),
+    humanizeLaneStand(
+      state,
+      champion,
+      lane,
+      faceOffLanePoint(state, champion, lane, point),
+    ),
   );
 }
 
@@ -725,16 +915,17 @@ function shoveStand(
   champion: ChampionEntity,
   lane: LaneId,
 ): { x: number; y: number } {
-  const enemy = nearestEnemyMinionOnLane(state, champion, lane);
+  const enemy = enemyWaveAnchor(state, champion, lane);
   const ally = laningWaveAnchor(state, champion, lane);
   let wavePoint: { x: number; y: number } | null = null;
   if (ally && enemy) {
+    const reach = Math.min(0.82, Math.max(0.55, champion.attackRange / 900));
     wavePoint = {
-      x: ally.x * 0.4 + enemy.position.x * 0.6,
-      y: ally.y * 0.4 + enemy.position.y * 0.6,
+      x: ally.x * (1 - reach) + enemy.x * reach,
+      y: ally.y * (1 - reach) + enemy.y * reach,
     };
   } else if (enemy) {
-    wavePoint = { ...enemy.position };
+    wavePoint = { ...enemy };
   } else if (ally) {
     wavePoint = { ...ally };
   }
@@ -742,12 +933,36 @@ function shoveStand(
     return laningStand(state, champion, lane);
   }
   wavePoint = clampStandToWave(state, champion, lane, wavePoint, ally, !!enemy);
-  return humanizeLaneStand(
+  return stickyLaneStand(
     state,
     champion,
-    lane,
-    faceOffLanePoint(state, champion, lane, wavePoint),
+    humanizeLaneStand(
+      state,
+      champion,
+      lane,
+      faceOffLanePoint(state, champion, lane, wavePoint),
+    ),
   );
+}
+
+function escortSiegeStand(
+  state: GameState,
+  champion: ChampionEntity,
+  structure: StructureEntity,
+): { x: number; y: number } {
+  const siegeLane = structure.lane ?? laneIdOf(champion);
+  const anchor = alliedWaveAnchor(state, champion, siegeLane);
+  let point: { x: number; y: number };
+  if (anchor) {
+    const pull = structure.structureKind === 'outer_tower' ? 0.5 : 0.25;
+    point = {
+      x: anchor.x * (1 - pull) + structure.position.x * pull,
+      y: anchor.y * (1 - pull) + structure.position.y * pull,
+    };
+  } else {
+    point = shoveStand(state, champion, siegeLane);
+  }
+  return clampAwayFromEmptyEnemyTower(state, champion, point);
 }
 
 function isPastAlliedWave(
@@ -783,12 +998,20 @@ function nearestFarmMinion(
   state: GameState,
   champion: ChampionEntity,
   lane: LaneId,
+  mode: LastHitMode = 'default',
 ) {
-  const target = nearestEnemyMinionOnLane(state, champion, lane);
+  const target = nearestEnemyMinionOnLane(state, champion, lane, mode);
   if (!target) {
     return null;
   }
-  if (isPastAlliedWave(state, champion, lane, target.position, 0.06)) {
+  if (mode === 'shove') {
+    return target;
+  }
+  const gap = dist(champion.position, target.position);
+  if (gap <= champion.attackRange + 360) {
+    return target;
+  }
+  if (isPastAlliedWave(state, champion, lane, target.position, 0.1)) {
     return null;
   }
   return target;
@@ -814,35 +1037,7 @@ function shopPrefer(state: GameState, champion: ChampionEntity): string[] {
 }
 
 function maybeLevel(champion: ChampionEntity): void {
-  const expected = champion.level;
-  let invested = champion.abilities.reduce(
-    (sum, ability) => sum + (ability.slot === 'P' ? 0 : ability.level),
-    0,
-  );
-  const wantR =
-    champion.level >= 16 ? 3 : champion.level >= 11 ? 2 : champion.level >= 6 ? 1 : 0;
-  while (invested < expected) {
-    let gained = false;
-    const currentR = champion.abilities.find((ability) => ability.slot === 'R')?.level ?? 0;
-    const order: Array<'Q' | 'W' | 'E' | 'R'> =
-      currentR < wantR ? ['R', 'Q', 'E', 'W'] : ['Q', 'E', 'W', 'R'];
-    for (const slot of order) {
-      const before = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
-      if (slot === 'R' && (champion.level < 6 || before >= wantR)) {
-        continue;
-      }
-      levelAbility(champion, slot);
-      const after = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
-      if (after > before) {
-        invested += 1;
-        gained = true;
-        break;
-      }
-    }
-    if (!gained) {
-      break;
-    }
-  }
+  investAbilityPoints(champion);
 }
 
 function castKit(
@@ -851,6 +1046,10 @@ function castKit(
   enemy: ChampionEntity | MonsterEntity,
   recorder?: ReplayRecorder,
 ): void {
+  if (hasChampionCombo(champion.championId)) {
+    castChampionCombo(state, champion, enemy, recorder);
+    return;
+  }
   if (champion.positionLabel === 'SUPPORT') {
     const partner = state.champions.find(
       (ally) =>
@@ -904,6 +1103,383 @@ function underEnemyTower(state: GameState, champion: ChampionEntity): boolean {
   return coveringEnemyTower(state, champion.side, champion.position, 60) != null;
 }
 
+function enemyTowerAggroOn(
+  state: GameState,
+  champion: ChampionEntity,
+): StructureEntity | null {
+  const now = state.scheduler.time;
+  let best: StructureEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const structure of state.structures) {
+    if (
+      !structure.alive ||
+      structure.side === champion.side ||
+      structure.ad <= 0 ||
+      structure.range <= 0
+    ) {
+      continue;
+    }
+    if (structure.aggroTargetId !== champion.id || structure.aggroUntil <= now) {
+      continue;
+    }
+    const d = dist(champion.position, structure.position);
+    if (d <= structure.range + 120 && d < bestDist) {
+      best = structure;
+      bestDist = d;
+    }
+  }
+  return best;
+}
+
+function alliedMinionsCoveringTower(
+  state: GameState,
+  side: ChampionEntity['side'],
+  tower: StructureEntity,
+  slack = 80,
+): boolean {
+  let count = 0;
+  let hasSiege = false;
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side !== side) {
+      continue;
+    }
+    if (dist(minion.position, tower.position) > tower.range + slack) {
+      continue;
+    }
+    count += 1;
+    if (minion.role === 'cannon' || minion.role === 'super') {
+      hasSiege = true;
+    }
+  }
+  return hasSiege || count >= 2;
+}
+
+function alliedMinionPresentUnderTower(
+  state: GameState,
+  side: ChampionEntity['side'],
+  tower: StructureEntity,
+  slack = 80,
+): boolean {
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side !== side) {
+      continue;
+    }
+    if (dist(minion.position, tower.position) <= tower.range + slack) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const MINION_THREAT_RANGE = 520;
+const MINION_CALL_ACQUIRE = 500;
+const CAUTIOUS_XP_ANCHOR_RANGE = 1050;
+
+function enemyMinionThreatAt(
+  state: GameState,
+  side: ChampionEntity['side'],
+  point: { x: number; y: number },
+  range = MINION_THREAT_RANGE,
+): number {
+  let count = 0;
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side === side) {
+      continue;
+    }
+    if (dist(minion.position, point) <= range) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function estimateTradeMinionRetaliation(
+  state: GameState,
+  champion: ChampionEntity,
+  tradePoint: { x: number; y: number },
+): { count: number; expectedDamage: number } {
+  let count = 0;
+  let raw = 0;
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side === champion.side) {
+      continue;
+    }
+    if (dist(minion.position, tradePoint) > MINION_CALL_ACQUIRE) {
+      continue;
+    }
+    count += 1;
+    raw += minionRawDamageToChampion(minion);
+  }
+  const armorFactor = 100 / (100 + Math.max(0, champion.armor));
+  const expectedDamage = raw * 0.88 * armorFactor * 2.2;
+  return { count, expectedDamage };
+}
+
+const MINION_AGGRO_DROP_RANGE = MINION_CALL_ACQUIRE + 100;
+const SHORT_TRADE_UNTIL_SEC = 720;
+
+function enemyMinionsAggroingChampion(
+  state: GameState,
+  champion: ChampionEntity,
+): Array<{ position: { x: number; y: number } }> {
+  const locked: Array<{ position: { x: number; y: number } }> = [];
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side === champion.side) {
+      continue;
+    }
+    if (minion.targetId === champion.id) {
+      locked.push(minion);
+    }
+  }
+  return locked;
+}
+
+function championHasMinionAggro(state: GameState, champion: ChampionEntity): boolean {
+  return enemyMinionsAggroingChampion(state, champion).length > 0;
+}
+
+function pointClearsMinionAggro(
+  point: { x: number; y: number },
+  aggroMinions: Array<{ position: { x: number; y: number } }>,
+): boolean {
+  for (const minion of aggroMinions) {
+    if (dist(point, minion.position) <= MINION_AGGRO_DROP_RANGE) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function dropMinionAggroPoint(
+  state: GameState,
+  champion: ChampionEntity,
+): { x: number; y: number } {
+  const lane = laneIdOf(champion);
+  const aggro = enemyMinionsAggroingChampion(state, champion);
+  let progress = laneProgress(state, lane, champion.position);
+  for (let step = 0; step < 14; step += 1) {
+    progress =
+      champion.side === 'blue'
+        ? Math.max(0.02, progress - 0.03)
+        : Math.min(0.98, progress + 0.03);
+    const raw = pointOnLaneProgress(state, lane, progress);
+    if (!raw) {
+      continue;
+    }
+    const stand = humanizeLaneStand(
+      state,
+      champion,
+      lane,
+      faceOffLanePoint(state, champion, lane, raw),
+    );
+    if (aggro.length === 0 || pointClearsMinionAggro(stand, aggro)) {
+      return clampAwayFromEmptyEnemyTower(state, champion, stand);
+    }
+  }
+  return clampAwayFromEmptyEnemyTower(
+    state,
+    champion,
+    softDisengagePos(state, champion, true),
+  );
+}
+
+function tradePokeRange(champion: ChampionEntity): number {
+  return Math.max(champion.attackRange + 80, 580);
+}
+
+function isEarlyLaneOpponent(
+  state: GameState,
+  champion: ChampionEntity,
+  enemy: ChampionEntity,
+): boolean {
+  if (state.scheduler.time >= SHORT_TRADE_UNTIL_SEC) {
+    return false;
+  }
+  if (champion.positionLabel === 'JUNGLE' || enemy.positionLabel === 'JUNGLE') {
+    return false;
+  }
+  if (
+    champion.positionLabel !== 'TOP' &&
+    champion.positionLabel !== 'MID' &&
+    champion.positionLabel !== 'BOT' &&
+    champion.positionLabel !== 'SUPPORT'
+  ) {
+    return false;
+  }
+  return (
+    !!champion.assignedLane &&
+    !!enemy.assignedLane &&
+    champion.assignedLane === enemy.assignedLane
+  );
+}
+
+function shouldShortTrade(
+  state: GameState,
+  champion: ChampionEntity,
+  enemy: ChampionEntity,
+  canFinish: boolean,
+): boolean {
+  if (canFinish || isFinishableEnemy(champion, enemy)) {
+    return false;
+  }
+  return isEarlyLaneOpponent(state, champion, enemy);
+}
+
+function tradeApproachPoint(
+  state: GameState,
+  champion: ChampionEntity,
+  enemy: ChampionEntity,
+): { x: number; y: number } {
+  const fountain = fountainOf(state, champion);
+  const dx = enemy.position.x - fountain.x;
+  const dy = enemy.position.y - fountain.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const fromOwn = { x: dx / len, y: dy / len };
+  let reach = tradePokeRange(champion);
+  let point = {
+    x: enemy.position.x - fromOwn.x * reach,
+    y: enemy.position.y - fromOwn.y * reach,
+  };
+  for (let guard = 0; guard < 6; guard += 1) {
+    const retal = estimateTradeMinionRetaliation(state, champion, point);
+    if (retal.count <= 2) {
+      break;
+    }
+    reach += 70;
+    point = {
+      x: enemy.position.x - fromOwn.x * reach,
+      y: enemy.position.y - fromOwn.y * reach,
+    };
+  }
+  return clampAwayFromEmptyEnemyTower(state, champion, point, enemy);
+}
+
+function executeShortTrade(
+  state: GameState,
+  champion: ChampionEntity,
+  enemy: ChampionEntity,
+  recorder?: ReplayRecorder,
+): void {
+  if (
+    (underEnemyTower(state, champion) || enemyTowerAggroOn(state, champion)) &&
+    !canCommitDive(state, champion, enemy)
+  ) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    orderMove(
+      state,
+      champion,
+      clampAwayFromEmptyEnemyTower(
+        state,
+        champion,
+        softDisengagePos(state, champion, true),
+      ),
+      recorder,
+    );
+    noteDecision(state, champion, 'tower_bail', recorder);
+    return;
+  }
+
+  if (championHasMinionAggro(state, champion) || isResetAggroPhase(getLaningPhase(state, champion.id))) {
+    enterResetAggro(state, champion);
+    orderMove(state, champion, dropMinionAggroPoint(state, champion), recorder);
+    noteDecision(state, champion, 'lane', recorder);
+    return;
+  }
+
+  const gap = dist(champion.position, enemy.position);
+  const pokeRange = tradePokeRange(champion);
+  if (gap > pokeRange) {
+    enterTradeWindow(state, champion);
+    orderMove(state, champion, tradeApproachPoint(state, champion, enemy), recorder);
+    noteDecision(state, champion, 'trade', recorder);
+    return;
+  }
+
+  enterTradeWindow(state, champion);
+  castAbility(state, champion, 'Q', enemy, recorder);
+  const retal = estimateTradeMinionRetaliation(state, champion, champion.position);
+  if (retal.count <= 1 && gap <= champion.attackRange + 25) {
+    basicAttack(state, champion, enemy, recorder);
+  }
+  enterResetAggro(state, champion);
+  orderMove(state, champion, dropMinionAggroPoint(state, champion), recorder);
+  noteDecision(state, champion, 'trade', recorder);
+}
+
+function maybeResetLaneMinionAggro(
+  state: GameState,
+  champion: ChampionEntity,
+  hpRatio: number,
+  canFinish: boolean,
+  recorder?: ReplayRecorder,
+): boolean {
+  if (canFinish || !championHasMinionAggro(state, champion)) {
+    return false;
+  }
+  if (champion.positionLabel === 'JUNGLE') {
+    return false;
+  }
+  const laneEnemy = nearestLaneEnemy(state, champion);
+  if (
+    laneEnemy &&
+    isFinishableEnemy(champion, laneEnemy) &&
+    canSafelyCommit(state, champion, laneEnemy, hpRatio)
+  ) {
+    return false;
+  }
+  const drop = dropMinionAggroPoint(state, champion);
+  if (dist(champion.position, drop) < 55) {
+    enterHoldWave(state, champion);
+    return false;
+  }
+  getMatchAiRuntime(state).intentStick.delete(champion.id);
+  enterResetAggro(state, champion);
+  orderMove(state, champion, drop, recorder);
+  noteDecision(state, champion, 'lane', recorder);
+  return true;
+}
+
+function canStayUnderEnemyTower(
+  state: GameState,
+  champion: ChampionEntity,
+  diveEnemy: ChampionEntity | null = null,
+): boolean {
+  if (enemyTowerAggroOn(state, champion)) {
+    return false;
+  }
+  const tower = coveringEnemyTower(state, champion.side, champion.position, 60);
+  if (!tower) {
+    return true;
+  }
+  if (diveEnemy && canCommitDive(state, champion, diveEnemy)) {
+    return true;
+  }
+  return alliedMinionsCoveringTower(state, champion.side, tower);
+}
+
+function clampAwayFromEmptyEnemyTower(
+  state: GameState,
+  champion: ChampionEntity,
+  point: { x: number; y: number },
+  diveEnemy: ChampionEntity | null = null,
+): { x: number; y: number } {
+  const aggroTower = enemyTowerAggroOn(state, champion);
+  if (aggroTower && dist(point, aggroTower.position) <= aggroTower.range + 40) {
+    return holdOutsideTower(aggroTower, point);
+  }
+  const tower = coveringEnemyTower(state, champion.side, point, 40);
+  if (!tower) {
+    return point;
+  }
+  if (diveEnemy && canCommitDive(state, champion, diveEnemy)) {
+    return point;
+  }
+  if (!aggroTower && alliedMinionPresentUnderTower(state, champion.side, tower)) {
+    return point;
+  }
+  return holdOutsideTower(tower, point);
+}
+
 function canCommitDive(
   state: GameState,
   champion: ChampionEntity,
@@ -913,10 +1489,14 @@ function canCommitDive(
   const allies = alliesNearPoint(state, champion.side, enemy.position, 950);
   const enemies = enemiesNearPoint(state, champion.side, enemy.position, 1050);
   const hpRatio = champion.hp / Math.max(1, champion.maxHp);
-  if (hpRatio < 0.52) {
+  if (hpRatio < 0.62) {
     return false;
   }
-  if (enemies > allies) {
+  if (enemies >= allies) {
+    return false;
+  }
+  const tower = coveringEnemyTower(state, champion.side, enemy.position, 40);
+  if (tower && !alliedMinionsCoveringTower(state, champion.side, tower)) {
     return false;
   }
   const enemyLane =
@@ -927,10 +1507,10 @@ function canCommitDive(
         ? 'bot'
         : 'mid');
   const wave = assessChampionLaneWave(state, champion, enemyLane);
-  if (allies >= 2 && enemyHp < 0.45) {
+  if (allies >= 2 && enemyHp < 0.35 && wave.isCrashingOuter) {
     return true;
   }
-  if (allies >= 1 && enemyHp < 0.3 && wave.isCrashingOuter) {
+  if (allies >= 2 && enemyHp < 0.22) {
     return true;
   }
   return false;
@@ -1066,17 +1646,129 @@ function nearestLaneEnemy(state: GameState, champion: ChampionEntity): ChampionE
   return bestDist <= 2100 ? best : null;
 }
 
-function nearbyAllies(state: GameState, champion: ChampionEntity, radius: number): number {
-  let count = 0;
-  for (const ally of state.champions) {
-    if (!ally.alive || ally.side !== champion.side || ally.id === champion.id) {
+const CONTACT_HARD_RANGE = 640;
+const CONTACT_SOFT_RANGE = 820;
+
+function nearestVisibleEnemy(
+  state: GameState,
+  champion: ChampionEntity,
+  radius: number,
+): { enemy: ChampionEntity; dist: number } | null {
+  let best: ChampionEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const enemy of state.champions) {
+    if (!enemy.alive || enemy.side === champion.side || enemy.recallPhase === 'at_base') {
       continue;
     }
-    if (dist(champion.position, ally.position) <= radius) {
-      count += 1;
+    const d = dist(champion.position, enemy.position);
+    if (d <= radius && d < bestDist) {
+      best = enemy;
+      bestDist = d;
     }
   }
-  return count;
+  return best ? { enemy: best, dist: bestDist } : null;
+}
+
+function isFinishableEnemy(champion: ChampionEntity, enemy: ChampionEntity): boolean {
+  const enemyHp = enemy.hp / Math.max(1, enemy.maxHp);
+  if (enemyHp < 0.22 || enemy.hp < champion.ad * 1.4) {
+    return true;
+  }
+  return enemy.recallPhase === 'moving_home' && enemyHp < 0.48;
+}
+
+function nearbyFinishOpportunity(
+  state: GameState,
+  champion: ChampionEntity,
+  radius = CONTACT_SOFT_RANGE,
+): { enemy: ChampionEntity; dist: number } | null {
+  let best: ChampionEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const enemy of state.champions) {
+    if (!enemy.alive || enemy.side === champion.side || enemy.recallPhase === 'at_base') {
+      continue;
+    }
+    if (!isFinishableEnemy(champion, enemy)) {
+      continue;
+    }
+    const d = dist(champion.position, enemy.position);
+    if (d <= radius && d < bestDist) {
+      best = enemy;
+      bestDist = d;
+    }
+  }
+  return best ? { enemy: best, dist: bestDist } : null;
+}
+
+function localFightCount(
+  state: GameState,
+  champion: ChampionEntity,
+  radius = 1050,
+): { allies: number; enemies: number } {
+  return {
+    allies: nearbyAllies(state, champion, radius),
+    enemies: nearbyEnemies(state, champion, radius),
+  };
+}
+
+function isLethalDanger(
+  state: GameState,
+  champion: ChampionEntity,
+  hpRatio: number,
+): boolean {
+  const { allies, enemies } = localFightCount(state, champion);
+  if (enemies <= 0) {
+    return false;
+  }
+  const outnumbered = enemies > allies + 1;
+  const evenOrWorse = enemies >= allies + 1;
+  if (hpRatio < 0.22) {
+    return true;
+  }
+  if (hpRatio < 0.3 && enemies >= 1) {
+    return true;
+  }
+  if (hpRatio < 0.38 && evenOrWorse) {
+    return true;
+  }
+  if (hpRatio < 0.48 && outnumbered) {
+    return true;
+  }
+  if (hpRatio < 0.42 && enemies >= 2 && allies === 0) {
+    return true;
+  }
+  return false;
+}
+
+function canSafelyCommit(
+  state: GameState,
+  champion: ChampionEntity,
+  enemy: ChampionEntity,
+  hpRatio: number,
+): boolean {
+  const { allies, enemies } = localFightCount(state, champion);
+  const enemyHp = enemy.hp / Math.max(1, enemy.maxHp);
+  const finishable = isFinishableEnemy(champion, enemy);
+  if (hpRatio >= 0.58) {
+    return true;
+  }
+  if (enemies > allies + 1 && !(finishable && enemyHp < 0.14 && hpRatio > 0.34)) {
+    return false;
+  }
+  if (hpRatio < 0.28) {
+    return finishable && enemyHp < 0.12 && allies >= enemies;
+  }
+  if (hpRatio < 0.4) {
+    return finishable && (enemyHp + 0.08 < hpRatio || allies > enemies);
+  }
+  if (isLethalDanger(state, champion, hpRatio)) {
+    return finishable && allies >= enemies && enemyHp < hpRatio;
+  }
+  return true;
+}
+
+function nearbyAllies(state: GameState, champion: ChampionEntity, radius: number): number {
+  return getChampionProximity(state).countAllies(champion, radius);
 }
 
 function duoPartner(state: GameState, champion: ChampionEntity): ChampionEntity | null {
@@ -1098,16 +1790,7 @@ function duoPartner(state: GameState, champion: ChampionEntity): ChampionEntity 
 }
 
 function nearbyEnemies(state: GameState, champion: ChampionEntity, radius: number): number {
-  let count = 0;
-  for (const enemy of state.champions) {
-    if (!enemy.alive || enemy.side === champion.side) {
-      continue;
-    }
-    if (dist(champion.position, enemy.position) <= radius) {
-      count += 1;
-    }
-  }
-  return count;
+  return getChampionProximity(state).countEnemies(champion, radius);
 }
 
 function noteDecision(
@@ -1168,7 +1851,7 @@ function fightApproachPoint(
   if (tower && !dive) {
     point = holdOutsideTower(tower, enemy.position);
   }
-  return point;
+  return clampAwayFromEmptyEnemyTower(state, champion, point, enemy);
 }
 
 function fightTarget(
@@ -1179,8 +1862,35 @@ function fightTarget(
   recorder?: ReplayRecorder,
 ): void {
   const dive = canCommitDive(state, champion, enemy);
-  if (underEnemyTower(state, champion) && !dive) {
-    orderMove(state, champion, softDisengagePos(state, champion, true), recorder);
+  const towerLocked = !!enemyTowerAggroOn(state, champion);
+  if ((underEnemyTower(state, champion) || towerLocked) && !dive) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    orderMove(
+      state,
+      champion,
+      clampAwayFromEmptyEnemyTower(
+        state,
+        champion,
+        softDisengagePos(state, champion, true),
+      ),
+      recorder,
+    );
+    noteDecision(state, champion, 'tower_bail', recorder);
+    return;
+  }
+  if (!canStayUnderEnemyTower(state, champion, enemy)) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    orderMove(
+      state,
+      champion,
+      clampAwayFromEmptyEnemyTower(
+        state,
+        champion,
+        softDisengagePos(state, champion, true),
+        enemy,
+      ),
+      recorder,
+    );
     noteDecision(state, champion, 'tower_bail', recorder);
     return;
   }
@@ -1223,13 +1933,67 @@ function softDisengagePos(state: GameState, champion: ChampionEntity, deep = fal
   }
   const current = laneProgress(state, lane, champion.position);
   const wait = outerWaitProgress(state, champion, lane);
-  const step = deep ? 0.08 : 0.04;
-  const retreat =
+  const step = deep ? 0.12 : 0.06;
+  let retreat =
     champion.side === 'blue'
-      ? Math.max(wait - (deep ? 0.08 : 0.02), current - step)
-      : Math.min(wait + (deep ? 0.08 : 0.02), current + step);
-  const index = Math.min(path.length - 1, Math.max(0, Math.round(retreat * (path.length - 1))));
-  return humanizeLaneStand(state, champion, lane, faceOffLanePoint(state, champion, lane, path[index]));
+      ? Math.max(0.02, Math.min(current, wait) - (deep ? 0.1 : 0.04) - step)
+      : Math.min(0.98, Math.max(current, wait) + (deep ? 0.1 : 0.04) + step);
+  for (let guard = 0; guard < 10; guard += 1) {
+    const index = Math.min(path.length - 1, Math.max(0, Math.round(retreat * (path.length - 1))));
+    const point = path[index];
+    const tower = coveringEnemyTower(state, champion.side, point, 40);
+    const minionThreat = enemyMinionThreatAt(state, champion.side, point);
+    if (!tower && minionThreat === 0) {
+      return humanizeLaneStand(
+        state,
+        champion,
+        lane,
+        faceOffLanePoint(state, champion, lane, point),
+      );
+    }
+    retreat =
+      champion.side === 'blue'
+        ? Math.max(0.02, retreat - 0.04)
+        : Math.min(0.98, retreat + 0.04);
+  }
+  return fountainOf(state, champion);
+}
+
+function cautiousXpStand(
+  state: GameState,
+  champion: ChampionEntity,
+  lane: LaneId,
+): { x: number; y: number } {
+  const anchor =
+    laningWaveAnchor(state, champion, lane) ?? alliedWaveAnchor(state, champion, lane);
+  if (!anchor) {
+    return softDisengagePos(state, champion, false);
+  }
+  const wait = outerWaitProgress(state, champion, lane);
+  let progress = laneProgress(state, lane, anchor);
+  progress =
+    champion.side === 'blue'
+      ? Math.max(wait - 0.02, progress - 0.045)
+      : Math.min(wait + 0.02, progress + 0.045);
+  let point = pointOnLaneProgress(state, lane, progress) ?? { ...anchor };
+  const gap = dist(point, anchor);
+  if (gap > CAUTIOUS_XP_ANCHOR_RANGE) {
+    const ratio = CAUTIOUS_XP_ANCHOR_RANGE / gap;
+    point = {
+      x: anchor.x + (point.x - anchor.x) * ratio,
+      y: anchor.y + (point.y - anchor.y) * ratio,
+    };
+  }
+  return stickyLaneStand(
+    state,
+    champion,
+    humanizeLaneStand(
+      state,
+      champion,
+      lane,
+      faceOffLanePoint(state, champion, lane, point),
+    ),
+  );
 }
 
 function tryDisengage(
@@ -1239,46 +2003,91 @@ function tryDisengage(
   canFinish: boolean,
   recorder?: ReplayRecorder,
 ): boolean {
-  if (canFinish && hpRatio > 0.38) {
+  const contact = nearestVisibleEnemy(state, champion, CONTACT_SOFT_RANGE + 120);
+  const laneEnemy = nearestLaneEnemy(state, champion);
+  const enemy = contact?.enemy ?? laneEnemy;
+  const safeFinish =
+    !!enemy && canFinish && canSafelyCommit(state, champion, enemy, hpRatio);
+  if (safeFinish && hpRatio > 0.38) {
     return false;
   }
-  const enemy = nearestLaneEnemy(state, champion);
-  const enemyNear = !!enemy && dist(champion.position, enemy.position) < 1100;
+  const enemyNear =
+    (!!contact && contact.dist < 1100) ||
+    (!!laneEnemy && dist(champion.position, laneEnemy.position) < 1100);
   const inFight =
     champion.currentAction === 'fight' ||
     champion.currentAction === 'trade' ||
     champion.currentAction === 'gank' ||
     champion.currentAction === 'skirmish';
-  const outnumbered =
-    nearbyEnemies(state, champion, 1200) > nearbyAllies(state, champion, 1200) + 1;
-  const underTower = underEnemyTower(state, champion);
+  const { allies, enemies } = localFightCount(state, champion, 1200);
+  const outnumbered = enemies > allies + 1;
+  const towerThreat = !canStayUnderEnemyTower(state, champion, enemy);
   const profile = combatProfile(state, champion);
   const enemyHp = enemy ? enemy.hp / Math.max(1, enemy.maxHp) : 1;
   const winning = !!enemy && enemyHp < hpRatio - 0.12;
-  const leaveHp = winning
-    ? profile.disengageHp - 0.04 * profile.allInAppetite
-    : profile.disengageHp + 0.06;
+  const laneRead = laneMatchupRead(state, champion);
+  const leaveHp =
+    (winning
+      ? profile.disengageHp - 0.04 * profile.allInAppetite
+      : profile.disengageHp + 0.06) + disengageHpBoost(laneRead);
   const supportEarly =
     champion.positionLabel === 'SUPPORT' && state.scheduler.time < 360;
   const supportAlone =
     champion.positionLabel === 'SUPPORT' &&
-    nearbyAllies(state, champion, 1000) === 0 &&
+    allies === 0 &&
     enemyNear;
+  const softCrushed = laneRead.deficit >= 0.42;
+  const softDoomed = laneRead.deficit >= 0.72;
+  const lethal = isLethalDanger(state, champion, hpRatio);
+  const lane = laneIdOf(champion);
+  const minionThreat = enemyMinionThreatAt(state, champion.side, champion.position);
+  const allyWaveCover = state.minions.some(
+    (minion) =>
+      minion.alive &&
+      minion.side === champion.side &&
+      minion.lane === lane &&
+      dist(minion.position, champion.position) <= 520,
+  );
+  const overextendedIntoWave =
+    isPastAlliedWave(state, champion, lane, champion.position, 0.02) && !allyWaveCover;
+  const minionPressure =
+    overextendedIntoWave &&
+    (minionThreat >= 3 || (minionThreat >= 2 && hpRatio < 0.55) || (minionThreat >= 1 && hpRatio < 0.32));
   const shouldLeave =
-    (enemyNear || inFight || underTower || outnumbered || supportAlone) &&
-    ((!canFinish && hpRatio < leaveHp) ||
-      (!canFinish && outnumbered) ||
-      (!canFinish && underTower) ||
-      (hpRatio < 0.42 && !winning) ||
-      (hpRatio < 0.34 && !canFinish) ||
-      (supportEarly && hpRatio < 0.72 && enemyNear) ||
-      (supportAlone && hpRatio < 0.85));
+    lethal ||
+    towerThreat ||
+    (minionPressure && hpRatio < leaveHp + 0.08) ||
+    ((enemyNear || inFight || outnumbered || supportAlone || minionPressure) &&
+      ((!safeFinish && hpRatio < leaveHp) ||
+        (!safeFinish && outnumbered) ||
+        (hpRatio < 0.42 && !winning) ||
+        (hpRatio < 0.34 && !safeFinish) ||
+        (supportEarly && hpRatio < 0.72 && enemyNear) ||
+        (supportAlone && hpRatio < 0.85) ||
+        (!safeFinish && softCrushed && enemyNear && hpRatio < 0.82 + laneRead.deficit * 0.08) ||
+        (!safeFinish && softDoomed && enemyNear) ||
+        (minionPressure && hpRatio < 0.55)));
   if (!shouldLeave) {
     return false;
   }
-  const deep = hpRatio < 0.4 || outnumbered || underTower;
-  moveAlongLane(state, champion, laneIdOf(champion), softDisengagePos(state, champion, deep), recorder);
-  noteDecision(state, champion, 'lane', recorder);
+  const deep =
+    lethal ||
+    hpRatio < 0.34 ||
+    outnumbered ||
+    towerThreat ||
+    underEnemyTower(state, champion) ||
+    softDoomed ||
+    (softCrushed && (hpRatio < 0.45 || minionPressure || laneRead.expose >= 0.7)) ||
+    (laneRead.expose >= 0.62 && hpRatio < 0.5) ||
+    minionPressure;
+  const retreatPos = deep
+    ? softDisengagePos(state, champion, true)
+    : softCrushed || softDoomed
+      ? cautiousXpStand(state, champion, lane)
+      : softDisengagePos(state, champion, false);
+  getMatchAiRuntime(state).intentStick.delete(champion.id);
+  moveAlongLane(state, champion, lane, retreatPos, recorder);
+  noteDecision(state, champion, 'retreat', recorder);
   return true;
 }
 
@@ -1324,23 +2133,43 @@ function committedNexusSiege(
   return best;
 }
 
-function recallSpotDangerous(state: GameState, champion: ChampionEntity): boolean {
-  if (underEnemyTower(state, champion)) {
+function recallSpotDangerous(
+  state: GameState,
+  champion: ChampionEntity,
+  point: { x: number; y: number } = champion.position,
+): boolean {
+  if (coveringEnemyTower(state, champion.side, point, 60)) {
     return true;
   }
-  if (nearbyEnemies(state, champion, 850) >= 2) {
+  if (enemyMinionThreatAt(state, champion.side, point) > 0) {
     return true;
   }
-  if (nearbyEnemies(state, champion, 700) >= 1 && nearbyAllies(state, champion, 750) === 0) {
+  const enemies = state.champions.filter(
+    (enemy) =>
+      enemy.alive &&
+      enemy.side !== champion.side &&
+      dist(enemy.position, point) < 850,
+  ).length;
+  const allies = state.champions.filter(
+    (ally) =>
+      ally.alive &&
+      ally.side === champion.side &&
+      ally.id !== champion.id &&
+      dist(ally.position, point) < 750,
+  ).length;
+  if (enemies >= 2) {
+    return true;
+  }
+  if (enemies >= 1 && allies === 0 && dist(point, champion.position) < 40) {
     return true;
   }
   const lane = laneIdOf(champion);
-  const progress = laneProgress(state, lane, champion.position);
+  const progress = laneProgress(state, lane, point);
   const wait = outerWaitProgress(state, champion, lane);
   if (champion.side === 'blue') {
-    return progress > wait + 0.06;
+    return progress > wait + 0.04;
   }
-  return progress < wait - 0.06;
+  return progress < wait - 0.04;
 }
 
 function safeRecallPos(state: GameState, champion: ChampionEntity) {
@@ -1351,12 +2180,55 @@ function safeRecallPos(state: GameState, champion: ChampionEntity) {
   }
   const current = laneProgress(state, lane, champion.position);
   const wait = outerWaitProgress(state, champion, lane);
-  const pocket =
+  let pocket =
     champion.side === 'blue'
-      ? Math.min(current, Math.max(0.04, wait - 0.07))
-      : Math.max(current, Math.min(0.96, wait + 0.07));
-  const index = Math.min(path.length - 1, Math.max(0, Math.round(pocket * (path.length - 1))));
-  return humanizeLaneStand(state, champion, lane, faceOffLanePoint(state, champion, lane, path[index]));
+      ? Math.min(current, Math.max(0.03, wait - 0.08))
+      : Math.max(current, Math.min(0.97, wait + 0.08));
+  for (let guard = 0; guard < 14; guard += 1) {
+    const index = Math.min(path.length - 1, Math.max(0, Math.round(pocket * (path.length - 1))));
+    const point = path[index];
+    if (!recallSpotDangerous(state, champion, point)) {
+      return humanizeLaneStand(
+        state,
+        champion,
+        lane,
+        faceOffLanePoint(state, champion, lane, point),
+      );
+    }
+    pocket =
+      champion.side === 'blue'
+        ? Math.max(0.02, pocket - 0.045)
+        : Math.min(0.98, pocket + 0.045);
+  }
+  return fountainOf(state, champion);
+}
+
+function beginRecallIfSafe(
+  state: GameState,
+  champion: ChampionEntity,
+  recorder?: ReplayRecorder,
+): boolean {
+  if (recallSpotDangerous(state, champion)) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    moveAlongLane(
+      state,
+      champion,
+      laneIdOf(champion),
+      safeRecallPos(state, champion),
+      recorder,
+    );
+    noteDecision(state, champion, 'retreat', recorder);
+    return true;
+  }
+  const safe = safeRecallPos(state, champion);
+  if (dist(champion.position, safe) > 220) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    moveAlongLane(state, champion, laneIdOf(champion), safe, recorder);
+    noteDecision(state, champion, 'retreat', recorder);
+    return true;
+  }
+  startRecall(state, champion, recorder);
+  return true;
 }
 
 function wantsRecall(
@@ -1380,6 +2252,32 @@ function wantsRecall(
   if (committedNexusSiege(state, champion) && hpRatio > 0.24) {
     return false;
   }
+  if (isCloseoutActive(state, champion.side) && hpRatio > 0.28) {
+    return false;
+  }
+  const objBoost = Math.max(
+    objectiveWindowBoost(state, 'dragon'),
+    objectiveWindowBoost(state, 'baron'),
+    objectiveWindowBoost(state, 'herald'),
+  );
+  if (objBoost >= 0.9 && hpRatio > 0.42 && champion.positionLabel !== 'JUNGLE') {
+    return false;
+  }
+  const enemyDead = state.champions.filter(
+    (enemy) => enemy.side !== champion.side && !enemy.alive,
+  ).length;
+  const assignmentNow = getUnitAssignment(state, champion.id);
+  if (
+    enemyDead >= 2 &&
+    hpRatio > 0.38 &&
+    (assignmentNow?.mission === 'siege' ||
+      assignmentNow?.mission === 'setup-objective' ||
+      assignmentNow?.mission === 'take-objective' ||
+      assignmentNow?.play === 'siege-lane' ||
+      assignmentNow?.play === 'contest-objective')
+  ) {
+    return false;
+  }
   if (canFinish && hpRatio > 0.34) {
     return false;
   }
@@ -1396,11 +2294,38 @@ function wantsRecall(
     return true;
   }
 
-  if (dangerous) {
-    return false;
+  if (hpRatio < 0.4 && !winningTrade && !canFinish && !dangerous) {
+    return true;
   }
 
-  if (hpRatio < 0.4 && !winningTrade && !canFinish) {
+  const laneEnemy = nearestLaneEnemy(state, champion);
+  const opponentBase =
+    !!laneEnemy &&
+    (laneEnemy.recallPhase === 'moving_home' ||
+      laneEnemy.recallPhase === 'at_base' ||
+      !laneEnemy.alive);
+  const waveCrashed = wave.isCrashingOuter || wave.zone === 'enemy';
+  if (
+    opponentBase &&
+    waveOk &&
+    !winningTrade &&
+    !canFinish &&
+    !dangerous &&
+    hpRatio < 0.72 &&
+    champion.positionLabel !== 'JUNGLE'
+  ) {
+    return true;
+  }
+  if (
+    waveCrashed &&
+    waveOk &&
+    !winningTrade &&
+    !canFinish &&
+    !dangerous &&
+    hpRatio < 0.52 &&
+    champion.positionLabel !== 'JUNGLE' &&
+    (!laneEnemy || dist(champion.position, laneEnemy.position) > 1100)
+  ) {
     return true;
   }
 
@@ -1408,29 +2333,43 @@ function wantsRecall(
   const pending = nextPendingPurchase(state, champion, prefer);
   const shopSpend = nextFocusPurchaseCost(state, champion, prefer);
   const meaningful = hasMeaningfulShopBuy(state, champion, prefer);
+  const urgentShop =
+    meaningful &&
+    (champion.gold >= 2800 ||
+      shopSpend >= 1400 ||
+      canFinishPreferredLegendary(state, champion, prefer));
 
   if (
     pending &&
     pending.deficit > 0 &&
     pending.deficit <= 220 &&
     hpRatio > 0.4 &&
-    !winningTrade
+    !winningTrade &&
+    !urgentShop
   ) {
     return false;
   }
 
-  if (!waveOk && hpRatio > 0.42 && !(meaningful && shopSpend >= 1400)) {
+  if (!waveOk && hpRatio > 0.42 && !urgentShop && !(meaningful && shopSpend >= 1400)) {
     return false;
   }
 
-  if (champion.recallCount > 3 + Math.floor(state.scheduler.time / 210) && hpRatio > 0.32) {
+  if (
+    dangerous &&
+    !urgentShop &&
+    !(meaningful && champion.gold >= 2000)
+  ) {
     return false;
   }
 
-  if (canFinishPreferredLegendary(state, champion, prefer) && !canFinish && waveOk) {
+  if (champion.recallCount > 3 + Math.floor(state.scheduler.time / 210) && hpRatio > 0.32 && !urgentShop) {
+    return false;
+  }
+
+  if (canFinishPreferredLegendary(state, champion, prefer) && !canFinish && (waveOk || urgentShop)) {
     return true;
   }
-  if (shopSpend >= 1200 && meaningful && !winningTrade && !canFinish && (waveOk || hpRatio < 0.5)) {
+  if (shopSpend >= 1200 && meaningful && !winningTrade && !canFinish && (waveOk || hpRatio < 0.5 || urgentShop)) {
     return true;
   }
   if (meaningful && hpRatio < 0.42 && !winningTrade && champion.positionLabel !== 'JUNGLE') {
@@ -1439,7 +2378,7 @@ function wantsRecall(
   if (champion.positionLabel === 'JUNGLE') {
     const campUp = nearestFriendlyCamp(state, champion);
     const clearingNow = isClearingCamp(state, champion) || (!!campUp && dist(champion.position, campUp.position) < 750);
-    if (clearingNow && hpRatio > 0.34 && champion.gold < 2800) {
+    if (clearingNow && hpRatio > 0.34 && champion.gold < 2800 && !urgentShop) {
       return false;
     }
     if (!winningTrade && meaningful && champion.gold >= 1500 && hpRatio < 0.48) {
@@ -1454,29 +2393,30 @@ function wantsRecall(
     return false;
   }
   if (champion.positionLabel === 'SUPPORT') {
-    if (!winningTrade && meaningful && champion.gold >= 1100 && hpRatio < 0.48 && waveOk) {
+    if (!winningTrade && meaningful && champion.gold >= 1100 && (hpRatio < 0.48 || urgentShop) && (waveOk || urgentShop)) {
       return true;
     }
-    if (meaningful && champion.gold >= 1600 && shopSpend >= 900 && waveOk) {
+    if (meaningful && champion.gold >= 1600 && (shopSpend >= 900 || urgentShop) && (waveOk || urgentShop)) {
       return true;
     }
     return false;
   }
-  if (!winningTrade && meaningful && champion.gold >= 1500 && hpRatio < 0.55 && waveOk) {
+  if (!winningTrade && meaningful && champion.gold >= 1500 && (hpRatio < 0.55 || urgentShop) && (waveOk || urgentShop)) {
     return true;
   }
-  if (meaningful && champion.gold >= 2000 && waveOk) {
+  if (meaningful && champion.gold >= 2000 && (waveOk || urgentShop)) {
     return true;
   }
   return false;
 }
 
 function cancelRecall(champion: ChampionEntity): void {
+  clearTeleportChannel(champion);
   champion.recallPhase = 'none';
   champion.recallChannelUntil = 0;
   champion.recallChannelDuration = 0;
   champion.recallHpSnapshot = 0;
-  if (champion.currentAction === 'recall') {
+  if (champion.currentAction === 'recall' || champion.currentAction === 'teleport') {
     champion.currentAction = 'idle';
   }
 }
@@ -1485,13 +2425,67 @@ function bestTeleportDestination(
   state: GameState,
   champion: ChampionEntity,
 ): { x: number; y: number } | null {
-  const lane = laneIdOf(champion);
+  const assignment = getUnitAssignment(state, champion.id);
+  const objectiveCamp =
+    (assignment?.targetCampId
+      ? state.monsters.find(
+          (monster) =>
+            monster.alive &&
+            (monster.campId === assignment.targetCampId ||
+              monster.id === assignment.targetId),
+        )
+      : null) ??
+    state.monsters.find(
+      (monster) =>
+        monster.alive &&
+        (monster.campId === 'dragon' ||
+          monster.campId === 'elder' ||
+          monster.campId === 'baron') &&
+        isObjectiveSetupWindow(state, monster.campId),
+    ) ??
+    null;
+  if (
+    objectiveCamp &&
+    (assignment?.mission === 'setup-objective' ||
+      assignment?.mission === 'take-objective' ||
+      assignment?.play === 'contest-objective' ||
+      assignment?.play === 'defend-base')
+  ) {
+    const allyNearCamp = state.champions.find(
+      (ally) =>
+        ally.alive &&
+        ally.side === champion.side &&
+        ally.id !== champion.id &&
+        dist(ally.position, objectiveCamp.position) < 2200,
+    );
+    if (allyNearCamp) {
+      return { ...allyNearCamp.position };
+    }
+    const wardTower = state.structures.find(
+      (structure) =>
+        structure.alive &&
+        structure.side === champion.side &&
+        dist(structure.position, objectiveCamp.position) < 3200,
+    );
+    if (wardTower) {
+      return { ...wardTower.position };
+    }
+    return { ...objectiveCamp.position };
+  }
+  if (assignment?.targetId) {
+    const structure = state.structures.find((item) => item.id === assignment.targetId);
+    if (structure?.alive) {
+      return { ...structure.position };
+    }
+  }
+  const lane = assignment?.lane ?? laneIdOf(champion);
   const allyOuter = state.structures.find(
     (structure) =>
       structure.alive &&
       structure.side === champion.side &&
       structure.lane === lane &&
-      structure.structureKind === 'outer_tower',
+      (structure.structureKind === 'outer_tower' ||
+        structure.structureKind === 'inner_tower'),
   );
   if (allyOuter) {
     return { ...allyOuter.position };
@@ -1559,17 +2553,23 @@ function maybeUseSummoners(
   }
 
   if (
-    hpRatio < 0.35 &&
-    enemyCount >= 2 &&
     hasSummoner(champion, 'Flash') &&
     summonerReady(state, champion, 'Flash')
   ) {
     const fountain = fountainOf(state, champion);
-    return castFlash(state, champion, fountain, recorder);
+    const lethal = isLethalDanger(state, champion, hpRatio);
+    const escapeFlash =
+      (hpRatio < 0.35 && enemyCount >= 2) ||
+      (hpRatio < 0.28 && enemyCount >= 1) ||
+      (lethal && enemyCount >= 1 && hpRatio < 0.42);
+    if (escapeFlash) {
+      return castFlash(state, champion, fountain, recorder);
+    }
   }
 
   if (
     enemy &&
+    !hasChampionCombo(champion.championId) &&
     enemy.hp / Math.max(1, enemy.maxHp) < 0.22 &&
     dist(champion.position, enemy.position) < 720 &&
     dist(champion.position, enemy.position) > champion.attackRange + 80 &&
@@ -1588,18 +2588,28 @@ function maybeUseSummoners(
   }
 
   if (
-    champion.positionLabel === 'TOP' &&
+    (champion.positionLabel === 'TOP' || champion.positionLabel === 'MID') &&
     state.scheduler.time >= 480 &&
     hasSummoner(champion, 'Teleport') &&
     summonerReady(state, champion, 'Teleport')
   ) {
     const dest = bestTeleportDestination(state, champion);
     const assignment = getUnitAssignment(state, champion.id);
+    const setupOpen = state.monsters.some(
+      (monster) =>
+        monster.alive &&
+        (monster.campId === 'dragon' ||
+          monster.campId === 'elder' ||
+          monster.campId === 'baron') &&
+        isObjectiveSetupWindow(state, monster.campId),
+    );
     const wantRotate =
       assignment?.mission === 'setup-objective' ||
       assignment?.mission === 'take-objective' ||
-      assignment?.play === 'defend-base';
-    if (dest && wantRotate && dist(champion.position, dest) > 3200) {
+      assignment?.play === 'defend-base' ||
+      (assignment?.play === 'contest-objective' && setupOpen) ||
+      (assignment?.mission === 'cover-side' && setupOpen);
+    if (dest && wantRotate && dist(champion.position, dest) > 2800) {
       return castTeleport(state, champion, dest, recorder);
     }
   }
@@ -1612,18 +2622,18 @@ function handleRecallFlow(
   champion: ChampionEntity,
   recorder?: ReplayRecorder,
 ): boolean {
-  if (champion.currentAction === 'teleport') {
-    return finishTeleportIfReady(state, champion, recorder);
+  if (champion.currentAction === 'teleport' || champion.teleportDestination) {
+    if (finishTeleportIfReady(state, champion, recorder)) {
+      return true;
+    }
   }
 
   const fountain = fountainOf(state, champion);
   const atFountain = dist(champion.position, fountain) < 520;
 
   if (champion.recallPhase === 'moving_home') {
-    if (champion.teleportDestination) {
-      return finishTeleportIfReady(state, champion, recorder);
-    }
     if (atFountain) {
+      clearTeleportChannel(champion);
       champion.recallPhase = 'at_base';
       champion.moving = false;
       champion.path = [];
@@ -1632,24 +2642,48 @@ function handleRecallFlow(
       noteDecision(state, champion, 'recall', recorder);
       return true;
     }
+    if (recallSpotDangerous(state, champion)) {
+      cancelRecall(champion);
+      getMatchAiRuntime(state).intentStick.delete(champion.id);
+      moveAlongLane(
+        state,
+        champion,
+        laneIdOf(champion),
+        safeRecallPos(state, champion),
+        recorder,
+      );
+      noteDecision(state, champion, 'retreat', recorder);
+      return true;
+    }
     if (
       recallInterruptible(state, champion) &&
       champion.hp + 0.5 < champion.recallHpSnapshot
     ) {
       cancelRecall(champion);
-      return false;
+      getMatchAiRuntime(state).intentStick.delete(champion.id);
+      moveAlongLane(
+        state,
+        champion,
+        laneIdOf(champion),
+        safeRecallPos(state, champion),
+        recorder,
+      );
+      noteDecision(state, champion, 'retreat', recorder);
+      return true;
     }
     if (champion.moving || champion.path.length > 0) {
       champion.moving = false;
       champion.path = [];
     }
     if (state.scheduler.time >= champion.recallChannelUntil) {
+      clearTeleportChannel(champion);
       champion.position = { ...fountain };
       champion.moving = false;
       champion.path = [];
       champion.recallPhase = 'at_base';
       champion.recallChannelUntil = 0;
       champion.recallChannelDuration = 0;
+      champion.currentAction = 'recall';
       recorder?.record(state, {
         type: 'respawn',
         actorId: champion.id,
@@ -1772,6 +2806,9 @@ function scoreIntents(
   const laneEnemy = nearestLaneEnemy(state, champion);
   const allies = nearbyAllies(state, champion, 1100);
   const enemiesNear = nearbyEnemies(state, champion, 1100);
+  const matchup = laneMatchupRead(state, champion);
+  const tradeSoft = tradeCommitFactor(matchup);
+  const shoveSoft = shoveCommitFactor(matchup);
 
   const early = t < 480;
   const midLate = t >= 720;
@@ -1783,26 +2820,35 @@ function scoreIntents(
         structure.structureKind === 'nexus' &&
         canSiege(state, structure),
     ) ?? null;
+  const openEnemyNexusTower =
+    state.structures.find(
+      (structure) =>
+        structure.alive &&
+        structure.side !== champion.side &&
+        structure.structureKind === 'nexus_tower' &&
+        canSiege(state, structure),
+    ) ?? null;
+  const openBaseTarget = openEnemyNexus ?? openEnemyNexusTower;
   const nexusWaveReady =
-    !!openEnemyNexus &&
-    wavePressuringStructure(state, champion.side, openEnemyNexus);
-  const needsSiegeWave = !!openEnemyNexus && !nexusWaveReady && t >= 1200;
+    !!openBaseTarget &&
+    wavePressuringStructure(state, champion.side, openBaseTarget);
+  const needsSiegeWave = !!openBaseTarget && !nexusWaveReady && t >= 1200;
   const closeoutFightScale = (enemyPos?: { x: number; y: number }): number => {
     if (t < 1200) {
       return 1;
     }
-    if (!openEnemyNexus) {
+    if (!openBaseTarget) {
       return t >= 1500 ? 0.55 : 0.8;
     }
-    if (nexusWaveReady) {
-      if (!enemyPos) {
-        return 0.8;
-      }
-      return dist(enemyPos, openEnemyNexus.position) < BASE_SIEGE_PRESENCE_RANGE + 400
-        ? 1.05
-        : 0.4;
+    if (!enemyPos) {
+      return nexusWaveReady ? 0.85 : 0.7;
     }
-    return 0.3;
+    const nearBase =
+      dist(enemyPos, openBaseTarget.position) < BASE_SIEGE_PRESENCE_RANGE + 400;
+    if (nearBase) {
+      return 1.05;
+    }
+    return nexusWaveReady ? 0.45 : 0.55;
   };
 
   if (champion.positionLabel !== 'JUNGLE' && champion.positionLabel !== 'SUPPORT') {
@@ -1830,6 +2876,7 @@ function scoreIntents(
               : midLate
                 ? 30
                 : 36;
+      const farmWaveForCut = assessChampionLaneWave(state, champion, lane);
       const pressuredSiege = state.structures.some(
         (structure) =>
           structure.alive &&
@@ -1837,7 +2884,23 @@ function scoreIntents(
           wavePressuringStructure(state, champion.side, structure) &&
           dist(champion.position, structure.position) < 1600,
       );
-      const lateFarmCut = pressuredSiege ? (t > 1200 ? 35 : 22) : t > 1500 ? 12 : 0;
+      const damagedOuterSiege = state.structures.some(
+        (structure) =>
+          structure.alive &&
+          structure.side !== champion.side &&
+          structure.structureKind === 'outer_tower' &&
+          (structure.hp < structure.maxHp * 0.98 || structure.platesBroken > 0) &&
+          dist(champion.position, structure.position) < 1800,
+      );
+      const crashSiegeHandOff =
+        pressuredSiege || farmWaveForCut.isCrashingOuter || damagedOuterSiege;
+      const lateFarmCut = crashSiegeHandOff
+        ? midLate
+          ? 110
+          : 90
+        : t > 1500
+          ? 12
+          : 0;
       const profile = combatProfile(state, champion);
       const enemyInTradeRange =
         !!laneEnemy &&
@@ -1849,17 +2912,52 @@ function scoreIntents(
           ? profile.farmContest * 0.45
           : profile.farmContest
         : 0;
+      const contactGap =
+        laneEnemy != null ? dist(champion.position, laneEnemy.position) : 9999;
+      const contactFarmCut =
+        laneEnemy && contactGap < champion.attackRange + 260
+          ? 55 + profile.allInAppetite * 18
+          : laneEnemy && contactGap < 900
+            ? 28 + profile.pokeAppetite * 10
+            : 0;
       const tradeContest =
         champion.positionLabel === 'BOT'
-          ? tradeContestRaw * 0.42
+          ? tradeContestRaw * 0.7
           : champion.positionLabel === 'TOP'
-            ? tradeContestRaw * 0.55
+            ? tradeContestRaw * 0.85
             : champion.positionLabel === 'MID'
-              ? tradeContestRaw * 1.15
+              ? tradeContestRaw * 1.25
               : tradeContestRaw;
       const farmWave = assessChampionLaneWave(state, champion, lane);
       const towerDiveFarm =
         underEnemyTower(state, champion) && !farmWave.isCrashingOuter ? 55 : 0;
+      const waveFar =
+        !!minion && dist(champion.position, minion.position) > champion.attackRange + 420;
+      const mustWalkToWave = waveFar && farmWave.enemyCount > 0 ? 22 : 0;
+      const safeFarmBias =
+        matchup.deficit * 10 +
+        matchup.expose * 8 -
+        matchup.ahead * matchup.pressure * 6;
+      const contactRespect =
+        contactFarmCut * (0.55 + matchup.deficit * 0.7 + matchup.expose * 0.35);
+      const enemyPressure =
+        laneEnemy &&
+        dist(champion.position, laneEnemy.position) <
+          Math.max(700, laneEnemy.attackRange + 260)
+          ? (() => {
+              const foeHp = laneEnemy.hp / Math.max(1, laneEnemy.maxHp);
+              if (hpRatio < 0.5) {
+                return 22;
+              }
+              if (hpRatio < foeHp - 0.1) {
+                return 14;
+              }
+              if (hpRatio > foeHp + 0.14) {
+                return -8;
+              }
+              return 6;
+            })()
+          : 0;
       intents.push({
         kind: 'farm',
         score:
@@ -1868,13 +2966,18 @@ function scoreIntents(
           idLaning * 18 +
           execute +
           roleFarm +
-          phaseFarm -
+          phaseFarm +
+          mustWalkToWave -
           lateFarmCut -
-          tradeContest -
+          tradeContest * (0.65 + matchup.deficit * 0.55) -
+          contactRespect -
           towerDiveFarm -
-          (laneEnemy && !early && !execute ? 8 : 0) +
+          safeFarmBias -
+          enemyPressure -
+          (laneEnemy && !early && !execute ? 14 : 0) +
           (midLate && idSplit > 0.7 ? 6 : 0) +
-          (needsSiegeWave ? 28 : 0),
+          (needsSiegeWave ? 28 : 0) -
+          (hasLanePriority(farmWave) ? 10 : 0),
         minionLane: lane,
       });
     } else {
@@ -1885,7 +2988,9 @@ function scoreIntents(
           laning * 12 +
           idLaning * 12 +
           (early ? 14 : 0) +
-          (champion.positionLabel === 'BOT' ? 12 : 0),
+          (champion.positionLabel === 'BOT' ? 12 : 0) +
+          matchup.deficit * 10 +
+          matchup.expose * 6,
         minionLane: lane,
       });
     }
@@ -1915,10 +3020,7 @@ function scoreIntents(
       });
     }
   } else if (champion.positionLabel === 'JUNGLE' && t > 360) {
-    const farmDebtNow = Math.max(
-      0,
-      (t < 600 ? 14 : t < 900 ? 20 : t < 1200 ? 26 : 32) - champion.campKills,
-    );
+    const pace = jungleFarmPace(champion, t);
     const lanes: LaneId[] = ['top', 'mid', 'bot'];
     let bestLane: LaneId | null = null;
     let bestMinion: ReturnType<typeof nearestEnemyMinionOnLane> = null;
@@ -1942,82 +3044,269 @@ function scoreIntents(
           28 +
           (bestMinion.role === 'cannon' ? 16 : 0) +
           (midLate ? 14 : 0) +
-          (farmDebtNow <= 0 ? 22 : farmDebtNow <= 1 ? 12 : 0),
+          (pace >= 1 ? 22 : pace >= 0.85 ? 12 : 0),
         minionLane: bestLane,
       });
     }
   }
 
-  if (laneEnemy && hpRatio > 0.58 && t > 180) {
+  const swapAssignment = getUnitAssignment(state, champion.id);
+  const swapHomeLane: LaneId =
+    champion.positionLabel === 'TOP'
+      ? 'top'
+      : champion.positionLabel === 'MID'
+        ? 'mid'
+        : 'bot';
+  if (
+    swapAssignment?.lane &&
+    swapAssignment.expiresAt > t &&
+    (champion.positionLabel === 'BOT' ||
+      champion.positionLabel === 'TOP' ||
+      champion.positionLabel === 'SUPPORT') &&
+    t >= 660 &&
+    swapAssignment.lane !== swapHomeLane
+  ) {
+    const onLease = (champion.assignedLane ?? laneIdOf(champion)) === swapAssignment.lane;
+    intents.push({
+      kind: 'swap',
+      score: onLease ? 36 + sense * 10 : 58 + sense * 14,
+      minionLane: swapAssignment.lane,
+    });
+  }
+
+  if (
+    (getMatchAiRuntime(state).phases[champion.side] === 'transition' ||
+      (t >= 720 && t < 1200)) &&
+    Math.max(
+      objectiveWindowBoost(state, 'dragon'),
+      objectiveWindowBoost(state, 'baron'),
+      objectiveWindowBoost(state, 'herald'),
+    ) < 0.55 &&
+    hpRatio > 0.55
+  ) {
+    const halfAllies = state.champions.filter(
+      (ally) =>
+        ally.alive &&
+        ally.side === champion.side &&
+        ally.id !== champion.id &&
+        sameMapHalf(champion.position, ally.position) &&
+        dist(champion.position, ally.position) < 2200,
+    ).length;
+    const halfEnemies = state.champions.filter(
+      (enemy) =>
+        enemy.alive &&
+        enemy.side !== champion.side &&
+        sameMapHalf(champion.position, enemy.position) &&
+        dist(champion.position, enemy.position) < 2400,
+    );
+    if (halfAllies >= 1 && halfEnemies.length >= 2) {
+      const rally = {
+        x:
+          (state.lockedPack.map.blueFountain.x + state.lockedPack.map.redFountain.x) /
+          2,
+        y:
+          (state.lockedPack.map.blueFountain.y + state.lockedPack.map.redFountain.y) /
+          2,
+      };
+      intents.push({
+        kind: 'skirmish',
+        score: 42 + teamfight * 12 + idTeamfight * 10 + halfAllies * 6,
+        enemy: halfEnemies[0],
+        coverPoint: rally,
+      });
+    }
+  }
+
+  if (laneEnemy && hpRatio > 0.48 && t > 90) {
     const profile = combatProfile(state, champion);
     const enemyHp = laneEnemy.hp / Math.max(1, laneEnemy.maxHp);
     const d = dist(champion.position, laneEnemy.position);
-    const canFinish = enemyHp < 0.1 || laneEnemy.hp < champion.ad * 1.05;
-    const winning = enemyHp < hpRatio - 0.22;
-    const inRange = d < champion.attackRange + 180;
+    const canFinish = enemyHp < 0.18 || laneEnemy.hp < champion.ad * 1.25;
+    const winning = enemyHp < hpRatio - 0.16;
+    const inRange = d < champion.attackRange + 220;
+    const contact = d < Math.max(820, champion.attackRange + 320);
     const tradeOverpace = killOverpace(state);
     const partner = champion.positionLabel === 'SUPPORT' ? duoPartner(state, champion) : null;
     const partnerNear =
       !!partner && dist(champion.position, partner.position) <= 950;
+    const retal = estimateTradeMinionRetaliation(state, champion, champion.position);
+    const rangeGap = champion.attackRange - laneEnemy.attackRange;
+    const pokeOutsideEnemy =
+      rangeGap > 70 && d > laneEnemy.attackRange + 35 && d <= champion.attackRange + 90;
     let tradeScore =
-      12 +
-      laning * 6 +
-      idSkirmish * 5 +
-      profile.pokeAppetite * 14 +
-      profile.allInAppetite * 5 +
-      (winning ? 5 + profile.allInAppetite * 5 : 0) +
-      (canFinish ? 28 + idCloseout * 12 : 0);
+      22 +
+      laning * 8 +
+      idSkirmish * 8 +
+      profile.pokeAppetite * 16 +
+      profile.allInAppetite * 8 +
+      (winning ? 10 + profile.allInAppetite * 6 : 0) +
+      (canFinish ? 36 + idCloseout * 14 : 0) +
+      (contact ? 38 + profile.allInAppetite * 12 : 0) +
+      (inRange ? 28 : 0) +
+      matchup.ahead * 10 -
+      matchup.deficit * 18 -
+      matchup.expose * 10 -
+      retal.count * 7 -
+      Math.min(36, retal.expectedDamage / 10);
     if (champion.positionLabel === 'BOT') {
-      tradeScore += profile.pokeAppetite * 2;
+      tradeScore += profile.pokeAppetite * 4;
       if (!canFinish && t < 720) {
-        tradeScore *= 0.72;
+        tradeScore *= 0.88;
       }
     } else if (champion.positionLabel === 'TOP') {
-      tradeScore += 3 + profile.pokeAppetite * 5;
+      tradeScore += 8 + profile.pokeAppetite * 6 + profile.allInAppetite * 4;
     } else if (champion.positionLabel === 'MID') {
-      tradeScore *= 0.65;
+      tradeScore *= 0.92;
     } else if (champion.positionLabel === 'SUPPORT') {
-      tradeScore *= partnerNear ? 0.4 : 0.08;
-      if (t < 300 && !canFinish) {
-        tradeScore *= 0.08;
+      tradeScore *= partnerNear ? 0.85 : 0.35;
+      if (t < 240 && !canFinish && !contact) {
+        tradeScore *= 0.45;
       }
-      if (enemiesNear > allies) {
-        tradeScore *= 0.15;
+      if (enemiesNear > allies + 1) {
+        tradeScore *= 0.35;
       }
     }
     if (inRange && canFinish) {
-      tradeScore += 12;
+      tradeScore += 18;
     }
     if (!canFinish && inRange) {
-      tradeScore += (early ? 3 : 6) + profile.pokeAppetite * 4;
+      tradeScore += (early ? 10 : 14) + profile.pokeAppetite * 6;
     }
-    if (early && !canFinish) {
-      tradeScore *= 0.2;
+    if (pokeOutsideEnemy && retal.count <= 2) {
+      tradeScore += 14 + profile.pokeAppetite * 10 + Math.min(18, rangeGap / 20);
     }
-    if (t < 420 && !canFinish) {
-      tradeScore *= 0.18;
+    if (retal.count >= 3 && rangeGap < 40 && !canFinish) {
+      tradeScore *= 0.52;
     }
-    if (underEnemyTower(state, champion) && !canFinish) {
-      tradeScore -= 80;
+    if (
+      champion.attackRange <= 300 &&
+      profile.allInAppetite >= 0.55 &&
+      hpRatio > 0.55 &&
+      (contact || inRange)
+    ) {
+      tradeScore += profile.allInAppetite * 16;
+    }
+    if (early && !canFinish && !contact) {
+      tradeScore *= 0.72;
+    }
+    if (t < 300 && !canFinish && !contact) {
+      tradeScore *= 0.7;
+    }
+    if (
+      (underEnemyTower(state, champion) || enemyTowerAggroOn(state, champion)) &&
+      !canCommitDive(state, champion, laneEnemy)
+    ) {
+      tradeScore = 0;
     }
     if (
       coveringEnemyTower(state, champion.side, laneEnemy.position, 40) &&
       !canCommitDive(state, champion, laneEnemy) &&
       !canFinish
     ) {
-      tradeScore *= 0.12;
+      tradeScore *= contact ? 0.35 : 0.18;
     }
-    if (enemiesNear > allies) {
-      tradeScore -= 42 + sense * 14;
+    if (enemiesNear > allies + 1) {
+      tradeScore -= 28 + sense * 10;
     }
-    if (hpRatio < profile.disengageHp + 0.08 && !canFinish) {
-      tradeScore *= 0.2;
+    if (hpRatio < profile.disengageHp + 0.04 && !canFinish) {
+      tradeScore *= 0.35;
     }
-    if (tradeOverpace >= 1.1 && !canFinish) {
-      tradeScore *= tradeOverpace >= 1.25 ? 0.25 : 0.5;
+    if (!canFinish) {
+      tradeScore *= Math.max(0.05, tradeSoft * (contact ? 0.85 : 0.7));
     }
-    if (tradeScore >= 14) {
+    if (tradeOverpace >= 1.25 && !canFinish) {
+      tradeScore *= tradeOverpace >= 1.4 ? 0.4 : 0.65;
+    }
+    if (tradeScore >= 16) {
       intents.push({ kind: 'trade', score: tradeScore, enemy: laneEnemy });
+    }
+  }
+
+  const contactThreat = nearestVisibleEnemy(state, champion, CONTACT_SOFT_RANGE);
+  if (contactThreat && hpRatio > 0.26 && t > 75) {
+    const profile = combatProfile(state, champion);
+    const enemyHp = contactThreat.enemy.hp / Math.max(1, contactThreat.enemy.maxHp);
+    const hardContact = contactThreat.dist <= CONTACT_HARD_RANGE;
+    const enemyRecalling = contactThreat.enemy.recallPhase === 'moving_home';
+    const canFinishContact =
+      isFinishableEnemy(champion, contactThreat.enemy) ||
+      enemyHp < 0.18 ||
+      contactThreat.enemy.hp < champion.ad * 1.25;
+    let contactScore =
+      (hardContact ? 150 : 100) +
+      idSkirmish * 12 +
+      profile.allInAppetite * 16 +
+      (1 - enemyHp) * 28 +
+      (enemyRecalling ? 36 : 0) +
+      (canFinishContact ? 24 : 0) +
+      (allies - enemiesNear >= 0 ? 16 : -8) -
+      matchup.deficit * 36 -
+      matchup.expose * 18;
+    if (
+      (underEnemyTower(state, champion) || enemyTowerAggroOn(state, champion)) &&
+      !canCommitDive(state, champion, contactThreat.enemy)
+    ) {
+      contactScore = 0;
+    }
+    if (!canFinishContact) {
+      contactScore *= Math.max(0.12, hardContactCommitFactor(matchup) * (hardContact ? 0.9 : 0.65));
+      if (hpRatio < profile.disengageHp) {
+        contactScore *= hardContact ? 0.85 : 0.7;
+      }
+      if (isEarlyLaneOpponent(state, champion, contactThreat.enemy)) {
+        contactScore *= hardContact ? 0.32 : 0.22;
+      }
+    }
+    if (contactScore >= 24) {
+      intents.push({
+        kind: 'skirmish',
+        score: contactScore,
+        enemy: contactThreat.enemy,
+      });
+    }
+  }
+
+  const passerby = state.champions.find(
+    (enemy) =>
+      enemy.alive &&
+      enemy.side !== champion.side &&
+      dist(champion.position, enemy.position) < 980 &&
+      (champion.positionLabel === 'JUNGLE' ||
+        enemy.positionLabel === 'JUNGLE' ||
+        enemy.assignedLane !== champion.assignedLane),
+  );
+  if (passerby && hpRatio > 0.42 && t > 120) {
+    const profile = combatProfile(state, champion);
+    const enemyHp = passerby.hp / Math.max(1, passerby.maxHp);
+    const numbers = allies - enemiesNear;
+    const passerbyDist = dist(champion.position, passerby.position);
+    const hardContact = passerbyDist <= CONTACT_HARD_RANGE;
+    let passScore =
+      48 +
+      idSkirmish * 16 +
+      profile.allInAppetite * 14 +
+      (1 - enemyHp) * 24 +
+      (numbers >= 0 ? 18 : -12) +
+      (champion.positionLabel === 'JUNGLE' ? 10 : 0) +
+      (hardContact ? 55 : passerbyDist < CONTACT_SOFT_RANGE ? 28 : 0);
+    if (
+      (underEnemyTower(state, champion) || enemyTowerAggroOn(state, champion)) &&
+      !canCommitDive(state, champion, passerby)
+    ) {
+      passScore = 0;
+    }
+    if (hpRatio < profile.disengageHp) {
+      passScore *= hardContact ? 0.7 : 0.4;
+    }
+    if (champion.positionLabel === 'JUNGLE' && !hardContact) {
+      const behind = jungleFarmBehindAmount(jungleFarmPace(champion, t));
+      passScore *= Math.max(0.35, 1 - behind * 0.55);
+      if (isClearingCamp(state, champion) && behind > 0.15) {
+        passScore *= 0.55;
+      }
+    }
+    if (passScore >= 28) {
+      intents.push({ kind: 'skirmish', score: passScore, enemy: passerby });
     }
   }
 
@@ -2041,11 +3330,6 @@ function scoreIntents(
       }
       const enemyHp = enemy.hp / Math.max(1, enemy.maxHp);
       const d = dist(champion.position, enemy.position);
-      const gankRange =
-        champion.positionLabel === 'JUNGLE' ? (t < 360 ? 4200 : 3600) : 2200;
-      if (d > gankRange) {
-        continue;
-      }
       const enemyLane =
         enemy.assignedLane ??
         (enemy.positionLabel === 'TOP'
@@ -2053,29 +3337,50 @@ function scoreIntents(
           : enemy.positionLabel === 'BOT' || enemy.positionLabel === 'SUPPORT'
             ? 'bot'
             : 'mid');
+      const allyDistress = laneDistress(state, champion.side, enemyLane);
+      const danger = championGankDangerIndex(state, enemy, enemyLane);
+      const sameHalf = sameMapHalf(champion.position, enemy.position);
+      const gankRange =
+        (champion.positionLabel === 'JUNGLE' ? (t < 360 ? 3200 : 2800) : 2200) +
+        allyDistress * 420 +
+        danger * 700 +
+        (champion.positionLabel === 'JUNGLE' && sameHalf ? 500 : 0);
+      if (d > gankRange) {
+        continue;
+      }
       const progress = laneProgress(state, enemyLane, enemy.position);
       const pushed =
         enemy.side === 'blue' ? progress > 0.48 : progress < 0.52;
       const overextended =
         pushed ||
         (enemy.side === 'blue' ? progress > 0.4 : progress < 0.6);
+      const enemyRead = laneMatchupRead(state, enemy, enemyLane);
       const allyNear = alliesNearPoint(state, champion.side, enemy.position, 1400);
       const enemyNear = enemiesNearPoint(state, champion.side, enemy.position, 1500);
       const hpGate =
         champion.positionLabel === 'JUNGLE'
-          ? overextended
-            ? 0.95
-            : allyNear >= 1
-              ? 0.85
-              : 0.72
+          ? danger >= 0.55
+            ? 0.98
+            : danger >= 0.4
+              ? 0.92
+              : overextended
+                ? 0.9
+                : allyNear >= 1
+                  ? 0.78
+                  : 0.62
           : 0.58;
-      if (enemyHp > hpGate) {
+      if (enemyHp > hpGate && danger < 0.42) {
         continue;
       }
       if (enemyNear >= allyNear + 2) {
         continue;
       }
-      if (champion.positionLabel === 'JUNGLE' && !overextended && allyNear < 1) {
+      if (
+        champion.positionLabel === 'JUNGLE' &&
+        !overextended &&
+        danger < 0.42 &&
+        allyNear < 1
+      ) {
         continue;
       }
       const underTower = coveringEnemyTower(state, champion.side, enemy.position, 40);
@@ -2107,17 +3412,30 @@ function scoreIntents(
       const laneVision = teamVisionPressure(state, champion.side, enemy.position, 1600);
       let score =
         24 +
-        (pushed ? 34 : overextended ? 18 : -10) +
+        (pushed ? 42 : overextended ? 24 : -10) +
         (1 - enemyHp) * 22 +
         sense * 12 +
         idGank * 28 +
         idSkirmish * 10 +
-        (d < 1600 ? 14 : 0) +
+        (d < 1600 ? 18 : d < 2200 ? 8 : 0) +
         allyNear * 14 -
         enemyNear * 12 +
         (champion.positionLabel === 'JUNGLE' ? 28 : 0) -
         risk * 8 +
-        laneVision * 5;
+        laneVision * 5 +
+        allyDistress * 38 +
+        enemyRead.expose * 26 +
+        enemyRead.ahead * enemyRead.pressure * 12 +
+        danger * 56;
+      if (champion.positionLabel === 'JUNGLE' && sameHalf && danger >= 0.38) {
+        score += 34 + danger * 42;
+      }
+      if (champion.positionLabel === 'JUNGLE' && overextended && enemyHp <= 0.92) {
+        score += 22 + (pushed ? 14 : 0) + Math.max(0, 0.85 - enemyHp) * 20;
+      }
+      if (champion.positionLabel === 'JUNGLE' && danger >= 0.55) {
+        score += 18;
+      }
       if (!liveVision) {
         score *= 0.55;
       }
@@ -2128,36 +3446,33 @@ function scoreIntents(
         score *= 0.7;
       }
       if (t < 300) {
-        score *= champion.positionLabel === 'JUNGLE' ? 0.85 : 0.55;
+        score *= champion.positionLabel === 'JUNGLE' ? 0.95 : 0.55;
       }
       if (champion.positionLabel === 'JUNGLE') {
-        const expectedCamps =
-          t < 180 ? 5 : t < 360 ? 9 : t < 600 ? 14 : t < 900 ? 20 : t < 1200 ? 26 : 32;
-        const farmDebt = Math.max(0, expectedCamps - champion.campKills);
-        const behind = champion.deaths >= champion.kills + 1;
-        if (farmDebt >= 5 || (behind && farmDebt >= 3)) {
-          score *= 0.32;
-        } else if (farmDebt >= 3) {
-          score *= 0.55;
-        } else if (farmDebt >= 2) {
-          score *= 0.78;
+        const pace = jungleFarmPace(champion, t);
+        const behindFarm = jungleFarmBehindAmount(pace);
+        const aheadFarm = jungleFarmAheadAmount(pace);
+        const kdaBehind = champion.deaths >= champion.kills + 1;
+        score *= Math.max(0.35, 1 - behindFarm * 0.55);
+        if (t < 210) {
+          score *= Math.max(0.45, 1 - behindFarm * 0.7);
         }
-        if (t < 180 && champion.campKills < 4) {
-          score *= 0.45;
+        if (!kdaBehind && enemyHp <= 0.5 && overextended) {
+          score += 8 + aheadFarm * 10 + Math.max(0, pace - 0.8) * 12;
+        } else if (!kdaBehind && enemyHp <= 0.45) {
+          score += 4 + Math.max(0, pace - 0.75) * 10;
         }
-        if (farmDebt <= 0 && !behind) {
-          score += 26;
-        } else if (farmDebt <= 1 && !behind) {
-          score += 16;
+        if (enemyHp <= 0.45 && behindFarm < 0.55 && overextended) {
+          score += 18 + (1 - behindFarm) * 8;
         }
-        if (enemyHp <= 0.55 && farmDebt < 3 && overextended) {
-          score += 20;
+        if (allyNear >= 1 && overextended && behindFarm < 0.55 && !kdaBehind && enemyHp <= 0.55) {
+          score += 14 + (1 - behindFarm) * 8;
         }
-        if (allyNear >= 1 && overextended && farmDebt < 3 && !behind) {
-          score += 22;
+        if (overextended && pace >= 0.8 && !kdaBehind && enemyHp <= 0.5) {
+          score += 6 + aheadFarm * 10 + Math.min(10, champion.campKills);
         }
-        if (champion.campKills >= 5 && overextended && farmDebt <= 1 && !behind) {
-          score += 20;
+        if (t >= 600) {
+          score += 4 + Math.max(0, pace - 0.7) * 12;
         }
       }
       if (champion.positionLabel !== 'JUNGLE') {
@@ -2191,13 +3506,41 @@ function scoreIntents(
         bestGankScore = score;
       }
     }
-    if (bestGank && hpRatio > (champion.positionLabel === 'JUNGLE' ? 0.42 : 0.58) && overpace < 1.45) {
+    if (champion.positionLabel === 'JUNGLE') {
+      let saveLane: LaneId | null = null;
+      let saveUrgency = 0;
+      for (const lane of ['top', 'mid', 'bot'] as const) {
+        const urgency = allySaveUrgency(state, champion, lane);
+        if (urgency > saveUrgency) {
+          saveUrgency = urgency;
+          saveLane = lane;
+        }
+      }
+      if (saveLane && saveUrgency >= 0.42) {
+        const saveTarget =
+          state.champions.find(
+            (enemy) =>
+              enemy.alive &&
+              enemy.side !== champion.side &&
+              enemy.positionLabel !== 'JUNGLE' &&
+              (enemy.assignedLane ?? laneIdOf(enemy)) === saveLane,
+          ) ?? bestGank;
+        if (saveTarget) {
+          bestGank = saveTarget;
+          bestGankScore = Math.max(bestGankScore, 110 + saveUrgency * 80);
+          getMatchAiRuntime(state).intentStick.delete(champion.id);
+        }
+      }
+    }
+    if (bestGank && hpRatio > (champion.positionLabel === 'JUNGLE' ? 0.5 : 0.58) && overpace < 1.45) {
+      const pace = champion.positionLabel === 'JUNGLE' ? jungleFarmPace(champion, t) : 1;
+      const jgGankMul =
+        champion.positionLabel === 'JUNGLE'
+          ? Math.max(0.82, Math.min(1.1, 0.82 + pace * 0.26))
+          : 0.72;
       intents.push({
         kind: 'gank',
-        score:
-          bestGankScore *
-          (champion.positionLabel === 'JUNGLE' ? 1.12 : 0.72) *
-          closeoutFightScale(bestGank.position),
+        score: bestGankScore * jgGankMul * closeoutFightScale(bestGank.position),
         enemy: bestGank,
       });
     }
@@ -2206,59 +3549,72 @@ function scoreIntents(
   const jungleThreat = findJungleInvadeThreat(state, champion);
   if (jungleThreat && t > 110) {
     const cover = visionCoverScore(state, champion, jungleThreat);
-    if (cover >= 18) {
+    const nearBuff =
+      dist(champion.position, jungleThreat.point) <
+      (champion.positionLabel === 'MID' ? 4200 : 3800);
+    const respondScore =
+      cover >= 12 || nearBuff
+        ? Math.max(cover, 55 + (nearBuff ? 24 : 0))
+        : 0;
+    if (respondScore >= 18) {
+      const runtime = getMatchAiRuntime(state);
+      runtime.invadeRespond.set(champion.id, {
+        point: { ...jungleThreat.point },
+        until: t + 5.5,
+      });
+      runtime.intentStick.delete(champion.id);
       intents.push({
         kind: 'skirmish',
-        score: cover,
+        score: respondScore + 40,
         enemy: jungleThreat.enemy,
         coverPoint: jungleThreat.point,
       });
     }
   }
 
-  const laningLock = t < 480;
+  const laningLock = t < 360;
   const known = knownEnemies(champion, t);
-  if (!laningLock && known.length > 0 && hpRatio > 0.62 && t > 300) {
+  if (!laningLock && known.length > 0 && hpRatio > 0.55 && t > 210) {
     const enemy = state.champions.find((item) => item.id === known[0] && item.alive);
     if (enemy) {
       const d = dist(champion.position, enemy.position);
       const numbers = allies - enemiesNear;
       const overpace = killOverpace(state);
-      if (d < 1400 && numbers >= 0) {
+      if (d < 1500 && numbers >= -1) {
         let score =
-          18 +
-          teamfight * 12 +
-          idTeamfight * 10 +
+          28 +
+          teamfight * 14 +
+          idTeamfight * 12 +
           idCloseout * 8 +
-          numbers * 10 +
-          (enemy.hp < 280 ? 16 + idCloseout * 12 : 0);
+          numbers * 12 +
+          (enemy.hp < 320 ? 18 + idCloseout * 12 : 0) +
+          (d < 900 ? 22 : 0);
         if (early) {
-          score *= 0.25;
+          score *= 0.7;
         }
-        if (numbers < 1) {
-          score *= 0.4;
+        if (numbers < 0) {
+          score *= 0.55;
         }
         if (
           (champion.positionLabel === 'BOT' || champion.positionLabel === 'MID') &&
-          t < 900
+          t < 720
         ) {
-          score *= 0.4;
+          score *= 0.7;
         }
-        if (hpRatio < 0.75) {
-          score *= 0.45;
+        if (hpRatio < 0.62) {
+          score *= 0.6;
         }
-        if (overpace >= 1.05) {
-          score *= overpace >= 1.25 ? 0.2 : overpace >= 1.12 ? 0.4 : 0.55;
+        if (overpace >= 1.2) {
+          score *= overpace >= 1.35 ? 0.35 : 0.6;
         }
-        score *= 0.55;
         score *= closeoutFightScale(enemy.position);
-        if (score >= 14) {
+        if (score >= 16) {
           intents.push({ kind: 'skirmish', score, enemy });
         }
       }
     }
   }
-  if (!laningLock && enemiesNear >= 2 && allies >= 2 && hpRatio > 0.65 && t > 540) {
+  if (!laningLock && enemiesNear >= 1 && allies >= 1 && hpRatio > 0.55 && t > 360) {
     const clusterEnemy = state.champions.find(
       (enemy) =>
         enemy.alive &&
@@ -2267,23 +3623,27 @@ function scoreIntents(
     );
     if (clusterEnemy) {
       let clusterScore =
-        16 + teamfight * 12 + idTeamfight * 10 + allies * 5 + (midLate ? 8 : 0);
-      if (enemiesNear > allies) {
-        clusterScore *= 0.22;
-      }
-      if ((champion.positionLabel === 'BOT' || champion.positionLabel === 'MID') && t < 900) {
+        30 +
+        teamfight * 14 +
+        idTeamfight * 12 +
+        allies * 6 +
+        (midLate ? 10 : 0) +
+        (enemiesNear >= 2 && allies >= 2 ? 16 : 0);
+      if (enemiesNear > allies + 1) {
         clusterScore *= 0.4;
       }
+      if ((champion.positionLabel === 'BOT' || champion.positionLabel === 'MID') && t < 720) {
+        clusterScore *= 0.75;
+      }
       if (early) {
-        clusterScore *= 0.35;
+        clusterScore *= 0.65;
       }
       const clusterOverpace = killOverpace(state);
-      if (clusterOverpace >= 1.1) {
-        clusterScore *= clusterOverpace >= 1.25 ? 0.25 : 0.5;
+      if (clusterOverpace >= 1.25) {
+        clusterScore *= clusterOverpace >= 1.4 ? 0.4 : 0.65;
       }
-      clusterScore *= 0.55;
       clusterScore *= closeoutFightScale(clusterEnemy.position);
-      if (clusterScore >= 12) {
+      if (clusterScore >= 16) {
         intents.push({
           kind: 'skirmish',
           score: clusterScore,
@@ -2339,11 +3699,19 @@ function scoreIntents(
         ally.currentAction === 'gank' ||
         ally.currentAction === 'skirmish' ||
         ally.currentAction === 'tower_hold' ||
+        ally.currentAction === 'jungle' ||
+        ally.currentAction === 'path_camp' ||
+        ally.currentAction === 'clear_camp' ||
         focus.currentAction === 'fight' ||
         focus.currentAction === 'trade' ||
         focus.currentAction === 'skirmish' ||
         dist(ally.position, focus.position) < Math.max(ally.attackRange, focus.attackRange) + 160;
-      if (!allyFighting) {
+      const allyJunglerHot =
+        ally.positionLabel === 'JUNGLE' &&
+        (champion.positionLabel === 'MID' || champion.positionLabel === 'SUPPORT') &&
+        dist(ally.position, focus.position) < 1300 &&
+        invadeRisk(state, ally, ally.position) >= 1.2;
+      if (!allyFighting && !allyJunglerHot) {
         continue;
       }
       if (dist(champion.position, ally.position) > joinRange) {
@@ -2372,26 +3740,39 @@ function scoreIntents(
       if (joinOverpace >= 1.35) {
         continue;
       }
+      const focusLane = laneIdOf(focus);
       const sideRotate =
-        champion.positionLabel === 'MID' && laneIdOf(focus) !== 'mid';
-      let joinScore = 26 + teamfight * 14 + sense * 10;
+        champion.positionLabel === 'MID' && focusLane !== 'mid';
+      const helpDistress = laneDistress(state, champion.side, focusLane);
+      let joinScore =
+        26 +
+        teamfight * 14 +
+        sense * 10 +
+        helpDistress * 34;
       if (champion.positionLabel === 'JUNGLE' || champion.positionLabel === 'SUPPORT') {
-        joinScore += 12;
+        joinScore += 12 + helpDistress * 10;
       }
       if (sideRotate) {
-        joinScore += 55 + sense * 12;
+        joinScore += 55 + sense * 12 + helpDistress * 18;
+      }
+      if (allyJunglerHot && champion.positionLabel === 'MID') {
+        joinScore += 48 + sense * 10;
       }
       if (champion.positionLabel === 'JUNGLE') {
-        joinScore += 24;
+        joinScore += 24 + helpDistress * 14;
       }
       if (midLate) {
         joinScore += 6;
       }
-      if (laningLock && !sideRotate) {
-        joinScore *= 0.45;
+      if (laningLock && !sideRotate && !allyJunglerHot) {
+        joinScore *= 0.45 + helpDistress * 0.35;
       }
-      if (early && !sideRotate) {
-        joinScore *= champion.positionLabel === 'JUNGLE' ? 0.75 : 0.5;
+      if (early && !sideRotate && !allyJunglerHot) {
+        joinScore *=
+          (champion.positionLabel === 'JUNGLE' ? 0.75 : 0.5) + helpDistress * 0.28;
+      }
+      if (allyJunglerHot && early) {
+        joinScore *= 0.92;
       }
       if (joinOverpace >= 1.1) {
         joinScore *= joinOverpace >= 1.25 ? 0.3 : 0.55;
@@ -2477,22 +3858,45 @@ function scoreIntents(
   const structure = nearestAttackableStructure(state, champion);
   if (structure && hpRatio > 0.4) {
     const pressured = wavePressuringStructure(state, champion.side, structure);
+    const nexusFamily =
+      structure.structureKind === 'nexus' || structure.structureKind === 'nexus_tower';
+    const escortLane = structure.lane ?? laneIdOf(champion);
+    const waveToEscort = !!alliedWaveAnchor(state, champion, escortLane);
     const d = dist(champion.position, structure.position);
     const team = champion.side === 'blue' ? state.blue : state.red;
+    const homeWave = assessChampionLaneWave(state, champion, laneIdOf(champion));
+    const supportCrashSiege =
+      champion.positionLabel === 'SUPPORT' &&
+      structure.lane === 'bot' &&
+      homeWave.isCrashingOuter &&
+      pressured &&
+      d < 1800;
+    const outerDamaged =
+      structure.structureKind === 'outer_tower' &&
+      (structure.hp < structure.maxHp * 0.98 || structure.platesBroken > 0);
+    const outerHpMissing = outerDamaged
+      ? 1 - structure.hp / Math.max(1, structure.maxHp)
+      : 0;
     let siegeScore =
-      (pressured ? 72 : 10) +
+      (pressured ? 72 : nexusFamily ? 48 : 10) +
       (t > 480 ? 18 : 0) +
       (t > 900 ? 26 : 0) +
       (midLate ? 36 : 0) +
       idSplit * 18 +
       idCloseout * 16;
-    if (d < 1400 && pressured) {
+    if (d < 1400 && (pressured || nexusFamily || outerDamaged)) {
       siegeScore += 34;
+    }
+    if (pressured) {
+      siegeScore += 80;
+    }
+    if (outerDamaged) {
+      siegeScore += 55 + outerHpMissing * 90 + structure.platesBroken * 12;
     }
     if (t > 1500) {
       siegeScore += 48 + idCloseout * 24;
     }
-    if (team.hasBaron && pressured) {
+    if (team.hasBaron && (pressured || nexusFamily)) {
       siegeScore += 55;
     }
     if (
@@ -2502,27 +3906,41 @@ function scoreIntents(
     ) {
       siegeScore += 30;
     }
-    if (isNexusSiegeStructure(structure) && pressured) {
-      siegeScore += 70;
+    if (isNexusSiegeStructure(structure)) {
+      siegeScore += pressured ? 90 : 70;
     }
-    if (!pressured) {
-      siegeScore *= early ? 0.25 : 0.55;
+    if (!pressured && !nexusFamily && !homeWave.isCrashingOuter && !outerDamaged) {
+      siegeScore *= waveToEscort ? (early ? 0.7 : 0.9) : early ? 0.25 : 0.55;
+    } else if ((homeWave.isCrashingOuter || outerDamaged) && !pressured) {
+      siegeScore *= early ? 0.9 : 1.05;
     } else if (early) {
       siegeScore *= 0.9;
     } else {
       siegeScore *= 1.12;
     }
-    if (pressured && champion.positionLabel !== 'SUPPORT') {
+    if ((pressured || nexusFamily || outerDamaged) && champion.positionLabel !== 'SUPPORT') {
       siegeScore += 16 + idCloseout * 10;
     }
-    const homeWave = assessChampionLaneWave(state, champion, laneIdOf(champion));
-    if (homeWave.isCrashingOuter && pressured) {
-      siegeScore += 28 + idCloseout * 8;
+    if (homeWave.isCrashingOuter) {
+      siegeScore += (pressured ? 50 : 45) + idCloseout * 8;
     }
-    if (baseThreat) {
+    if (supportCrashSiege) {
+      siegeScore += 70;
+    }
+    if (baseThreat && !nexusFamily) {
       siegeScore *= 0.2;
+    } else if (baseThreat && nexusFamily) {
+      siegeScore *= 0.65;
     }
-    if (pressured || midLate || team.hasBaron) {
+    if (
+      pressured ||
+      nexusFamily ||
+      team.hasBaron ||
+      homeWave.isCrashingOuter ||
+      outerDamaged ||
+      (waveToEscort && t >= 480) ||
+      supportCrashSiege
+    ) {
       intents.push({ kind: 'siege', score: siegeScore, structure });
     }
   }
@@ -2540,7 +3958,7 @@ function scoreIntents(
       boost * 95 +
       idObjective * 28 +
       idTeamfight * 12 +
-      (objective.campId === 'dragon' ? 40 : 0) +
+      (objective.campId === 'dragon' || objective.campId === 'elder' ? 40 : 0) +
       (objective.campId === 'herald' ? 38 : 0) +
       (objective.campId === 'baron' ? 55 : 0) +
       allyNearObj * 18 -
@@ -2557,7 +3975,12 @@ function scoreIntents(
     if (allyNearObj >= 1 && enemyNearObj <= allyNearObj) {
       objScore += 22;
     }
-    if (midLate && (objective.campId === 'dragon' || objective.campId === 'baron')) {
+    if (
+      midLate &&
+      (objective.campId === 'dragon' ||
+        objective.campId === 'elder' ||
+        objective.campId === 'baron')
+    ) {
       objScore += 48;
     }
     if (
@@ -2639,7 +4062,9 @@ function scoreIntents(
       !isObjectiveSetupWindow(state, objective.campId)
     ) {
       if (champion.positionLabel === 'JUNGLE') {
-        objScore *= champion.campKills < 3 && t < 480 ? 0.28 : 0.4;
+        const farmBehind = jungleFarmBehindAmount(jungleFarmPace(champion, t));
+        const earlyObjGate = t < 480 ? Math.max(0.28, 0.55 - farmBehind * 0.35) : 0.45;
+        objScore *= earlyObjGate;
       } else if (
         champion.positionLabel === 'BOT' ||
         champion.positionLabel === 'SUPPORT'
@@ -2658,12 +4083,14 @@ function scoreIntents(
       (monster) =>
         monster.alive &&
         (monster.campId === 'dragon' ||
+          monster.campId === 'elder' ||
           monster.campId === 'herald' ||
           monster.campId === 'baron'),
     );
-    const expectedCamps =
-      t < 180 ? 5 : t < 360 ? 9 : t < 600 ? 14 : t < 900 ? 20 : t < 1200 ? 26 : 32;
-    const farmDebt = Math.max(0, expectedCamps - champion.campKills);
+    const pace = jungleFarmPace(champion, t);
+    const slack = jungleFarmSlack(champion, t);
+    const farmBehind = jungleFarmBehindAmount(pace);
+    const farmAhead = jungleFarmAheadAmount(pace);
     const behind = champion.deaths >= champion.kills + 1;
     if (camp) {
       const d = dist(champion.position, camp.position);
@@ -2671,7 +4098,15 @@ function scoreIntents(
       const risk = invadeRisk(state, champion, camp.position);
       const combatClass = CHAMPION_KITS[champion.championId]?.combatClass ?? 'fighter';
       let clearScore = 72 + sense * 6 - d / 200 + (early ? 30 : 0) - risk * 8;
-      clearScore += farmDebt * 26 + (behind ? 32 : 0);
+      clearScore += Math.min(48, slack * 14 + farmBehind * 28) + (behind ? 32 : 0);
+      const topSave = allySaveUrgency(state, champion, 'top');
+      const midSave = allySaveUrgency(state, champion, 'mid');
+      const botSave = allySaveUrgency(state, champion, 'bot');
+      const saveUrgency = Math.max(topSave, midSave, botSave);
+      if (saveUrgency >= 0.42) {
+        clearScore *= Math.max(0.2, 0.7 - saveUrgency * 0.7);
+        getMatchAiRuntime(state).intentStick.delete(champion.id);
+      }
       if (t < 210) {
         clearScore += 32;
       }
@@ -2705,58 +4140,86 @@ function scoreIntents(
             enemyHp < 0.65)
         );
       });
-      if (
-        t > 140 &&
-        t < 360 &&
-        champion.campKills >= 5 &&
-        pushedLaneOpen &&
-        farmDebt < 1 &&
-        !behind
-      ) {
-        clearScore *= 0.62;
+      if (t > 140 && t < 420 && pushedLaneOpen && pace >= 0.7 && !behind) {
+        clearScore *= Math.max(0.55, 0.82 - farmAhead * 0.2);
+        const killLaneOpen = state.champions.some((enemy) => {
+          if (!enemy.alive || enemy.side === champion.side || enemy.positionLabel === 'JUNGLE') {
+            return false;
+          }
+          const enemyHp = enemy.hp / Math.max(1, enemy.maxHp);
+          return (
+            enemyHp < 0.55 &&
+            (alliesNearPoint(state, champion.side, enemy.position, 1800) >= 1 ||
+              dist(champion.position, enemy.position) < 2400)
+          );
+        });
+        if (killLaneOpen) {
+          clearScore *= Math.max(0.48, 0.78 - farmAhead * 0.22);
+        }
+      }
+      if (champion.positionLabel === 'JUNGLE' && t > 150 && !behind) {
+        let bestDanger = 0;
+        for (const enemy of state.champions) {
+          if (!enemy.alive || enemy.side === champion.side || enemy.positionLabel === 'JUNGLE') {
+            continue;
+          }
+          if (!sameMapHalf(champion.position, enemy.position)) {
+            continue;
+          }
+          const lane =
+            enemy.assignedLane ??
+            (enemy.positionLabel === 'TOP'
+              ? 'top'
+              : enemy.positionLabel === 'BOT' || enemy.positionLabel === 'SUPPORT'
+                ? 'bot'
+                : 'mid');
+          const danger = championGankDangerIndex(state, enemy, lane);
+          if (danger > bestDanger && dist(champion.position, enemy.position) < 3600) {
+            bestDanger = danger;
+          }
+        }
+        if (bestDanger >= 0.42) {
+          clearScore *= Math.max(0.42, 0.88 - bestDanger * 0.55);
+        }
       }
       if (t > 210 && t < 600) {
-        clearScore *= farmDebt >= 2 || behind ? 1.08 : 0.9;
+        clearScore *= 1.02 + farmBehind * 0.14 - farmAhead * 0.16;
       }
       if (t >= 600 && t < 900) {
-        clearScore *= farmDebt >= 2 || behind ? 1.02 : 0.84;
+        clearScore *= 0.94 + farmBehind * 0.14 - farmAhead * 0.2;
       }
       if (midLate) {
-        clearScore *= farmDebt >= 2 || behind ? 0.96 : 0.78;
+        clearScore *= 0.86 + farmBehind * 0.14 - farmAhead * 0.22;
+      }
+      if (farmAhead > 0.15 && t > 180) {
+        clearScore *= Math.max(0.62, 1 - farmAhead * 0.28);
       }
       if (objUp && t > 300) {
-        clearScore *= farmDebt >= 3 || behind ? 0.9 : farmDebt >= 1 ? 0.72 : 0.55;
+        clearScore *= Math.max(0.7, 0.92 - Math.min(0.22, pace * 0.18));
       }
       if (overpace >= 1.15) {
         clearScore *= 1.05;
       }
       if (enemiesNear >= 1 && d > 700) {
-        clearScore *= 0.5;
+        clearScore *= 0.55;
       }
-      if (combatClass === 'tank' && t >= 210 && t < 900 && farmDebt < 2 && !behind) {
-        clearScore *= 0.88;
+      if (combatClass === 'tank' && t >= 210 && t < 900 && pace >= 0.85 && !behind) {
+        clearScore *= 0.94;
       }
-      if (champion.campKills >= 5 && pushedLaneOpen && farmDebt < 1 && !behind) {
-        clearScore *= 0.68;
-      }
-      if (champion.campKills >= 12 && farmDebt <= 0 && !behind) {
-        clearScore *= 0.8;
-      }
-      if (
-        farmDebt <= 0 &&
-        !behind &&
-        champion.campKills > 0 &&
-        champion.campKills % 4 === 0 &&
-        pushedLaneOpen
-      ) {
-        clearScore *= 0.78;
-      }
-      if (farmDebt <= 0 && pushedLaneOpen && !behind) {
-        clearScore = Math.min(clearScore, 82);
+      const campTouched = state.monsters.some(
+        (monster) =>
+          monster.alive &&
+          monster.campId === camp.campId &&
+          (monster.aggroTargetId === champion.id ||
+            monster.hp < monster.maxHp - 1 ||
+            t - monster.lastCombatAt < 12),
+      );
+      if (campTouched && d < 1600) {
+        clearScore += 56;
       }
       intents.push({
         kind: 'clear',
-        score: Math.max(28, clearScore),
+        score: Math.max(36, clearScore),
         camp,
       });
     } else {
@@ -2764,7 +4227,7 @@ function scoreIntents(
       if (waitCamp) {
         intents.push({
           kind: 'clear',
-          score: 42 + farmDebt * 8 + (behind ? 18 : 0),
+          score: 42 + slack * 7 + (behind ? 18 : 0),
           coverPoint: waitCamp,
         });
       }
@@ -2785,11 +4248,8 @@ function scoreIntents(
     const objBoost = objectiveShoveBoost(state, lane);
     const setupBoost = assignment?.mission === 'setup-objective' ? 30 : 0;
 
-    if (
-      wave.canPush &&
-      (!wave.isCrashingOuter || shoveForced) &&
-      (wave.enemyCount > 0 || wave.zone !== 'enemy')
-    ) {
+    const prio = hasLanePriority(wave);
+    if (wave.canPush && (wave.enemyCount > 0 || wave.zone !== 'enemy')) {
       let shoveScore =
         16 +
         laning * 8 +
@@ -2797,18 +4257,55 @@ function scoreIntents(
         setupBoost +
         (needsSiegeWave ? 26 : 0) +
         (wave.zone === 'own' ? 10 : wave.zone === 'river' ? 14 : 4) +
-        (shoveForced ? 58 : 0);
+        (shoveForced ? 58 : 0) +
+        (shouldSlowPush(wave) && (objBoost > 0 || setupBoost > 0 || shoveForced) ? 10 : 0) +
+        matchup.ahead * matchup.pressure * 16 -
+        matchup.deficit * 12 -
+        matchup.expose * 14;
       if (champion.positionLabel === 'SUPPORT') {
         shoveScore *= 0.72;
       }
       if (early && objBoost < 12 && setupBoost === 0 && !shoveForced) {
-        shoveScore *= 0.42;
+        shoveScore *= 0.78;
       }
       if (hpRatio < 0.28) {
         shoveScore *= 0.18;
       }
       if (wave.isCrashingOuter && !shoveForced) {
-        shoveScore *= 0.25;
+        shoveScore *= 0.55;
+      }
+      const enemyOuter = state.structures.find(
+        (structure) =>
+          structure.alive &&
+          structure.side !== champion.side &&
+          structure.lane === lane &&
+          structure.structureKind === 'outer_tower',
+      );
+      if (
+        enemyOuter &&
+        (enemyOuter.hp < enemyOuter.maxHp * 0.98 || enemyOuter.platesBroken > 0)
+      ) {
+        shoveScore += 48 + (1 - enemyOuter.hp / Math.max(1, enemyOuter.maxHp)) * 40;
+      }
+      if (prio && !shoveForced && objBoost < 8) {
+        shoveScore *= 0.55;
+      }
+      if (!shoveForced) {
+        shoveScore *= shoveSoft;
+      }
+      if (laneEnemy) {
+        const foeHp = laneEnemy.hp / Math.max(1, laneEnemy.maxHp);
+        const gap = dist(champion.position, laneEnemy.position);
+        if (hpRatio < 0.52 && gap < 900) {
+          shoveScore *= 0.35;
+        } else if (hpRatio < foeHp - 0.12 && gap < 1000) {
+          shoveScore *= 0.55;
+        } else if (hpRatio > foeHp + 0.14 && gap < 1100) {
+          shoveScore *= 1.18;
+        }
+      }
+      if (t >= 900 && wave.zone === 'own' && wave.enemyCount >= 2) {
+        shoveScore += 24 + wave.enemyCount * 5;
       }
       intents.push({ kind: 'wave_shove', score: shoveScore, minionLane: lane });
     }
@@ -2816,24 +4313,41 @@ function scoreIntents(
     if (
       champion.positionLabel !== 'SUPPORT' &&
       t >= 90 &&
-      t < 960 &&
+      (t < 960 || (wave.zone === 'own' && wave.enemyCount >= 2)) &&
       wave.canPush &&
       wave.enemyCount > 0 &&
       (wave.zone === 'own' || waveNearFreezeSpot(wave, champion.side)) &&
       objBoost < 18 &&
       setupBoost === 0 &&
       !shoveForced &&
-      !needsSiegeWave
+      !needsSiegeWave &&
+      !prio
     ) {
       let freezeScore =
         22 +
         laning * 16 +
         idLaning * 10 +
-        (waveNearFreezeSpot(wave, champion.side) ? 20 : 8) +
-        (wave.allyAdvantage > -0.8 && wave.allyAdvantage < 2.2 ? 12 : 0) +
+        (waveNearFreezeSpot(wave, champion.side) ? 24 : 8) +
+        (wave.allyAdvantage > -0.8 && wave.allyAdvantage < 2.2 ? 14 : 0) +
         (hpRatio > 0.48 && laneEnemy ? 8 : 0) +
-        (wave.allyAdvantage > 1.2 ? 8 : 0) +
-        (early ? 8 : 0);
+        (wave.enemyCount >= wave.allyCount ? 12 : 0) +
+        (early ? 8 : 0) +
+        matchup.deficit * 16 +
+        matchup.expose * 10 -
+        matchup.ahead * 8;
+      if (laneEnemy) {
+        const foeHp = laneEnemy.hp / Math.max(1, laneEnemy.maxHp);
+        const gap = dist(champion.position, laneEnemy.position);
+        if (hpRatio < 0.58 && gap < 950) {
+          freezeScore += 18;
+        }
+        if (hpRatio < foeHp - 0.1) {
+          freezeScore += 12;
+        }
+        if (wave.zone === 'own' && wave.enemyCount >= wave.allyCount) {
+          freezeScore += 12;
+        }
+      }
       intents.push({ kind: 'wave_freeze', score: freezeScore, minionLane: lane });
     }
   }
@@ -2852,11 +4366,15 @@ function executeWaveOrFarm(
   if (champion.positionLabel === 'SUPPORT') {
     const partner = duoPartner(state, champion);
     if (partner) {
-      const pocket = humanizeLaneStand(
+      const pocket = stickyLaneStand(
         state,
         champion,
-        lane,
-        faceOffLanePoint(state, champion, lane, partner.position),
+        humanizeLaneStand(
+          state,
+          champion,
+          lane,
+          faceOffLanePoint(state, champion, lane, partner.position),
+        ),
       );
       const partnerGap = dist(champion.position, partner.position);
       if (partnerGap > 520 || dist(champion.position, pocket) > 160) {
@@ -2870,26 +4388,76 @@ function executeWaveOrFarm(
   }
 
   const wave = assessChampionLaneWave(state, champion, lane);
+  const matchupWave = laneMatchupRead(state, champion, lane);
+  const underOwnTowerFarm = state.structures.some(
+    (structure) =>
+      structure.alive &&
+      structure.side === champion.side &&
+      structure.ad > 0 &&
+      dist(champion.position, structure.position) <= structure.range + 100,
+  );
+  const crashPush =
+    wave.isCrashingOuter ||
+    state.structures.some(
+      (structure) =>
+        structure.alive &&
+        structure.side !== champion.side &&
+        structure.lane === lane &&
+        wavePressuringStructure(state, champion.side, structure) &&
+        dist(champion.position, structure.position) < 1800,
+    );
   const stand =
     mode === 'freeze'
       ? freezeStand(state, champion, lane, wave)
-      : mode === 'shove'
+      : mode === 'shove' || (mode === 'default' && crashPush)
         ? shoveStand(state, champion, lane)
-        : laningStand(state, champion, lane);
+        : underOwnTowerFarm
+          ? laningStand(state, champion, lane)
+          : matchupWave.deficit >= 0.55 && wave.zone === 'enemy' && !crashPush
+            ? cautiousXpStand(state, champion, lane)
+            : laningStand(state, champion, lane);
 
+  const hpRatioWave = champion.hp / Math.max(1, champion.maxHp);
+  const minionThreat = enemyMinionThreatAt(state, champion.side, champion.position);
   if (
-    underEnemyTower(state, champion) &&
-    !wave.isCrashingOuter &&
-    mode !== 'shove'
+    hpRatioWave < 0.48 &&
+    minionThreat >= 1 &&
+    mode !== 'freeze' &&
+    !underOwnTowerFarm &&
+    !(mode === 'shove' && hpRatioWave >= 0.36 && minionThreat <= 2 && wave.zone !== 'enemy')
   ) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
+    enterResetAggro(state, champion);
+    const safeOwnWave = wave.zone === 'own' && hpRatioWave > 0.32;
+    moveAlongLane(
+      state,
+      champion,
+      lane,
+      safeOwnWave
+        ? dropMinionAggroPoint(state, champion)
+        : softDisengagePos(state, champion, hpRatioWave < 0.34),
+      recorder,
+    );
+    noteDecision(state, champion, safeOwnWave ? 'lane' : 'retreat', recorder);
+    return;
+  }
+  if (underOwnTowerFarm) {
+    enterTowerFarm(state, champion);
+  } else if (mode === 'default' || mode === 'freeze') {
+    enterLastHit(state, champion);
+  }
+
+  if (!canStayUnderEnemyTower(state, champion)) {
+    getMatchAiRuntime(state).intentStick.delete(champion.id);
     moveAlongLane(state, champion, lane, softDisengagePos(state, champion, true), recorder);
-    noteDecision(state, champion, 'lane', recorder);
+    noteDecision(state, champion, 'tower_bail', recorder);
     return;
   }
 
-  const pastSlack = mode === 'shove' ? 0.08 : 0.04;
+  const pastSlack = mode === 'shove' || crashPush ? 0.08 : 0.04;
   if (
     mode !== 'shove' &&
+    !crashPush &&
     isPastAlliedWave(state, champion, lane, champion.position, pastSlack) &&
     dist(champion.position, stand) > 120
   ) {
@@ -2899,59 +4467,269 @@ function executeWaveOrFarm(
   }
 
   const hitMode: LastHitMode =
-    mode === 'freeze' ? 'freeze' : mode === 'shove' ? 'shove' : 'default';
-  const target = nearestFarmMinion(state, champion, lane);
+    mode === 'freeze' ? 'freeze' : mode === 'shove' || crashPush ? 'shove' : 'default';
+  runLaningAttackMove(state, champion, lane, mode, hitMode, stand, actionLabel, recorder);
+}
+
+function runLaningAttackMove(
+  state: GameState,
+  champion: ChampionEntity,
+  lane: LaneId,
+  mode: 'default' | 'freeze' | 'shove',
+  hitMode: LastHitMode,
+  stand: { x: number; y: number },
+  actionLabel: string,
+  recorder?: ReplayRecorder,
+  recordDecision = true,
+  allowIdleReposition = true,
+): void {
+  const target = nearestFarmMinion(state, champion, lane, hitMode);
   const foe = nearestLaneEnemy(state, champion);
-  if (target && dist(champion.position, target.position) <= champion.attackRange + 40) {
-    const didHit = tryLastHit(state, champion, target, recorder, hitMode);
-    if (
-      mode !== 'freeze' &&
-      !didHit &&
-      target.alive &&
-      target.hp > champion.ad * (mode === 'shove' ? 1.05 : 1.35)
-    ) {
-      castAbility(state, champion, 'Q', target, recorder);
+  const waveNow = assessChampionLaneWave(state, champion, lane);
+  const expected = Math.max(40, champion.ad * (0.9 + champion.skills.laning / 250));
+  const aaReady = state.scheduler.time >= champion.nextAttackAt;
+  const selfHp = champion.hp / Math.max(1, champion.maxHp);
+  const gapToTarget = target ? dist(champion.position, target.position) : Number.POSITIVE_INFINITY;
+  const inAaRange = !!target && gapToTarget <= champion.attackRange + 40;
+  const executeSoon =
+    !!target && target.hp <= expected * (mode === 'freeze' ? 1.45 : mode === 'shove' ? 3.2 : 2.0);
+  const foeGap = foe ? dist(champion.position, foe.position) : Number.POSITIVE_INFINITY;
+  const ownSideSafeFarm =
+    (waveNow.zone === 'own' || waveNow.zone === 'river') &&
+    (!foe || foeGap > foe!.attackRange + 180);
+  const hardScared =
+    !!foe &&
+    mode !== 'shove' &&
+    selfHp < 0.38 &&
+    foeGap < Math.max(420, foe.attackRange + 120);
+  const softScared =
+    !!foe &&
+    mode !== 'shove' &&
+    !executeSoon &&
+    !ownSideSafeFarm &&
+    foeGap < Math.max(460, foe.attackRange + 130) &&
+    selfHp < foe.hp / Math.max(1, foe.maxHp) - 0.08;
+
+  const finish = () => {
+    if (recordDecision) {
+      noteDecision(state, champion, actionLabel, recorder);
+    } else {
+      champion.currentAction = actionLabel;
     }
-    if (
-      mode !== 'freeze' &&
-      foe &&
-      champion.positionLabel !== 'SUPPORT' &&
-      dist(champion.position, foe.position) <= champion.attackRange + 120
-    ) {
-      basicAttack(state, champion, foe, recorder);
-      if (state.rng() < (mode === 'shove' ? 0.25 : 0.45)) {
-        castAbility(state, champion, 'Q', foe, recorder);
-      }
-    }
-    const comfort =
-      foe && champion.attackRange > 300
-        ? champion.attackRange * 0.9
-        : foe
-          ? 260
-          : 0;
-    const needsSpace = !!foe && dist(champion.position, foe.position) < comfort;
-    if (needsSpace || dist(champion.position, stand) > LANE_MOVE_MICRO) {
-      moveAlongLane(state, champion, lane, stand, recorder);
-    }
-    noteDecision(state, champion, actionLabel, recorder);
+  };
+
+  const crashTower = state.structures.find(
+    (structure) =>
+      structure.alive &&
+      structure.side !== champion.side &&
+      structure.lane === lane &&
+      (structure.structureKind === 'outer_tower' ||
+        structure.structureKind === 'inner_tower' ||
+        structure.structureKind === 'inhib_tower') &&
+      wavePressuringStructure(state, champion.side, structure) &&
+      dist(champion.position, structure.position) <= champion.attackRange + 80,
+  );
+  if (
+    crashTower &&
+    aaReady &&
+    (alliedMinionsCoveringTower(state, champion.side, crashTower) ||
+      (crashTower.structureKind === 'outer_tower' &&
+        alliedMinionPresentUnderTower(state, champion.side, crashTower))) &&
+    !executeSoon
+  ) {
+    attackStructure(state, champion, crashTower, recorder);
+    finish();
     return;
   }
 
   if (
+    target &&
+    !inAaRange &&
+    (mode === 'shove' ||
+      executeSoon ||
+      gapToTarget <= champion.attackRange + 320 ||
+      (ownSideSafeFarm && gapToTarget <= champion.attackRange + 420))
+  ) {
+    if (!hardScared && !(softScared && !executeSoon) && !underEnemyTower(state, champion)) {
+      clickToward(state, champion, target.position, recorder, LANE_CLICK_STEP_CS);
+      finish();
+      return;
+    }
+  }
+
+  if (!inAaRange && !hardScared && !underEnemyTower(state, champion)) {
+    const waveGoal = enemyWaveAnchor(state, champion, lane);
+    if (waveGoal) {
+      const gapToWave = dist(champion.position, waveGoal);
+      const softBlocksWalk =
+        softScared &&
+        !!foe &&
+        foeGap < Math.max(500, foe.attackRange + 160);
+      if (gapToWave > champion.attackRange + 120 && !softBlocksWalk) {
+        clickToward(state, champion, waveGoal, recorder, LANE_CLICK_STEP_CS);
+        finish();
+        return;
+      }
+    }
+  }
+
+  if (target && inAaRange) {
+    const didHit = aaReady ? tryLastHit(state, champion, target, recorder, hitMode) : false;
+    const foeHp = foe ? foe.hp / Math.max(1, foe.maxHp) : 1;
+    const scaredToTrade =
+      !!foe &&
+      dist(champion.position, foe.position) < Math.max(560, foe.attackRange + 180) &&
+      (selfHp < 0.55 || selfHp < foeHp - 0.1);
+    if (
+      mode !== 'freeze' &&
+      !didHit &&
+      aaReady &&
+      target.alive &&
+      target.hp > champion.ad * (mode === 'shove' ? 1.05 : 1.35) &&
+      !scaredToTrade &&
+      state.rng() < (mode === 'shove' ? 0.72 : 0.34 + Math.min(0.3, state.scheduler.time / 2400))
+    ) {
+      castAbility(state, champion, 'Q', target, recorder);
+      if (mode === 'shove' && state.rng() < 0.28) {
+        castAbility(state, champion, 'W', target, recorder);
+      }
+    }
+    const mayTradeUnderTower =
+      !underEnemyTower(state, champion) && !enemyTowerAggroOn(state, champion)
+        ? true
+        : !!foe && canCommitDive(state, champion, foe);
+    if (
+      mode !== 'freeze' &&
+      foe &&
+      champion.positionLabel !== 'SUPPORT' &&
+      dist(champion.position, foe.position) <= champion.attackRange + 80 &&
+      !scaredToTrade &&
+      mayTradeUnderTower &&
+      aaReady &&
+      !didHit
+    ) {
+      basicAttack(state, champion, foe, recorder);
+      if (state.rng() < (mode === 'shove' ? 0.22 : 0.4)) {
+        castAbility(state, champion, 'Q', foe, recorder);
+      }
+    }
+
+    const foeThreat = foe
+      ? foe.attackRange > 300
+        ? foe.attackRange + 20
+        : Math.max(170, foe.attackRange + 35)
+      : 0;
+    const inFoeThreat =
+      !!foe && foeThreat > 0 && dist(champion.position, foe.position) < foeThreat * 0.78;
+    const campingCs = inAaRange && target.alive && target.hp <= expected * 2.6;
+    if (inFoeThreat && !executeSoon) {
+      clickToward(state, champion, stand, recorder, LANE_CLICK_STEP);
+    } else if (
+      allowIdleReposition &&
+      mode === 'shove' &&
+      target.alive &&
+      gapToTarget > champion.attackRange * 0.72
+    ) {
+      clickToward(state, champion, target.position, recorder, LANE_CLICK_STEP_CS);
+    } else if (
+      allowIdleReposition &&
+      campingCs &&
+      gapToTarget > champion.attackRange * 0.82
+    ) {
+      clickToward(state, champion, target.position, recorder, 120);
+    } else if (allowIdleReposition && dist(champion.position, stand) > LANE_STAND_RECENTER) {
+      clickToward(state, champion, stand, recorder, LANE_CLICK_STEP);
+    }
+    finish();
+    return;
+  }
+
+  const canLaneTrade =
+    !!foe &&
+    (!underEnemyTower(state, champion) && !enemyTowerAggroOn(state, champion)
+      ? true
+      : canCommitDive(state, champion, foe));
+  if (
     mode === 'default' &&
     foe &&
     champion.positionLabel !== 'SUPPORT' &&
-    dist(champion.position, foe.position) <= champion.attackRange + 180 &&
-    champion.hp / Math.max(1, champion.maxHp) > 0.42
+    dist(champion.position, foe.position) <= champion.attackRange + 120 &&
+    selfHp > 0.42 &&
+    canLaneTrade &&
+    aaReady &&
+    recordDecision
   ) {
     fightTarget(state, champion, foe, 'trade', recorder);
     return;
   }
 
-  if (dist(champion.position, stand) > LANE_MOVE_MICRO) {
-    moveAlongLane(state, champion, lane, stand, recorder);
+  if (allowIdleReposition && dist(champion.position, stand) > LANE_STAND_RECENTER) {
+    clickToward(state, champion, stand, recorder, LANE_CLICK_STEP);
   }
-  noteDecision(state, champion, actionLabel, recorder);
+  finish();
+}
+
+export function tickLaningMicro(state: GameState, recorder?: ReplayRecorder): void {
+  beginWaveAssessFrame();
+  try {
+    for (const champion of state.champions) {
+      if (!champion.alive || champion.recallPhase !== 'none') {
+        continue;
+      }
+      if (champion.positionLabel === 'JUNGLE') {
+        continue;
+      }
+      const action = champion.currentAction;
+      if (
+        action !== 'farm' &&
+        action !== 'lane' &&
+        action !== 'wave_freeze' &&
+        action !== 'wave_shove' &&
+        action !== 'siege'
+      ) {
+        continue;
+      }
+      const lane = laneIdOf(champion);
+      const mode: 'default' | 'freeze' | 'shove' =
+        action === 'wave_freeze' ? 'freeze' : action === 'wave_shove' || action === 'siege' ? 'shove' : 'default';
+      const hitMode: LastHitMode = mode;
+      const stand =
+        mode === 'freeze'
+          ? freezeStand(state, champion, lane, assessChampionLaneWave(state, champion, lane))
+          : mode === 'shove'
+            ? shoveStand(state, champion, lane)
+            : laningStand(state, champion, lane);
+      const farmTarget = nearestFarmMinion(state, champion, lane, hitMode);
+      const inFarmRange =
+        !!farmTarget &&
+        dist(champion.position, farmTarget.position) <= champion.attackRange + 40;
+      const foe = nearestLaneEnemy(state, champion);
+      const foeThreat =
+        foe && foe.attackRange > 300
+          ? foe.attackRange + 20
+          : foe
+            ? Math.max(170, foe.attackRange + 35)
+            : 0;
+      const needKite =
+        !!foe &&
+        foeThreat > 0 &&
+        dist(champion.position, foe.position) < foeThreat * 0.78;
+      runLaningAttackMove(
+        state,
+        champion,
+        lane,
+        mode,
+        hitMode,
+        stand,
+        action,
+        recorder,
+        false,
+        !(inFarmRange && !needKite),
+      );
+    }
+  } finally {
+    endWaveAssessFrame();
+  }
 }
 
 function tryShoveBeforeRecall(
@@ -2997,13 +4775,17 @@ function executeIntent(
     (intent.kind === 'farm' ||
       intent.kind === 'lane' ||
       intent.kind === 'wave_freeze' ||
-      intent.kind === 'wave_shove') &&
+      intent.kind === 'wave_shove' ||
+      intent.kind === 'swap') &&
     intent.minionLane
   ) {
+    if (intent.kind === 'swap') {
+      commitLaneLease(state, champion, intent.minionLane, 24);
+    }
     const mode =
       intent.kind === 'wave_freeze'
         ? 'freeze'
-        : intent.kind === 'wave_shove'
+        : intent.kind === 'wave_shove' || intent.kind === 'swap'
           ? 'shove'
           : 'default';
     const label =
@@ -3011,9 +4793,11 @@ function executeIntent(
         ? 'wave_freeze'
         : intent.kind === 'wave_shove'
           ? 'wave_shove'
-          : intent.kind === 'farm'
-            ? 'farm'
-            : 'lane';
+          : intent.kind === 'swap'
+            ? 'lane'
+            : intent.kind === 'farm'
+              ? 'farm'
+              : 'lane';
     executeWaveOrFarm(state, champion, intent.minionLane, mode, label, recorder);
     return;
   }
@@ -3027,11 +4811,35 @@ function executeIntent(
       dist(champion.position, intent.coverPoint) > 900 &&
       dist(champion.position, intent.enemy.position) > 1100
     ) {
-      orderMove(state, champion, intent.coverPoint, recorder);
+      orderMove(
+        state,
+        champion,
+        clampAwayFromEmptyEnemyTower(
+          state,
+          champion,
+          intent.coverPoint,
+          intent.enemy,
+        ),
+        recorder,
+      );
       noteDecision(state, champion, 'defend', recorder);
       return;
     }
-    fightTarget(state, champion, intent.enemy, 'fight', recorder);
+    const finishNow =
+      isFinishableEnemy(champion, intent.enemy) ||
+      intent.enemy.hp / Math.max(1, intent.enemy.maxHp) < 0.18;
+    if (
+      intent.kind === 'trade' ||
+      shouldShortTrade(state, champion, intent.enemy, finishNow)
+    ) {
+      if (finishNow && canSafelyCommit(state, champion, intent.enemy, champion.hp / Math.max(1, champion.maxHp))) {
+        fightTarget(state, champion, intent.enemy, 'fight', recorder);
+      } else {
+        executeShortTrade(state, champion, intent.enemy, recorder);
+      }
+      return;
+    }
+    fightTarget(state, champion, intent.enemy, intent.kind === 'gank' ? 'gank' : 'fight', recorder);
     return;
   }
 
@@ -3056,25 +4864,60 @@ function executeIntent(
 
   if (intent.kind === 'siege' && intent.structure) {
     const pressured = wavePressuringStructure(state, champion.side, intent.structure);
-    if (!pressured && intent.structure.structureKind !== 'nexus') {
-      const stand = laningStand(state, champion, laneIdOf(champion));
+    const nexusFamily =
+      intent.structure.structureKind === 'nexus' ||
+      intent.structure.structureKind === 'nexus_tower';
+    const siegeLane = intent.structure.lane ?? laneIdOf(champion);
+    const crashWave = assessChampionLaneWave(state, champion, siegeLane);
+    const crashingOuter =
+      crashWave.isCrashingOuter && intent.structure.structureKind === 'outer_tower';
+    const outerDamaged =
+      intent.structure.structureKind === 'outer_tower' &&
+      (intent.structure.hp < intent.structure.maxHp * 0.98 ||
+        intent.structure.platesBroken > 0);
+    const minionCover =
+      alliedMinionsCoveringTower(state, champion.side, intent.structure) ||
+      alliedMinionPresentUnderTower(state, champion.side, intent.structure);
+    const waveCover = pressured || crashingOuter;
+    const towerCover =
+      intent.structure.ad <= 0 ||
+      intent.structure.range <= 0 ||
+      minionCover ||
+      waveCover;
+    if (!pressured && !nexusFamily && !crashingOuter && !outerDamaged) {
+      const stand = escortSiegeStand(state, champion, intent.structure);
       if (dist(champion.position, stand) > 140) {
-        moveAlongLane(state, champion, laneIdOf(champion), stand, recorder);
+        moveAlongLane(state, champion, siegeLane, stand, recorder);
       }
-      noteDecision(state, champion, 'lane', recorder);
+      noteDecision(state, champion, 'siege', recorder);
       return;
     }
-    const siegeLane = intent.structure.lane ?? laneIdOf(champion);
+    if (!pressured && !nexusFamily && !crashingOuter && outerDamaged) {
+      if (crashWave.enemyCount > 0 || crashWave.allyCount > 0) {
+        executeWaveOrFarm(state, champion, siegeLane, 'shove', 'wave_shove', recorder);
+        return;
+      }
+      const stand = escortSiegeStand(state, champion, intent.structure);
+      if (dist(champion.position, stand) > 140) {
+        moveAlongLane(state, champion, siegeLane, stand, recorder);
+      }
+      noteDecision(state, champion, 'siege', recorder);
+      return;
+    }
     const towerRange = intent.structure.range > 0 ? intent.structure.range : 750;
-    const safeSiegeDist = pressured
+    const canHitNow = ((pressured || crashingOuter) && towerCover) || nexusFamily;
+    const safeSiegeDist = canHitNow
       ? champion.attackRange + 60
       : Math.max(champion.attackRange + 60, towerRange + 40);
+    const siegePoint = canHitNow
+      ? intent.structure.position
+      : escortSiegeStand(state, champion, intent.structure);
     if (dist(champion.position, intent.structure.position) > safeSiegeDist) {
-      moveAlongLane(state, champion, siegeLane, intent.structure.position, recorder);
-    } else if (pressured || intent.structure.structureKind === 'nexus') {
+      moveAlongLane(state, champion, siegeLane, siegePoint, recorder);
+    } else if (canHitNow) {
       attackStructure(state, champion, intent.structure, recorder);
     } else {
-      const stand = laningStand(state, champion, siegeLane);
+      const stand = escortSiegeStand(state, champion, intent.structure);
       moveAlongLane(state, champion, siegeLane, stand, recorder);
     }
     noteDecision(state, champion, 'siege', recorder);
@@ -3082,7 +4925,12 @@ function executeIntent(
   }
 
   if (intent.kind === 'clear' && intent.coverPoint && !intent.camp) {
-    orderMove(state, champion, intent.coverPoint, recorder);
+    orderMove(
+      state,
+      champion,
+      clampAwayFromEmptyEnemyTower(state, champion, intent.coverPoint),
+      recorder,
+    );
     noteDecision(state, champion, 'path_camp', recorder);
     return;
   }
@@ -3093,13 +4941,15 @@ function executeIntent(
       champion,
       intent.camp,
       (target) => {
-        orderMove(state, champion, target, recorder);
+        orderMove(
+          state,
+          champion,
+          clampAwayFromEmptyEnemyTower(state, champion, target),
+          recorder,
+        );
       },
       recorder,
     );
-    if (dist(champion.position, intent.camp.position) <= champion.attackRange + 80) {
-      castKit(state, champion, intent.camp, recorder);
-    }
     noteDecision(state, champion, intent.kind === 'objective' ? 'objective' : 'jungle', recorder);
     return;
   }
@@ -3118,19 +4968,94 @@ export function decideForChampion(
     return;
   }
   maybeLevel(champion);
+  refreshLaningPhaseClock(state, champion);
+  const invadeLease = getMatchAiRuntime(state).invadeRespond.get(champion.id);
+  if (invadeLease && invadeLease.until > state.scheduler.time) {
+    if (dist(champion.position, invadeLease.point) > 420) {
+      orderMove(state, champion, invadeLease.point, recorder);
+      noteDecision(state, champion, 'defend', recorder);
+      return;
+    }
+  } else if (invadeLease) {
+    getMatchAiRuntime(state).invadeRespond.delete(champion.id);
+  }
+  const closeout = getCloseoutPlan(state, champion.side);
+  if (closeout && isCloseoutActive(state, champion.side)) {
+    if (champion.recallPhase !== 'none' && champion.hp / Math.max(1, champion.maxHp) > 0.22) {
+      cancelRecall(champion);
+    }
+    const target = closeoutTargetStructure(state, champion.side);
+    const shoveLane =
+      (target?.lane === 'top' || target?.lane === 'mid' || target?.lane === 'bot'
+        ? target.lane
+        : null) ??
+      closeout.shoveLanes[0] ??
+      laneIdOf(champion);
+    const onShoveLane =
+      champion.positionLabel === 'JUNGLE' ||
+      closeout.shoveLanes.includes(laneIdOf(champion)) ||
+      champion.positionLabel === 'MID' ||
+      champion.positionLabel === 'SUPPORT' ||
+      (champion.assignedLane != null && closeout.shoveLanes.includes(champion.assignedLane));
+    if (
+      target &&
+      (closeout.stage === 'siege_nexus_towers' || closeout.stage === 'crack_nexus')
+    ) {
+      const pressured = wavePressuringStructure(state, champion.side, target);
+      if (pressured || closeout.stage === 'crack_nexus' || closeout.stage === 'siege_nexus_towers') {
+        const gap = dist(champion.position, target.position);
+        const siegeLane = target.lane ?? shoveLane;
+        if (gap > champion.attackRange + 80) {
+          moveAlongLane(state, champion, siegeLane, target.position, recorder);
+        } else {
+          attackStructure(state, champion, target, recorder);
+        }
+        noteDecision(state, champion, 'siege', recorder);
+        return;
+      }
+    }
+    if ((closeout.stage === 'shove_lane' || !target) && onShoveLane) {
+      executeWaveOrFarm(state, champion, shoveLane, 'shove', 'wave_shove', recorder);
+      return;
+    }
+  }
   const hpRatio = champion.hp / Math.max(1, champion.maxHp);
   const laneEnemyPreview = nearestLaneEnemy(state, champion);
+  const finishOpp = nearbyFinishOpportunity(state, champion, CONTACT_SOFT_RANGE);
   const winningTrade =
-    !!laneEnemyPreview &&
-    laneEnemyPreview.hp / Math.max(1, laneEnemyPreview.maxHp) < hpRatio - 0.1;
+    (!!laneEnemyPreview &&
+      laneEnemyPreview.hp / Math.max(1, laneEnemyPreview.maxHp) < hpRatio - 0.1) ||
+    (!!finishOpp &&
+      finishOpp.enemy.hp / Math.max(1, finishOpp.enemy.maxHp) < hpRatio - 0.08);
   const canFinish =
-    !!laneEnemyPreview &&
-    (laneEnemyPreview.hp < laneEnemyPreview.maxHp * 0.14 || laneEnemyPreview.hp < 130);
+    (!!laneEnemyPreview &&
+      (laneEnemyPreview.hp < laneEnemyPreview.maxHp * 0.14 || laneEnemyPreview.hp < 130)) ||
+    (!!finishOpp && isFinishableEnemy(champion, finishOpp.enemy));
 
   if (
     champion.recallPhase === 'moving_home' &&
     hpRatio > 0.22 &&
     committedNexusSiege(state, champion)
+  ) {
+    cancelRecall(champion);
+  }
+
+  const lethal = isLethalDanger(state, champion, hpRatio);
+  const hardContactEnemy = nearestVisibleEnemy(state, champion, CONTACT_HARD_RANGE);
+  const safeHardFinish =
+    !!hardContactEnemy &&
+    canSafelyCommit(state, champion, hardContactEnemy.enemy, hpRatio) &&
+    isFinishableEnemy(champion, hardContactEnemy.enemy);
+  const safeSoftFinish =
+    !!finishOpp && canSafelyCommit(state, champion, finishOpp.enemy, hpRatio);
+
+  if (
+    champion.recallPhase === 'moving_home' &&
+    hpRatio > 0.4 &&
+    !lethal &&
+    safeHardFinish &&
+    finishOpp &&
+    finishOpp.dist <= CONTACT_HARD_RANGE
   ) {
     cancelRecall(champion);
   }
@@ -3157,26 +5082,113 @@ export function decideForChampion(
     return;
   }
 
+  const divePreview =
+    (finishOpp &&
+    coveringEnemyTower(state, champion.side, finishOpp.enemy.position, 80)
+      ? finishOpp.enemy
+      : null) ??
+    (laneEnemyPreview &&
+    coveringEnemyTower(state, champion.side, laneEnemyPreview.position, 80)
+      ? laneEnemyPreview
+      : nearestLaneEnemy(state, champion));
+  if (!canStayUnderEnemyTower(state, champion, divePreview)) {
+    const runtimeBail = getMatchAiRuntime(state);
+    runtimeBail.intentStick.delete(champion.id);
+    moveAlongLane(
+      state,
+      champion,
+      laneIdOf(champion),
+      softDisengagePos(state, champion, true),
+      recorder,
+    );
+    noteDecision(state, champion, 'tower_bail', recorder);
+    return;
+  }
+
   const runtime = getMatchAiRuntime(state);
   const shoveUntil = runtime.shoveUntil.get(champion.id) ?? 0;
   if (shoveUntil > 0 && state.scheduler.time >= shoveUntil) {
     runtime.shoveUntil.delete(champion.id);
   }
 
-  if (wantsRecall(state, champion, hpRatio, canFinish, winningTrade)) {
+  if (lethal && !safeHardFinish && !safeSoftFinish) {
+    if (tryDisengage(state, champion, hpRatio, false, recorder)) {
+      return;
+    }
+    if (wantsRecall(state, champion, hpRatio, false, false) || hpRatio < 0.34) {
+      beginRecallIfSafe(state, champion, recorder);
+      return;
+    }
+  }
+
+  if (
+    !(safeHardFinish && hpRatio > 0.34) &&
+    wantsRecall(state, champion, hpRatio, canFinish && (safeHardFinish || safeSoftFinish), winningTrade)
+  ) {
     if (tryShoveBeforeRecall(state, champion, hpRatio, recorder)) {
       return;
     }
-    if (recallSpotDangerous(state, champion)) {
-      moveAlongLane(state, champion, laneIdOf(champion), safeRecallPos(state, champion), recorder);
-      noteDecision(state, champion, 'retreat', recorder);
-      return;
-    }
-    startRecall(state, champion, recorder);
+    beginRecallIfSafe(state, champion, recorder);
     return;
   }
 
-  if (tryDisengage(state, champion, hpRatio, canFinish, recorder)) {
+  if (hardContactEnemy && hpRatio > 0.28) {
+    const towerBlocks =
+      (underEnemyTower(state, champion) || !!enemyTowerAggroOn(state, champion)) &&
+      !canCommitDive(state, champion, hardContactEnemy.enemy);
+    if (!towerBlocks) {
+      const canFinishContact = isFinishableEnemy(champion, hardContactEnemy.enemy);
+      const safeCommit = canSafelyCommit(state, champion, hardContactEnemy.enemy, hpRatio);
+      const contactRead = laneMatchupRead(state, champion);
+      const commitFactor = hardContactCommitFactor(contactRead);
+      const softDoomed = contactRead.deficit >= 0.7;
+      const earlyLanePoke =
+        !canFinishContact &&
+        shouldShortTrade(state, champion, hardContactEnemy.enemy, false);
+      const willing =
+        canFinishContact ||
+        (!softDoomed && hpRatio > 0.48 + contactRead.deficit * 0.16 && commitFactor >= 0.42) ||
+        (hpRatio > 0.62 && commitFactor >= 0.55);
+      if (earlyLanePoke) {
+        runtime.intentStick.delete(champion.id);
+        executeShortTrade(state, champion, hardContactEnemy.enemy, recorder);
+        return;
+      }
+      if (safeCommit && willing) {
+        runtime.intentStick.delete(champion.id);
+        if (canFinishContact) {
+          enterCommitAllIn(state, champion);
+        }
+        fightTarget(state, champion, hardContactEnemy.enemy, 'fight', recorder);
+        return;
+      }
+    }
+  }
+
+  if (
+    finishOpp &&
+    safeSoftFinish &&
+    hpRatio > 0.36 &&
+    finishOpp.dist <= CONTACT_SOFT_RANGE
+  ) {
+    runtime.intentStick.delete(champion.id);
+    fightTarget(state, champion, finishOpp.enemy, 'fight', recorder);
+    return;
+  }
+
+  if (
+    maybeResetLaneMinionAggro(
+      state,
+      champion,
+      hpRatio,
+      canFinish && (safeHardFinish || safeSoftFinish),
+      recorder,
+    )
+  ) {
+    return;
+  }
+
+  if (tryDisengage(state, champion, hpRatio, canFinish && (safeHardFinish || safeSoftFinish), recorder)) {
     return;
   }
 
@@ -3191,12 +5203,35 @@ export function decideForChampion(
   );
   intents.sort((left, right) => right.score - left.score);
   const now = state.scheduler.time;
-  const stick = runtime.intentStick.get(champion.id);
+  const contactNow = nearestVisibleEnemy(state, champion, CONTACT_HARD_RANGE);
+  let stick = runtime.intentStick.get(champion.id);
+  if (
+    contactNow &&
+    stick &&
+    (stick.kind === 'clear' ||
+      stick.kind === 'farm' ||
+      stick.kind === 'lane' ||
+      stick.kind === 'wave_freeze' ||
+      stick.kind === 'wave_shove')
+  ) {
+    runtime.intentStick.delete(champion.id);
+    stick = undefined;
+  }
   let best = intents[0];
   if (stick && stick.until > now) {
     const sticky = intents.find((intent) => intent.kind === stick.kind);
     if (sticky && sticky.score >= 8) {
       best = sticky;
+    }
+  }
+  if (contactNow) {
+    const fightIntent = intents.find(
+      (intent) =>
+        (intent.kind === 'skirmish' || intent.kind === 'trade' || intent.kind === 'gank') &&
+        intent.enemy?.id === contactNow.enemy.id,
+    );
+    if (fightIntent && fightIntent.score >= 24) {
+      best = fightIntent;
     }
   }
   if (!best || best.score < 8) {
@@ -3213,12 +5248,25 @@ export function decideForChampion(
     best.kind === 'lane' ||
     best.kind === 'wave_freeze' ||
     best.kind === 'wave_shove' ||
-    best.kind === 'trade'
+    best.kind === 'trade' ||
+    best.kind === 'clear' ||
+    best.kind === 'siege'
   ) {
+    const clearStickSec =
+      best.kind === 'siege'
+        ? 12
+        : best.kind === 'clear' && champion.positionLabel === 'JUNGLE'
+          ? jungleFarmAheadAmount(jungleFarmPace(champion, now)) > 0.2
+            ? 2.5
+            : 4.5
+          : best.kind === 'clear'
+            ? 6
+            : INTENT_STICK_SEC;
+    const stickSec = clearStickSec;
     const keep =
       stick && stick.kind === best.kind && stick.until > now
         ? stick.until
-        : now + INTENT_STICK_SEC;
+        : now + stickSec;
     runtime.intentStick.set(champion.id, { kind: best.kind, until: keep });
   } else {
     runtime.intentStick.delete(champion.id);

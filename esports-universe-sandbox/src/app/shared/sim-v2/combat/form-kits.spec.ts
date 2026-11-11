@@ -78,6 +78,7 @@ function stubChampion(): ChampionEntity {
     levelSamples: [],
     threatTable: {},
     knownEnemyPositions: {},
+    abilityBag: {},
     skills: {
       laning: 70,
       mechanics: 70,

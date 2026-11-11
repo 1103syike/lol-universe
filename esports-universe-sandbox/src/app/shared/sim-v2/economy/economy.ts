@@ -1,44 +1,10 @@
 import type { ChampionEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
-import type { AbilitySlot, ItemId } from '../types/ids';
+import type { ItemId } from '../types/ids';
 import type { ReplayRecorder } from '../replay/recorder';
 import { dist } from '../map/pathfinding';
-import { levelAbility } from '../combat/combat';
-
-function investAbilityPoints(champion: ChampionEntity): void {
-  const expected = champion.level;
-  let invested = champion.abilities.reduce(
-    (sum, ability) => sum + (ability.slot === 'P' ? 0 : ability.level),
-    0,
-  );
-  const wantR =
-    champion.level >= 16 ? 3 : champion.level >= 11 ? 2 : champion.level >= 6 ? 1 : 0;
-  while (invested < expected) {
-    let gained = false;
-    const currentR = champion.abilities.find((ability) => ability.slot === 'R')?.level ?? 0;
-    const order: AbilitySlot[] =
-      currentR < wantR ? ['R', 'Q', 'E', 'W'] : ['Q', 'E', 'W', 'R'];
-    for (const slot of order) {
-      if (slot === 'P') {
-        continue;
-      }
-      const before = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
-      if (slot === 'R' && (champion.level < 6 || before >= wantR)) {
-        continue;
-      }
-      levelAbility(champion, slot);
-      const after = champion.abilities.find((ability) => ability.slot === slot)?.level ?? 0;
-      if (after > before) {
-        invested += 1;
-        gained = true;
-        break;
-      }
-    }
-    if (!gained) {
-      break;
-    }
-  }
-}
+export { investAbilityPoints } from '../champion/skill-order';
+import { investAbilityPoints } from '../champion/skill-order';
 
 export function grantGold(
   state: GameState,
@@ -629,11 +595,14 @@ export function hasMeaningfulShopBuy(
   if (affordable >= 800) {
     return true;
   }
+  if (canBuyAnyPreferred(state, champion, prefer) && champion.gold >= 700) {
+    return true;
+  }
   const pending = nextPendingPurchase(state, champion, prefer);
   if (!pending) {
     return false;
   }
-  if (pending.deficit === 0 && (pending.isBoot || pending.isLegendary || pending.price >= 500)) {
+  if (pending.deficit === 0 && (pending.isBoot || pending.isLegendary || pending.price >= 350)) {
     return true;
   }
   return pending.deficit > 0 && pending.deficit <= 450 && (pending.isLegendary || pending.isBoot || pending.price >= 700);
@@ -724,6 +693,16 @@ function partFeedsOwnedLegendary(
   return false;
 }
 
+function supportQuestGoalOwned(champion: ChampionEntity, itemId: ItemId): boolean {
+  if (
+    (SUPPORT_QUEST_LINE as readonly string[]).includes(itemId) ||
+    (SUPPORT_FINISHED as readonly string[]).includes(itemId)
+  ) {
+    return hasSupportQuestProgress(champion);
+  }
+  return false;
+}
+
 function primaryShopGoals(
   state: GameState,
   champion: ChampionEntity,
@@ -732,7 +711,7 @@ function primaryShopGoals(
   const goals: ItemId[] = [];
   for (const preferId of prefer) {
     const item = state.lockedPack.items[preferId];
-    if (!item || champion.items.includes(preferId)) {
+    if (!item || champion.items.includes(preferId) || supportQuestGoalOwned(champion, preferId)) {
       continue;
     }
     if (!isShopGoalItem(state, preferId, item)) {

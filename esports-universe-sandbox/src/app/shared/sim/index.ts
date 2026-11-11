@@ -6,10 +6,16 @@ export {
   simulateGame,
   simulateGameAsync,
   simulateSeries,
+  simulateSeriesAsync,
 } from './match-engine';
 export type { MatchSideInput, SimulateGameInput, SimulateSeriesInput, SimulateSeriesResult } from './match-engine';
-export { getSimEngineMode, setSimEngineMode } from '../sim-v2';
-export type { SimEngineMode } from '../sim-v2';
+export {
+  getSimEngineMode,
+  prepareV2Match,
+  runPreparedV2MatchAsync,
+  setSimEngineMode,
+} from '../sim-v2';
+export type { PreparedV2Match, SimEngineMode } from '../sim-v2';
 export { resolveMatchupSwings } from './matchup';
 export {
   MATCH_PHASES,
@@ -34,7 +40,7 @@ export type {
   TeamStylePresentation,
 } from './report';
 export { runClassicDraft, resolveCompIntent } from './draft';
-export type { DraftBanEntry, DraftPickEntry, DraftResult } from './draft';
+export type { DraftBanEntry, DraftPickEntry, DraftResult, DraftStep, DraftStepSide } from './draft';
 export {
   listPatchVersions,
   resolvePatchMeta,

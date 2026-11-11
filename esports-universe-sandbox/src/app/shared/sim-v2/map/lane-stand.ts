@@ -57,32 +57,32 @@ function ownSideNormal(
 
 function roleDepth(champion: ChampionEntity, timeSec = 9999): number {
   if (champion.positionLabel === 'SUPPORT') {
-    return timeSec < 480 ? 2.8 : 2.15;
+    return timeSec < 480 ? 0.85 : 0.7;
   }
   if (champion.positionLabel === 'BOT') {
-    return timeSec < 300 ? 0.55 : 0.25;
+    return timeSec < 300 ? 0.18 : 0.12;
   }
   if (champion.positionLabel === 'TOP') {
-    return 0.55;
+    return 0.18;
   }
   if (champion.positionLabel === 'MID') {
-    return 0.7;
+    return 0.2;
   }
-  return 1;
+  return 0.25;
 }
 
 function roleAlongShift(champion: ChampionEntity): number {
   if (champion.positionLabel === 'SUPPORT') {
-    return -170;
+    return -70;
   }
   if (champion.positionLabel === 'BOT') {
-    return 55;
-  }
-  if (champion.positionLabel === 'TOP') {
     return 25;
   }
+  if (champion.positionLabel === 'TOP') {
+    return 10;
+  }
   if (champion.positionLabel === 'MID') {
-    return 15;
+    return 8;
   }
   return 0;
 }
@@ -107,7 +107,7 @@ export function offsetLaneStand(
     return { ...along };
   }
   const normal = ownSideNormal(state, side, along, frame.normal);
-  const distance = 85 + depth * 55;
+  const distance = 48 + depth * 28;
   return {
     x: along.x + normal.x * distance,
     y: along.y + normal.y * distance,
@@ -126,8 +126,7 @@ export function faceOffLanePoint(
   if (!frame) {
     return point;
   }
-  const towardOwn =
-    champion.side === 'blue' ? -1 : 1;
+  const towardOwn = champion.side === 'blue' ? -1 : 1;
   const shift = roleAlongShift(champion) * towardOwn;
   point = {
     x: point.x + frame.tangent.x * shift,
@@ -153,25 +152,24 @@ export function humanizeLaneStand(
     if (!ally.alive || ally.id === champion.id || ally.side !== champion.side) {
       continue;
     }
-    if (dist(ally.position, base) > 900) {
+    if (dist(ally.position, base) > 700) {
       continue;
     }
     const gap = dist(point, ally.position);
     const minGap =
-      champion.positionLabel === 'SUPPORT' || ally.positionLabel === 'SUPPORT' ? 300 : 230;
+      champion.positionLabel === 'SUPPORT' || ally.positionLabel === 'SUPPORT' ? 160 : 130;
     if (gap >= minGap) {
       continue;
     }
     const safeGap = Math.max(gap, 8);
-    const push = (minGap - gap) * 0.85;
+    const push = (minGap - gap) * 0.55;
     const away = {
       x: (point.x - ally.position.x) / safeGap,
       y: (point.y - ally.position.y) / safeGap,
     };
-    const sideBias = ally.positionLabel === 'BOT' && champion.positionLabel === 'SUPPORT' ? 1.15 : 1;
     point = {
-      x: point.x + (away.x * 0.55 + normal.x * 0.45) * push * sideBias,
-      y: point.y + (away.y * 0.55 + normal.y * 0.45) * push * sideBias,
+      x: point.x + (away.x * 0.5 + normal.x * 0.5) * push,
+      y: point.y + (away.y * 0.5 + normal.y * 0.5) * push,
     };
   }
 
@@ -179,33 +177,26 @@ export function humanizeLaneStand(
     (enemy) =>
       enemy.alive &&
       enemy.side !== champion.side &&
-      dist(enemy.position, point) < 320,
+      dist(enemy.position, point) < Math.max(420, enemy.attackRange + 80),
   );
   if (foe) {
     const gap = dist(point, foe.position);
-    if (gap > 1 && gap < 280) {
-      const comfort =
-        champion.attackRange > 300 ? champion.attackRange * 0.92 : 250;
-      if (gap < comfort) {
-        const push = (comfort - gap) * 0.35;
-        point = {
-          x: point.x + normal.x * push,
-          y: point.y + normal.y * push,
-        };
-      }
+    const threat = foe.attackRange > 300 ? foe.attackRange + 30 : Math.max(175, foe.attackRange + 40);
+    if (gap > 1 && gap < threat * 0.82) {
+      const push = (threat * 0.82 - gap) * 0.28;
+      point = {
+        x: point.x + normal.x * push,
+        y: point.y + normal.y * push,
+      };
     }
   }
 
-  const phase = state.scheduler.time * 1.85 + idPhase(champion.id) * 6.3;
-  const alongAmp =
-    champion.positionLabel === 'SUPPORT' ? 48 : champion.positionLabel === 'MID' ? 70 : 62;
-  const sideAmp =
-    champion.positionLabel === 'SUPPORT' ? 36 : champion.positionLabel === 'TOP' ? 52 : 44;
-  const alongJitter = Math.sin(phase) * alongAmp + Math.sin(phase * 0.37 + 1.1) * (alongAmp * 0.35);
-  const sideJitter = Math.cos(phase * 0.91) * sideAmp + Math.cos(phase * 0.29) * (sideAmp * 0.3);
+  const phase = idPhase(champion.id) * Math.PI * 2;
+  const alongHold = Math.sin(phase) * 18;
+  const sideHold = Math.cos(phase * 1.3) * 14;
   point = {
-    x: point.x + frame.tangent.x * alongJitter + normal.x * sideJitter,
-    y: point.y + frame.tangent.y * alongJitter + normal.y * sideJitter,
+    x: point.x + frame.tangent.x * alongHold + normal.x * sideHold,
+    y: point.y + frame.tangent.y * alongHold + normal.y * sideHold,
   };
 
   return point;

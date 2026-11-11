@@ -310,7 +310,23 @@ V1 對照：碾壓局明顯更短（1387s）、金差更大（14.7k）。
 
 ---
 
-## 6. 可重跑方式
+## 6. 首塔軟節奏（健康帶，不是硬門檻）
+
+首外塔時間用「常見落點」看，**不對單場卡死秒數**：
+
+| 對局桶 | typical 帶 | outlier 外側 |
+|---|---|---|
+| even | 12–16 分（720–960s） | &lt;9 分或 &gt;18 分 |
+| advantage | 10–14 分（600–840s） | &lt;8 分或 &gt;17 分 |
+| stomp | 9–13 分（540–780s） | &lt;7 分或 &gt;16 分 |
+
+附帶敘事（不當 assert）：5–10 分常開始摳鍍層；約 12–16 分首外塔最常出現；15–20 分外塔陸續／轉線變多、場差大。
+
+`pro-feel-audit` 的 `firstOuterTowerSec` 會多報 `inBandPct`／`outlierPct`／`band`；主 audit spec **不因單場 outlier fail**。
+
+---
+
+## 7. 可重跑方式
 
 ```bash
 npx vitest run src/app/shared/sim-v2/diagnostics/pro-feel-audit.spec.ts
@@ -320,7 +336,7 @@ npx vitest run src/app/shared/sim-v2/diagnostics/pro-feel-audit.spec.ts
 
 ---
 
-## 7. 給後續討論的明確命題
+## 8. 給後續討論的明確命題
 
 請確認是否同意以下優先序：
 

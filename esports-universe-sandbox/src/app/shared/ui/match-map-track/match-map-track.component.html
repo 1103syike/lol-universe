@@ -85,7 +85,7 @@
         <header>
           <span>{{ homeLabel() }}</span>
           <span class="match-map__stat-cols" aria-hidden="true">
-            <em>技能</em><em>召喚</em><em>KDA</em><em>CS</em><em>傷害</em><em>承傷</em><em>經濟</em>
+            <em>技能</em><em>召喚</em><em>KDA</em><em>CS</em><em>經濟</em><em>戰況</em>
           </span>
         </header>
         <ul>
@@ -97,11 +97,8 @@
             >
               <span class="match-map__stat-role">{{ roleLabel(champ.position) }}</span>
               <span class="match-map__stat-face" [attr.title]="champ.gamertag">
-                <app-champion-icon [championId]="champ.championId" [size]="40" [bare]="true" />
+                <app-champion-icon [championId]="champ.championId" [size]="36" [bare]="true" />
                 <em class="match-map__stat-lv">{{ champ.level }}</em>
-              </span>
-              <div class="match-map__stat-id">
-                <strong class="match-map__stat-name">{{ champ.gamertag }}</strong>
                 <span
                   class="match-map__xp"
                   [attr.title]="xpLabel(champ)"
@@ -112,6 +109,9 @@
                 >
                   <i [style.width.%]="xpPercent(champ)"></i>
                 </span>
+              </span>
+              <div class="match-map__stat-id">
+                <strong class="match-map__stat-name">{{ champ.gamertag }}</strong>
               </div>
               <ul class="match-map__row-skills" aria-label="技能">
                 @for (ability of skillSlots(champ); track ability.slot) {
@@ -123,7 +123,7 @@
                     <app-ability-icon
                       [championId]="champ.championId"
                       [slot]="ability.slot"
-                      [size]="26"
+                      [size]="20"
                       [ready]="ability.ready"
                       [locked]="ability.level <= 0"
                     />
@@ -138,27 +138,60 @@
                 @for (spell of summonerSlots(champ); track spell.slot) {
                   <app-summoner-icon
                     [spellId]="spell.id"
-                    [size]="26"
+                    [size]="20"
                     [ready]="spell.ready"
                   />
                 }
               </div>
               <span class="match-map__stat-kda">{{ formatKda(champ) }}</span>
               <span class="match-map__stat-num" title="吃兵數">{{ formatCs(champ.cs) }}</span>
-              <span class="match-map__stat-num" title="對英雄傷害">{{ formatAmount(champ.damageToChamps) }}</span>
-              <span class="match-map__stat-num" title="承受來自英雄的傷害">{{ formatAmount(champ.damageTakenFromChamps) }}</span>
-              <span class="match-map__stat-num" title="總經濟（含被動金，與對陣圖相同）">{{ formatGold(champ.earnedGold) }}</span>
+              <span class="match-map__stat-num is-gold" title="總經濟（含被動金，與對陣圖相同）">{{ formatGold(champ.earnedGold) }}</span>
+              <span
+                class="match-map__stat-meta"
+                [attr.title]="'視野 ' + formatCs(champ.visionScore) + ' · 傷害 ' + formatAmount(champ.damageToChamps) + ' · 承傷 ' + formatAmount(champ.damageTakenFromChamps)"
+              >
+                <em class="is-vision">{{ formatCs(champ.visionScore) }}</em>
+                <strong>
+                  <b title="傷害">{{ formatAmount(champ.damageToChamps) }}</b>
+                  <i>/</i>
+                  <b title="承傷">{{ formatAmount(champ.damageTakenFromChamps) }}</b>
+                </strong>
+              </span>
             </li>
           } @empty {
             <li class="match-map__stat-empty">尚無藍方資料（請重跑一場）</li>
           }
         </ul>
       </section>
+
+      <div class="match-map__gold-diff" aria-label="各路線經濟差（藍 − 紅）">
+        <header class="match-map__gold-diff-head">
+          <span class="match-map__gold-diff-label">經濟差</span>
+          <em title="隊伍總經濟（藍:紅）">
+            <b>{{ formatGold(teamGoldBlue()) }}</b>
+            <i>:</i>
+            <b>{{ formatGold(teamGoldRed()) }}</b>
+          </em>
+        </header>
+        <ul>
+          @for (lane of laneGoldDiffs(); track lane.role) {
+            <li
+              [class.is-blue]="lane.diff > 0"
+              [class.is-red]="lane.diff < 0"
+              [class.is-even]="lane.diff === 0"
+              [attr.title]="roleTitle(lane.role) + ' 藍 ' + formatGold(lane.blue) + ' − 紅 ' + formatGold(lane.red)"
+            >
+              <strong>{{ formatGoldDiff(lane.diff) }}</strong>
+            </li>
+          }
+        </ul>
+      </div>
+
       <section class="match-map__team-stats is-red">
         <header>
           <span>{{ awayLabel() }}</span>
           <span class="match-map__stat-cols" aria-hidden="true">
-            <em>技能</em><em>召喚</em><em>KDA</em><em>CS</em><em>傷害</em><em>承傷</em><em>經濟</em>
+            <em>技能</em><em>召喚</em><em>KDA</em><em>CS</em><em>經濟</em><em>戰況</em>
           </span>
         </header>
         <ul>
@@ -170,11 +203,8 @@
             >
               <span class="match-map__stat-role">{{ roleLabel(champ.position) }}</span>
               <span class="match-map__stat-face" [attr.title]="champ.gamertag">
-                <app-champion-icon [championId]="champ.championId" [size]="40" [bare]="true" />
+                <app-champion-icon [championId]="champ.championId" [size]="36" [bare]="true" />
                 <em class="match-map__stat-lv">{{ champ.level }}</em>
-              </span>
-              <div class="match-map__stat-id">
-                <strong class="match-map__stat-name">{{ champ.gamertag }}</strong>
                 <span
                   class="match-map__xp"
                   [attr.title]="xpLabel(champ)"
@@ -185,6 +215,9 @@
                 >
                   <i [style.width.%]="xpPercent(champ)"></i>
                 </span>
+              </span>
+              <div class="match-map__stat-id">
+                <strong class="match-map__stat-name">{{ champ.gamertag }}</strong>
               </div>
               <ul class="match-map__row-skills" aria-label="技能">
                 @for (ability of skillSlots(champ); track ability.slot) {
@@ -196,7 +229,7 @@
                     <app-ability-icon
                       [championId]="champ.championId"
                       [slot]="ability.slot"
-                      [size]="26"
+                      [size]="20"
                       [ready]="ability.ready"
                       [locked]="ability.level <= 0"
                     />
@@ -211,16 +244,25 @@
                 @for (spell of summonerSlots(champ); track spell.slot) {
                   <app-summoner-icon
                     [spellId]="spell.id"
-                    [size]="26"
+                    [size]="20"
                     [ready]="spell.ready"
                   />
                 }
               </div>
               <span class="match-map__stat-kda">{{ formatKda(champ) }}</span>
               <span class="match-map__stat-num" title="吃兵數">{{ formatCs(champ.cs) }}</span>
-              <span class="match-map__stat-num" title="對英雄傷害">{{ formatAmount(champ.damageToChamps) }}</span>
-              <span class="match-map__stat-num" title="承受來自英雄的傷害">{{ formatAmount(champ.damageTakenFromChamps) }}</span>
-              <span class="match-map__stat-num" title="總經濟（含被動金，與對陣圖相同）">{{ formatGold(champ.earnedGold) }}</span>
+              <span class="match-map__stat-num is-gold" title="總經濟（含被動金，與對陣圖相同）">{{ formatGold(champ.earnedGold) }}</span>
+              <span
+                class="match-map__stat-meta"
+                [attr.title]="'視野 ' + formatCs(champ.visionScore) + ' · 傷害 ' + formatAmount(champ.damageToChamps) + ' · 承傷 ' + formatAmount(champ.damageTakenFromChamps)"
+              >
+                <em class="is-vision">{{ formatCs(champ.visionScore) }}</em>
+                <strong>
+                  <b title="傷害">{{ formatAmount(champ.damageToChamps) }}</b>
+                  <i>/</i>
+                  <b title="承傷">{{ formatAmount(champ.damageTakenFromChamps) }}</b>
+                </strong>
+              </span>
             </li>
           } @empty {
             <li class="match-map__stat-empty">尚無紅方資料（請重跑一場）</li>
@@ -234,12 +276,12 @@
         <span class="match-map__focus-face">
           <app-champion-icon [championId]="focus.championId" [size]="48" [bare]="true" />
           <em class="match-map__stat-lv">{{ focus.level }}</em>
-        </span>
-        <div class="match-map__focus-copy">
-          <strong>{{ focus.gamertag }}</strong>
           <span class="match-map__xp is-wide" [attr.title]="xpLabel(focus)">
             <i [style.width.%]="xpPercent(focus)"></i>
           </span>
+        </span>
+        <div class="match-map__focus-copy">
+          <strong>{{ focus.gamertag }}</strong>
           <span>
             HP {{ formatCs(focus.hp) }}/{{ formatCs(focus.maxHp) }}
             @if ((focus.maxMana ?? 0) > 1) {
@@ -299,25 +341,52 @@
                 />
               }
             </mask>
+            <mask [attr.id]="visionBlueMaskId">
+              <rect x="0" y="0" width="100" height="100" fill="#000" />
+              @for (blob of visionBlobsBlue(); track blob.id) {
+                <circle
+                  [attr.cx]="mapX(blob.x)"
+                  [attr.cy]="mapY(blob.y)"
+                  [attr.r]="sightRadiusPct(blob.sight)"
+                  fill="#fff"
+                />
+              }
+            </mask>
+            <mask [attr.id]="visionRedMaskId">
+              <rect x="0" y="0" width="100" height="100" fill="#000" />
+              @for (blob of visionBlobsRed(); track blob.id) {
+                <circle
+                  [attr.cx]="mapX(blob.x)"
+                  [attr.cy]="mapY(blob.y)"
+                  [attr.r]="sightRadiusPct(blob.sight)"
+                  fill="#fff"
+                />
+              }
+            </mask>
           </defs>
 
-          @for (blob of visionBlobs(); track blob.id) {
-            <circle
-              class="match-map__vision"
-              [class.is-blue]="blob.side === 'blue'"
-              [class.is-red]="blob.side === 'red'"
-              [class.is-ward]="blob.kind === 'ward'"
-              [class.is-control]="blob.wardKind === 'control'"
-              [class.is-champ]="blob.kind === 'champ'"
-              [class.is-tower]="blob.kind === 'tower' || blob.kind === 'inhibitor' || blob.kind === 'nexus' || blob.kind === 'fountain'"
-              [class.is-minion]="blob.kind === 'minion'"
-              [attr.cx]="mapX(blob.x)"
-              [attr.cy]="mapY(blob.y)"
-              [attr.r]="sightRadiusPct(blob.sight)"
+          @if (visionBlobsBlue().length > 0) {
+            <rect
+              class="match-map__vision-wash is-blue"
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              [attr.mask]="`url(#${visionBlueMaskId})`"
+            />
+          }
+          @if (visionBlobsRed().length > 0) {
+            <rect
+              class="match-map__vision-wash is-red"
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              [attr.mask]="`url(#${visionRedMaskId})`"
             />
           }
 
-          @if (fogSide() === 'blue' || fogSide() === 'red') {
+          @if (fogSide() !== 'off') {
             <rect
               class="match-map__fog"
               x="0"
@@ -339,17 +408,55 @@
                 [attr.cy]="mapY(minion.y)"
                 [attr.r]="minion.role === 'cannon' || minion.role === 'super' ? 0.85 : 0.55"
               />
+              @if (minionHpBar(minion); as bar) {
+                <rect
+                  class="match-map__unit-hp-bg"
+                  [attr.x]="bar.x"
+                  [attr.y]="bar.y"
+                  [attr.width]="bar.width"
+                  height="0.28"
+                  rx="0.12"
+                />
+                <rect
+                  class="match-map__unit-hp"
+                  [class.is-blue]="minion.side === 'blue'"
+                  [class.is-red]="minion.side === 'red'"
+                  [attr.x]="bar.x"
+                  [attr.y]="bar.y"
+                  [attr.width]="bar.fill"
+                  height="0.28"
+                  rx="0.12"
+                />
+              }
             }
           }
 
           @for (monster of jungleMonsters(); track monster.id) {
-            @if (fogSide() === 'off' || fogSide() === 'both' || pointVisibleToFog(monster.x, monster.y)) {
+            @if (fogSide() === 'off' || pointVisibleToFog(monster.x, monster.y)) {
               <circle
                 class="match-map__camp-live"
                 [attr.cx]="mapX(monster.x)"
                 [attr.cy]="mapY(monster.y)"
                 r="0.75"
               />
+              @if (monsterHpBar(monster); as bar) {
+                <rect
+                  class="match-map__unit-hp-bg"
+                  [attr.x]="bar.x"
+                  [attr.y]="bar.y"
+                  [attr.width]="bar.width"
+                  height="0.28"
+                  rx="0.12"
+                />
+                <rect
+                  class="match-map__unit-hp is-neutral"
+                  [attr.x]="bar.x"
+                  [attr.y]="bar.y"
+                  [attr.width]="bar.fill"
+                  height="0.28"
+                  rx="0.12"
+                />
+              }
             }
           }
         </svg>
@@ -370,6 +477,11 @@
                 <app-champion-icon [championId]="ward.ownerChampionId" [size]="12" [bare]="true" />
               </span>
             }
+            @if (ward.maxHp > 0) {
+              <span class="match-map__ward-hp" aria-hidden="true">
+                <i [style.width.%]="wardHpPct(ward)"></i>
+              </span>
+            }
           </i>
         }
 
@@ -381,20 +493,33 @@
             [style.top.%]="mapY(structure.y)"
             [style.width.px]="structureBuildingSize(structure)"
             [style.height.px]="structureBuildingSize(structure)"
-            [attr.title]="structure.structureId + (structure.alive ? '' : '（已摧毀）')"
+            [attr.title]="structureTitle(structure)"
           >
             <img [src]="structureBuildingSrc(structure)" alt="" draggable="false" />
+            @if (structure.alive && structure.maxHp > 0) {
+              <span class="match-map__structure-hp" aria-hidden="true">
+                <i [style.width.%]="structureHpPct(structure)"></i>
+              </span>
+            }
           </i>
         }
 
         @for (monster of objectiveMonsters(); track monster.id) {
-          <i
-            class="match-map__obj-icon"
-            [style.left.%]="mapX(monster.x)"
-            [style.top.%]="mapY(monster.y)"
-            [ngStyle]="objectiveIconStyle(monster) ?? {}"
-            [attr.title]="objectiveLabel(monster)"
-          ></i>
+          @if (fogSide() === 'off' || pointVisibleToFog(monster.x, monster.y)) {
+            <i
+              class="match-map__obj-icon"
+              [style.left.%]="mapX(monster.x)"
+              [style.top.%]="mapY(monster.y)"
+              [ngStyle]="objectiveIconStyle(monster) ?? {}"
+              [attr.title]="objectiveLabel(monster)"
+            >
+              @if (monster.maxHp > 0) {
+                <span class="match-map__obj-hp" aria-hidden="true">
+                  <i [style.width.%]="monsterHpPct(monster)"></i>
+                </span>
+              }
+            </i>
+          }
         }
 
         @for (champ of current()?.champions ?? []; track champ.playerId) {
@@ -443,7 +568,7 @@
           <em>時間軸</em>
         </p>
         <ul class="match-map__log" aria-label="擊殺與資源時間軸">
-          @for (entry of visibleEvents(); track entry.t + entry.text) {
+          @for (entry of timelineEvents(); track entry.t + entry.text) {
             <li
               class="match-map__feed"
               [class.is-kill]="entry.kind === 'kill'"
@@ -451,9 +576,15 @@
               [class.is-end]="entry.kind === 'end'"
               [class.is-blue]="entry.side === 'blue'"
               [class.is-red]="entry.side === 'red'"
-              [class.is-latest]="$last"
+              [class.is-active]="isActiveEvent(entry.t)"
+              [class.is-future]="entry.t > currentTime() + 2"
               [class.is-fb]="entry.firstBlood"
-              [attr.title]="entry.text"
+              [attr.title]="entry.text + '（點擊跳到此時）'"
+              role="button"
+              tabindex="0"
+              (click)="seekToTime(entry.t)"
+              (keydown.enter)="seekToTime(entry.t)"
+              (keydown.space)="$event.preventDefault(); seekToTime(entry.t)"
             >
               <span class="match-map__feed-clock">{{ entry.clock }}</span>
 
@@ -481,53 +612,71 @@
                       </div>
                     }
                     <div class="match-map__feed-duel">
-                      @if (entry.killer?.championId; as killerId) {
-                        <span
-                          class="match-map__feed-main is-killer"
-                          [class.is-blue]="entry.killer?.side === 'blue'"
-                          [class.is-red]="entry.killer?.side === 'red'"
-                          [attr.title]="entry.killer?.gamertag"
-                        >
-                          <app-champion-icon [championId]="killerId" [size]="34" [bare]="true" />
-                        </span>
-                      } @else {
-                        <span class="match-map__feed-fallback">{{ entry.killer?.gamertag ?? '?' }}</span>
-                      }
+                      <div class="match-map__feed-actor is-killer">
+                        @if (feedMinionStyle(entry); as minionStyle) {
+                          <span
+                            class="match-map__feed-main match-map__feed-minion"
+                            [class.is-blue]="entry.killerMinion?.side === 'blue'"
+                            [class.is-red]="entry.killerMinion?.side === 'red'"
+                            [ngStyle]="minionStyle"
+                            [attr.title]="entry.killerMinion?.label"
+                          ></span>
+                        } @else if (feedMonsterStyle(entry); as monsterStyle) {
+                          <span
+                            class="match-map__feed-main match-map__feed-monster"
+                            [ngStyle]="monsterStyle"
+                            [attr.title]="entry.killerMonster?.label"
+                          ></span>
+                        } @else if (feedBuildingKillerStyle(entry); as buildingStyle) {
+                          <span
+                            class="match-map__feed-main match-map__feed-building"
+                            [class.is-blue]="entry.killerBuilding?.side === 'blue'"
+                            [class.is-red]="entry.killerBuilding?.side === 'red'"
+                            [ngStyle]="buildingStyle"
+                            [attr.title]="entry.killerBuilding?.label"
+                          ></span>
+                        } @else if (entry.killer?.championId; as killerId) {
+                          <span
+                            class="match-map__feed-main"
+                            [class.is-blue]="entry.killer?.side === 'blue'"
+                            [class.is-red]="entry.killer?.side === 'red'"
+                            [attr.title]="entry.killer?.gamertag"
+                          >
+                            <app-champion-icon [championId]="killerId" [size]="34" [bare]="true" />
+                          </span>
+                          <em class="match-map__feed-name">{{ entry.killer?.gamertag ?? '?' }}</em>
+                        } @else {
+                          <span class="match-map__feed-fallback">?</span>
+                        }
+                      </div>
                       <span class="match-map__feed-action" aria-hidden="true">⚔</span>
-                      @if (entry.victim?.championId; as victimId) {
-                        <span
-                          class="match-map__feed-main is-victim"
-                          [class.is-blue]="entry.victim?.side === 'blue'"
-                          [class.is-red]="entry.victim?.side === 'red'"
-                          [attr.title]="entry.victim?.gamertag"
-                        >
-                          <app-champion-icon [championId]="victimId" [size]="34" [bare]="true" />
-                        </span>
-                      } @else {
-                        <span class="match-map__feed-fallback">{{ entry.victim?.gamertag ?? '?' }}</span>
-                      }
+                      <div class="match-map__feed-actor is-victim">
+                        @if (entry.victim?.championId; as victimId) {
+                          <span
+                            class="match-map__feed-main"
+                            [class.is-blue]="entry.victim?.side === 'blue'"
+                            [class.is-red]="entry.victim?.side === 'red'"
+                            [attr.title]="entry.victim?.gamertag"
+                          >
+                            <app-champion-icon [championId]="victimId" [size]="34" [bare]="true" />
+                          </span>
+                          <em class="match-map__feed-name">{{ entry.victim?.gamertag ?? '?' }}</em>
+                        } @else {
+                          <span class="match-map__feed-fallback">?</span>
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
-                <p class="match-map__feed-caption">
-                  @if (entry.firstBlood) {
-                    <em>一血</em>
-                  }
-                  @if (entry.mistake) {
-                    <em>失誤</em>
-                  }
-                  <span
-                    class="match-map__feed-side-tag"
-                    [class.is-blue]="entry.side === 'blue'"
-                    [class.is-red]="entry.side === 'red'"
-                  >
-                    {{ entry.side === 'blue' ? homeLabel() : entry.side === 'red' ? awayLabel() : '' }}擊殺
-                  </span>
-                  {{ entry.killer?.gamertag }}
+                <div class="match-map__feed-caption">
+                  <strong
+                    class="match-map__feed-announce"
+                    [class]="announceToneClass(entry)"
+                  >{{ entry.announce || '擊殺' }}</strong>
                   @if (entry.assists.length > 0) {
                     <span class="match-map__feed-assist-tag">助攻×{{ entry.assists.length }}</span>
                   }
-                </p>
+                </div>
               } @else {
                 <div
                   class="match-map__feed-row"
@@ -553,63 +702,74 @@
                       </div>
                     }
                     <div class="match-map__feed-duel">
-                      @if (entry.killer?.championId; as takerId) {
-                        <span
-                          class="match-map__feed-main is-killer"
-                          [class.is-blue]="entry.killer?.side === 'blue'"
-                          [class.is-red]="entry.killer?.side === 'red'"
-                          [attr.title]="entry.killer?.gamertag"
-                        >
-                          <app-champion-icon [championId]="takerId" [size]="34" [bare]="true" />
-                        </span>
-                      } @else {
-                        <span class="match-map__feed-fallback">
-                          {{
-                            entry.side === 'blue'
-                              ? homeLabel()
-                              : entry.side === 'red'
-                                ? awayLabel()
-                                : '?'
-                          }}
-                        </span>
-                      }
+                      <div class="match-map__feed-actor is-killer">
+                        @if (feedMinionStyle(entry); as minionStyle) {
+                          <span
+                            class="match-map__feed-main match-map__feed-minion"
+                            [class.is-blue]="entry.killerMinion?.side === 'blue'"
+                            [class.is-red]="entry.killerMinion?.side === 'red'"
+                            [ngStyle]="minionStyle"
+                            [attr.title]="entry.killerMinion?.label"
+                          ></span>
+                        } @else if (entry.killer?.championId; as takerId) {
+                          <span
+                            class="match-map__feed-main"
+                            [class.is-blue]="entry.killer?.side === 'blue'"
+                            [class.is-red]="entry.killer?.side === 'red'"
+                            [attr.title]="entry.killer?.gamertag"
+                          >
+                            <app-champion-icon [championId]="takerId" [size]="34" [bare]="true" />
+                          </span>
+                          <em class="match-map__feed-name">{{ entry.killer?.gamertag }}</em>
+                        } @else {
+                          <span
+                            class="match-map__feed-fallback"
+                            [attr.title]="
+                              entry.side === 'blue'
+                                ? homeLabel()
+                                : entry.side === 'red'
+                                  ? awayLabel()
+                                  : '未知'
+                            "
+                          >
+                            {{
+                              entry.side === 'blue'
+                                ? homeLabel()
+                                : entry.side === 'red'
+                                  ? awayLabel()
+                                  : '?'
+                            }}
+                          </span>
+                        }
+                      </div>
                       <span class="match-map__feed-action" aria-hidden="true">⚔</span>
-                      @if (feedIconStyle(entry); as iconStyle) {
-                        <i class="match-map__feed-obj" [ngStyle]="iconStyle" [attr.title]="entry.objectiveLabel"></i>
-                      } @else {
-                        <span class="match-map__feed-fallback">{{ entry.objectiveLabel }}</span>
-                      }
+                      <div class="match-map__feed-actor is-victim">
+                        @if (feedIconStyle(entry); as iconStyle) {
+                          <i
+                            class="match-map__feed-obj match-map__feed-obj--slot"
+                            [ngStyle]="iconStyle"
+                            [attr.title]="entry.objectiveLabel"
+                          ></i>
+                        } @else {
+                          <span class="match-map__feed-fallback">{{ entry.objectiveLabel }}</span>
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
-                <p class="match-map__feed-caption">
-                  <span
-                    class="match-map__feed-side-tag"
-                    [class.is-blue]="entry.side === 'blue'"
-                    [class.is-red]="entry.side === 'red'"
-                  >
-                    {{
-                      entry.side === 'blue'
-                        ? homeLabel()
-                        : entry.side === 'red'
-                          ? awayLabel()
-                          : ''
-                    }}{{
-                      entry.icon === 'tower' || entry.icon === 'inhibitor' || entry.icon === 'nexus'
-                        ? '拆除'
-                        : '拿下'
-                    }}
-                  </span>
-                  {{ entry.killer?.gamertag }}
-                  {{ entry.objectiveLabel }}
+                <div class="match-map__feed-caption">
+                  <strong
+                    class="match-map__feed-announce"
+                    [class]="announceToneClass(entry)"
+                  >{{ entry.announce || entry.objectiveLabel || '目標' }}</strong>
                   @if (entry.assists.length > 0) {
                     <span class="match-map__feed-assist-tag">助攻×{{ entry.assists.length }}</span>
                   }
-                </p>
+                </div>
               }
             </li>
           } @empty {
-            <li class="match-map__log-empty">拖曳時間軸查看擊殺與助攻</li>
+            <li class="match-map__log-empty">尚無事件 · 點擊條目可跳到該時間</li>
           }
         </ul>
       </aside>

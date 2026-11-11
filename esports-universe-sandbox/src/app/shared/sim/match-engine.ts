@@ -44,6 +44,7 @@ export interface SimulateGameInput {
   random?: () => number;
   forceWinnerTeamId?: string;
   dateIso?: string;
+  onProgress?: (progress01: number) => void;
 }
 
 export interface SimulateSeriesInput extends SimulateGameInput {
@@ -200,6 +201,7 @@ function simulateGameOnce(input: SimulateGameInput, draftBias = 0): MatchReport 
         power: draft.away.power,
         picks: draft.away.picks,
       },
+      steps: draft.steps,
     },
   };
 }
@@ -230,6 +232,39 @@ export function simulateSeries(input: SimulateSeriesInput): SimulateSeriesResult
       random: input.random,
       dateIso: input.dateIso,
       forceWinnerTeamId: input.forceWinnerTeamId,
+    });
+    reports.push(report);
+    input.onGame?.(report.winnerTeamId, report);
+    if (report.winnerTeamId === input.home.teamId) {
+      homeWins += 1;
+    } else {
+      awayWins += 1;
+    }
+  }
+
+  return {
+    winnerTeamId: homeWins >= input.need ? input.home.teamId : input.away.teamId,
+    homeWins,
+    awayWins,
+    reports,
+  };
+}
+
+export async function simulateSeriesAsync(
+  input: SimulateSeriesInput,
+): Promise<SimulateSeriesResult> {
+  const reports: MatchReport[] = [];
+  let homeWins = 0;
+  let awayWins = 0;
+
+  while (homeWins < input.need && awayWins < input.need) {
+    const report = await simulateGameAsync({
+      home: input.home,
+      away: input.away,
+      random: input.random,
+      dateIso: input.dateIso,
+      forceWinnerTeamId: input.forceWinnerTeamId,
+      onProgress: input.onProgress,
     });
     reports.push(report);
     input.onGame?.(report.winnerTeamId, report);

@@ -1,7 +1,7 @@
 import { assignSummonerSlots, pickSummonerPair } from '../../../core/data/summoner-spells';
 import type { PlayerPosition } from '../../../core/models/player.model';
 import { setForm } from '../combat/form-kits';
-import { recomputeItemStats } from '../economy/economy';
+import { investAbilityPoints, recomputeItemStats } from '../economy/economy';
 import { allocEntityId, type GameState } from '../state/game-state';
 import type { ChampionEntity } from '../state/entities';
 import type { ItemId, LaneId, TeamSide } from '../types/ids';
@@ -168,6 +168,7 @@ export function spawnChampion(
     levelSamples: [{ t: 0, level: 1 }],
     threatTable: {},
     knownEnemyPositions: {},
+    abilityBag: {},
     skills: {
       laning: player.laning,
       mechanics: player.mechanics,
@@ -177,6 +178,7 @@ export function spawnChampion(
       adaptability: player.adaptability,
     },
   };
+  investAbilityPoints(entity);
   state.champions.push(entity);
   const formStart = FORM_START[player.championId];
   if (formStart) {

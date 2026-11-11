@@ -195,13 +195,17 @@
   },
   "fountains": {
     "blue": {
-      "x": 900,
-      "y": 850
+      "x": 1050,
+      "y": 950
     },
     "red": {
-      "x": 14200,
-      "y": 14250
+      "x": 14150,
+      "y": 14200
     }
+  },
+  "attackRanges": {
+    "tower": 825,
+    "fountain": 625
   },
   "paintShapes": [
     {

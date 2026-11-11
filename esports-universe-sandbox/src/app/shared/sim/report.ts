@@ -1,6 +1,6 @@
 import type { CompIntent } from '../../core/models/patch.model';
 import type { AttributeKey, PlayerPosition } from '../../core/models/player.model';
-import type { DraftBanEntry, DraftPickEntry } from './draft';
+import type { DraftBanEntry, DraftPickEntry, DraftStep } from './draft';
 import type { MatchArchetypeResult } from './match-archetype';
 import type { MatchBoxScore } from './match-stats';
 
@@ -76,6 +76,7 @@ export interface MatchDraftReport {
   bans: DraftBanEntry[];
   home: MatchDraftSideReport;
   away: MatchDraftSideReport;
+  steps?: DraftStep[];
 }
 
 export interface MatchReport {

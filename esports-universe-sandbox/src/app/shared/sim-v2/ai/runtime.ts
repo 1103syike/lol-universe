@@ -1,5 +1,7 @@
 import type { LaneId, TeamSide } from '../types/ids';
 import type { GameState } from '../state/game-state';
+import type { LaningPhaseState } from './laning-phase';
+import type { CloseoutPlan } from './closeout-director';
 import type { MatchPhase, TeamPlan, UnitAssignment } from './types';
 
 export interface ResetMemory {
@@ -20,6 +22,17 @@ export interface IntentStick {
   until: number;
 }
 
+export interface LaneStandHold {
+  x: number;
+  y: number;
+  until: number;
+}
+
+export interface InvadeRespondLease {
+  point: { x: number; y: number };
+  until: number;
+}
+
 export interface MatchAiRuntime {
   resets: Map<string, ResetMemory>;
   recallLockUntil: Map<string, number>;
@@ -27,6 +40,10 @@ export interface MatchAiRuntime {
   laneLeases: Map<string, LaneLease>;
   laneRoamCooldownUntil: Map<string, number>;
   intentStick: Map<string, IntentStick>;
+  laneStandHold: Map<string, LaneStandHold>;
+  laningPhase: Map<string, LaningPhaseState>;
+  invadeRespond: Map<string, InvadeRespondLease>;
+  closeoutPlans: Record<TeamSide, CloseoutPlan | null>;
   phases: Record<TeamSide, MatchPhase>;
   teamPlans: Record<TeamSide, TeamPlan | null>;
   assignments: Map<string, UnitAssignment>;
@@ -49,6 +66,10 @@ export function getMatchAiRuntime(state: GameState): MatchAiRuntime {
       laneLeases: new Map(),
       laneRoamCooldownUntil: new Map(),
       intentStick: new Map(),
+      laneStandHold: new Map(),
+      laningPhase: new Map(),
+      invadeRespond: new Map(),
+      closeoutPlans: { blue: null, red: null },
       phases: { blue: 'opening', red: 'opening' },
       teamPlans: { blue: null, red: null },
       assignments: new Map(),
@@ -76,7 +97,7 @@ export const DEFEND_ASSIGNEE_CAP = 3;
 export const OBJECTIVE_CORE_CAP = 4;
 export const BARON_CORE_CAP = 5;
 export const SIEGE_CORE_CAP = 3;
-export const CLOSEOUT_SIEGE_CORE_CAP = 4;
+export const CLOSEOUT_SIEGE_CORE_CAP = 5;
 export const RESET_MAX_BASE_SEC = 12;
 export const RESET_STALL_TICKS = 2;
 export const RECALL_LOCK_AFTER_LEAVE_SEC = 28;
@@ -84,5 +105,5 @@ export const LANE_LEASE_SEC = 24;
 export const PLAN_HOLD_SEC = 12;
 export const PLAN_OBJECTIVE_SEC = 18;
 export const PLAN_SIEGE_SEC = 16;
-export const PLAN_CLOSEOUT_SIEGE_SEC = 24;
+export const PLAN_CLOSEOUT_SIEGE_SEC = 48;
 export const PLAN_DEFEND_SEC = 10;

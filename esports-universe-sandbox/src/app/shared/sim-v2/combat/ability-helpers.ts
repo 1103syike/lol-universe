@@ -61,6 +61,31 @@ export function hitChampionsInRadius(
     applyDamage(state, caster, enemy, raw, damageType, recorder, via);
     hits += 1;
   }
+  const minionRaw = raw * 0.85;
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.side === caster.side) {
+      continue;
+    }
+    if (dist(caster.position, minion.position) > radius) {
+      continue;
+    }
+    applyDamage(state, caster, minion, minionRaw, damageType, recorder, via);
+    hits += 1;
+  }
+  for (const monster of state.monsters) {
+    if (!monster.alive) {
+      continue;
+    }
+    if (monster.spawnProtectUntil > state.scheduler.time) {
+      continue;
+    }
+    if (dist(caster.position, monster.position) > radius) {
+      continue;
+    }
+    applyDamage(state, caster, monster, raw, damageType, recorder, via);
+    monster.aggroTargetId = caster.id;
+    hits += 1;
+  }
   return hits;
 }
 
@@ -130,8 +155,67 @@ export function pullTargetTo(
   target.moving = false;
 }
 
+export function knockbackTargetAway(
+  caster: ChampionEntity,
+  target: ChampionEntity,
+  distance = 350,
+  state?: GameState,
+): void {
+  const gap = dist(caster.position, target.position);
+  const away =
+    gap < 1e-6
+      ? {
+          x: target.position.x + distance,
+          y: target.position.y,
+        }
+      : {
+          x: caster.position.x + ((target.position.x - caster.position.x) / gap) * (gap + distance),
+          y: caster.position.y + ((target.position.y - caster.position.y) / gap) * (gap + distance),
+        };
+  const map = state?.lockedPack.map;
+  target.position = map
+    ? dashTowardWalkable(map, target.position, away, distance + 50)
+    : away;
+  target.path = [];
+  target.moving = false;
+}
+
 export function applyStun(target: ChampionEntity, id: string, sec: number): void {
   pushStatus(target, { id, kind: 'stun', remainingSec: sec, magnitude: 1 });
+}
+
+export function applyHardCc(
+  target: ChampionEntity,
+  id: string,
+  sec: number,
+  softFallback = false,
+): void {
+  if (softFallback) {
+    applySlow(target, `${id}:slow`, Math.max(1.2, sec), 35);
+    return;
+  }
+  applyStun(target, id, sec);
+}
+
+export function championsInRadius(
+  state: GameState,
+  origin: { x: number; y: number },
+  radius: number,
+  side?: ChampionEntity['side'],
+  excludeId?: string,
+): ChampionEntity[] {
+  return state.champions.filter((champ) => {
+    if (!champ.alive) {
+      return false;
+    }
+    if (excludeId && champ.id === excludeId) {
+      return false;
+    }
+    if (side && champ.side === side) {
+      return false;
+    }
+    return dist(origin, champ.position) <= radius;
+  });
 }
 
 export { dist, recomputeItemStats };

@@ -1,6 +1,7 @@
+import { getChampionById } from '../../../core/data/champions';
 import type { Player, PlayerPosition } from '../../../core/models/player.model';
 import { calculateChemistry } from '../../sim/chemistry';
-import { runClassicDraft, type DraftResult } from '../../sim/draft';
+import { runClassicDraft, type DraftPickEntry, type DraftResult, type DraftStep } from '../../sim/draft';
 import type { SimulateGameInput } from '../../sim/match-engine';
 import type { MatchDraftReport } from '../../sim/report';
 import type { ChampionMetaEntry, PatchMetaTable } from '../../../core/models/patch.model';
@@ -11,17 +12,41 @@ import type { SimulateV2Input } from '../engine';
 import { hashSeed } from '../rng';
 import { getVersionPack, listVersionIds } from '../version/registry';
 
-function mergeVersionPatchMeta(base: PatchMetaTable, versionId: string): PatchMetaTable {
+export interface PreparedV2Match {
+  input: SimulateV2Input;
+  draft: DraftResult;
+  steps: DraftStep[];
+}
+
+const PACK_SYNTH_META = {
+  presence: 0.06,
+  pickRate: 0.03,
+  banRate: 0.02,
+  winRate: 0.5,
+} as const;
+
+export function mergeVersionPatchMeta(base: PatchMetaTable, versionId: string): PatchMetaTable {
   const pack = getVersionPack(versionId);
   const merged: Record<string, ChampionMetaEntry> = { ...base };
-  for (const [championId, strength] of Object.entries(pack.patchStrength)) {
+  for (const championId of Object.keys(pack.champions)) {
+    const strengthPower = pack.patchStrength[championId]?.power ?? 45;
     const prev = merged[championId];
+    if (prev) {
+      merged[championId] = {
+        presence: prev.presence,
+        pickRate: prev.pickRate,
+        banRate: prev.banRate,
+        winRate: prev.winRate,
+        power: Math.round(prev.power * 0.55 + strengthPower * 0.45),
+      };
+      continue;
+    }
     merged[championId] = {
-      presence: strength.presence,
-      pickRate: prev?.pickRate ?? strength.presence * 0.7,
-      banRate: prev?.banRate ?? Math.max(0.02, strength.presence * 0.35),
-      winRate: prev?.winRate ?? 0.48 + (strength.power - 50) / 400,
-      power: strength.power,
+      presence: PACK_SYNTH_META.presence,
+      pickRate: PACK_SYNTH_META.pickRate,
+      banRate: PACK_SYNTH_META.banRate,
+      winRate: PACK_SYNTH_META.winRate,
+      power: Math.round(strengthPower),
     };
   }
   return merged;
@@ -86,10 +111,11 @@ export function toMatchDraftReport(draft: DraftResult): MatchDraftReport {
       power: draft.away.power,
       picks: draft.away.picks,
     },
+    steps: draft.steps,
   };
 }
 
-export function buildV2Input(input: SimulateGameInput, seed?: string | number): SimulateV2Input {
+export function prepareV2Match(input: SimulateGameInput, seed?: string | number): PreparedV2Match {
   const random = input.random ?? Math.random;
   const versionId = resolveV2VersionId(input.dateIso);
   const homePlayers = starters(input.home.players);
@@ -110,11 +136,69 @@ export function buildV2Input(input: SimulateGameInput, seed?: string | number): 
   );
   const patch = resolvePatchVersion(input.dateIso);
   const meta = mergeVersionPatchMeta(resolvePatchMeta(patch), versionId);
-  const draft = runClassicDraft({ home, away, patch, meta, random });
+  const pack = getVersionPack(versionId);
+  const allowedChampionIds = new Set(Object.keys(pack.champions));
+  const draft = runClassicDraft({ home, away, patch, meta, random, allowedChampionIds });
   const pickMap = new Map<string, string>();
   for (const pick of [...draft.home.picks, ...draft.away.picks]) {
-    pickMap.set(pick.playerId, pick.championId);
+    const locked = ensureChampion(versionId, pick.championId, pick.position);
+    pick.championId = locked;
+    pick.championNameZh = getChampionById(locked)?.nameZh ?? locked;
+    pickMap.set(pick.playerId, locked);
   }
+  draft.bans = draft.bans.filter((ban) => allowedChampionIds.has(ban.championId));
+  draft.steps = draft.steps
+    .map((step) => {
+      if (step.kind === 'ban') {
+        if (!allowedChampionIds.has(step.championId)) {
+          return null;
+        }
+        return step;
+      }
+      const locked = ensureChampion(versionId, step.pick.championId, step.pick.position);
+      const nextPick: DraftPickEntry = {
+        ...step.pick,
+        championId: locked,
+        championNameZh: getChampionById(locked)?.nameZh ?? locked,
+      };
+      return { ...step, pick: nextPick };
+    })
+    .filter((step): step is DraftStep => step != null)
+    .map((step, index) => ({ ...step, index }));
+
+  const fillMissingDraftPicks = (
+    side: DraftResult['home'] | DraftResult['away'],
+    sideColor: 'blue' | 'red',
+    players: Player[],
+  ) => {
+    for (const player of players) {
+      if (pickMap.has(player.id)) {
+        continue;
+      }
+      const championId = ensureChampion(versionId, ROLE_FALLBACK[player.position], player.position);
+      const pick: DraftPickEntry = {
+        teamId: side.teamId,
+        playerId: player.id,
+        gamertag: player.gamertag,
+        position: player.position,
+        championId,
+        championNameZh: getChampionById(championId)?.nameZh ?? championId,
+        fitScore: 60,
+        metaPower: 40,
+      };
+      side.picks.push(pick);
+      pickMap.set(player.id, championId);
+      draft.steps.push({
+        kind: 'pick',
+        side: sideColor,
+        teamId: side.teamId,
+        pick: { ...pick },
+        index: draft.steps.length,
+      });
+    }
+  };
+  fillMissingDraftPicks(draft.home, 'blue', homePlayers);
+  fillMissingDraftPicks(draft.away, 'red', awayPlayers);
 
   const toRoster = (players: Player[]): V2RosterPlayer[] =>
     players.map((player) => ({
@@ -138,7 +222,7 @@ export function buildV2Input(input: SimulateGameInput, seed?: string | number): 
     seed ??
     hashSeed(`${input.home.teamId}:${input.away.teamId}:${input.dateIso ?? ''}:${random()}`);
 
-  return {
+  const v2Input: SimulateV2Input = {
     versionId,
     seed: resolvedSeed,
     blueTeamId: input.home.teamId,
@@ -148,4 +232,14 @@ export function buildV2Input(input: SimulateGameInput, seed?: string | number): 
     forceWinnerTeamId: input.forceWinnerTeamId,
     draft: toMatchDraftReport(draft),
   };
+
+  return {
+    input: v2Input,
+    draft,
+    steps: draft.steps,
+  };
+}
+
+export function buildV2Input(input: SimulateGameInput, seed?: string | number): SimulateV2Input {
+  return prepareV2Match(input, seed).input;
 }

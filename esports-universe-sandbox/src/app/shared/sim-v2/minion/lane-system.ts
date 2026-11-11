@@ -20,6 +20,271 @@ import type { LaneId, TeamSide } from '../types/ids';
 import { shouldSpawnCannon } from '../version/shared-content';
 
 const MINION_SPAWN_GAP_SEC = 0.792;
+const MINION_ACQUIRE_RANGE = 500;
+const MINION_CHASE_LEASH = 390;
+const MINION_STICKY_DROP_RANGE = MINION_ACQUIRE_RANGE + 40;
+const CALL_FOR_HELP_ALLY_RANGE = 1000;
+const CALL_FOR_HELP_HOLD_SEC = 3;
+const MINION_VS_CHAMPION_DAMAGE = 0.6;
+
+export function minionRawDamageToChampion(minion: MinionEntity): number {
+  return minion.ad * MINION_VS_CHAMPION_DAMAGE;
+}
+
+function findCallForHelpAttacker(
+  state: GameState,
+  minion: MinionEntity,
+): ChampionEntity | null {
+  const now = state.scheduler.time;
+  let best: ChampionEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const ally of state.champions) {
+    if (!ally.alive || ally.side !== minion.side) {
+      continue;
+    }
+    if (dist(minion.position, ally.position) > CALL_FOR_HELP_ALLY_RANGE) {
+      continue;
+    }
+    for (const [attackerId, threat] of Object.entries(ally.threatTable)) {
+      if (
+        !threat.callHelp ||
+        now - threat.at > CALL_FOR_HELP_HOLD_SEC ||
+        threat.amount <= 0
+      ) {
+        continue;
+      }
+      const attacker = state.champions.find((champ) => champ.id === attackerId);
+      if (!attacker?.alive || attacker.side === minion.side) {
+        continue;
+      }
+      if (attacker.recallPhase === 'at_base') {
+        continue;
+      }
+      const gap = dist(minion.position, attacker.position);
+      if (gap > MINION_ACQUIRE_RANGE) {
+        continue;
+      }
+      if (gap < bestDist) {
+        best = attacker;
+        bestDist = gap;
+      }
+    }
+  }
+  return best;
+}
+
+type MinionCombatKind = 'champion' | 'minion' | 'structure';
+
+interface MinionCombatTarget {
+  kind: MinionCombatKind;
+  id: string;
+  priority: number;
+  gap: number;
+}
+
+const PRIORITY_CFH_CHAMP = 1;
+const PRIORITY_MINION_ON_ALLY_CHAMP = 2;
+const PRIORITY_MINION_ON_ALLY_MINION = 3;
+const PRIORITY_STICKY_CHAMP = 4;
+const PRIORITY_CLOSEST_ENEMY_MINION = 5;
+const PRIORITY_STRUCTURE = 7;
+
+function clearMinionAggro(minion: MinionEntity, keepAnchor = false): void {
+  minion.targetId = null;
+  minion.aggroUntil = 0;
+  if (!keepAnchor) {
+    minion.aggroAnchor = null;
+  }
+}
+
+function lockMinionTarget(
+  minion: MinionEntity,
+  targetId: string,
+  until: number,
+  withChampionAnchor: boolean,
+): void {
+  if (withChampionAnchor && !minion.aggroAnchor) {
+    minion.aggroAnchor = { ...minion.position };
+  }
+  if (!withChampionAnchor) {
+    minion.aggroAnchor = null;
+  }
+  minion.targetId = targetId;
+  minion.aggroUntil = until;
+}
+
+function championTargetInvalid(
+  minion: MinionEntity,
+  champ: ChampionEntity,
+): boolean {
+  return (
+    !champ.alive ||
+    champ.side === minion.side ||
+    champ.recallPhase === 'at_base' ||
+    dist(minion.position, champ.position) > MINION_STICKY_DROP_RANGE
+  );
+}
+
+function pastChampionChaseLeash(minion: MinionEntity): boolean {
+  return (
+    !!minion.aggroAnchor &&
+    dist(minion.position, minion.aggroAnchor) >= MINION_CHASE_LEASH - 12
+  );
+}
+
+function enemyMinionPriority(
+  state: GameState,
+  minion: MinionEntity,
+  other: MinionEntity,
+): number {
+  if (!other.targetId) {
+    return PRIORITY_CLOSEST_ENEMY_MINION;
+  }
+  const targetChamp = state.champions.find((champ) => champ.id === other.targetId);
+  if (targetChamp?.alive && targetChamp.side === minion.side) {
+    return PRIORITY_MINION_ON_ALLY_CHAMP;
+  }
+  const targetMinion = state.minions.find((ally) => ally.id === other.targetId);
+  if (targetMinion?.alive && targetMinion.side === minion.side) {
+    return PRIORITY_MINION_ON_ALLY_MINION;
+  }
+  return PRIORITY_CLOSEST_ENEMY_MINION;
+}
+
+function findSiegeStructure(
+  state: GameState,
+  minion: MinionEntity,
+): { id: string; gap: number } | null {
+  let best: { id: string; gap: number } | null = null;
+  for (const item of state.structures) {
+    if (
+      !item.alive ||
+      item.side === minion.side ||
+      (item.lane &&
+        item.lane !== minion.lane &&
+        item.structureKind !== 'nexus' &&
+        item.structureKind !== 'nexus_tower') ||
+      !canSiege(state, item)
+    ) {
+      continue;
+    }
+    const gap = dist(minion.position, item.position);
+    if (gap > Math.max(item.range, 750) + 40) {
+      continue;
+    }
+    if (!best || gap < best.gap) {
+      best = { id: item.id, gap };
+    }
+  }
+  return best;
+}
+
+function currentSiegeStructure(
+  state: GameState,
+  minion: MinionEntity,
+): { id: string; gap: number } | null {
+  if (!minion.targetId) {
+    return null;
+  }
+  const item = state.structures.find((structure) => structure.id === minion.targetId);
+  if (
+    !item?.alive ||
+    item.side === minion.side ||
+    !canSiege(state, item)
+  ) {
+    return null;
+  }
+  const gap = dist(minion.position, item.position);
+  if (gap > Math.max(item.range, 750) + 40) {
+    return null;
+  }
+  return { id: item.id, gap };
+}
+
+function pickMinionCombatTarget(
+  state: GameState,
+  minion: MinionEntity,
+  acquireRange: number,
+): MinionCombatTarget | null {
+  const now = state.scheduler.time;
+  const sieging = currentSiegeStructure(state, minion);
+  const candidates: MinionCombatTarget[] = [];
+
+  if (!sieging) {
+    const callHelp = findCallForHelpAttacker(state, minion);
+    if (callHelp && !championTargetInvalid(minion, callHelp)) {
+      const gap = dist(minion.position, callHelp.position);
+      const hitRange = minion.attackRange + 80;
+      if (!(pastChampionChaseLeash(minion) && gap > hitRange)) {
+        candidates.push({
+          kind: 'champion',
+          id: callHelp.id,
+          priority: PRIORITY_CFH_CHAMP,
+          gap,
+        });
+      }
+    }
+  }
+
+  for (const other of state.minions) {
+    if (!other.alive || other.side === minion.side || other.id === minion.id) {
+      continue;
+    }
+    const gap = dist(minion.position, other.position);
+    if (gap > acquireRange) {
+      continue;
+    }
+    candidates.push({
+      kind: 'minion',
+      id: other.id,
+      priority: enemyMinionPriority(state, minion, other),
+      gap,
+    });
+  }
+
+  if (
+    !sieging &&
+    minion.targetId &&
+    minion.aggroUntil > now &&
+    !candidates.some((item) => item.kind === 'champion' && item.id === minion.targetId)
+  ) {
+    const sticky = state.champions.find((champ) => champ.id === minion.targetId);
+    if (sticky && !championTargetInvalid(minion, sticky)) {
+      const gap = dist(minion.position, sticky.position);
+      const hitRange = minion.attackRange + 80;
+      if (!(pastChampionChaseLeash(minion) && gap > hitRange)) {
+        candidates.push({
+          kind: 'champion',
+          id: sticky.id,
+          priority: PRIORITY_STICKY_CHAMP,
+          gap,
+        });
+      }
+    }
+  }
+
+  const structure = sieging ?? findSiegeStructure(state, minion);
+  if (structure) {
+    candidates.push({
+      kind: 'structure',
+      id: structure.id,
+      priority: PRIORITY_STRUCTURE,
+      gap: structure.gap,
+    });
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  candidates.sort((left, right) => {
+    if (left.priority !== right.priority) {
+      return left.priority - right.priority;
+    }
+    return left.gap - right.gap;
+  });
+  return candidates[0];
+}
 
 function waveRoles(
   state: GameState,
@@ -106,6 +371,8 @@ function spawnOneMinion(
     alive: true,
     gold,
     targetId: null,
+    aggroUntil: 0,
+    aggroAnchor: null,
   };
   state.minions.push(minion);
 }
@@ -150,6 +417,7 @@ export function spawnWave(state: GameState, recorder?: ReplayRecorder): void {
 export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecorder): void {
   const rules = state.lockedPack.minions;
   const map = state.lockedPack.map;
+  const now = state.scheduler.time;
   for (const minion of state.minions) {
     if (!minion.alive) {
       continue;
@@ -158,114 +426,146 @@ export function tickMinions(state: GameState, dt: number, recorder?: ReplayRecor
       minion.side === 'blue'
         ? map.lanePaths[minion.lane]
         : [...map.lanePaths[minion.lane]].reverse();
-    const champAcquire = Math.max(minion.attackRange + 40, 380);
-    let enemyChamp: (typeof state.champions)[number] | null = null;
-    let enemyChampDist = Number.POSITIVE_INFINITY;
-    for (const champ of state.champions) {
-      if (!champ.alive || champ.side === minion.side || champ.recallPhase === 'at_base') {
-        continue;
-      }
-      const d = dist(minion.position, champ.position);
-      if (d <= champAcquire && d < enemyChampDist) {
-        enemyChamp = champ;
-        enemyChampDist = d;
-      }
-    }
-    const enemyMinion = state.minions.find(
-      (other) =>
-        other.alive &&
-        other.side !== minion.side &&
-        other.lane === minion.lane &&
-        dist(minion.position, other.position) <= minion.attackRange + 40,
-    );
-    const champDrewAggro =
-      !!enemyChamp &&
-      Object.values(enemyChamp.threatTable).some(
-        (threat) => state.scheduler.time - threat.at <= 3.5 && threat.amount > 0,
-      );
-    const preferChamp =
-      !!enemyChamp &&
-      !enemyMinion &&
-      (champDrewAggro || enemyChamp.hp / Math.max(1, enemyChamp.maxHp) < 0.42);
-    if (preferChamp && enemyChamp) {
-      if (enemyChampDist > minion.attackRange + 40) {
-        const approach = nearestWalkable(map, enemyChamp.position) ?? enemyChamp.position;
-        const chasePath = findPath(map, minion.position, approach);
+    const hitLeeway = 80;
+    const acquireRange = Math.max(MINION_ACQUIRE_RANGE, minion.attackRange);
+    const combat = pickMinionCombatTarget(state, minion, acquireRange);
+
+    if (!combat) {
+      clearMinionAggro(minion);
+      if (minion.pathIndex < path.length - 1) {
+        const waypoint = path[minion.pathIndex + 1];
         const moved = advanceAlongWalkablePath(
           map,
           minion.position,
-          chasePath.length > 0 ? chasePath : [approach],
+          [waypoint],
           minion.moveSpeed,
           dt,
         );
         minion.position = moved.position;
-      } else if (state.scheduler.time >= minion.nextAttackAt) {
-        const t = state.scheduler.time;
-        const earlyScale = t < 480 ? 0.22 : t < 720 ? 0.38 : t < 1200 ? 0.55 : 0.72;
-        applyDamage(
-          state,
-          null,
-          enemyChamp,
-          minion.ad * earlyScale,
-          'physical',
-          recorder,
-          'minion',
-        );
-        minion.nextAttackAt = state.scheduler.time + rules.attackIntervalSec;
-      }
-      continue;
-    }
-    if (enemyMinion) {
-      if (state.scheduler.time >= minion.nextAttackAt) {
-        enemyMinion.hp -= minion.ad;
-        minion.nextAttackAt = state.scheduler.time + rules.attackIntervalSec;
-        if (enemyMinion.hp <= 0) {
-          enemyMinion.alive = false;
-          creditMinionKill(state, null, enemyMinion, recorder, 'minion');
+        if (moved.arrived) {
+          minion.pathIndex += 1;
         }
       }
       continue;
     }
-    const structure = state.structures.find(
-      (item) =>
-        item.alive &&
-        item.side !== minion.side &&
-        (!item.lane || item.lane === minion.lane || item.structureKind === 'nexus') &&
-        canSiege(state, item) &&
-        dist(minion.position, item.position) <= Math.max(item.range, 750) + 40,
-    );
-    if (structure) {
-      const hitRange = minion.attackRange + 80;
-      if (dist(minion.position, structure.position) > hitRange) {
-        const approach =
-          nearestWalkable(map, structure.position) ?? structure.position;
-        const siegePath = findPath(map, minion.position, approach);
-        const moved = advanceAlongWalkablePath(
-          map,
-          minion.position,
-          siegePath.length > 0 ? siegePath : [approach],
-          minion.moveSpeed,
-          dt,
+
+    if (combat.kind === 'champion') {
+      const champ = state.champions.find((item) => item.id === combat.id);
+      if (!champ || championTargetInvalid(minion, champ)) {
+        clearMinionAggro(minion);
+        continue;
+      }
+      lockMinionTarget(minion, champ.id, now + CALL_FOR_HELP_HOLD_SEC, true);
+      const hitRange = minion.attackRange + hitLeeway;
+      const champDist = dist(minion.position, champ.position);
+      if (champDist > hitRange) {
+        const anchor = minion.aggroAnchor ?? { ...minion.position };
+        if (!minion.aggroAnchor) {
+          minion.aggroAnchor = { ...minion.position };
+        }
+        const leashLeft = MINION_CHASE_LEASH - dist(minion.position, anchor);
+        if (leashLeft <= 12) {
+          clearMinionAggro(minion, true);
+          continue;
+        }
+        const dx = champ.position.x - minion.position.x;
+        const dy = champ.position.y - minion.position.y;
+        const gap = Math.hypot(dx, dy) || 1;
+        const step = Math.min(
+          minion.moveSpeed * dt,
+          Math.max(0, gap - hitRange + 8),
+          leashLeft,
         );
-        minion.position = moved.position;
-      } else if (state.scheduler.time >= minion.nextAttackAt) {
-        minionAttackStructure(state, minion, structure, recorder);
-        minion.nextAttackAt = state.scheduler.time + rules.attackIntervalSec;
+        if (step <= 0.5) {
+          clearMinionAggro(minion, true);
+          continue;
+        }
+        const next = {
+          x: minion.position.x + (dx / gap) * step,
+          y: minion.position.y + (dy / gap) * step,
+        };
+        if (dist(next, anchor) > MINION_CHASE_LEASH) {
+          clearMinionAggro(minion, true);
+          continue;
+        }
+        minion.position = next;
+        continue;
+      }
+      if (now < minion.nextAttackAt) {
+        continue;
+      }
+      applyDamage(
+        state,
+        minion,
+        champ,
+        minionRawDamageToChampion(minion),
+        'physical',
+        recorder,
+        'minion',
+      );
+      minion.nextAttackAt = now + rules.attackIntervalSec;
+      continue;
+    }
+
+    if (combat.kind === 'minion') {
+      const enemy = state.minions.find((item) => item.id === combat.id && item.alive);
+      if (!enemy) {
+        clearMinionAggro(minion);
+        continue;
+      }
+      lockMinionTarget(minion, enemy.id, now + CALL_FOR_HELP_HOLD_SEC, false);
+      const hitRange = minion.attackRange + hitLeeway;
+      if (dist(minion.position, enemy.position) > hitRange) {
+        const dx = enemy.position.x - minion.position.x;
+        const dy = enemy.position.y - minion.position.y;
+        const gap = Math.hypot(dx, dy) || 1;
+        const step = Math.min(minion.moveSpeed * dt, Math.max(0, gap - hitRange + 8));
+        if (step > 0.5) {
+          minion.position = {
+            x: minion.position.x + (dx / gap) * step,
+            y: minion.position.y + (dy / gap) * step,
+          };
+        }
+        continue;
+      }
+      if (now < minion.nextAttackAt) {
+        continue;
+      }
+      enemy.hp -= minion.ad;
+      minion.nextAttackAt = now + rules.attackIntervalSec;
+      if (enemy.hp <= 0) {
+        enemy.alive = false;
+        creditMinionKill(state, null, enemy, recorder, 'minion');
+        clearMinionAggro(minion);
       }
       continue;
     }
-    if (minion.pathIndex < path.length - 1) {
-      const target = path[minion.pathIndex + 1];
+
+    const structure = state.structures.find((item) => item.id === combat.id && item.alive);
+    if (!structure) {
+      clearMinionAggro(minion);
+      continue;
+    }
+    lockMinionTarget(minion, structure.id, now + CALL_FOR_HELP_HOLD_SEC, false);
+    const hitRange = minion.attackRange + hitLeeway;
+    if (dist(minion.position, structure.position) > hitRange) {
+      const approach = nearestWalkable(map, structure.position) ?? structure.position;
+      const siegePath = findPath(map, minion.position, approach);
       const moved = advanceAlongWalkablePath(
         map,
         minion.position,
-        [target],
+        siegePath.length > 0 ? siegePath : [approach],
         minion.moveSpeed,
         dt,
       );
       minion.position = moved.position;
-      if (moved.arrived) {
-        minion.pathIndex += 1;
+      continue;
+    }
+    if (now >= minion.nextAttackAt) {
+      minionAttackStructure(state, minion, structure, recorder);
+      minion.nextAttackAt = now + rules.attackIntervalSec;
+      if (!structure.alive) {
+        clearMinionAggro(minion);
       }
     }
   }
@@ -341,14 +641,64 @@ export function tryLastHit(
     champion.currentAction === 'farm' ||
     champion.currentAction === 'lane' ||
     champion.currentAction === 'wave_freeze';
+  const hpRatio = champion.hp / Math.max(1, champion.maxHp);
+  const laneThreat = state.champions.find(
+    (enemy) =>
+      enemy.alive &&
+      enemy.side !== champion.side &&
+      enemy.positionLabel !== 'JUNGLE' &&
+      dist(champion.position, enemy.position) <
+        Math.max(620, enemy.attackRange + 240),
+  );
+  const threatHp = laneThreat
+    ? laneThreat.hp / Math.max(1, laneThreat.maxHp)
+    : 1;
+  const farmFear =
+    !!laneThreat &&
+    (hpRatio < 0.55 || (hpRatio < 0.72 && threatHp > hpRatio + 0.08));
+  const underOwnTower = state.structures.some(
+    (structure) =>
+      structure.alive &&
+      structure.side === champion.side &&
+      structure.ad > 0 &&
+      dist(champion.position, structure.position) <= structure.range + 80,
+  );
+  let contestChance = shoving ? 0.62 + skill * 0.28 : 0.1 + skill * 0.22;
+  let shoveChance = 0.68 + skill * 0.22;
+  const threatGap = laneThreat ? dist(champion.position, laneThreat.position) : 9999;
+  const safeTowerFarm =
+    underOwnTower &&
+    (!laneThreat || threatGap > Math.max(520, laneThreat.attackRange + 160));
+  if (farmFear && !safeTowerFarm) {
+    contestChance *= underOwnTower ? 0.55 : 0.22;
+    shoveChance *= 0.2;
+  } else if (laneThreat && hpRatio < threatHp - 0.12) {
+    contestChance *= 0.5;
+    shoveChance *= 0.38;
+  } else if (!laneThreat || hpRatio > threatHp + 0.15) {
+    contestChance *= shoving ? 1.12 : 1.02;
+    shoveChance *= 1.12;
+  }
+  if (underOwnTower && canExecute) {
+    return attackMinion(state, champion, minion, recorder);
+  }
+  if (underOwnTower && farmFear && !safeTowerFarm) {
+    return false;
+  }
+  const hittingMe = minion.targetId === champion.id;
+  if (hittingMe) {
+    contestChance = Math.min(0.95, contestChance + 0.35);
+    shoveChance = Math.min(0.98, shoveChance + 0.2);
+  }
   const contestHit =
     underWave &&
-    minion.hp <= expected * (1.8 + skill * 0.8) &&
-    state.rng() < (shoving ? 0.55 + skill * 0.3 : 0.18 + skill * 0.35);
+    !shoving &&
+    minion.hp <= expected * (hittingMe ? 2.1 + skill * 0.5 : 1.45 + skill * 0.45) &&
+    state.rng() < contestChance;
   const shoveHit =
     shoving &&
-    minion.hp <= expected * (shoving ? 3.2 : 2.4) &&
-    state.rng() < 0.55 + skill * 0.25;
+    minion.hp <= expected * (minion.role === 'caster' ? 3.6 : 2.8) &&
+    state.rng() < shoveChance;
   if (!canExecute && !contestHit && !shoveHit) {
     return false;
   }
@@ -359,6 +709,7 @@ export function nearestEnemyMinionOnLane(
   state: GameState,
   champion: ChampionEntity,
   lane: LaneId,
+  mode: LastHitMode = 'default',
 ): MinionEntity | null {
   let best: MinionEntity | null = null;
   let bestScore = Number.POSITIVE_INFINITY;
@@ -371,7 +722,33 @@ export function nearestEnemyMinionOnLane(
       continue;
     }
     const executeBonus = minion.hp <= champion.ad * 1.35 ? -400 : 0;
-    const score = d + minion.hp * 0.15 + executeBonus;
+    const roleBias =
+      mode === 'shove'
+        ? minion.role === 'caster'
+          ? -180
+          : minion.role === 'cannon'
+            ? -60
+            : 0
+        : mode === 'freeze'
+          ? minion.hp <= champion.ad * 1.5
+            ? -220
+            : 80
+          : 0;
+    let aggroBias = 0;
+    if (minion.targetId === champion.id) {
+      aggroBias = -520;
+    } else if (minion.targetId) {
+      const aggroAlly = state.champions.find(
+        (ally) =>
+          ally.id === minion.targetId &&
+          ally.alive &&
+          ally.side === champion.side,
+      );
+      if (aggroAlly) {
+        aggroBias = -280;
+      }
+    }
+    const score = d + minion.hp * 0.15 + executeBonus + roleBias + aggroBias;
     if (score < bestScore) {
       best = minion;
       bestScore = score;
@@ -424,4 +801,29 @@ export function alliedWaveAnchor(
     }
   }
   return { x: front.position.x, y: front.position.y };
+}
+
+export function enemyWaveAnchor(
+  state: GameState,
+  champion: ChampionEntity,
+  lane: LaneId,
+): { x: number; y: number } | null {
+  const enemies = state.minions.filter(
+    (minion) => minion.alive && minion.side !== champion.side && minion.lane === lane,
+  );
+  if (enemies.length === 0) {
+    return null;
+  }
+  let closest = enemies[0];
+  let closestProgress = lanePathProgress(state, lane, closest.position);
+  for (let i = 1; i < enemies.length; i += 1) {
+    const progress = lanePathProgress(state, lane, enemies[i].position);
+    const isCloser =
+      champion.side === 'blue' ? progress < closestProgress : progress > closestProgress;
+    if (isCloser) {
+      closest = enemies[i];
+      closestProgress = progress;
+    }
+  }
+  return { x: closest.position.x, y: closest.position.y };
 }

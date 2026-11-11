@@ -26,3 +26,22 @@ export function buildingIconSize(kind: BuildingIconKind): number {
   }
   return 26;
 }
+
+export function buildingIconStyle(
+  kind: BuildingIconKind,
+  side: BuildingIconSide,
+  size = 20,
+): Record<string, string> {
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    backgroundImage: `url(${buildingIconUrl(kind, side)})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: 'contain',
+  };
+}
+
+export function isBuildingIconId(icon: string): icon is BuildingIconKind {
+  return icon === 'tower' || icon === 'inhibitor' || icon === 'nexus';
+}

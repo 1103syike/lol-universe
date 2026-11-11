@@ -1,5 +1,13 @@
 import type { MatchDraftReport } from '../sim/report';
+import { tickLaningMicro } from './ai/decision';
+import {
+  getLaningPhase,
+  isFullCombatLaningPhase,
+  isResetAggroPhase,
+  isTradeLaningPhase,
+} from './ai/laning-phase';
 import { runAiTick } from './ai/match-ai';
+import { applyChampionRegen } from './champion/regen';
 import { laneApproachOf, spawnChampion, type V2RosterPlayer } from './champion/spawn';
 import { basicAttack, castAbility } from './combat/combat';
 import { tickStatuses } from './combat/executors';
@@ -11,6 +19,7 @@ import {
   runJungleClearStep,
   tickMonsters,
 } from './jungle/jungle-system';
+import { jungleFarmBehindAmount, jungleFarmPace } from './jungle/jungle-clear-profile';
 import { orderMove, orderMoveOnLane, tickMovement } from './map/movement';
 import { dist } from './map/pathfinding';
 import type { LaneId } from './types/ids';
@@ -23,7 +32,8 @@ import {
   tickStructures,
   wavePressuringStructure,
 } from './objectives/structures';
-import { ReplayRecorder } from './replay/recorder';
+import { ReplayRecorder, snapshotIntervalSec } from './replay/recorder';
+import { getChampionProximity } from './perf/champion-proximity';
 import { createRng } from './rng';
 import {
   createEmptyGameState,
@@ -32,6 +42,7 @@ import {
   teamGold,
   type GameState,
 } from './state/game-state';
+import type { StructureEntity } from './state/entities';
 import { lockVersion } from './version/registry';
 import { bootstrapVision, updateVision } from './vision/vision';
 
@@ -46,6 +57,7 @@ export interface SimulateV2Input {
   maxDurationSec?: number;
   forceWinnerTeamId?: string;
   draft?: MatchDraftReport;
+  onProgress?: (progress01: number) => void;
 }
 
 export interface SimulateV2Result {
@@ -58,6 +70,7 @@ const GOLD_SAMPLE_INTERVAL_SEC = 15;
 
 const AI_INTERVAL = 1;
 const WORLD_DT = 0.5;
+const LANING_MICRO_INTERVAL = 0.25;
 
 export function createMatch(input: SimulateV2Input): { state: GameState; recorder: ReplayRecorder } {
   const pack = lockVersion(input.versionId);
@@ -116,42 +129,6 @@ export function createMatch(input: SimulateV2Input): { state: GameState; recorde
   return { state, recorder };
 }
 
-function fountainOf(state: GameState, side: 'blue' | 'red') {
-  return side === 'blue' ? state.lockedPack.map.blueFountain : state.lockedPack.map.redFountain;
-}
-
-function tickFountainRegen(state: GameState, dt: number): void {
-  for (const champion of state.champions) {
-    if (!champion.alive) {
-      continue;
-    }
-    const nearFountain = dist(champion.position, fountainOf(state, champion.side)) < 550;
-    if (nearFountain) {
-      if (champion.recallPhase === 'moving_home') {
-        champion.recallPhase = 'at_base';
-        champion.recallChannelUntil = 0;
-        champion.recallChannelDuration = 0;
-        champion.moving = false;
-        champion.path = [];
-      }
-      champion.hp = Math.min(champion.maxHp, champion.hp + champion.maxHp * 0.35 * dt);
-      if (champion.maxMana > 1) {
-        champion.mana = Math.min(champion.maxMana, champion.mana + champion.maxMana * 0.4 * dt);
-      }
-      continue;
-    }
-    const inCombat = state.champions.some(
-      (enemy) =>
-        enemy.alive &&
-        enemy.side !== champion.side &&
-        dist(champion.position, enemy.position) < champion.attackRange + 240,
-    );
-    if (!inCombat) {
-      champion.hp = Math.min(champion.maxHp, champion.hp + champion.maxHp * 0.028 * dt);
-    }
-  }
-}
-
 function accumulateActivity(state: GameState, dt: number): void {
   for (const champion of state.champions) {
     if (!champion.alive) {
@@ -199,12 +176,43 @@ function accumulateActivity(state: GameState, dt: number): void {
 function isCombatAction(action: string): boolean {
   return (
     action === 'fight' ||
-    action === 'trade' ||
     action === 'gank' ||
     action === 'skirmish' ||
-    action === 'tower_hold' ||
-    action === 'tower_bail'
+    action === 'tower_hold'
   );
+}
+
+function isLeavingTowerAction(action: string): boolean {
+  return action === 'tower_bail' || action === 'retreat' || action === 'recall';
+}
+
+function underEnemyTowerRange(
+  state: GameState,
+  champion: (typeof state.champions)[number],
+  slack = 40,
+): boolean {
+  return coveringEnemyTowerAt(state, champion.side, champion.position, slack) != null;
+}
+
+function coveringEnemyTowerAt(
+  state: GameState,
+  side: (typeof state.champions)[number]['side'],
+  point: { x: number; y: number },
+  slack = 40,
+): StructureEntity | null {
+  let best: StructureEntity | null = null;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const structure of state.structures) {
+    if (!structure.alive || structure.side === side || structure.ad <= 0 || structure.range <= 0) {
+      continue;
+    }
+    const gap = dist(point, structure.position);
+    if (gap <= structure.range + slack && gap < bestDist) {
+      best = structure;
+      bestDist = gap;
+    }
+  }
+  return best;
 }
 
 function laneIdOfChampion(champion: { positionLabel: string }): 'top' | 'mid' | 'bot' {
@@ -233,6 +241,12 @@ function botLanePressure(
     champion.currentAction === 'recall' ||
     champion.recallPhase !== 'none'
   ) {
+    return;
+  }
+  if (isLeavingTowerAction(champion.currentAction)) {
+    return;
+  }
+  if (underEnemyTowerRange(state, champion, 60)) {
     return;
   }
   if (
@@ -275,9 +289,18 @@ function botLanePressure(
 function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
   for (const champion of livingChampions(state)) {
     botLanePressure(state, champion, recorder);
-    const fighting = isCombatAction(champion.currentAction);
+    const phase = getLaningPhase(state, champion.id);
+    if (isResetAggroPhase(phase)) {
+      continue;
+    }
+    const fighting =
+      isCombatAction(champion.currentAction) || isFullCombatLaningPhase(phase);
+    const shortTrade =
+      champion.currentAction === 'trade' && isTradeLaningPhase(phase);
     const hpRatio = champion.hp / Math.max(1, champion.maxHp);
     const farming = champion.currentAction === 'farm';
+    const shoving =
+      champion.currentAction === 'wave_shove' || champion.currentAction === 'siege';
     const jungling =
       champion.currentAction === 'jungle' ||
       champion.currentAction === 'objective' ||
@@ -287,24 +310,22 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
     const laning =
       hpRatio >= 0.45 &&
       (farming ||
+        shoving ||
         champion.currentAction === 'lane' ||
+        champion.currentAction === 'wave_freeze' ||
         champion.currentAction === 'siege');
 
     if (champion.recallPhase !== 'none') {
       continue;
     }
-    let nearbyEnemyChamp: (typeof state.champions)[number] | null = null;
-    let nearbyEnemyDist = Number.POSITIVE_INFINITY;
-    for (const enemy of state.champions) {
-      if (!enemy.alive || enemy.side === champion.side) {
-        continue;
-      }
-      const gap = dist(champion.position, enemy.position);
-      if (gap < nearbyEnemyDist) {
-        nearbyEnemyDist = gap;
-        nearbyEnemyChamp = enemy;
-      }
+    if (isLeavingTowerAction(champion.currentAction)) {
+      continue;
     }
+    const prox = getChampionProximity(state);
+    const nearest = prox.nearestEnemy(champion);
+    const nearbyEnemyChamp =
+      nearest && nearest.enemyIndex >= 0 ? state.champions[nearest.enemyIndex] : null;
+    const nearbyEnemyDist = nearest?.dist ?? Number.POSITIVE_INFINITY;
     const fightReach = Math.max(champion.attackRange + 240, 720);
     const junglerClearing =
       champion.positionLabel === 'JUNGLE' &&
@@ -316,12 +337,17 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
     const junglerBehind =
       champion.positionLabel === 'JUNGLE' &&
       champion.deaths >= champion.kills + 1;
+    const jgFarmBehind =
+      champion.positionLabel === 'JUNGLE'
+        ? jungleFarmBehindAmount(jungleFarmPace(champion, state.scheduler.time))
+        : 0;
     const junglerShouldContest =
       junglerClearing &&
       !junglerBehind &&
+      jgFarmBehind < 0.55 &&
       !!nearbyEnemyChamp &&
-      (nearbyEnemyDist <= champion.attackRange + 120 ||
-        (nearbyEnemyDist <= 520 &&
+      (nearbyEnemyDist <= champion.attackRange + 80 ||
+        (nearbyEnemyDist <= 420 &&
           (nearbyEnemyChamp.positionLabel === 'JUNGLE' ||
             nearbyEnemyChamp.currentAction === 'gank' ||
             nearbyEnemyChamp.currentAction === 'skirmish')));
@@ -329,42 +355,35 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
       !!nearbyEnemyChamp &&
       nearbyEnemyDist <= fightReach &&
       (fighting ||
+        shortTrade ||
         champion.currentAction === 'gank' ||
         champion.currentAction === 'skirmish' ||
         junglerShouldContest);
     if (shouldContestChamp && nearbyEnemyChamp) {
-      const enemyUnderTower = state.structures.some(
-        (structure) =>
-          structure.alive &&
-          structure.side === nearbyEnemyChamp!.side &&
-          structure.ad > 0 &&
-          dist(nearbyEnemyChamp!.position, structure.position) <= structure.range + 40,
-      );
-      const selfUnderTower = state.structures.some(
-        (structure) =>
-          structure.alive &&
-          structure.side !== champion.side &&
-          structure.ad > 0 &&
-          dist(champion.position, structure.position) <= structure.range + 40,
-      );
-      if (selfUnderTower || (enemyUnderTower && nearbyEnemyDist > champion.attackRange + 80)) {
-        // leave dive decisions to AI tick; do not hard-commit through tower here
-      } else if (nearbyEnemyDist <= champion.attackRange + 50) {
-        basicAttack(state, champion, nearbyEnemyChamp, recorder);
-        if (state.rng() < 0.7) {
+      if (nearbyEnemyDist <= champion.attackRange + 50) {
+        if (!shortTrade || state.rng() < 0.35) {
+          basicAttack(state, champion, nearbyEnemyChamp, recorder);
+        }
+        if (state.rng() < (shortTrade ? 0.85 : 0.7)) {
           castAbility(state, champion, 'Q', nearbyEnemyChamp, recorder);
         }
-        if (state.rng() < 0.35) {
+        if (!shortTrade && state.rng() < 0.35) {
           castAbility(state, champion, 'W', nearbyEnemyChamp, recorder);
         }
-        if (state.rng() < 0.28) {
+        if (!shortTrade && state.rng() < 0.28) {
           castAbility(state, champion, 'E', nearbyEnemyChamp, recorder);
         }
         continue;
-      } else {
-        orderMove(state, champion, nearbyEnemyChamp.position, recorder);
+      }
+      const aiOwnsMovement =
+        fighting ||
+        champion.currentAction === 'gank' ||
+        champion.currentAction === 'skirmish';
+      if (aiOwnsMovement) {
         continue;
       }
+      orderMove(state, champion, nearbyEnemyChamp.position, recorder);
+      continue;
     }
     if (junglerClearing && hpRatio > 0.25) {
       const camp = nearestFriendlyCamp(state, champion);
@@ -378,17 +397,14 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
           },
           recorder,
         );
-        if (
-          dist(champion.position, camp.position) <= champion.attackRange + 80 &&
-          state.rng() < 0.55
-        ) {
-          castAbility(state, champion, 'Q', camp, recorder);
-        }
         continue;
       }
     }
 
     if (!fighting && (farming || laning) && champion.positionLabel !== 'JUNGLE') {
+      if (underEnemyTowerRange(state, champion, 40)) {
+        continue;
+      }
       const laneId = laneIdOfChampion(champion);
       const minion = nearestEnemyMinionOnLane(state, champion, laneId);
       const canSupportFarm =
@@ -493,14 +509,28 @@ function tickActiveCombat(state: GameState, recorder: ReplayRecorder): void {
         minion &&
         dist(champion.position, minion.position) <= champion.attackRange + 70
       ) {
-        tryLastHit(state, champion, minion, recorder);
-        if (
-          champion.positionLabel !== 'SUPPORT' &&
-          minion.alive &&
-          (farming || minion.hp > champion.ad * 1.15) &&
-          state.rng() < 0.45
-        ) {
-          castAbility(state, champion, 'Q', minion, recorder);
+        const farmMode =
+          champion.currentAction === 'wave_freeze'
+            ? 'freeze'
+            : champion.currentAction === 'wave_shove' || champion.currentAction === 'siege'
+              ? 'shove'
+              : 'default';
+        tryLastHit(state, champion, minion, recorder, farmMode);
+        if (champion.positionLabel !== 'SUPPORT' && minion.alive) {
+          const clearNeed =
+            farming ||
+            shoving ||
+            minion.hp > champion.ad * 1.15 ||
+            state.scheduler.time > 720;
+          const clearChance =
+            (shoving ? 0.7 : farming ? 0.5 : 0.32) +
+            Math.min(0.28, state.scheduler.time / 2600);
+          if (clearNeed && state.rng() < clearChance) {
+            castAbility(state, champion, 'Q', minion, recorder);
+            if (shoving && state.rng() < 0.22) {
+              castAbility(state, champion, 'W', minion, recorder);
+            }
+          }
         }
         if (canPoke && state.rng() < pokeChance * 0.9) {
           basicAttack(state, champion, lanePoke!, recorder);
@@ -592,12 +622,8 @@ function tickWorld(state: GameState, dt: number, recorder: ReplayRecorder): void
     if (champion.alive) {
       maybeTickSummonerDots(state, champion, dt, recorder);
     }
-    if (!champion.alive || champion.maxMana <= 1) {
-      continue;
-    }
-    champion.mana = Math.min(champion.maxMana, champion.mana + 4 * dt);
   }
-  tickFountainRegen(state, dt);
+  applyChampionRegen(state, dt);
   tickMovement(state, dt, recorder);
   tickActiveCombat(state, recorder);
   tickMinions(state, dt, recorder);
@@ -655,14 +681,36 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
   const maxDuration = input.maxDurationSec ?? 2700;
   const safetyCap = Math.max(maxDuration + 600, 3600);
   let nextAi = 0;
+  let nextLaningMicro = 0.2;
   let nextSample = GOLD_SAMPLE_INTERVAL_SEC;
   let nextSnapshot = 1;
+  let lastProgress = -1;
+  const reportProgress = (ratio: number) => {
+    if (!input.onProgress) {
+      return;
+    }
+    const clamped = Math.max(0, Math.min(0.99, ratio));
+    if (clamped - lastProgress < 0.02 && clamped < 0.99) {
+      return;
+    }
+    lastProgress = clamped;
+    input.onProgress(clamped);
+  };
   pushGoldSample(state);
+  reportProgress(0.02);
 
   while (!state.ended && state.scheduler.time < safetyCap) {
     const now = state.scheduler.time;
     const nextEventT = state.scheduler.peek()?.t ?? Number.POSITIVE_INFINITY;
-    const target = Math.min(now + WORLD_DT, nextAi, nextSample, nextSnapshot, nextEventT, safetyCap);
+    const target = Math.min(
+      now + WORLD_DT,
+      nextAi,
+      nextLaningMicro,
+      nextSample,
+      nextSnapshot,
+      nextEventT,
+      safetyCap,
+    );
     const dt = target - now;
     if (dt > 0) {
       tickWorld(state, dt, recorder);
@@ -676,6 +724,10 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
       }
     }
 
+    if (!state.ended && state.scheduler.time + 1e-9 >= nextLaningMicro) {
+      tickLaningMicro(state, recorder);
+      nextLaningMicro = state.scheduler.time + LANING_MICRO_INTERVAL;
+    }
     if (!state.ended && state.scheduler.time + 1e-9 >= nextAi) {
       runAiTick(state, recorder);
       nextAi = state.scheduler.time + AI_INTERVAL;
@@ -689,7 +741,7 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
     }
     if (!state.ended && state.scheduler.time + 1e-9 >= nextSnapshot) {
       recorder.snapshot(state);
-      nextSnapshot = state.scheduler.time + 1;
+      nextSnapshot = state.scheduler.time + snapshotIntervalSec(state.scheduler.time);
     }
 
     if (!state.ended && state.scheduler.time >= 480) {
@@ -714,11 +766,14 @@ export function simulateV2Match(input: SimulateV2Input): SimulateV2Result {
     if (dt <= 0 && !state.scheduler.peek()) {
       state.scheduler.setTime(Math.min(safetyCap, now + WORLD_DT));
     }
+
+    reportProgress(state.scheduler.time / maxDuration);
   }
 
   if (!state.ended) {
     endMatchByTimeout(state, recorder);
   }
+  input.onProgress?.(1);
   if (input.forceWinnerTeamId) {
     state.winnerTeamId = input.forceWinnerTeamId;
   }

@@ -153,6 +153,13 @@ export function championMetaOf(
   return meta[championId] ?? DEFAULT_META;
 }
 
+export function hasChampionMetaEntry(
+  meta: PatchMetaTable,
+  championId: string,
+): boolean {
+  return Object.prototype.hasOwnProperty.call(meta, championId);
+}
+
 export function listPatchVersions(year = 2021): readonly PatchVersion[] {
   return stageWindowsForYear(year);
 }

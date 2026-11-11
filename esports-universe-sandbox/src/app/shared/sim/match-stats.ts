@@ -71,6 +71,14 @@ export interface TimelineEventPayload {
   pushStyle?: 'grouped' | 'split';
   structureHold?: boolean;
   recentCombat?: boolean;
+  killVia?: string;
+  viaMinion?: boolean;
+  minionRole?: 'melee' | 'caster' | 'cannon' | 'super';
+  minionSide?: 'blue' | 'red';
+  monsterUnitKind?: string;
+  monsterCampId?: string;
+  structureKind?: string;
+  structureSide?: 'blue' | 'red';
 }
 
 export interface TimelineEvent {
@@ -159,6 +167,7 @@ export interface MatchMapChampionFrame {
   damageTaken: number;
   damageTakenFromChamps: number;
   cs: number;
+  visionScore: number;
   items: string[];
   abilities?: MatchMapAbilityRank[];
   summonerSpells?: Array<{
@@ -177,6 +186,8 @@ export interface MatchMapMinionFrame {
   role: 'melee' | 'caster' | 'cannon' | 'super';
   x: number;
   y: number;
+  hp: number;
+  maxHp: number;
 }
 
 export interface MatchMapMonsterFrame {
@@ -184,6 +195,8 @@ export interface MatchMapMonsterFrame {
   campId: string;
   x: number;
   y: number;
+  hp: number;
+  maxHp: number;
 }
 
 export interface MatchMapStructureFrame {
@@ -195,6 +208,8 @@ export interface MatchMapStructureFrame {
   x: number;
   y: number;
   alive: boolean;
+  hp: number;
+  maxHp: number;
 }
 
 export interface MatchMapWardFrame {
@@ -204,6 +219,8 @@ export interface MatchMapWardFrame {
   x: number;
   y: number;
   sight: number;
+  hp: number;
+  maxHp: number;
   ownerId?: string;
   ownerGamertag?: string;
   ownerChampionId?: string;

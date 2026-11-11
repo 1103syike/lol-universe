@@ -11,6 +11,34 @@ import type { GameState } from '../state/game-state';
 
 export type MatchStrength = 'even' | 'advantage' | 'stomp';
 
+export type FirstOuterTowerRhythm = 'in_band' | 'watch' | 'outlier';
+
+export const FIRST_OUTER_TOWER_RHYTHM_BANDS: Record<
+  MatchStrength,
+  { typicalLo: number; typicalHi: number; outlierLo: number; outlierHi: number }
+> = {
+  even: { typicalLo: 720, typicalHi: 960, outlierLo: 540, outlierHi: 1080 },
+  advantage: { typicalLo: 600, typicalHi: 840, outlierLo: 480, outlierHi: 1020 },
+  stomp: { typicalLo: 540, typicalHi: 780, outlierLo: 420, outlierHi: 960 },
+};
+
+export function assessFirstOuterTowerRhythm(
+  strength: MatchStrength,
+  sec: number | null,
+): FirstOuterTowerRhythm | 'missing' {
+  if (sec == null) {
+    return 'missing';
+  }
+  const band = FIRST_OUTER_TOWER_RHYTHM_BANDS[strength];
+  if (sec >= band.typicalLo && sec <= band.typicalHi) {
+    return 'in_band';
+  }
+  if (sec < band.outlierLo || sec > band.outlierHi) {
+    return 'outlier';
+  }
+  return 'watch';
+}
+
 function attr(n: number) {
   return { current: n, potential: n, growthRate: 0 };
 }
@@ -533,7 +561,14 @@ export interface AggregateSlice {
   duration: { mean: number; median: number; p90: number };
   totalKills: { mean: number; median: number; p10: number; p90: number };
   firstBloodSec: { mean: number; median: number; missingPct: number };
-  firstOuterTowerSec: { mean: number; median: number; missingPct: number };
+  firstOuterTowerSec: {
+    mean: number;
+    median: number;
+    missingPct: number;
+    inBandPct: number;
+    outlierPct: number;
+    band: { lo: number; hi: number };
+  };
   firstDragonSec: { mean: number; median: number; missingPct: number };
   firstBaronSec: { mean: number; median: number; missingPct: number };
   dragons: { mean: number };
@@ -564,13 +599,28 @@ export interface AggregateSlice {
   firstItemBuySec: { mean: number; missingPct: number };
 }
 
-function aggregate(rows: MatchDiag[]): AggregateSlice {
+function aggregate(rows: MatchDiag[], strength: MatchStrength): AggregateSlice {
   const durations = rows.map((row) => row.durationSec);
   const kills = rows.map((row) => row.totalKills);
   const fb = rows.map((row) => row.firstBloodSec).filter((value): value is number => value !== null);
   const ft = rows
     .map((row) => row.firstOuterTowerSec)
     .filter((value): value is number => value !== null);
+  const rhythmBand = FIRST_OUTER_TOWER_RHYTHM_BANDS[strength];
+  const rhythmMarks = rows.map((row) =>
+    assessFirstOuterTowerRhythm(strength, row.firstOuterTowerSec),
+  );
+  const inBandPct = Number(
+    ((rhythmMarks.filter((mark) => mark === 'in_band').length / Math.max(1, rows.length)) * 100).toFixed(
+      1,
+    ),
+  );
+  const outlierPct = Number(
+    (
+      (rhythmMarks.filter((mark) => mark === 'outlier').length / Math.max(1, rows.length)) *
+      100
+    ).toFixed(1),
+  );
   const fd = rows.map((row) => row.firstDragonSec).filter((value): value is number => value !== null);
   const fbaron = rows
     .map((row) => row.firstBaronSec)
@@ -643,6 +693,9 @@ function aggregate(rows: MatchDiag[]): AggregateSlice {
       mean: Number(mean(ft).toFixed(1)),
       median: Number(median(ft).toFixed(1)),
       missingPct: Number((((rows.length - ft.length) / rows.length) * 100).toFixed(1)),
+      inBandPct,
+      outlierPct,
+      band: { lo: rhythmBand.typicalLo, hi: rhythmBand.typicalHi },
     },
     firstDragonSec: {
       mean: Number(mean(fd).toFixed(1)),
@@ -789,7 +842,7 @@ export function runProFeelAudit(seedsPerBucket = 4): {
       v1rows.push(runV1Baseline(strength, seed));
     }
     samples.push(...rows);
-    v2[strength] = aggregate(rows);
+    v2[strength] = aggregate(rows, strength);
     v1raw[strength] = v1rows;
   }
 

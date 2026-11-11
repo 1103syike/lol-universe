@@ -18,7 +18,7 @@ export function buildMinionRules(bias = 0): MinionWaveRules {
     meleeAd: 10,
     meleeGold: 19,
     casterHp: 320 + bias,
-    casterAd: 20,
+    casterAd: 21,
     casterGold: 15,
     cannonHp: 980 + bias,
     cannonAd: 36,
@@ -65,9 +65,9 @@ const MINI_KRUG = {
   kind: 'mini_krug' as const,
   hp: 60,
   ad: 13,
-  gold: 16,
+  gold: 18,
   exp: 16,
-  cs: 0.25,
+  cs: 0,
 };
 
 function singleUnitCamp(
@@ -76,8 +76,9 @@ function singleUnitCamp(
   ad: number,
   gold: number,
   exp: number,
-  cs = 4,
 ): MonsterUnitTemplate[] {
+  gold = Math.round(gold * 1.18);
+  exp = Math.round(exp * 1.08);
   return [
     {
       kind,
@@ -86,7 +87,7 @@ function singleUnitCamp(
       ad,
       gold,
       exp,
-      cs,
+      cs: 0,
       size: 'large',
     },
   ];
@@ -99,9 +100,9 @@ function wolfUnits(): MonsterUnitTemplate[] {
       count: 1,
       hp: 1600,
       ad: 30,
-      gold: 60,
-      exp: 55,
-      cs: 2,
+      gold: 72,
+      exp: 60,
+      cs: 0,
       size: 'large',
     },
     {
@@ -109,9 +110,9 @@ function wolfUnits(): MonsterUnitTemplate[] {
       count: 2,
       hp: 630,
       ad: 10,
-      gold: 18,
-      exp: 18,
-      cs: 1,
+      gold: 22,
+      exp: 20,
+      cs: 0,
       size: 'small',
     },
   ];
@@ -124,9 +125,9 @@ function raptorUnits(): MonsterUnitTemplate[] {
       count: 1,
       hp: 1200,
       ad: 17,
-      gold: 42,
-      exp: 35,
-      cs: 2,
+      gold: 50,
+      exp: 38,
+      cs: 0,
       size: 'large',
     },
     {
@@ -134,9 +135,9 @@ function raptorUnits(): MonsterUnitTemplate[] {
       count: 5,
       hp: 500,
       ad: 7,
-      gold: 10,
-      exp: 12,
-      cs: 0.4,
+      gold: 12,
+      exp: 13,
+      cs: 0,
       size: 'small',
     },
   ];
@@ -149,9 +150,9 @@ function krugUnits(): MonsterUnitTemplate[] {
       count: 1,
       hp: 1350,
       ad: 57,
-      gold: 22,
-      exp: 25,
-      cs: 2,
+      gold: 32,
+      exp: 28,
+      cs: 0,
       size: 'large',
       splitsInto: { ...MINI_KRUG, count: 4 },
     },
@@ -160,9 +161,9 @@ function krugUnits(): MonsterUnitTemplate[] {
       count: 1,
       hp: 650,
       ad: 20,
-      gold: 14,
-      exp: 14,
-      cs: 0.5,
+      gold: 18,
+      exp: 16,
+      cs: 0,
       size: 'medium',
       splitsInto: { ...MINI_KRUG, count: 2 },
     },
@@ -286,7 +287,7 @@ export function buildMonsters(): MonsterCampDefinition[] {
       position: { x: 4400, y: 9600 },
       firstSpawnSec: SCUTTLE_SPAWN_SEC,
       respawnSec: SCUTTLE_RESPAWN_SEC,
-      units: singleUnitCamp('rift_scuttler', 1008, 0, 70, 150),
+      units: singleUnitCamp('rift_scuttler', 1650, 0, 70, 150),
     },
     {
       id: 'scuttle_bot',
@@ -295,7 +296,7 @@ export function buildMonsters(): MonsterCampDefinition[] {
       position: { x: 10500, y: 5200 },
       firstSpawnSec: SCUTTLE_SPAWN_SEC,
       respawnSec: SCUTTLE_RESPAWN_SEC,
-      units: singleUnitCamp('rift_scuttler', 1008, 0, 70, 150),
+      units: singleUnitCamp('rift_scuttler', 1650, 0, 70, 150),
     },
     {
       id: 'dragon',
@@ -305,6 +306,15 @@ export function buildMonsters(): MonsterCampDefinition[] {
       firstSpawnSec: 300,
       respawnSec: 300,
       units: singleUnitCamp('dragon', 6000, 110, 50, 0),
+    },
+    {
+      id: 'elder',
+      name: 'Elder Dragon',
+      side: 'neutral',
+      position: { x: 9866, y: 4414 },
+      firstSpawnSec: 99999,
+      respawnSec: 360,
+      units: singleUnitCamp('elder', 12000, 180, 250, 0),
     },
     {
       id: 'herald',
@@ -327,7 +337,7 @@ export function buildMonsters(): MonsterCampDefinition[] {
   ];
 
   for (const camp of camps) {
-    if (camp.id === 'dragon') {
+    if (camp.id === 'dragon' || camp.id === 'elder') {
       camp.position = { ...DEFAULT_MAP_LAYOUT.objectives.dragon };
       continue;
     }
@@ -672,18 +682,52 @@ export function buildStructures(): StructureDefinition[] {
     },
   ];
 
+  const towerRange = DEFAULT_MAP_LAYOUT.attackRanges.tower;
   for (const structure of structures) {
     structure.position = applyMapPoint(
       DEFAULT_MAP_LAYOUT.structures,
       structure.id,
       structure.position,
     );
+    if (structure.range > 0) {
+      structure.range = towerRange;
+    }
     if (structure.kind === 'outer_tower') {
-      structure.hp = 3200;
+      structure.hp = 5000;
+      structure.ad = 182;
+      structure.armor = 60;
+      structure.mr = 60;
+      structure.gold = 150;
     } else if (structure.kind === 'inner_tower') {
-      structure.hp = 2800;
+      structure.hp = 5000;
+      structure.ad = 187;
+      structure.armor = 60;
+      structure.mr = 60;
+      structure.gold = 150;
     } else if (structure.kind === 'inhib_tower') {
-      structure.hp = 2900;
+      structure.hp = 4750;
+      structure.ad = 187;
+      structure.armor = 60;
+      structure.mr = 60;
+      structure.gold = 150;
+    } else if (structure.kind === 'nexus_tower') {
+      structure.hp = 3500;
+      structure.ad = 165;
+      structure.armor = 60;
+      structure.mr = 60;
+      structure.gold = 50;
+    } else if (structure.kind === 'inhibitor') {
+      structure.hp = 4000;
+      structure.ad = 0;
+      structure.armor = 20;
+      structure.mr = 0;
+      structure.gold = 50;
+    } else if (structure.kind === 'nexus') {
+      structure.hp = 5500;
+      structure.ad = 0;
+      structure.armor = 20;
+      structure.mr = 0;
+      structure.gold = 50;
     }
   }
   return structures;
@@ -693,6 +737,7 @@ export function buildObjectives(): ObjectiveRules {
   return {
     dragonFirstSpawnSec: 300,
     dragonRespawnSec: 300,
+    elderRespawnSec: 360,
     heraldSpawnSec: 480,
     heraldDespawnSec: 1195,
     baronSpawnSec: 1200,

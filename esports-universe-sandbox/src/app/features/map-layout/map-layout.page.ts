@@ -41,7 +41,6 @@ import {
 } from '../../shared/sim-v2/version/map-roads';
 import {
   clearHandles,
-  FOUNTAIN_ATTACK_RANGE,
   makeSmoothHandles,
   wallToSvgPath,
 } from '../../shared/sim-v2/version/map-walls';
@@ -128,7 +127,7 @@ type DragState =
   | HandleDragState
   | LanePointDragState;
 
-const DRAFT_KEY = 'map-layout-draft-v9';
+const DRAFT_KEY = 'map-layout-draft-v10';
 
 const STRUCTURE_META = Object.fromEntries(
   buildStructures().map((item) => [
@@ -137,7 +136,7 @@ const STRUCTURE_META = Object.fromEntries(
       label: `${item.side} ${item.kind}${item.lane ? ` ${item.lane}` : ''}`,
       side: item.side as ScoreboardSide,
       kind: item.kind,
-      range: item.range,
+      canAttack: item.range > 0,
     },
   ]),
 );
@@ -362,14 +361,18 @@ export class MapLayoutPage {
     return lane.points[index];
   });
 
+  readonly towerAttackRange = computed(() => this.layout().attackRanges.tower);
+  readonly fountainAttackRange = computed(() => this.layout().attackRanges.fountain);
+
   readonly rangeRings = computed((): RangeRing[] => {
     const data = this.layout();
+    const towerRange = data.attackRanges.tower;
+    const fountainRange = data.attackRanges.fountain;
     const rings: RangeRing[] = [];
     if (this.showTowerRanges()) {
       for (const [id, point] of Object.entries(data.structures)) {
         const meta = STRUCTURE_META[id];
-        const range = meta?.range ?? 0;
-        if (range <= 0) {
+        if (!meta?.canAttack) {
           continue;
         }
         rings.push({
@@ -378,7 +381,7 @@ export class MapLayoutPage {
           side: meta?.side ?? 'neutral',
           x: point.x,
           y: point.y,
-          range,
+          range: towerRange,
           label: meta?.label ?? id,
         });
       }
@@ -390,7 +393,7 @@ export class MapLayoutPage {
         side: 'blue',
         x: data.fountains.blue.x,
         y: data.fountains.blue.y,
-        range: FOUNTAIN_ATTACK_RANGE,
+        range: fountainRange,
         label: '藍方泉水',
       });
       rings.push({
@@ -399,7 +402,7 @@ export class MapLayoutPage {
         side: 'red',
         x: data.fountains.red.x,
         y: data.fountains.red.y,
-        range: FOUNTAIN_ATTACK_RANGE,
+        range: fountainRange,
         label: '紅方泉水',
       });
     }
@@ -598,6 +601,38 @@ export class MapLayoutPage {
 
   toggleFountainRanges(): void {
     this.showFountainRanges.update((value) => !value);
+  }
+
+  setTowerAttackRange(raw: string | number): void {
+    const value = typeof raw === 'number' ? raw : Number(raw);
+    if (!Number.isFinite(value)) {
+      return;
+    }
+    const nextRange = Math.max(200, Math.min(2000, Math.round(value)));
+    this.layout.update((current) => {
+      const next = cloneMapLayout(current);
+      next.attackRanges.tower = nextRange;
+      return next;
+    });
+    this.dirty.set(true);
+    this.showTowerRanges.set(true);
+    this.status.set(`防禦塔攻擊範圍改成 ${nextRange}`);
+  }
+
+  setFountainAttackRange(raw: string | number): void {
+    const value = typeof raw === 'number' ? raw : Number(raw);
+    if (!Number.isFinite(value)) {
+      return;
+    }
+    const nextRange = Math.max(200, Math.min(2500, Math.round(value)));
+    this.layout.update((current) => {
+      const next = cloneMapLayout(current);
+      next.attackRanges.fountain = nextRange;
+      return next;
+    });
+    this.dirty.set(true);
+    this.showFountainRanges.set(true);
+    this.status.set(`溫泉塔攻擊範圍改成 ${nextRange}`);
   }
 
   toggleMaskPreview(): void {
@@ -1207,9 +1242,10 @@ export class MapLayoutPage {
 
   private fountainPads() {
     const data = this.layout();
+    const radius = data.attackRanges.fountain * 0.55;
     return [
-      { point: data.fountains.blue, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
-      { point: data.fountains.red, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
+      { point: data.fountains.blue, radius },
+      { point: data.fountains.red, radius },
     ];
   }
 

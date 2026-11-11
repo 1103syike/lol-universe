@@ -172,7 +172,9 @@ function executeSlot(ctx: AbilityCastContext, profile: ChampionAbilityProfile, s
     case 'dash': {
       applyMs(ctx.caster, `${via}:ms`, 2.3, spec.ms ?? 65);
       if (ctx.target) {
+        dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
         dealToTarget(ctx.state, ctx.caster, ctx.target, raw, dtype, via, ctx.recorder);
+        maybeCc(ctx, spec, via);
       }
       return true;
     }
@@ -208,6 +210,9 @@ function executeSlot(ctx: AbilityCastContext, profile: ChampionAbilityProfile, s
       return true;
     }
     case 'teamUlt': {
+      if (ctx.target && (spec.cc ?? 0) >= 0.85) {
+        dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
+      }
       const radius = 400;
       const hits = hitChampionsInRadius(
         ctx.state,

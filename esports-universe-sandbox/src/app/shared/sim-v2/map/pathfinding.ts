@@ -87,10 +87,53 @@ export function nearestWalkable(
   return null;
 }
 
-export function hasLineOfSight(map: MapDefinition, from: Vec2, to: Vec2): boolean {
+export interface PathAvoidZone {
+  x: number;
+  y: number;
+  radius: number;
+  penalty: number;
+}
+
+function pointInAvoidZones(point: Vec2, avoid?: readonly PathAvoidZone[]): boolean {
+  if (!avoid || avoid.length === 0) {
+    return false;
+  }
+  for (const zone of avoid) {
+    if (dist(point, zone) <= zone.radius) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function cellAvoidPenalty(
+  map: MapDefinition,
+  cx: number,
+  cy: number,
+  avoid?: readonly PathAvoidZone[],
+): number {
+  if (!avoid || avoid.length === 0) {
+    return 0;
+  }
+  const world = cellToWorld(map, cx, cy);
+  let extra = 0;
+  for (const zone of avoid) {
+    if (dist(world, zone) <= zone.radius) {
+      extra += zone.penalty;
+    }
+  }
+  return extra;
+}
+
+export function hasLineOfSight(
+  map: MapDefinition,
+  from: Vec2,
+  to: Vec2,
+  avoid?: readonly PathAvoidZone[],
+): boolean {
   const gap = dist(from, to);
   if (gap < 1e-6) {
-    return isWalkable(map, from);
+    return isWalkable(map, from) && !pointInAvoidZones(from, avoid);
   }
   const steps = Math.max(2, Math.ceil(gap / (map.cellSize * 0.35)));
   for (let i = 0; i <= steps; i += 1) {
@@ -102,11 +145,18 @@ export function hasLineOfSight(map: MapDefinition, from: Vec2, to: Vec2): boolea
     if (!isWalkable(map, sample)) {
       return false;
     }
+    if (pointInAvoidZones(sample, avoid)) {
+      return false;
+    }
   }
   return true;
 }
 
-export function smoothPath(map: MapDefinition, path: readonly Vec2[]): Vec2[] {
+export function smoothPath(
+  map: MapDefinition,
+  path: readonly Vec2[],
+  avoid?: readonly PathAvoidZone[],
+): Vec2[] {
   if (path.length <= 2) {
     return path.map((point) => ({ ...point }));
   }
@@ -115,7 +165,7 @@ export function smoothPath(map: MapDefinition, path: readonly Vec2[]): Vec2[] {
   while (anchor < path.length - 1) {
     let farthest = anchor + 1;
     for (let i = path.length - 1; i > anchor + 1; i -= 1) {
-      if (hasLineOfSight(map, path[anchor], path[i])) {
+      if (hasLineOfSight(map, path[anchor], path[i], avoid)) {
         farthest = i;
         break;
       }
@@ -172,7 +222,12 @@ const NEIGHBORS: ReadonlyArray<readonly [number, number]> = [
   [-1, -1],
 ];
 
-export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
+export function findPath(
+  map: MapDefinition,
+  from: Vec2,
+  to: Vec2,
+  avoid?: readonly PathAvoidZone[],
+): Vec2[] {
   const startPoint = isWalkable(map, from) ? clampToMap(map, from) : nearestWalkable(map, from);
   const goalPoint = clampToMap(map, to);
   if (!startPoint || !isWalkable(map, goalPoint)) {
@@ -224,7 +279,7 @@ export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
       cells.reverse();
       cells[0] = startPoint;
       cells[cells.length - 1] = goalPoint;
-      return smoothPath(map, cells);
+      return smoothPath(map, cells, avoid);
     }
 
     for (const [dx, dy] of NEIGHBORS) {
@@ -245,7 +300,8 @@ export function findPath(map: MapDefinition, from: Vec2, to: Vec2): Vec2[] {
       if (closed.has(nKey)) {
         continue;
       }
-      const step = dx !== 0 && dy !== 0 ? 1.414 : 1;
+      const step =
+        (dx !== 0 && dy !== 0 ? 1.414 : 1) + cellAvoidPenalty(map, nx, ny, avoid);
       const g = current.g + step;
       const known = bestG.get(nKey);
       if (known !== undefined && known <= g) {

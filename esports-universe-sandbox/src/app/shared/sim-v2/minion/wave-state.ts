@@ -20,6 +20,16 @@ export interface LaneWaveState {
   allyAdvantage: number;
 }
 
+let waveFrameCache: Map<string, LaneWaveState> | null = null;
+
+export function beginWaveAssessFrame(): void {
+  waveFrameCache = new Map();
+}
+
+export function endWaveAssessFrame(): void {
+  waveFrameCache = null;
+}
+
 function lanePathProgress(
   state: GameState,
   lane: LaneId,
@@ -92,19 +102,11 @@ function waveZone(
   return 'river';
 }
 
-export function assessLaneWave(
+function buildLaneWave(
   state: GameState,
   side: TeamSide,
   lane: LaneId,
 ): LaneWaveState {
-  const allies = state.minions.filter(
-    (minion) => minion.alive && minion.side === side && minion.lane === lane,
-  );
-  const enemies = state.minions.filter(
-    (minion) => minion.alive && minion.side !== side && minion.lane === lane,
-  );
-  const allyHp = allies.reduce((sum, minion) => sum + minion.hp, 0);
-  const enemyHp = enemies.reduce((sum, minion) => sum + minion.hp, 0);
   const ownOuterProgress = outerProgress(state, side, lane);
   const enemyOuter = enemyOuterStructure(state, side, lane);
   const enemyOuterProgress = enemyOuter
@@ -113,18 +115,35 @@ export function assessLaneWave(
       ? 0.62
       : 0.38;
 
-  let clashProgress: number | null = null;
-  if (allies.length > 0 || enemies.length > 0) {
-    const points = [...allies, ...enemies].map((minion) =>
-      lanePathProgress(state, lane, minion.position),
-    );
-    clashProgress = points.reduce((sum, value) => sum + value, 0) / points.length;
+  let allyCount = 0;
+  let enemyCount = 0;
+  let allyHp = 0;
+  let enemyHp = 0;
+  let progressSum = 0;
+  let progressN = 0;
+  let isCrashingOuter = false;
+  const enemyOuterPos = enemyOuter?.position ?? null;
+
+  for (const minion of state.minions) {
+    if (!minion.alive || minion.lane !== lane) {
+      continue;
+    }
+    const progress = lanePathProgress(state, lane, minion.position);
+    progressSum += progress;
+    progressN += 1;
+    if (minion.side === side) {
+      allyCount += 1;
+      allyHp += minion.hp;
+      if (enemyOuterPos && dist(minion.position, enemyOuterPos) < 900) {
+        isCrashingOuter = true;
+      }
+    } else {
+      enemyCount += 1;
+      enemyHp += minion.hp;
+    }
   }
 
-  const isCrashingOuter =
-    !!enemyOuter &&
-    allies.some((minion) => dist(minion.position, enemyOuter.position) < 900);
-
+  const clashProgress = progressN > 0 ? progressSum / progressN : null;
   const zone: WaveZone =
     clashProgress === null
       ? 'own'
@@ -132,8 +151,8 @@ export function assessLaneWave(
 
   return {
     lane,
-    allyCount: allies.length,
-    enemyCount: enemies.length,
+    allyCount,
+    enemyCount,
     allyHp,
     enemyHp,
     clashProgress,
@@ -141,9 +160,27 @@ export function assessLaneWave(
     enemyOuterProgress,
     zone,
     isCrashingOuter,
-    canPush: enemies.length > 0 || allies.length > 0,
-    allyAdvantage: allies.length - enemies.length + (allyHp - enemyHp) / 800,
+    canPush: enemyCount > 0 || allyCount > 0,
+    allyAdvantage: allyCount - enemyCount + (allyHp - enemyHp) / 800,
   };
+}
+
+export function assessLaneWave(
+  state: GameState,
+  side: TeamSide,
+  lane: LaneId,
+): LaneWaveState {
+  if (waveFrameCache) {
+    const key = `${side}:${lane}`;
+    const hit = waveFrameCache.get(key);
+    if (hit) {
+      return hit;
+    }
+    const built = buildLaneWave(state, side, lane);
+    waveFrameCache.set(key, built);
+    return built;
+  }
+  return buildLaneWave(state, side, lane);
 }
 
 export function assessChampionLaneWave(
@@ -177,4 +214,24 @@ export function waveNearFreezeSpot(wave: LaneWaveState, side: TeamSide): boolean
   }
   const hold = freezeHoldProgress(wave, side);
   return Math.abs(wave.clashProgress - hold) <= 0.08;
+}
+
+export function hasLanePriority(wave: LaneWaveState): boolean {
+  if (wave.isCrashingOuter) {
+    return true;
+  }
+  if (wave.zone === 'enemy' && wave.enemyCount <= 2 && wave.allyCount >= wave.enemyCount) {
+    return true;
+  }
+  return wave.zone === 'enemy' && wave.enemyCount === 0 && wave.allyCount > 0;
+}
+
+export function shouldSlowPush(wave: LaneWaveState): boolean {
+  return (
+    wave.canPush &&
+    !wave.isCrashingOuter &&
+    wave.zone !== 'enemy' &&
+    wave.allyAdvantage > -0.4 &&
+    wave.allyAdvantage < 2.5
+  );
 }

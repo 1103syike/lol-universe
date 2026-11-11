@@ -32,28 +32,26 @@ describe('combat profile', () => {
         SUPPORT: 'Thresh',
       }),
       red: roster('red', {
-        TOP: 'Ornn',
-        JUNGLE: 'Sejuani',
+        TOP: 'Garen',
+        JUNGLE: 'Viego',
         MID: 'Orianna',
         BOT: 'Jinx',
-        SUPPORT: 'Lulu',
+        SUPPORT: 'Nautilus',
       }),
       maxDurationSec: 5,
     });
 
     const jayce = state.champions.find((c) => c.championId === 'Jayce')!;
-    const ornn = state.champions.find((c) => c.championId === 'Ornn')!;
     const ashe = state.champions.find((c) => c.championId === 'Ashe')!;
-    const lulu = state.champions.find((c) => c.championId === 'Lulu')!;
+    const nautilus = state.champions.find((c) => c.championId === 'Nautilus')!;
     const jayceP = combatProfile(state, jayce);
-    const ornnP = combatProfile(state, ornn);
+    const nautilusP = combatProfile(state, nautilus);
     const asheP = combatProfile(state, ashe);
-    const luluP = combatProfile(state, lulu);
 
-    expect(jayceP.damageDealtMult).toBeGreaterThan(ornnP.damageDealtMult + 0.2);
-    expect(jayceP.pokeAppetite).toBeGreaterThan(ornnP.pokeAppetite);
-    expect(asheP.damageDealtMult).toBeGreaterThan(luluP.damageDealtMult);
-    expect(asheP.autoMult).toBeGreaterThan(luluP.autoMult);
+    expect(jayceP.damageDealtMult).toBeGreaterThan(nautilusP.damageDealtMult + 0.2);
+    expect(jayceP.pokeAppetite).toBeGreaterThan(nautilusP.pokeAppetite);
+    expect(asheP.damageDealtMult).toBeGreaterThan(nautilusP.damageDealtMult);
+    expect(asheP.autoMult).toBeGreaterThan(nautilusP.autoMult);
   });
 
   it(
@@ -65,15 +63,15 @@ describe('combat profile', () => {
       blueTeamId: 'blue',
       redTeamId: 'red',
       blue: roster('blue', {
-        TOP: 'Malphite',
-        JUNGLE: 'JarvanIV',
+        TOP: 'Renekton',
+        JUNGLE: 'LeeSin',
         MID: 'Annie',
         BOT: 'Ashe',
         SUPPORT: 'Nautilus',
       }),
       red: roster('red', {
         TOP: 'Garen',
-        JUNGLE: 'LeeSin',
+        JUNGLE: 'Viego',
         MID: 'Ahri',
         BOT: 'Ashe',
         SUPPORT: 'Thresh',
@@ -91,7 +89,7 @@ describe('combat profile', () => {
         JUNGLE: 'Graves',
         MID: 'Ezreal',
         BOT: 'Ashe',
-        SUPPORT: 'Karma',
+        SUPPORT: 'Lux',
       }),
       red: roster('red', {
         TOP: 'Garen',

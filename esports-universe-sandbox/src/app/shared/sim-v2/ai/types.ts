@@ -80,6 +80,7 @@ export const MISSION_INTENT_POLICY: Record<
       'trade',
       'gank',
       'skirmish',
+      'swap',
       'wave_freeze',
       'wave_shove',
       'objective',
@@ -91,7 +92,7 @@ export const MISSION_INTENT_POLICY: Record<
   },
   'clear-jungle': {
     preferred: ['clear', 'gank'],
-    allowed: ['clear', 'gank', 'farm', 'objective', 'skirmish'],
+    allowed: ['clear', 'gank', 'farm', 'objective', 'skirmish', 'defend'],
   },
   'setup-objective': {
     preferred: ['wave_shove', 'objective', 'skirmish'],
@@ -106,8 +107,17 @@ export const MISSION_INTENT_POLICY: Record<
     allowed: ['siege', 'farm', 'skirmish', 'lane', 'defend', 'wave_shove'],
   },
   'cover-side': {
-    preferred: ['farm', 'siege', 'lane', 'wave_shove'],
-    allowed: ['farm', 'lane', 'siege', 'trade', 'skirmish', 'wave_shove', 'objective'],
+    preferred: ['swap', 'farm', 'siege', 'lane', 'wave_shove'],
+    allowed: [
+      'swap',
+      'farm',
+      'lane',
+      'siege',
+      'trade',
+      'skirmish',
+      'wave_shove',
+      'objective',
+    ],
   },
   'anchor-defense': {
     preferred: ['defend'],
@@ -115,6 +125,6 @@ export const MISSION_INTENT_POLICY: Record<
   },
   reset: {
     preferred: ['wave_shove'],
-    allowed: ['farm', 'lane', 'wave_shove'],
+    allowed: ['farm', 'lane', 'wave_shove', 'skirmish', 'trade'],
   },
 };

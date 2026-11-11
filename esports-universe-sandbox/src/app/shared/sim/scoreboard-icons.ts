@@ -15,12 +15,12 @@ export type ScoreboardIconId =
 export type ScoreboardSide = 'blue' | 'red';
 
 const ICON_POS: Record<ScoreboardIconId, Record<ScoreboardSide, { x: number; y: number }>> = {
-  nexus: { blue: { x: 90, y: 0 }, red: { x: 180, y: 0 } },
-  voidgrub: { blue: { x: 90, y: 0 }, red: { x: 180, y: 0 } },
-  tower: { blue: { x: 270, y: 0 }, red: { x: 0, y: 90 } },
+  inhibitor: { blue: { x: 90, y: 0 }, red: { x: 180, y: 0 } },
+  voidgrub: { blue: { x: 270, y: 180 }, red: { x: 270, y: 180 } },
   dragon: { blue: { x: 270, y: 0 }, red: { x: 0, y: 90 } },
+  tower: { blue: { x: 90, y: 90 }, red: { x: 180, y: 90 } },
   herald: { blue: { x: 270, y: 90 }, red: { x: 0, y: 180 } },
-  inhibitor: { blue: { x: 90, y: 180 }, red: { x: 180, y: 180 } },
+  nexus: { blue: { x: 90, y: 180 }, red: { x: 180, y: 180 } },
   baron: { blue: { x: 90, y: 270 }, red: { x: 180, y: 270 } },
   elder: { blue: { x: 270, y: 270 }, red: { x: 0, y: 360 } },
 };
@@ -49,6 +49,9 @@ export function markerToIcon(marker: string | undefined, eventType?: string): Sc
   }
   if (eventType === 'inhibitor') {
     return 'inhibitor';
+  }
+  if (eventType === 'nexus') {
+    return 'nexus';
   }
   return null;
 }
@@ -81,6 +84,9 @@ export function mapObjectiveIcon(
 ): ScoreboardIconId | null {
   if (campId === 'dragon') {
     return 'dragon';
+  }
+  if (campId === 'elder') {
+    return 'elder';
   }
   if (campId === 'baron') {
     return 'baron';

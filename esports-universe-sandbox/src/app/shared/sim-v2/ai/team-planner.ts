@@ -1,3 +1,4 @@
+import { hasSummoner } from '../combat/summoner-spells';
 import {
   isObjectiveSetupWindow,
   objectiveWindowBoost,
@@ -10,6 +11,7 @@ import {
 import type { ChampionEntity, MonsterEntity, StructureEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
 import type { LaneId, TeamSide } from '../types/ids';
+import { isCloseoutActive } from './closeout-director';
 import {
   BARON_CORE_CAP,
   CLOSEOUT_SIEGE_CORE_CAP,
@@ -94,6 +96,7 @@ function bestObjectiveCamp(state: GameState): MonsterEntity | null {
     }
     if (
       monster.campId !== 'dragon' &&
+      monster.campId !== 'elder' &&
       monster.campId !== 'baron' &&
       monster.campId !== 'herald'
     ) {
@@ -101,7 +104,13 @@ function bestObjectiveCamp(state: GameState): MonsterEntity | null {
     }
     const boost = objectiveWindowBoost(state, monster.campId);
     const kindBias =
-      monster.campId === 'baron' ? 0.35 : monster.campId === 'dragon' ? 0.2 : 0.1;
+      monster.campId === 'baron'
+        ? 0.35
+        : monster.campId === 'elder'
+          ? 0.32
+          : monster.campId === 'dragon'
+            ? 0.2
+            : 0.1;
     const score = boost + kindBias;
     if (score > bestScore) {
       best = monster;
@@ -109,6 +118,20 @@ function bestObjectiveCamp(state: GameState): MonsterEntity | null {
     }
   }
   return bestScore >= 0.45 ? best : null;
+}
+
+function isNexusFamilyStructure(structure: StructureEntity): boolean {
+  return structure.structureKind === 'nexus' || structure.structureKind === 'nexus_tower';
+}
+
+function teamEarnedGold(state: GameState, side: TeamSide): number {
+  let total = 0;
+  for (const champion of state.champions) {
+    if (champion.side === side) {
+      total += champion.earnedGold;
+    }
+  }
+  return total;
 }
 
 function bestSiegeStructure(state: GameState, side: TeamSide): StructureEntity | null {
@@ -122,14 +145,24 @@ function bestSiegeStructure(state: GameState, side: TeamSide): StructureEntity |
       continue;
     }
     const pressured = wavePressuringStructure(state, side, structure);
-    if (!pressured && state.scheduler.time < 1200) {
-      continue;
+    const nexusFamily = isNexusFamilyStructure(structure);
+    if (!pressured && !nexusFamily) {
+      const lane = structure.lane;
+      if (!lane) {
+        continue;
+      }
+      const hasAlliedWave = state.minions.some(
+        (minion) => minion.alive && minion.side === side && minion.lane === lane,
+      );
+      if (!hasAlliedWave) {
+        continue;
+      }
     }
     const kindWeight =
       structure.structureKind === 'nexus'
-        ? 120
+        ? 140
         : structure.structureKind === 'nexus_tower'
-          ? 90
+          ? 110
           : structure.structureKind === 'inhibitor'
             ? 70
             : structure.structureKind === 'inhib_tower'
@@ -137,7 +170,7 @@ function bestSiegeStructure(state: GameState, side: TeamSide): StructureEntity |
               : structure.structureKind === 'inner_tower'
                 ? 40
                 : 25;
-    const score = kindWeight + (pressured ? 40 : 0);
+    const score = kindWeight + (pressured ? 40 : nexusFamily ? 25 : 0);
     if (score > bestScore) {
       best = structure;
       bestScore = score;
@@ -301,6 +334,200 @@ function oppositeLane(lane: LaneId): LaneId {
   return 'top';
 }
 
+function objectiveFocusLane(campId: string): LaneId {
+  if (campId === 'baron' || campId === 'herald') {
+    return 'top';
+  }
+  return 'bot';
+}
+
+function objectiveOppositeLane(campId: string): LaneId {
+  return oppositeLane(objectiveFocusLane(campId));
+}
+
+function nextObjectiveCampId(state: GameState): string {
+  const camp = bestObjectiveCamp(state);
+  if (camp) {
+    return camp.campId;
+  }
+  if (state.scheduler.time >= 1200) {
+    return 'baron';
+  }
+  return 'dragon';
+}
+
+function championHasTeleport(champion: ChampionEntity): boolean {
+  return hasSummoner(champion, 'Teleport');
+}
+
+function anyOuterTowerFallen(state: GameState): boolean {
+  return state.structures.some(
+    (structure) =>
+      !structure.alive && structure.structureKind === 'outer_tower',
+  );
+}
+
+function shouldUseMidLateTemplate(state: GameState, phase: MatchPhase): boolean {
+  if (phase === 'opening') {
+    return false;
+  }
+  if (phase !== 'laning') {
+    return true;
+  }
+  return state.scheduler.time >= 660 && anyOuterTowerFallen(state);
+}
+
+function pickTeleportSideLaner(
+  champions: readonly ChampionEntity[],
+): ChampionEntity | null {
+  const top = champions.find((champ) => champ.positionLabel === 'TOP') ?? null;
+  const mid = champions.find((champ) => champ.positionLabel === 'MID') ?? null;
+  if (top && championHasTeleport(top)) {
+    return top;
+  }
+  if (mid && championHasTeleport(mid)) {
+    return mid;
+  }
+  return top ?? mid;
+}
+
+function livingCount(state: GameState, side: TeamSide): number {
+  return state.champions.filter((champ) => champ.alive && champ.side === side).length;
+}
+
+function enemyRespawnPressure(
+  state: GameState,
+  side: TeamSide,
+): { deadCount: number; minRespawnLeft: number; livingDiff: number } {
+  const enemySide = side === 'blue' ? 'red' : 'blue';
+  const now = state.scheduler.time;
+  let deadCount = 0;
+  let minRespawnLeft = Number.POSITIVE_INFINITY;
+  for (const champ of state.champions) {
+    if (champ.side !== enemySide) {
+      continue;
+    }
+    if (champ.alive) {
+      continue;
+    }
+    deadCount += 1;
+    minRespawnLeft = Math.min(minRespawnLeft, Math.max(0, champ.respawnAt - now));
+  }
+  return {
+    deadCount,
+    minRespawnLeft: Number.isFinite(minRespawnLeft) ? minRespawnLeft : 0,
+    livingDiff: livingCount(state, side) - livingCount(state, enemySide),
+  };
+}
+
+function assignMidLateHoldLanes(
+  state: GameState,
+  side: TeamSide,
+  available: ChampionEntity[],
+  play: TeamPlay,
+  expiresAt: number,
+): Map<string, UnitAssignment> {
+  const assignments = new Map<string, UnitAssignment>();
+  const campId = nextObjectiveCampId(state);
+  const opposite = objectiveOppositeLane(campId);
+  const focus = objectiveFocusLane(campId);
+  const bot = available.find((champ) => champ.positionLabel === 'BOT');
+  const support = available.find((champ) => champ.positionLabel === 'SUPPORT');
+  const jungler = available.find((champ) => champ.positionLabel === 'JUNGLE');
+  const sideLaners = available.filter(
+    (champ) => champ.positionLabel === 'TOP' || champ.positionLabel === 'MID',
+  );
+  const tpLaner = pickTeleportSideLaner(sideLaners);
+  const otherLaner =
+    sideLaners.find((champ) => champ.id !== tpLaner?.id) ?? null;
+
+  if (bot) {
+    assignments.set(
+      bot.id,
+      makeAssignment(bot, play, 'cover-side', 'backline', expiresAt, null, null, 'mid'),
+    );
+  }
+  if (support) {
+    assignments.set(
+      support.id,
+      makeAssignment(
+        support,
+        play,
+        'cover-side',
+        'backline',
+        expiresAt,
+        null,
+        null,
+        'mid',
+      ),
+    );
+  }
+  if (tpLaner) {
+    assignments.set(
+      tpLaner.id,
+      makeAssignment(
+        tpLaner,
+        play,
+        'cover-side',
+        'split',
+        expiresAt,
+        null,
+        null,
+        opposite,
+      ),
+    );
+  }
+  if (otherLaner) {
+    assignments.set(
+      otherLaner.id,
+      makeAssignment(
+        otherLaner,
+        play,
+        'cover-side',
+        'split',
+        expiresAt,
+        null,
+        null,
+        focus === opposite ? 'mid' : focus,
+      ),
+    );
+  }
+  if (jungler) {
+    assignments.set(
+      jungler.id,
+      makeAssignment(
+        jungler,
+        play,
+        'clear-jungle',
+        'cover',
+        expiresAt,
+        null,
+        null,
+        focus,
+      ),
+    );
+  }
+  for (const champion of available) {
+    if (assignments.has(champion.id)) {
+      continue;
+    }
+    assignments.set(
+      champion.id,
+      makeAssignment(
+        champion,
+        play,
+        'hold-lane',
+        'core',
+        expiresAt,
+        null,
+        null,
+        homeLaneOf(champion),
+      ),
+    );
+  }
+  return assignments;
+}
+
 function isPlanStillValid(state: GameState, plan: TeamPlan): boolean {
   if (plan.expiresAt <= state.scheduler.time) {
     return false;
@@ -340,8 +567,90 @@ function choosePlay(
     return { play: 'defend-base', target: threatened, holdSec: PLAN_DEFEND_SEC };
   }
 
+  const siege = bestSiegeStructure(state, side);
+  const siegePressured =
+    !!siege && wavePressuringStructure(state, side, siege);
+  const closingBase =
+    !!siege &&
+    isNexusFamilyStructure(siege) &&
+    (phase === 'closeout' || phase === 'siege' || t >= 1200 || isCloseoutActive(state, side));
+  const goldLead =
+    teamEarnedGold(state, side) - teamEarnedGold(state, side === 'blue' ? 'red' : 'blue');
+  if (
+    (isCloseoutActive(state, side) || closingBase) &&
+    siege &&
+    (phase === 'closeout' ||
+      isCloseoutActive(state, side) ||
+      goldLead >= 2500 ||
+      t >= 1500)
+  ) {
+    return {
+      play: 'siege-lane',
+      target: siege,
+      holdSec: PLAN_CLOSEOUT_SIEGE_SEC,
+    };
+  }
+
+  const outerDamaged =
+    !!siege &&
+    siege.structureKind === 'outer_tower' &&
+    (siege.hp < siege.maxHp * 0.98 || siege.platesBroken > 0);
+  const earlyOuterSiege =
+    t >= 420 &&
+    !!siege &&
+    siege.structureKind === 'outer_tower' &&
+    (siegePressured || outerDamaged);
+  const earlyHerald =
+    t < 480 &&
+    bestObjectiveCamp(state)?.campId === 'herald' &&
+    isObjectiveSetupWindow(state, 'herald');
+  if (earlyOuterSiege) {
+    return {
+      play: 'siege-lane',
+      target: siege,
+      holdSec: outerDamaged ? PLAN_SIEGE_SEC + 12 : PLAN_SIEGE_SEC,
+    };
+  }
+  if (t < 480 && !earlyHerald) {
+    return { play: 'hold-lanes', target: null, holdSec: PLAN_HOLD_SEC };
+  }
+
+  const respawn = enemyRespawnPressure(state, side);
+  const numbersWindow =
+    (respawn.deadCount >= 2 && respawn.minRespawnLeft >= 28) ||
+    respawn.livingDiff >= 2;
+
   const objective = bestObjectiveCamp(state);
-  if (objective && (t >= 300 || objective.campId === 'herald')) {
+  if (numbersWindow && objective && !closingBase) {
+    const major =
+      objective.campId === 'baron' ||
+      objective.campId === 'elder' ||
+      objective.campId === 'dragon';
+    if (major || respawn.livingDiff >= 2) {
+      return {
+        play: 'contest-objective',
+        target: objective,
+        holdSec: PLAN_OBJECTIVE_SEC + 8,
+      };
+    }
+  }
+  if (numbersWindow && siege) {
+    return {
+      play: 'siege-lane',
+      target: siege,
+      holdSec:
+        isNexusFamilyStructure(siege) || phase === 'closeout'
+          ? PLAN_CLOSEOUT_SIEGE_SEC
+          : PLAN_SIEGE_SEC + 10,
+    };
+  }
+
+  if (
+    objective &&
+    (t >= 300 || objective.campId === 'herald') &&
+    !closingBase &&
+    !isCloseoutActive(state, side)
+  ) {
     const contested = objectiveContested(state, side, objective);
     const setupWindow = isObjectiveSetupWindow(state, objective.campId);
     const shouldContest =
@@ -354,22 +663,23 @@ function choosePlay(
     }
   }
 
-  if (t < 480) {
-    return { play: 'hold-lanes', target: null, holdSec: PLAN_HOLD_SEC };
-  }
-
-  const siege = bestSiegeStructure(state, side);
-  const siegePressured =
-    !!siege && wavePressuringStructure(state, side, siege);
   if (
     siege &&
     (phase === 'siege' ||
       phase === 'closeout' ||
-      (t >= 960 && siegePressured))
+      closingBase ||
+      (t >= 960 && siegePressured) ||
+      (t >= 420 &&
+        siege.structureKind === 'outer_tower' &&
+        (siegePressured || outerDamaged)))
   ) {
-    const isNexus = siege.structureKind === 'nexus';
+    const isNexus = isNexusFamilyStructure(siege);
     const holdSec =
-      isNexus || phase === 'closeout' ? PLAN_CLOSEOUT_SIEGE_SEC : PLAN_SIEGE_SEC;
+      isNexus || phase === 'closeout'
+        ? PLAN_CLOSEOUT_SIEGE_SEC
+        : outerDamaged
+          ? PLAN_SIEGE_SEC + 12
+          : PLAN_SIEGE_SEC;
     return { play: 'siege-lane', target: siege, holdSec };
   }
 
@@ -514,14 +824,16 @@ function buildObjectivePlan(
       }
       core = core.slice(0, Math.min(OBJECTIVE_CORE_CAP, core.length));
     } else {
-      core = [jungler, helpers[0]].filter(
+      core = [jungler, helpers[0], helpers[1], helpers[2]].filter(
         (champ): champ is ChampionEntity => !!champ,
       );
+      core = core.slice(0, Math.min(4, core.length));
     }
   } else if (camp.campId === 'herald') {
     const jungler = ranked.find((champ) => champ.positionLabel === 'JUNGLE');
     const top = ranked.find((champ) => champ.positionLabel === 'TOP');
-    core = [jungler, top].filter((champ): champ is ChampionEntity => !!champ);
+    const mid = ranked.find((champ) => champ.positionLabel === 'MID');
+    core = [jungler, top, mid].filter((champ): champ is ChampionEntity => !!champ);
   } else {
     core = ranked.slice(0, Math.min(2, ranked.length));
   }
@@ -561,6 +873,9 @@ function buildObjectivePlan(
   });
 
   const leftovers = available.filter((champion) => !coreIds.has(champion.id));
+  const opposite = objectiveOppositeLane(camp.campId);
+  const focus = objectiveFocusLane(camp.campId);
+  const leftoverTp = pickTeleportSideLaner(leftovers);
   leftovers.forEach((champion) => {
     if (champion.positionLabel === 'JUNGLE') {
       assignments.set(
@@ -578,6 +893,31 @@ function buildObjectivePlan(
       );
       return;
     }
+    if (
+      champion.positionLabel === 'BOT' ||
+      champion.positionLabel === 'SUPPORT'
+    ) {
+      assignments.set(
+        champion.id,
+        makeAssignment(
+          champion,
+          'contest-objective',
+          'cover-side',
+          'backline',
+          expiresAt,
+          null,
+          null,
+          'mid',
+        ),
+      );
+      return;
+    }
+    const coverLane =
+      leftoverTp && champion.id === leftoverTp.id
+        ? opposite
+        : focus === opposite
+          ? 'mid'
+          : focus;
     assignments.set(
       champion.id,
       makeAssignment(
@@ -588,7 +928,7 @@ function buildObjectivePlan(
         expiresAt,
         null,
         null,
-        homeLaneOf(champion),
+        coverLane,
       ),
     );
   });
@@ -614,93 +954,209 @@ function buildSiegePlan(
   expiresAt: number,
 ): TeamPlan {
   const available = livingAvailable(state, side);
-  const ranked = [...available].sort((left, right) => {
-    const leftScore =
-      rolePriority(left, 'siege') * 1000 + dist(left.position, structure.position);
-    const rightScore =
-      rolePriority(right, 'siege') * 1000 + dist(right.position, structure.position);
-    return leftScore - rightScore;
-  });
-  const isNexus = structure.structureKind === 'nexus';
-  const coreCap =
-    isNexus || phase === 'closeout' ? CLOSEOUT_SIEGE_CORE_CAP : SIEGE_CORE_CAP;
-  const core = ranked.slice(0, Math.min(coreCap, ranked.length));
-  const coreIds = new Set(core.map((champ) => champ.id));
-  const assignments = new Map<string, UnitAssignment>();
+  const isNexus = isNexusFamilyStructure(structure);
   const siegeLane = structure.lane ?? 'mid';
+  const assignments = new Map<string, UnitAssignment>();
 
-  core.forEach((champion, index) => {
-    assignments.set(
-      champion.id,
-      makeAssignment(
-        champion,
-        'siege-lane',
-        'siege',
-        index === 0 ? 'frontline' : index === 1 ? 'core' : 'backline',
-        expiresAt,
-        structure.id,
-        null,
-        siegeLane,
-      ),
-    );
-  });
-
-  for (const champion of available) {
-    if (coreIds.has(champion.id)) {
-      continue;
-    }
-    if (isNexus) {
+  if (isNexus || phase === 'closeout') {
+    const ranked = [...available].sort((left, right) => {
+      const leftScore =
+        rolePriority(left, 'siege') * 1000 + dist(left.position, structure.position);
+      const rightScore =
+        rolePriority(right, 'siege') * 1000 + dist(right.position, structure.position);
+      return leftScore - rightScore;
+    });
+    const coreCap = CLOSEOUT_SIEGE_CORE_CAP;
+    const core = ranked.slice(0, Math.min(coreCap, ranked.length));
+    for (const champion of available) {
+      const index = core.findIndex((item) => item.id === champion.id);
       assignments.set(
         champion.id,
         makeAssignment(
           champion,
           'siege-lane',
           'siege',
-          'cover',
+          index === 0 ? 'frontline' : index === 1 ? 'core' : index >= 0 ? 'backline' : 'cover',
           expiresAt,
           structure.id,
           null,
           siegeLane,
         ),
       );
-      continue;
     }
-    if (champion.positionLabel === 'JUNGLE') {
+  } else if (shouldUseMidLateTemplate(state, phase)) {
+    const bot = available.find((champ) => champ.positionLabel === 'BOT');
+    const support = available.find((champ) => champ.positionLabel === 'SUPPORT');
+    const jungler = available.find((champ) => champ.positionLabel === 'JUNGLE');
+    const sideLaners = available.filter(
+      (champ) => champ.positionLabel === 'TOP' || champ.positionLabel === 'MID',
+    );
+    const onSiegeLane =
+      sideLaners.find((champ) => homeLaneOf(champ) === siegeLane) ??
+      sideLaners[0] ??
+      null;
+    const coverLaner =
+      sideLaners.find((champ) => champ.id !== onSiegeLane?.id) ?? null;
+    const midGroupLane: LaneId = siegeLane === 'mid' ? 'mid' : 'mid';
+    if (bot) {
       assignments.set(
-        champion.id,
+        bot.id,
         makeAssignment(
-          champion,
+          bot,
+          'siege-lane',
+          siegeLane === 'mid' ? 'siege' : 'hold-lane',
+          'backline',
+          expiresAt,
+          siegeLane === 'mid' ? structure.id : null,
+          null,
+          midGroupLane,
+        ),
+      );
+    }
+    if (support) {
+      assignments.set(
+        support.id,
+        makeAssignment(
+          support,
+          'siege-lane',
+          siegeLane === 'mid' ? 'siege' : 'hold-lane',
+          'backline',
+          expiresAt,
+          siegeLane === 'mid' ? structure.id : null,
+          null,
+          midGroupLane,
+        ),
+      );
+    }
+    if (onSiegeLane) {
+      assignments.set(
+        onSiegeLane.id,
+        makeAssignment(
+          onSiegeLane,
+          'siege-lane',
+          'siege',
+          'frontline',
+          expiresAt,
+          structure.id,
+          null,
+          siegeLane,
+        ),
+      );
+    }
+    if (coverLaner) {
+      assignments.set(
+        coverLaner.id,
+        makeAssignment(
+          coverLaner,
+          'siege-lane',
+          'cover-side',
+          'split',
+          expiresAt,
+          null,
+          null,
+          oppositeLane(siegeLane === 'mid' ? 'top' : siegeLane),
+        ),
+      );
+    }
+    if (jungler) {
+      assignments.set(
+        jungler.id,
+        makeAssignment(
+          jungler,
           'siege-lane',
           'clear-jungle',
           'flank',
           expiresAt,
           null,
           null,
-          homeLaneOf(champion),
+          siegeLane,
         ),
       );
-      continue;
     }
-    assignments.set(
-      champion.id,
-      makeAssignment(
-        champion,
-        'siege-lane',
-        'cover-side',
-        'split',
-        expiresAt,
-        null,
-        null,
-        oppositeLane(siegeLane),
-      ),
-    );
+    for (const champion of available) {
+      if (assignments.has(champion.id)) {
+        continue;
+      }
+      assignments.set(
+        champion.id,
+        makeAssignment(
+          champion,
+          'siege-lane',
+          'siege',
+          'core',
+          expiresAt,
+          structure.id,
+          null,
+          siegeLane,
+        ),
+      );
+    }
+  } else {
+    const ranked = [...available].sort((left, right) => {
+      const leftScore =
+        rolePriority(left, 'siege') * 1000 + dist(left.position, structure.position);
+      const rightScore =
+        rolePriority(right, 'siege') * 1000 + dist(right.position, structure.position);
+      return leftScore - rightScore;
+    });
+    const core = ranked.slice(0, Math.min(SIEGE_CORE_CAP, ranked.length));
+    const coreIds = new Set(core.map((champ) => champ.id));
+    core.forEach((champion, index) => {
+      assignments.set(
+        champion.id,
+        makeAssignment(
+          champion,
+          'siege-lane',
+          'siege',
+          index === 0 ? 'frontline' : index === 1 ? 'core' : 'backline',
+          expiresAt,
+          structure.id,
+          null,
+          siegeLane,
+        ),
+      );
+    });
+    for (const champion of available) {
+      if (coreIds.has(champion.id)) {
+        continue;
+      }
+      if (champion.positionLabel === 'JUNGLE') {
+        assignments.set(
+          champion.id,
+          makeAssignment(
+            champion,
+            'siege-lane',
+            'clear-jungle',
+            'flank',
+            expiresAt,
+            null,
+            null,
+            homeLaneOf(champion),
+          ),
+        );
+        continue;
+      }
+      assignments.set(
+        champion.id,
+        makeAssignment(
+          champion,
+          'siege-lane',
+          'cover-side',
+          'split',
+          expiresAt,
+          null,
+          null,
+          oppositeLane(siegeLane),
+        ),
+      );
+    }
   }
 
   return {
     side,
     phase,
     play: 'siege-lane',
-    commitment: phase === 'closeout' ? 'high' : 'medium',
+    commitment: phase === 'closeout' || isNexus ? 'high' : 'medium',
     createdAt: state.scheduler.time,
     expiresAt,
     targetId: structure.id,
@@ -716,38 +1172,43 @@ function buildHoldPlan(
   expiresAt: number,
 ): TeamPlan {
   const available = livingAvailable(state, side);
-  const assignments = new Map<string, UnitAssignment>();
-  for (const champion of available) {
-    if (champion.positionLabel === 'JUNGLE') {
-      assignments.set(
-        champion.id,
-        makeAssignment(
-          champion,
-          'hold-lanes',
-          'clear-jungle',
-          'cover',
-          expiresAt,
-          null,
-          null,
-          homeLaneOf(champion),
-        ),
-      );
-      continue;
-    }
-    assignments.set(
-      champion.id,
-      makeAssignment(
-        champion,
-        'hold-lanes',
-        'hold-lane',
-        champion.positionLabel === 'SUPPORT' ? 'backline' : 'core',
-        expiresAt,
-        null,
-        null,
-        homeLaneOf(champion),
-      ),
-    );
-  }
+  const assignments = shouldUseMidLateTemplate(state, phase)
+    ? assignMidLateHoldLanes(state, side, available, 'hold-lanes', expiresAt)
+    : (() => {
+        const map = new Map<string, UnitAssignment>();
+        for (const champion of available) {
+          if (champion.positionLabel === 'JUNGLE') {
+            map.set(
+              champion.id,
+              makeAssignment(
+                champion,
+                'hold-lanes',
+                'clear-jungle',
+                'cover',
+                expiresAt,
+                null,
+                null,
+                homeLaneOf(champion),
+              ),
+            );
+            continue;
+          }
+          map.set(
+            champion.id,
+            makeAssignment(
+              champion,
+              'hold-lanes',
+              'hold-lane',
+              champion.positionLabel === 'SUPPORT' ? 'backline' : 'core',
+              expiresAt,
+              null,
+              null,
+              homeLaneOf(champion),
+            ),
+          );
+        }
+        return map;
+      })();
   return {
     side,
     phase,

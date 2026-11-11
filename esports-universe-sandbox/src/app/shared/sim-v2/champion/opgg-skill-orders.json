@@ -1,0 +1,7000 @@
+{
+  "patch": "op.gg live scrape",
+  "scrapedAt": "2026-11-10T09:29:59.622Z",
+  "champions": {
+    "Aatrox": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg aatrox top"
+      }
+    ],
+    "Ahri": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg ahri mid"
+      }
+    ],
+    "Akali": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg akali mid"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg akali top"
+      }
+    ],
+    "Akshan": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg akshan adc"
+      }
+    ],
+    "Alistar": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg alistar support"
+      }
+    ],
+    "Ambessa": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ambessa top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ambessa jungle"
+      }
+    ],
+    "Amumu": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg amumu top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg amumu support"
+      }
+    ],
+    "Anivia": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg anivia mid"
+      }
+    ],
+    "Annie": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg annie mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg annie support"
+      }
+    ],
+    "Aphelios": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "Q",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W"
+        ],
+        "source": "op.gg aphelios adc"
+      }
+    ],
+    "Ashe": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg ashe adc"
+      }
+    ],
+    "AurelionSol": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg aurelionsol mid"
+      }
+    ],
+    "Aurora": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg aurora mid"
+      }
+    ],
+    "Azir": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg azir mid"
+      }
+    ],
+    "Bard": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg bard support"
+      }
+    ],
+    "Belveth": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg belveth jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg belveth top"
+      }
+    ],
+    "Blitzcrank": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg blitzcrank top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg blitzcrank support"
+      }
+    ],
+    "Brand": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg brand mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg brand support"
+      }
+    ],
+    "Braum": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg braum support"
+      }
+    ],
+    "Briar": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg briar top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg briar jungle"
+      }
+    ],
+    "Caitlyn": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg caitlyn adc"
+      }
+    ],
+    "Camille": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg camille top"
+      }
+    ],
+    "Cassiopeia": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg cassiopeia mid"
+      }
+    ],
+    "Chogath": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg chogath top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg chogath support"
+      }
+    ],
+    "Corki": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg corki adc"
+      }
+    ],
+    "Darius": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg darius top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg darius jungle"
+      }
+    ],
+    "Diana": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg diana jungle"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg diana mid"
+      }
+    ],
+    "Draven": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg draven adc"
+      }
+    ],
+    "DrMundo": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg drmundo top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg drmundo support"
+      }
+    ],
+    "Ekko": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ekko mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ekko jungle"
+      }
+    ],
+    "Elise": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg elise jungle"
+      }
+    ],
+    "Evelynn": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg evelynn mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg evelynn jungle"
+      }
+    ],
+    "Ezreal": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ezreal adc"
+      }
+    ],
+    "Fiddlesticks": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "E",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg fiddlesticks jungle"
+      }
+    ],
+    "Fiora": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg fiora top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg fiora jungle"
+      }
+    ],
+    "Fizz": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg fizz mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg fizz jungle"
+      }
+    ],
+    "Galio": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg galio mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg galio support"
+      }
+    ],
+    "Gangplank": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg gangplank top"
+      }
+    ],
+    "Garen": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg garen top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg garen jungle"
+      }
+    ],
+    "Gnar": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg gnar top"
+      }
+    ],
+    "Gragas": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg gragas jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg gragas top"
+      }
+    ],
+    "Graves": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg graves jungle"
+      }
+    ],
+    "Gwen": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg gwen top"
+      }
+    ],
+    "Hecarim": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg hecarim jungle"
+      }
+    ],
+    "Heimerdinger": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg heimerdinger mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg heimerdinger support"
+      }
+    ],
+    "Hwei": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg hwei mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg hwei support"
+      }
+    ],
+    "Illaoi": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg illaoi top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg illaoi jungle"
+      }
+    ],
+    "Irelia": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg irelia top"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg irelia mid"
+      }
+    ],
+    "Ivern": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ivern support"
+      }
+    ],
+    "Janna": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg janna support"
+      }
+    ],
+    "JarvanIV": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg jarvaniv jungle"
+      }
+    ],
+    "Jax": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg jax top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg jax jungle"
+      }
+    ],
+    "Jayce": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg jayce top"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg jayce mid"
+      }
+    ],
+    "Jhin": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg jhin adc"
+      }
+    ],
+    "Jinx": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg jinx adc"
+      }
+    ],
+    "Kaisa": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg kaisa adc"
+      }
+    ],
+    "Kalista": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg kalista adc"
+      }
+    ],
+    "Karma": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg karma support"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg karma mid"
+      }
+    ],
+    "Karthus": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg karthus jungle"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg karthus mid"
+      }
+    ],
+    "Kassadin": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg kassadin mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg kassadin jungle"
+      }
+    ],
+    "Katarina": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg katarina mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg katarina jungle"
+      }
+    ],
+    "Kayle": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg kayle top"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg kayle mid"
+      }
+    ],
+    "Kayn": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kayn top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kayn jungle"
+      }
+    ],
+    "Kennen": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kennen top"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kennen mid"
+      }
+    ],
+    "Kindred": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kindred jungle"
+      }
+    ],
+    "Kled": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kled top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kled jungle"
+      }
+    ],
+    "KogMaw": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg kogmaw adc"
+      }
+    ],
+    "KSante": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg ksante top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg ksante support"
+      }
+    ],
+    "Leblanc": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg leblanc mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg leblanc jungle"
+      }
+    ],
+    "LeeSin": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg leesin jungle"
+      }
+    ],
+    "Leona": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg leona support"
+      }
+    ],
+    "Lillia": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg lillia jungle"
+      }
+    ],
+    "Lissandra": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg lissandra mid"
+      }
+    ],
+    "Lucian": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg lucian adc"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg lucian mid"
+      }
+    ],
+    "Lulu": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg lulu support"
+      }
+    ],
+    "Lux": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg lux mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg lux support"
+      }
+    ],
+    "Malphite": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg malphite top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg malphite support"
+      }
+    ],
+    "Malzahar": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg malzahar mid"
+      }
+    ],
+    "Maokai": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg maokai top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg maokai support"
+      }
+    ],
+    "MasterYi": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg masteryi mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg masteryi jungle"
+      }
+    ],
+    "Milio": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg milio support"
+      }
+    ],
+    "MissFortune": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg missfortune adc"
+      }
+    ],
+    "MonkeyKing": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg monkeyking jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg monkeyking top"
+      }
+    ],
+    "Mordekaiser": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg mordekaiser top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg mordekaiser jungle"
+      }
+    ],
+    "Morgana": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg morgana support"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg morgana mid"
+      }
+    ],
+    "Naafiri": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg naafiri mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg naafiri jungle"
+      }
+    ],
+    "Nami": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg nami support"
+      }
+    ],
+    "Nasus": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg nasus top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg nasus jungle"
+      }
+    ],
+    "Nautilus": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg nautilus support"
+      }
+    ],
+    "Neeko": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg neeko mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg neeko support"
+      }
+    ],
+    "Nidalee": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nidalee jungle"
+      }
+    ],
+    "Nilah": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nilah top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nilah jungle"
+      }
+    ],
+    "Nocturne": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nocturne jungle"
+      }
+    ],
+    "Nunu": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nunu top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg nunu support"
+      }
+    ],
+    "Olaf": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg olaf jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg olaf top"
+      }
+    ],
+    "Orianna": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg orianna mid"
+      }
+    ],
+    "Ornn": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg ornn top"
+      }
+    ],
+    "Pantheon": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg pantheon support"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg pantheon mid"
+      }
+    ],
+    "Poppy": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg poppy top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg poppy support"
+      }
+    ],
+    "Pyke": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg pyke support"
+      }
+    ],
+    "Qiyana": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg qiyana jungle"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg qiyana mid"
+      }
+    ],
+    "Quinn": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg quinn adc"
+      }
+    ],
+    "Rakan": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg rakan support"
+      }
+    ],
+    "Rammus": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rammus top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rammus support"
+      }
+    ],
+    "RekSai": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg reksai top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg reksai jungle"
+      }
+    ],
+    "Rell": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg rell support"
+      }
+    ],
+    "Renata": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg renata support"
+      }
+    ],
+    "Renekton": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg renekton top"
+      }
+    ],
+    "Rengar": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rengar mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rengar jungle"
+      }
+    ],
+    "Riven": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg riven top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg riven jungle"
+      }
+    ],
+    "Rumble": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rumble top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg rumble jungle"
+      }
+    ],
+    "Ryze": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ryze mid"
+      }
+    ],
+    "Samira": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg samira adc"
+      }
+    ],
+    "Sejuani": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sejuani jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sejuani top"
+      }
+    ],
+    "Senna": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg senna adc"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg senna support"
+      }
+    ],
+    "Seraphine": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg seraphine mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg seraphine support"
+      }
+    ],
+    "Sett": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sett top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sett support"
+      }
+    ],
+    "Shaco": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg shaco mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg shaco jungle"
+      }
+    ],
+    "Shen": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg shen top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg shen support"
+      }
+    ],
+    "Shyvana": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg shyvana top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg shyvana jungle"
+      }
+    ],
+    "Singed": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg singed top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg singed support"
+      }
+    ],
+    "Sion": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sion top"
+      }
+    ],
+    "Sivir": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sivir adc"
+      }
+    ],
+    "Skarner": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg skarner top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg skarner support"
+      }
+    ],
+    "Smolder": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg smolder adc"
+      }
+    ],
+    "Sona": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg sona support"
+      }
+    ],
+    "Soraka": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg soraka support"
+      }
+    ],
+    "Swain": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg swain mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg swain support"
+      }
+    ],
+    "Sylas": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg sylas mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg sylas jungle"
+      }
+    ],
+    "Syndra": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg syndra mid"
+      }
+    ],
+    "TahmKench": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg tahmkench support"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg tahmkench top"
+      }
+    ],
+    "Taliyah": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg taliyah mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg taliyah jungle"
+      }
+    ],
+    "Talon": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg talon mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg talon jungle"
+      }
+    ],
+    "Taric": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg taric support"
+      }
+    ],
+    "Teemo": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg teemo adc"
+      }
+    ],
+    "Thresh": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg thresh support"
+      }
+    ],
+    "Tristana": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg tristana adc"
+      },
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg tristana mid"
+      }
+    ],
+    "Trundle": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg trundle jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg trundle top"
+      }
+    ],
+    "Tryndamere": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg tryndamere top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg tryndamere jungle"
+      }
+    ],
+    "TwistedFate": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg twistedfate mid"
+      }
+    ],
+    "Twitch": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg twitch adc"
+      }
+    ],
+    "Urgot": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg urgot top"
+      }
+    ],
+    "Varus": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg varus adc"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg varus top"
+      }
+    ],
+    "Vayne": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg vayne adc"
+      }
+    ],
+    "Veigar": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg veigar mid"
+      }
+    ],
+    "Velkoz": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg velkoz mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg velkoz support"
+      }
+    ],
+    "Vex": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg vex mid"
+      }
+    ],
+    "Vi": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg vi top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg vi jungle"
+      }
+    ],
+    "Viego": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg viego jungle"
+      }
+    ],
+    "Viktor": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg viktor mid"
+      }
+    ],
+    "Vladimir": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg vladimir mid"
+      }
+    ],
+    "Volibear": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg volibear jungle"
+      },
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "E",
+          "Q",
+          "W",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg volibear top"
+      }
+    ],
+    "Warwick": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg warwick top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "Q",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "W",
+          "W",
+          "R",
+          "W",
+          "Q",
+          "W",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "E",
+          "E"
+        ],
+        "source": "op.gg warwick jungle"
+      }
+    ],
+    "Xayah": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg xayah adc"
+      }
+    ],
+    "Xerath": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg xerath mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "R",
+          "W",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg xerath support"
+      }
+    ],
+    "XinZhao": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "W",
+          "E",
+          "Q"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "W",
+          "E",
+          "R",
+          "E",
+          "E",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg xinzhao jungle"
+      }
+    ],
+    "Yasuo": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yasuo top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yasuo jungle"
+      }
+    ],
+    "Yone": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yone top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yone jungle"
+      }
+    ],
+    "Yorick": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yorick top"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yorick jungle"
+      }
+    ],
+    "Yuumi": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "Q",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg yuumi support"
+      }
+    ],
+    "Zac": [
+      {
+        "role": "TOP",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg zac top"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "W",
+          "Q"
+        ],
+        "path": [
+          "W",
+          "Q",
+          "E",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "E",
+          "W",
+          "R",
+          "W",
+          "W",
+          "Q",
+          "Q"
+        ],
+        "source": "op.gg zac support"
+      }
+    ],
+    "Zed": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zed mid"
+      },
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zed jungle"
+      }
+    ],
+    "Zeri": [
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zeri adc"
+      }
+    ],
+    "Ziggs": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ziggs mid"
+      },
+      {
+        "role": "BOT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg ziggs adc"
+      }
+    ],
+    "Zilean": [
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zilean support"
+      }
+    ],
+    "Zoe": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "E",
+          "W",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "R",
+          "E",
+          "E",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zoe mid"
+      }
+    ],
+    "Zyra": [
+      {
+        "role": "MID",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zyra mid"
+      },
+      {
+        "role": "SUPPORT",
+        "maxOrder": [
+          "E",
+          "Q",
+          "W"
+        ],
+        "path": [
+          "E",
+          "W",
+          "Q",
+          "E",
+          "E",
+          "R",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "R",
+          "Q",
+          "Q",
+          "W",
+          "W"
+        ],
+        "source": "op.gg zyra support"
+      }
+    ],
+    "Khazix": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "W",
+          "E"
+        ],
+        "path": [
+          "Q",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "R",
+          "Q",
+          "W",
+          "Q",
+          "W",
+          "W",
+          "R",
+          "W",
+          "E",
+          "E"
+        ],
+        "source": "op.gg khazix jungle"
+      }
+    ],
+    "Udyr": [
+      {
+        "role": "JUNGLE",
+        "maxOrder": [
+          "Q",
+          "E",
+          "W"
+        ],
+        "path": [
+          "Q",
+          "R",
+          "W",
+          "E",
+          "Q",
+          "Q",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "Q",
+          "E",
+          "E",
+          "E",
+          "W"
+        ],
+        "source": "op.gg udyr jungle"
+      }
+    ]
+  }
+}

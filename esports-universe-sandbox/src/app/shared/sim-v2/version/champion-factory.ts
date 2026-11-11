@@ -161,12 +161,16 @@ export function buildChampionTable(
   fullIds: readonly ChampionId[],
   hpBias = 0,
 ): Record<string, ChampionDefinition> {
-  const full = new Set(fullIds);
+  const byId = new Map(CHAMPIONS.map((champ) => [champ.id, champ]));
   const table: Record<string, ChampionDefinition> = {};
-  for (const champ of CHAMPIONS) {
+  for (const championId of fullIds) {
+    const champ = byId.get(championId);
+    if (!champ) {
+      continue;
+    }
     const magic = isMagicKit(champ.id, champ.tags);
     const manaUser = usesMana(champ.resource);
-    const status: ImplementationStatus = full.has(champ.id) ? 'full' : 'partial';
+    const status: ImplementationStatus = 'full';
     const combatClass =
       CHAMPION_KITS[champ.id]?.combatClass ??
       (champ.tags.includes('Marksman')
@@ -189,8 +193,20 @@ export function buildChampionTable(
       primaryDamage: magic ? 'magic' : 'physical',
       baseHp: (combat?.baseHp ?? (champ.tags.includes('Tank') ? 680 : 610)) + hpBias,
       hpPerLevel: combat?.hpPerLevel ?? (champ.tags.includes('Tank') ? 112 : 102),
+      baseHpRegen:
+        combat?.baseHpRegen ??
+        (champ.tags.includes('Tank') || champ.tags.includes('Fighter')
+          ? 8
+          : champ.tags.includes('Marksman')
+            ? 3.5
+            : 5.5),
+      hpRegenPerLevel:
+        combat?.hpRegenPerLevel ??
+        (champ.tags.includes('Tank') || champ.tags.includes('Fighter') ? 0.7 : 0.55),
       baseMana: combat ? combat.baseMana : manaUser ? 340 : 0,
       manaPerLevel: combat ? combat.manaPerLevel : manaUser ? 45 : 0,
+      baseManaRegen: combat?.baseManaRegen ?? (manaUser ? 8 : 0),
+      manaRegenPerLevel: combat?.manaRegenPerLevel ?? (manaUser ? 0.8 : 0),
       baseAd: combat?.baseAd ?? (magic ? 53 : champ.tags.includes('Marksman') ? 59 : 62),
       adPerLevel:
         combat?.adPerLevel ?? (magic ? 3.1 : champ.tags.includes('Marksman') ? 3.4 : 3.6),

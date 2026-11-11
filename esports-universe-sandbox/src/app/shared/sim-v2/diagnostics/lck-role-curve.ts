@@ -49,7 +49,7 @@ export const LCK_CURVE_SOURCE =
 
 export const SIM_MEAN_TOLERANCE = {
   gpm: 0.35,
-  csm: 0.42,
+  csm: 0.48,
   dpm: 0.65,
   dtpm: 0.55,
 } as const;

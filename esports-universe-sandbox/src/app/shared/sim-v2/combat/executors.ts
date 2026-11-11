@@ -17,8 +17,12 @@ import {
   type AbilityCastContext,
   type AbilityExecutor,
 } from './ability-helpers';
+import { withParsedAbilityEffects } from './apply-ability-effects';
 import { resolveCatalogExecutor } from './catalog-executor';
+import { COMBO_CHAMPION_ABILITIES } from './combo-champions';
+import { COMBO_COMPLEX_ABILITIES } from './combo-complex';
 import { SIGNATURE_ABILITIES } from './signature-abilities';
+import { SIGNATURE_MECHANICS_FILL } from './signature-mechanics-fill';
 
 export type { AbilityCastContext, AbilityExecutor };
 
@@ -181,96 +185,6 @@ const asheR: AbilityExecutor = (ctx) => {
   return true;
 };
 
-const annieQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    80 + (r - 1) * 35 + ctx.caster.ap * 0.8,
-    'magic',
-    'annie:q',
-    ctx.recorder,
-  );
-  return true;
-};
-
-const annieR: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    150 + (r - 1) * 125 + ctx.caster.ap * 0.75,
-    'magic',
-    'annie:r',
-    ctx.recorder,
-  );
-  if (ctx.target.kind === 'champion') {
-    applyStun(ctx.target, 'annie:r:stun', 1.25);
-  }
-  return true;
-};
-
-const leeSinQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    55 + (r - 1) * 25 + ctx.caster.ad * 1.0,
-    'physical',
-    'leesin:q',
-    ctx.recorder,
-  );
-  if (ctx.target.kind === 'champion' || ctx.target.kind === 'monster') {
-    dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
-  }
-  return true;
-};
-
-const leeSinW: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  heal(ctx.caster, 40 + r * 20 + ctx.caster.ad * 0.1, ctx.caster);
-  applyMs(ctx.caster, 'leesin:w:ms', 2.5, 40 + r * 8);
-  return true;
-};
-
-const leeSinR: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    175 + (r - 1) * 115 + ctx.caster.ad * 2,
-    'physical',
-    'leesin:r',
-    ctx.recorder,
-  );
-  const dx = ctx.target.position.x - ctx.caster.position.x;
-  const dy = ctx.target.position.y - ctx.caster.position.y;
-  const len = Math.hypot(dx, dy) || 1;
-  ctx.target.position = {
-    x: ctx.target.position.x + (dx / len) * 350,
-    y: ctx.target.position.y + (dy / len) * 350,
-  };
-  ctx.target.path = [];
-  ctx.target.moving = false;
-  return true;
-};
-
 const threshQ: AbilityExecutor = (ctx) => {
   if (!ctx.target || ctx.target.kind !== 'champion') {
     return false;
@@ -302,52 +216,6 @@ const threshE: AbilityExecutor = (ctx) => {
     ctx.recorder,
   );
   applySlow(ctx.target, 'thresh:e:slow', 2, 30 + ctx.level * 5);
-  return true;
-};
-
-const ahriQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const raw = 40 + (r - 1) * 25 + ctx.caster.ap * 0.45;
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'magic', 'ahri:q', ctx.recorder);
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw * 0.5, 'true', 'ahri:q:return', ctx.recorder);
-  return true;
-};
-
-const ahriE: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    60 + (r - 1) * 25 + ctx.caster.ap * 0.6,
-    'magic',
-    'ahri:e',
-    ctx.recorder,
-  );
-  applyStun(ctx.target, 'ahri:e:charm', 1.2);
-  return true;
-};
-
-const ahriR: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyMs(ctx.caster, 'ahri:r:ms', 3, 100);
-  if (ctx.target) {
-    dealToTarget(
-      ctx.state,
-      ctx.caster,
-      ctx.target,
-      60 + (r - 1) * 40 + ctx.caster.ap * 0.35,
-      'magic',
-      'ahri:r',
-      ctx.recorder,
-    );
-  }
   return true;
 };
 
@@ -405,36 +273,47 @@ const LEGACY_SPECIAL: Record<string, AbilityExecutor> = {
   'Ashe:W': asheW,
   'Ashe:E': asheE,
   'Ashe:R': asheR,
-  'Annie:Q': annieQ,
-  'Annie:R': annieR,
-  'LeeSin:Q': leeSinQ,
-  'LeeSin:W': leeSinW,
-  'LeeSin:R': leeSinR,
   'Thresh:Q': threshQ,
   'Thresh:E': threshE,
-  'Ahri:Q': ahriQ,
-  'Ahri:E': ahriE,
-  'Ahri:R': ahriR,
   'Jinx:Q': jinxQ,
   'Jinx:W': jinxW,
   'Jinx:R': jinxR,
 };
 
-const SPECIAL: Record<string, AbilityExecutor> = {
-  ...LEGACY_SPECIAL,
-  ...SIGNATURE_ABILITIES,
-};
+let specialTable: Record<string, AbilityExecutor> | null = null;
+
+function specialAbilities(): Record<string, AbilityExecutor> {
+  if (!specialTable) {
+    specialTable = {
+      ...SIGNATURE_MECHANICS_FILL,
+      ...LEGACY_SPECIAL,
+      ...SIGNATURE_ABILITIES,
+      ...COMBO_CHAMPION_ABILITIES,
+      ...COMBO_COMPLEX_ABILITIES,
+    };
+  }
+  return specialTable;
+}
+
+export function handcraftedAbilityKeys(): ReadonlySet<string> {
+  return new Set(Object.keys(specialAbilities()));
+}
+
+export function isHandcraftedAbility(championId: string, slot: AbilitySlot): boolean {
+  return Object.prototype.hasOwnProperty.call(specialAbilities(), `${championId}:${slot}`);
+}
 
 export function resolveAbilityExecutor(championId: string, slot: AbilitySlot): AbilityExecutor {
   const key = `${championId}:${slot}`;
-  if (SPECIAL[key]) {
-    return SPECIAL[key];
-  }
-  return (
+  const base =
+    specialAbilities()[key] ??
     resolveCatalogExecutor(championId, slot) ??
     resolveArchetypeExecutor(championId, slot) ??
-    genericUtility
-  );
+    genericUtility;
+  if (COMBO_CHAMPION_ABILITIES[key] || COMBO_COMPLEX_ABILITIES[key]) {
+    return base;
+  }
+  return withParsedAbilityEffects(championId, slot, base);
 }
 
 export function tickStatuses(state: GameState, dt: number): void {

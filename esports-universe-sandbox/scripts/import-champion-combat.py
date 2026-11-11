@@ -217,8 +217,12 @@ def build_champ(champ_id: str, raw: dict, zh_map: dict[str, str]) -> dict:
         "adaptiveType": raw.get("adaptiveType") or "PHYSICAL_DAMAGE",
         "baseHp": round(stat(raw, "health", "flat"), 2),
         "hpPerLevel": round(stat(raw, "health", "perLevel"), 2),
+        "baseHpRegen": round(stat(raw, "healthRegen", "flat"), 4),
+        "hpRegenPerLevel": round(stat(raw, "healthRegen", "perLevel"), 4),
         "baseMana": round(stat(raw, "mana", "flat"), 2),
         "manaPerLevel": round(stat(raw, "mana", "perLevel"), 2),
+        "baseManaRegen": round(stat(raw, "manaRegen", "flat"), 4),
+        "manaRegenPerLevel": round(stat(raw, "manaRegen", "perLevel"), 4),
         "baseAd": round(stat(raw, "attackDamage", "flat"), 2),
         "adPerLevel": round(stat(raw, "attackDamage", "perLevel"), 2),
         "baseArmor": round(stat(raw, "armor", "flat"), 2),
@@ -279,8 +283,12 @@ def main() -> None:
         "  adaptiveType: string;\n"
         "  baseHp: number;\n"
         "  hpPerLevel: number;\n"
+        "  baseHpRegen: number;\n"
+        "  hpRegenPerLevel: number;\n"
         "  baseMana: number;\n"
         "  manaPerLevel: number;\n"
+        "  baseManaRegen: number;\n"
+        "  manaRegenPerLevel: number;\n"
         "  baseAd: number;\n"
         "  adPerLevel: number;\n"
         "  baseArmor: number;\n"

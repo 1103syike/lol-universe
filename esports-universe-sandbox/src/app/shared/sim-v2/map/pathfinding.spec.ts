@@ -28,4 +28,16 @@ describe('pathfinding', () => {
     expect(isWalkable(map, blocked)).toBe(false);
     expect(findPath(map, map.blueFountain, blocked)).toEqual([]);
   });
+
+  it('applies avoid-zone penalty without failing to find a path', () => {
+    const mid = map.lanePaths.mid[Math.floor(map.lanePaths.mid.length * 0.55)];
+    const direct = findPath(map, map.blueFountain, mid);
+    expect(direct.length).toBeGreaterThan(1);
+    const hazard = direct[Math.min(direct.length - 1, Math.floor(direct.length * 0.5))];
+    const avoided = findPath(map, map.blueFountain, mid, [
+      { x: hazard.x, y: hazard.y, radius: 600, penalty: 28 },
+    ]);
+    expect(avoided.length).toBeGreaterThan(1);
+    expect(isWalkable(map, avoided[avoided.length - 1])).toBe(true);
+  });
 });

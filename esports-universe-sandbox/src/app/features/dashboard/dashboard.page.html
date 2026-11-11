@@ -255,7 +255,10 @@
                 </ul>
                 @if (report.draft; as draft) {
                   <div class="sim-report__ban-row" aria-label="藍方禁用">
-                    @for (banId of reportDraftBans(report, draft.home.teamId); track banId) {
+                    @for (banId of reportDraftBans(report, draft.home.teamId); track banId; let i = $index) {
+                      @if (i === 3) {
+                        <span class="sim-report__ban-split" aria-hidden="true"></span>
+                      }
                       <span class="sim-report__ban">
                         <app-champion-icon [championId]="banId" [size]="30" />
                       </span>
@@ -287,7 +290,10 @@
                 </ul>
                 @if (report.draft; as draft) {
                   <div class="sim-report__ban-row is-red" aria-label="紅方禁用">
-                    @for (banId of reportDraftBans(report, draft.away.teamId); track banId) {
+                    @for (banId of reportDraftBans(report, draft.away.teamId); track banId; let i = $index) {
+                      @if (i === 3) {
+                        <span class="sim-report__ban-split" aria-hidden="true"></span>
+                      }
                       <span class="sim-report__ban">
                         <app-champion-icon [championId]="banId" [size]="30" />
                       </span>
@@ -1264,7 +1270,30 @@
                 </span>
               </button>
               <div class="stage__rule"></div>
-              <section class="bout-sheet" aria-label="對位陣容">
+              <section
+                class="bout-sheet"
+                [class.is-bp-slot]="stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '') && bpLayoutMode() === 'slot-order'"
+                [class.is-bp-swap]="stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '') && bpLayoutMode() === 'swapping'"
+                aria-label="對位陣容"
+              >
+                @if (stageBpTurn(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? ''); as turn) {
+                  <div
+                    class="bp-timer"
+                    [class.is-blue]="turn.side === 'blue'"
+                    [class.is-red]="turn.side === 'red'"
+                    [class.is-both]="turn.side === 'both'"
+                    [class.is-ban]="turn.kind === 'ban'"
+                    [class.is-pick]="turn.kind === 'pick'"
+                    [attr.aria-label]="turn.label"
+                  >
+                    <span class="bp-timer__label">{{ turn.label }}</span>
+                    <div class="bp-timer__track" aria-hidden="true">
+                      @for (key of [turn.key]; track key) {
+                        <i class="bp-timer__fill" [style.animation-duration.ms]="turn.durationMs"></i>
+                      }
+                    </div>
+                  </div>
+                }
                 @if (stageTeamGoldLead(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? ''); as teamGold) {
                   <p class="bout-sheet__economy">
                     <span class="bout-sheet__economy-label">經濟</span>
@@ -1293,10 +1322,13 @@
                     <span
                       class="bout-sheet__champ"
                       [class.is-mvp]="row.home && stagePlayerIsMvp(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.home.id)"
+                      [class.is-empty-slot]="stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '') && !(row.home && stagePlayerChampionId(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.home.id))"
                       [attr.title]="row.label"
                     >
                       @if (row.home && stagePlayerChampionId(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.home.id); as champId) {
                         <app-champion-icon [championId]="champId" [size]="32" />
+                      } @else if (stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '')) {
+                        <span class="bout-sheet__champ-slot" aria-hidden="true"></span>
                       } @else {
                         <app-role-icon [position]="row.position" />
                       }
@@ -1354,10 +1386,13 @@
                     <span
                       class="bout-sheet__champ"
                       [class.is-mvp]="row.away && stagePlayerIsMvp(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.away.id)"
+                      [class.is-empty-slot]="stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '') && !(row.away && stagePlayerChampionId(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.away.id))"
                       [attr.title]="row.label"
                     >
                       @if (row.away && stagePlayerChampionId(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', row.away.id); as champId) {
                         <app-champion-icon [championId]="champId" [size]="32" />
+                      } @else if (stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '')) {
+                        <span class="bout-sheet__champ-slot" aria-hidden="true"></span>
                       } @else {
                         <app-role-icon [position]="row.position" />
                       }
@@ -1367,19 +1402,42 @@
                     </span>
                   </div>
                 }
-                @if (stageGameReport(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '')?.draft) {
-                  <div class="bout-sheet__bans">
+                @if (stageShowBanRow(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '')) {
+                  <div
+                    class="bout-sheet__bans"
+                    [class.is-bp]="stageBpActive(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '')"
+                  >
                     <div class="bout-sheet__ban-row" aria-label="藍方禁用">
-                      @for (banId of stageDraftBans(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', msi.match.left?.teamId ?? msi.match.left?.id ?? ''); track banId) {
-                        <span class="bout-sheet__ban">
-                          <app-champion-icon [championId]="banId" [size]="28" />
+                      @for (slot of stageBanDisplaySlots(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', msi.match.left?.teamId ?? msi.match.left?.id ?? ''); track slot.index) {
+                        @if (slot.index === 3) {
+                          <span class="bout-sheet__ban-split" aria-hidden="true"></span>
+                        }
+                        <span
+                          class="bout-sheet__ban"
+                          [class.is-empty]="!slot.championId"
+                          [class.is-turn-pending]="slot.isPending"
+                          [class.is-hover-intent]="slot.isHover && !!bpHover() && !bpHover()?.settled"
+                        >
+                          @if (slot.championId) {
+                            <app-champion-icon [championId]="slot.championId" [size]="28" />
+                          }
                         </span>
                       }
                     </div>
                     <div class="bout-sheet__ban-row is-red" aria-label="紅方禁用">
-                      @for (banId of stageDraftBans(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? ''); track banId) {
-                        <span class="bout-sheet__ban">
-                          <app-champion-icon [championId]="banId" [size]="28" />
+                      @for (slot of stageBanDisplaySlots(msi.match.left?.teamId ?? msi.match.left?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? '', msi.match.right?.teamId ?? msi.match.right?.id ?? ''); track slot.index) {
+                        @if (slot.index === 3) {
+                          <span class="bout-sheet__ban-split" aria-hidden="true"></span>
+                        }
+                        <span
+                          class="bout-sheet__ban"
+                          [class.is-empty]="!slot.championId"
+                          [class.is-turn-pending]="slot.isPending"
+                          [class.is-hover-intent]="slot.isHover && !!bpHover() && !bpHover()?.settled"
+                        >
+                          @if (slot.championId) {
+                            <app-champion-icon [championId]="slot.championId" [size]="28" />
+                          }
                         </span>
                       }
                     </div>
@@ -1970,7 +2028,30 @@
 <ng-template #stageRoster let-homeId="homeId" let-awayId="awayId">
   @if (roster(homeId).length > 0 || roster(awayId).length > 0) {
     <div class="stage__rule"></div>
-    <section class="bout-sheet" aria-label="對位陣容">
+    <section
+      class="bout-sheet"
+      [class.is-bp-slot]="stageBpActive(homeId, awayId) && bpLayoutMode() === 'slot-order'"
+      [class.is-bp-swap]="stageBpActive(homeId, awayId) && bpLayoutMode() === 'swapping'"
+      aria-label="對位陣容"
+    >
+      @if (stageBpTurn(homeId, awayId); as turn) {
+        <div
+          class="bp-timer"
+          [class.is-blue]="turn.side === 'blue'"
+          [class.is-red]="turn.side === 'red'"
+          [class.is-both]="turn.side === 'both'"
+          [class.is-ban]="turn.kind === 'ban'"
+          [class.is-pick]="turn.kind === 'pick'"
+          [attr.aria-label]="turn.label"
+        >
+          <span class="bp-timer__label">{{ turn.label }}</span>
+          <div class="bp-timer__track" aria-hidden="true">
+            @for (key of [turn.key]; track key) {
+              <i class="bp-timer__fill" [style.animation-duration.ms]="turn.durationMs"></i>
+            }
+          </div>
+        </div>
+      }
       @if (stageTeamGoldLead(homeId, awayId); as teamGold) {
         <p class="bout-sheet__economy">
           <span class="bout-sheet__economy-label">經濟</span>
@@ -1999,10 +2080,16 @@
           <span
             class="bout-sheet__champ"
             [class.is-mvp]="row.home && stagePlayerIsMvp(homeId, awayId, row.home.id)"
+            [class.is-empty-slot]="stageBpActive(homeId, awayId) && !(row.home && stagePlayerChampionId(homeId, awayId, row.home.id))"
+            [class.is-swap-flash]="row.home && stageBpSwapFlash(homeId, awayId, homeId, row.position)"
+            [class.is-turn-pending]="stageBpPickTurnPending(homeId, awayId, homeId, row.position)"
+            [class.is-hover-intent]="stageBpPickTurnPending(homeId, awayId, homeId, row.position) && !!bpHover() && !bpHover()?.settled"
             [attr.title]="row.label"
           >
             @if (row.home && stagePlayerChampionId(homeId, awayId, row.home.id); as champId) {
               <app-champion-icon [championId]="champId" [size]="32" />
+            } @else if (stageBpActive(homeId, awayId)) {
+              <span class="bout-sheet__champ-slot" aria-hidden="true"></span>
             } @else {
               <app-role-icon [position]="row.position" />
             }
@@ -2060,10 +2147,16 @@
           <span
             class="bout-sheet__champ"
             [class.is-mvp]="row.away && stagePlayerIsMvp(homeId, awayId, row.away.id)"
+            [class.is-empty-slot]="stageBpActive(homeId, awayId) && !(row.away && stagePlayerChampionId(homeId, awayId, row.away.id))"
+            [class.is-swap-flash]="row.away && stageBpSwapFlash(homeId, awayId, awayId, row.position)"
+            [class.is-turn-pending]="stageBpPickTurnPending(homeId, awayId, awayId, row.position)"
+            [class.is-hover-intent]="stageBpPickTurnPending(homeId, awayId, awayId, row.position) && !!bpHover() && !bpHover()?.settled"
             [attr.title]="row.label"
           >
             @if (row.away && stagePlayerChampionId(homeId, awayId, row.away.id); as champId) {
               <app-champion-icon [championId]="champId" [size]="32" />
+            } @else if (stageBpActive(homeId, awayId)) {
+              <span class="bout-sheet__champ-slot" aria-hidden="true"></span>
             } @else {
               <app-role-icon [position]="row.position" />
             }
@@ -2073,19 +2166,39 @@
           </span>
         </div>
       }
-      @if (stageGameReport(homeId, awayId)?.draft) {
-        <div class="bout-sheet__bans">
+      @if (stageShowBanRow(homeId, awayId)) {
+        <div class="bout-sheet__bans" [class.is-bp]="stageBpActive(homeId, awayId)">
           <div class="bout-sheet__ban-row" aria-label="藍方禁用">
-            @for (banId of stageDraftBans(homeId, awayId, homeId); track banId) {
-              <span class="bout-sheet__ban">
-                <app-champion-icon [championId]="banId" [size]="28" />
+            @for (slot of stageBanDisplaySlots(homeId, awayId, homeId); track slot.index) {
+              @if (slot.index === 3) {
+                <span class="bout-sheet__ban-split" aria-hidden="true"></span>
+              }
+              <span
+                class="bout-sheet__ban"
+                [class.is-empty]="!slot.championId"
+                [class.is-turn-pending]="slot.isPending"
+                [class.is-hover-intent]="slot.isHover && !!bpHover() && !bpHover()?.settled"
+              >
+                @if (slot.championId) {
+                  <app-champion-icon [championId]="slot.championId" [size]="28" />
+                }
               </span>
             }
           </div>
           <div class="bout-sheet__ban-row is-red" aria-label="紅方禁用">
-            @for (banId of stageDraftBans(homeId, awayId, awayId); track banId) {
-              <span class="bout-sheet__ban">
-                <app-champion-icon [championId]="banId" [size]="28" />
+            @for (slot of stageBanDisplaySlots(homeId, awayId, awayId); track slot.index) {
+              @if (slot.index === 3) {
+                <span class="bout-sheet__ban-split" aria-hidden="true"></span>
+              }
+              <span
+                class="bout-sheet__ban"
+                [class.is-empty]="!slot.championId"
+                [class.is-turn-pending]="slot.isPending"
+                [class.is-hover-intent]="slot.isHover && !!bpHover() && !bpHover()?.settled"
+              >
+                @if (slot.championId) {
+                  <app-champion-icon [championId]="slot.championId" [size]="28" />
+                }
               </span>
             }
           </div>

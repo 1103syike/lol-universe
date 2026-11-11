@@ -1,0 +1,7659 @@
+{
+  "patch": "op.gg live scrape",
+  "scrapedAt": "2026-11-10T14:04:28.895Z",
+  "champions": {
+    "Aatrox": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Eclipse",
+          "SunderedSky",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpearofShojin",
+          "BlackCleaver",
+          "SteraksGage"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Eclipse",
+          "SunderedSky",
+          "DeathsDance",
+          "HealthPotion",
+          "SpearofShojin",
+          "BlackCleaver",
+          "SteraksGage"
+        ],
+        "source": "op.gg aatrox top"
+      }
+    ],
+    "Ahri": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Malignance",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LichBane",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Malignance",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LichBane",
+          "VoidStaff"
+        ],
+        "source": "op.gg ahri mid"
+      }
+    ],
+    "Akali": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "source": "op.gg akali mid"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "source": "op.gg akali top"
+      }
+    ],
+    "Akshan": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "MortalReminder",
+          "RapidFirecannon",
+          "ImmortalShieldbow"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "MortalReminder",
+          "RapidFirecannon",
+          "ImmortalShieldbow"
+        ],
+        "source": "op.gg akshan adc"
+      }
+    ],
+    "Alistar": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "ZekesConvergence",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "ZekesConvergence",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "source": "op.gg alistar support"
+      }
+    ],
+    "Ambessa": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Eclipse",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "VoltaicCyclosword",
+          "MawofMalmortius"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Eclipse",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "BlackCleaver",
+          "VoltaicCyclosword",
+          "MawofMalmortius"
+        ],
+        "source": "op.gg ambessa top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Eclipse",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "VoltaicCyclosword",
+          "MawofMalmortius"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Eclipse",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "BlackCleaver",
+          "VoltaicCyclosword",
+          "MawofMalmortius"
+        ],
+        "source": "op.gg ambessa jungle"
+      }
+    ],
+    "Amumu": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "LiandrysTorment",
+          "SunfireAegis",
+          "AbyssalMask"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "LiandrysTorment",
+          "SunfireAegis",
+          "AbyssalMask",
+          "HealthPotion",
+          "Thornmail",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg amumu top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "LiandrysTorment",
+          "SunfireAegis",
+          "AbyssalMask"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "PlatedSteelcaps",
+          "LiandrysTorment",
+          "SunfireAegis",
+          "AbyssalMask",
+          "HealthPotion",
+          "Thornmail",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg amumu support"
+      }
+    ],
+    "Anivia": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "RodofAges",
+          "Malignance",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "RodofAges",
+          "Malignance",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg anivia mid"
+      }
+    ],
+    "Annie": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Malignance",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "HextechRocketbelt",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Malignance",
+          "Stormsurge",
+          "Shadowflame",
+          "HealthPotion",
+          "RefillablePotion",
+          "HextechRocketbelt",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg annie mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Malignance",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "HextechRocketbelt",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Malignance",
+          "Stormsurge",
+          "Shadowflame",
+          "HealthPotion",
+          "RefillablePotion",
+          "HextechRocketbelt",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg annie support"
+      }
+    ],
+    "Aphelios": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "BFSword",
+          "PhantomDancer",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "BFSword",
+          "PhantomDancer",
+          "MortalReminder"
+        ],
+        "source": "op.gg aphelios adc"
+      }
+    ],
+    "Ashe": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "PhantomDancer",
+          "InfinityEdge",
+          "KrakenSlayer"
+        ],
+        "later": [
+          "HealthPotion",
+          "MortalReminder",
+          "LordDominiksRegards",
+          "RunaansHurricane"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "PhantomDancer",
+          "InfinityEdge",
+          "KrakenSlayer",
+          "HealthPotion",
+          "MortalReminder",
+          "LordDominiksRegards",
+          "RunaansHurricane"
+        ],
+        "source": "op.gg ashe adc"
+      }
+    ],
+    "AurelionSol": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "RylaisCrystalScepter",
+          "LiandrysTorment"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg aurelionsol mid"
+      }
+    ],
+    "Aurora": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "LudensCompanion",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "LudensCompanion",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg aurora mid"
+      }
+    ],
+    "Azir": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "NashorsTooth",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "ZhonyasHourglass",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "NashorsTooth",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "ZhonyasHourglass",
+          "VoidStaff"
+        ],
+        "source": "op.gg azir mid"
+      }
+    ],
+    "Bard": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "DeadMansPlate",
+          "LocketoftheIronSolari"
+        ],
+        "later": [
+          "HealthPotion",
+          "Bloodsong",
+          "SolsticeSleigh",
+          "MikaelsBlessing"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "DeadMansPlate",
+          "LocketoftheIronSolari",
+          "HealthPotion",
+          "Bloodsong",
+          "SolsticeSleigh",
+          "MikaelsBlessing"
+        ],
+        "source": "op.gg bard support"
+      }
+    ],
+    "Belveth": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "KrakenSlayer",
+          "BladeofTheRuinedKing",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "Terminus",
+          "WitsEnd"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "PlatedSteelcaps",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing",
+          "DeathsDance",
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "Terminus",
+          "WitsEnd"
+        ],
+        "source": "op.gg belveth jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "KrakenSlayer",
+          "BladeofTheRuinedKing",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "Terminus",
+          "WitsEnd"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing",
+          "DeathsDance",
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "Terminus",
+          "WitsEnd"
+        ],
+        "source": "op.gg belveth top"
+      }
+    ],
+    "Blitzcrank": [
+      {
+        "role": "TOP",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "ZekesConvergence"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "FrozenHeart"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "ZekesConvergence",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "FrozenHeart"
+        ],
+        "source": "op.gg blitzcrank top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "ZekesConvergence"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "FrozenHeart"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "ZekesConvergence",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "FrozenHeart"
+        ],
+        "source": "op.gg blitzcrank support"
+      }
+    ],
+    "Brand": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "Morellonomicon"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "Morellonomicon",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg brand mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "Morellonomicon"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "Morellonomicon",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg brand support"
+      }
+    ],
+    "Braum": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "source": "op.gg braum support"
+      }
+    ],
+    "Briar": [
+      {
+        "role": "TOP",
+        "starter": "MosstomperSeedling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "TheCollector",
+          "LordDominiksRegards",
+          "ProfaneHydra",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance",
+          "TheCollector",
+          "LordDominiksRegards",
+          "ProfaneHydra",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg briar top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "MosstomperSeedling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "TheCollector",
+          "LordDominiksRegards",
+          "ProfaneHydra",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "MosstomperSeedling",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance",
+          "TheCollector",
+          "LordDominiksRegards",
+          "ProfaneHydra",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg briar jungle"
+      }
+    ],
+    "Caitlyn": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "RapidFirecannon",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "RapidFirecannon",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "source": "op.gg caitlyn adc"
+      }
+    ],
+    "Camille": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "RavenousHydra",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "SpearofShojin",
+          "MawofMalmortius"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "RavenousHydra",
+          "DeathsDance",
+          "HealthPotion",
+          "SteraksGage",
+          "SpearofShojin",
+          "MawofMalmortius"
+        ],
+        "source": "op.gg camille top"
+      }
+    ],
+    "Cassiopeia": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BootsofSwiftness",
+          "TearoftheGoddess",
+          "RodofAges",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg cassiopeia mid"
+      }
+    ],
+    "Chogath": [
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "Heartsteel",
+          "DeadMansPlate",
+          "ForceofNature"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "UnendingDespair",
+          "HextechRocketbelt"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "Heartsteel",
+          "DeadMansPlate",
+          "ForceofNature",
+          "HealthPotion",
+          "Thornmail",
+          "UnendingDespair",
+          "HextechRocketbelt"
+        ],
+        "source": "op.gg chogath top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "Heartsteel",
+          "DeadMansPlate",
+          "ForceofNature"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "UnendingDespair",
+          "HextechRocketbelt"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "BootsofSwiftness",
+          "Heartsteel",
+          "DeadMansPlate",
+          "ForceofNature",
+          "HealthPotion",
+          "Thornmail",
+          "UnendingDespair",
+          "HextechRocketbelt"
+        ],
+        "source": "op.gg chogath support"
+      }
+    ],
+    "Corki": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "EssenceReaver",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "TrinityForce",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "EssenceReaver",
+          "TheCollector",
+          "InfinityEdge",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "TrinityForce",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg corki adc"
+      }
+    ],
+    "Darius": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "YoumuusGhostblade",
+          "DeadMansPlate",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "ForceofNature",
+          "SteraksGage",
+          "Stridebreaker"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "YoumuusGhostblade",
+          "DeadMansPlate",
+          "DeathsDance",
+          "HealthPotion",
+          "ForceofNature",
+          "SteraksGage",
+          "Stridebreaker"
+        ],
+        "source": "op.gg darius top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "YoumuusGhostblade",
+          "DeadMansPlate",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "ForceofNature",
+          "SteraksGage",
+          "Stridebreaker"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "YoumuusGhostblade",
+          "DeadMansPlate",
+          "DeathsDance",
+          "HealthPotion",
+          "ForceofNature",
+          "SteraksGage",
+          "Stridebreaker"
+        ],
+        "source": "op.gg darius jungle"
+      }
+    ],
+    "Diana": [
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RefillablePotion",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg diana jungle"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RefillablePotion",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg diana mid"
+      }
+    ],
+    "Draven": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "Bloodthirster",
+          "InfinityEdge",
+          "TheCollector"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "LordDominiksRegards",
+          "ImmortalShieldbow"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "Bloodthirster",
+          "InfinityEdge",
+          "TheCollector",
+          "HealthPotion",
+          "Hubris",
+          "LordDominiksRegards",
+          "ImmortalShieldbow"
+        ],
+        "source": "op.gg draven adc"
+      }
+    ],
+    "DrMundo": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "WarmogsArmor",
+          "Heartsteel",
+          "TitanicHydra"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "DeadMansPlate",
+          "OverlordsBloodmail"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BootsofSwiftness",
+          "WarmogsArmor",
+          "Heartsteel",
+          "TitanicHydra",
+          "HealthPotion",
+          "SpiritVisage",
+          "DeadMansPlate",
+          "OverlordsBloodmail"
+        ],
+        "source": "op.gg drmundo top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransShield",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "WarmogsArmor",
+          "Heartsteel",
+          "TitanicHydra"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "DeadMansPlate",
+          "OverlordsBloodmail"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BootsofSwiftness",
+          "WarmogsArmor",
+          "Heartsteel",
+          "TitanicHydra",
+          "HealthPotion",
+          "SpiritVisage",
+          "DeadMansPlate",
+          "OverlordsBloodmail"
+        ],
+        "source": "op.gg drmundo support"
+      }
+    ],
+    "Ekko": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg ekko mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg ekko jungle"
+      }
+    ],
+    "Elise": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "source": "op.gg elise jungle"
+      }
+    ],
+    "Evelynn": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "MejaisSoulstealer",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "VoidStaff",
+          "BansheesVeil"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "MejaisSoulstealer",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "Shadowflame",
+          "VoidStaff",
+          "BansheesVeil"
+        ],
+        "source": "op.gg evelynn mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "MejaisSoulstealer",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "VoidStaff",
+          "BansheesVeil"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "MejaisSoulstealer",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "Shadowflame",
+          "VoidStaff",
+          "BansheesVeil"
+        ],
+        "source": "op.gg evelynn jungle"
+      }
+    ],
+    "Ezreal": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "TrinityForce",
+          "SpearofShojin"
+        ],
+        "later": [
+          "HealthPotion",
+          "SeryldasGrudge",
+          "LordDominiksRegards",
+          "FrozenHeart"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "TrinityForce",
+          "SpearofShojin",
+          "HealthPotion",
+          "SeryldasGrudge",
+          "LordDominiksRegards",
+          "FrozenHeart"
+        ],
+        "source": "op.gg ezreal adc"
+      }
+    ],
+    "Fiddlesticks": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Malignance",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HextechRocketbelt",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "SorcerersShoes",
+          "Malignance",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "HextechRocketbelt",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "source": "op.gg fiddlesticks jungle"
+      }
+    ],
+    "Fiora": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RavenousHydra",
+          "TrinityForce",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "Eclipse",
+          "Hullbreaker",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "RavenousHydra",
+          "TrinityForce",
+          "DeathsDance",
+          "HealthPotion",
+          "Eclipse",
+          "Hullbreaker",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg fiora top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RavenousHydra",
+          "TrinityForce",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "Eclipse",
+          "Hullbreaker",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "RavenousHydra",
+          "TrinityForce",
+          "DeathsDance",
+          "HealthPotion",
+          "Eclipse",
+          "Hullbreaker",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg fiora jungle"
+      }
+    ],
+    "Fizz": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "ZhonyasHourglass",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "ZhonyasHourglass",
+          "Shadowflame",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "source": "op.gg fizz mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "ZhonyasHourglass",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "ZhonyasHourglass",
+          "Shadowflame",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "source": "op.gg fizz jungle"
+      }
+    ],
+    "Galio": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "MercurysTreads",
+        "core": [
+          "HextechRocketbelt",
+          "ImperialMandate",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "HollowRadiance",
+          "KaenicRookern",
+          "Thornmail"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "MercurysTreads",
+          "HextechRocketbelt",
+          "ImperialMandate",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "HollowRadiance",
+          "KaenicRookern",
+          "Thornmail"
+        ],
+        "source": "op.gg galio mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "MercurysTreads",
+        "core": [
+          "HextechRocketbelt",
+          "ImperialMandate",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "HollowRadiance",
+          "KaenicRookern",
+          "Thornmail"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "MercurysTreads",
+          "HextechRocketbelt",
+          "ImperialMandate",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "HollowRadiance",
+          "KaenicRookern",
+          "Thornmail"
+        ],
+        "source": "op.gg galio support"
+      }
+    ],
+    "Gangplank": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "EssenceReaver",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "EssenceReaver",
+          "TheCollector",
+          "InfinityEdge",
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg gangplank top"
+      }
+    ],
+    "Garen": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "Stridebreaker",
+          "PhantomDancer",
+          "MortalReminder"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeadMansPlate",
+          "YoumuusGhostblade",
+          "InfinityEdge"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BerserkersGreaves",
+          "Stridebreaker",
+          "PhantomDancer",
+          "MortalReminder",
+          "HealthPotion",
+          "DeadMansPlate",
+          "YoumuusGhostblade",
+          "InfinityEdge"
+        ],
+        "source": "op.gg garen top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransShield",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "Stridebreaker",
+          "PhantomDancer",
+          "MortalReminder"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeadMansPlate",
+          "YoumuusGhostblade",
+          "InfinityEdge"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BerserkersGreaves",
+          "Stridebreaker",
+          "PhantomDancer",
+          "MortalReminder",
+          "HealthPotion",
+          "DeadMansPlate",
+          "YoumuusGhostblade",
+          "InfinityEdge"
+        ],
+        "source": "op.gg garen jungle"
+      }
+    ],
+    "Gnar": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "BlackCleaver",
+          "SteraksGage"
+        ],
+        "later": [
+          "HealthPotion",
+          "RanduinsOmen",
+          "WitsEnd",
+          "Thornmail"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "BlackCleaver",
+          "SteraksGage",
+          "HealthPotion",
+          "RanduinsOmen",
+          "WitsEnd",
+          "Thornmail"
+        ],
+        "source": "op.gg gnar top"
+      }
+    ],
+    "Gragas": [
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges",
+          "CosmicDrive"
+        ],
+        "later": [
+          "HealthPotion",
+          "SapphireCrystal",
+          "RefillablePotion",
+          "LichBane"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "RodofAges",
+          "CosmicDrive",
+          "HealthPotion",
+          "SapphireCrystal",
+          "RefillablePotion",
+          "LichBane"
+        ],
+        "source": "op.gg gragas jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges",
+          "CosmicDrive"
+        ],
+        "later": [
+          "HealthPotion",
+          "SapphireCrystal",
+          "RefillablePotion",
+          "LichBane"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "RodofAges",
+          "CosmicDrive",
+          "HealthPotion",
+          "SapphireCrystal",
+          "RefillablePotion",
+          "LichBane"
+        ],
+        "source": "op.gg gragas top"
+      }
+    ],
+    "Graves": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Hubris",
+          "TheCollector",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "YoumuusGhostblade",
+          "UmbralGlaive",
+          "ImmortalShieldbow"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "Hubris",
+          "TheCollector",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "YoumuusGhostblade",
+          "UmbralGlaive",
+          "ImmortalShieldbow"
+        ],
+        "source": "op.gg graves jungle"
+      }
+    ],
+    "Gwen": [
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "Riftmaker"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "NashorsTooth",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "Riftmaker",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "NashorsTooth",
+          "VoidStaff"
+        ],
+        "source": "op.gg gwen top"
+      }
+    ],
+    "Hecarim": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "SpearofShojin",
+          "DeathsDance",
+          "BlackCleaver"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "MawofMalmortius",
+          "SeryldasGrudge"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "IonianBootsofLucidity",
+          "SpearofShojin",
+          "DeathsDance",
+          "BlackCleaver",
+          "HealthPotion",
+          "Hubris",
+          "MawofMalmortius",
+          "SeryldasGrudge"
+        ],
+        "source": "op.gg hecarim jungle"
+      }
+    ],
+    "Heimerdinger": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg heimerdinger mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg heimerdinger support"
+      }
+    ],
+    "Hwei": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg hwei mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg hwei support"
+      }
+    ],
+    "Illaoi": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "BlackCleaver",
+          "IcebornGauntlet",
+          "SteraksGage"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "DeathsDance",
+          "Thornmail"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "BlackCleaver",
+          "IcebornGauntlet",
+          "SteraksGage",
+          "HealthPotion",
+          "SpiritVisage",
+          "DeathsDance",
+          "Thornmail"
+        ],
+        "source": "op.gg illaoi top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "BlackCleaver",
+          "IcebornGauntlet",
+          "SteraksGage"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "DeathsDance",
+          "Thornmail"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "BlackCleaver",
+          "IcebornGauntlet",
+          "SteraksGage",
+          "HealthPotion",
+          "SpiritVisage",
+          "DeathsDance",
+          "Thornmail"
+        ],
+        "source": "op.gg illaoi jungle"
+      }
+    ],
+    "Irelia": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "BladeofTheRuinedKing",
+          "Hullbreaker",
+          "WitsEnd"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "KrakenSlayer",
+          "GuardianAngel"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "BladeofTheRuinedKing",
+          "Hullbreaker",
+          "WitsEnd",
+          "HealthPotion",
+          "DeathsDance",
+          "KrakenSlayer",
+          "GuardianAngel"
+        ],
+        "source": "op.gg irelia top"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "BladeofTheRuinedKing",
+          "Hullbreaker",
+          "WitsEnd"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "KrakenSlayer",
+          "GuardianAngel"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "BladeofTheRuinedKing",
+          "Hullbreaker",
+          "WitsEnd",
+          "HealthPotion",
+          "DeathsDance",
+          "KrakenSlayer",
+          "GuardianAngel"
+        ],
+        "source": "op.gg irelia mid"
+      }
+    ],
+    "Ivern": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "Redemption",
+          "MoonstoneRenewer",
+          "ArdentCenser"
+        ],
+        "later": [
+          "HealthPotion",
+          "Dawncore",
+          "StaffofFlowingWater",
+          "ShurelyasBattlesong"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "IonianBootsofLucidity",
+          "Redemption",
+          "MoonstoneRenewer",
+          "ArdentCenser",
+          "HealthPotion",
+          "Dawncore",
+          "StaffofFlowingWater",
+          "ShurelyasBattlesong"
+        ],
+        "source": "op.gg ivern support"
+      }
+    ],
+    "Janna": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "MoonstoneRenewer",
+          "Redemption",
+          "ShurelyasBattlesong"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "SolsticeSleigh",
+          "ArdentCenser"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "MoonstoneRenewer",
+          "Redemption",
+          "ShurelyasBattlesong",
+          "HealthPotion",
+          "DreamMaker",
+          "SolsticeSleigh",
+          "ArdentCenser"
+        ],
+        "source": "op.gg janna support"
+      }
+    ],
+    "JarvanIV": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "ProfaneHydra",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "AxiomArc",
+          "Eclipse"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "ProfaneHydra",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "DeathsDance",
+          "AxiomArc",
+          "Eclipse"
+        ],
+        "source": "op.gg jarvaniv jungle"
+      }
+    ],
+    "Jax": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SunderedSky",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "Riftmaker"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SunderedSky",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "Riftmaker"
+        ],
+        "source": "op.gg jax top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SunderedSky",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "Riftmaker"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SunderedSky",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "Riftmaker"
+        ],
+        "source": "op.gg jax jungle"
+      }
+    ],
+    "Jayce": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "SerpentsFang",
+          "Eclipse",
+          "SeryldasGrudge"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "SerpentsFang",
+          "Eclipse",
+          "SeryldasGrudge"
+        ],
+        "source": "op.gg jayce top"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "SerpentsFang",
+          "Eclipse",
+          "SeryldasGrudge"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "SerpentsFang",
+          "Eclipse",
+          "SeryldasGrudge"
+        ],
+        "source": "op.gg jayce mid"
+      }
+    ],
+    "Jhin": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "Hubris",
+          "PhantomDancer",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "TheCollector",
+          "RapidFirecannon",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BootsofSwiftness",
+          "Hubris",
+          "PhantomDancer",
+          "InfinityEdge",
+          "HealthPotion",
+          "TheCollector",
+          "RapidFirecannon",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg jhin adc"
+      }
+    ],
+    "Jinx": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "RunaansHurricane",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "PhantomDancer"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "RunaansHurricane",
+          "InfinityEdge",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "PhantomDancer"
+        ],
+        "source": "op.gg jinx adc"
+      }
+    ],
+    "Kaisa": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "KrakenSlayer",
+          "GuinsoosRageblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "NashorsTooth",
+          "StatikkShiv",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "KrakenSlayer",
+          "GuinsoosRageblade",
+          "Terminus",
+          "HealthPotion",
+          "NashorsTooth",
+          "StatikkShiv",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg kaisa adc"
+      }
+    ],
+    "Kalista": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "JakShoTheProtean",
+          "WitsEnd",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus",
+          "HealthPotion",
+          "JakShoTheProtean",
+          "WitsEnd",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg kalista adc"
+      }
+    ],
+    "Karma": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "Redemption"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "MikaelsBlessing"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "Redemption",
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "MikaelsBlessing"
+        ],
+        "source": "op.gg karma support"
+      },
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "Redemption"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "MikaelsBlessing"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "Redemption",
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "MikaelsBlessing"
+        ],
+        "source": "op.gg karma mid"
+      }
+    ],
+    "Karthus": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "LiandrysTorment",
+          "VoidStaff"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "LiandrysTorment",
+          "VoidStaff"
+        ],
+        "source": "op.gg karthus jungle"
+      },
+      {
+        "role": "MID",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "LiandrysTorment",
+          "VoidStaff"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "LiandrysTorment",
+          "VoidStaff"
+        ],
+        "source": "op.gg karthus mid"
+      }
+    ],
+    "Kassadin": [
+      {
+        "role": "MID",
+        "starter": "DarkSeal",
+        "boots": "SorcerersShoes",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges",
+          "Malignance"
+        ],
+        "later": [
+          "RefillablePotion",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DarkSeal",
+          "Boots",
+          "SorcerersShoes",
+          "TearoftheGoddess",
+          "RodofAges",
+          "Malignance",
+          "RefillablePotion",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg kassadin mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DarkSeal",
+        "boots": "SorcerersShoes",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges",
+          "Malignance"
+        ],
+        "later": [
+          "RefillablePotion",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DarkSeal",
+          "Boots",
+          "SorcerersShoes",
+          "TearoftheGoddess",
+          "RodofAges",
+          "Malignance",
+          "RefillablePotion",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg kassadin jungle"
+      }
+    ],
+    "Katarina": [
+      {
+        "role": "MID",
+        "starter": "DarkSeal",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "RefillablePotion",
+          "HealthPotion",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "DarkSeal",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "RefillablePotion",
+          "HealthPotion",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg katarina mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DarkSeal",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "RefillablePotion",
+          "HealthPotion",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing"
+        ],
+        "items": [
+          "DarkSeal",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "RefillablePotion",
+          "HealthPotion",
+          "KrakenSlayer",
+          "BladeofTheRuinedKing"
+        ],
+        "source": "op.gg katarina jungle"
+      }
+    ],
+    "Kayle": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "NashorsTooth",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "RylaisCrystalScepter",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BootsofSwiftness",
+          "NashorsTooth",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "Shadowflame",
+          "RylaisCrystalScepter",
+          "VoidStaff"
+        ],
+        "source": "op.gg kayle top"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "NashorsTooth",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "RylaisCrystalScepter",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BootsofSwiftness",
+          "NashorsTooth",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "Shadowflame",
+          "RylaisCrystalScepter",
+          "VoidStaff"
+        ],
+        "source": "op.gg kayle mid"
+      }
+    ],
+    "Kayn": [
+      {
+        "role": "TOP",
+        "starter": "ScorchclawPup",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "AxiomArc",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "Hubris",
+          "AxiomArc",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg kayn top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "AxiomArc",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "Hubris",
+          "AxiomArc",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg kayn jungle"
+      }
+    ],
+    "Kennen": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "SorcerersShoes",
+        "core": [
+          "HextechRocketbelt",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "SorcerersShoes",
+          "HextechRocketbelt",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "source": "op.gg kennen top"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "SorcerersShoes",
+        "core": [
+          "HextechRocketbelt",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "SorcerersShoes",
+          "HextechRocketbelt",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Stormsurge",
+          "VoidStaff"
+        ],
+        "source": "op.gg kennen mid"
+      }
+    ],
+    "Khazix": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "UmbralGlaive",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "UmbralGlaive",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "EdgeofNight",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg khazix mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "UmbralGlaive",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "IonianBootsofLucidity",
+          "UmbralGlaive",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "EdgeofNight",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg khazix jungle"
+      }
+    ],
+    "Kindred": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "InfinityEdge",
+          "TrinityForce",
+          "MortalReminder"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "InfinityEdge",
+          "TrinityForce",
+          "MortalReminder"
+        ],
+        "source": "op.gg kindred jungle"
+      }
+    ],
+    "Kled": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "BlackCleaver",
+          "OverlordsBloodmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "Hullbreaker",
+          "DeathsDance"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "BlackCleaver",
+          "OverlordsBloodmail",
+          "HealthPotion",
+          "SteraksGage",
+          "Hullbreaker",
+          "DeathsDance"
+        ],
+        "source": "op.gg kled top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "BlackCleaver",
+          "OverlordsBloodmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "Hullbreaker",
+          "DeathsDance"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "BlackCleaver",
+          "OverlordsBloodmail",
+          "HealthPotion",
+          "SteraksGage",
+          "Hullbreaker",
+          "DeathsDance"
+        ],
+        "source": "op.gg kled jungle"
+      }
+    ],
+    "KogMaw": [
+      {
+        "role": "BOT",
+        "starter": "DoransRing",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "GuinsoosRageblade",
+          "NavoriFlickerblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "RunaansHurricane",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BerserkersGreaves",
+          "GuinsoosRageblade",
+          "NavoriFlickerblade",
+          "Terminus",
+          "HealthPotion",
+          "RunaansHurricane",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg kogmaw adc"
+      }
+    ],
+    "KSante": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "IcebornGauntlet",
+          "UnendingDespair",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "BrambleVest"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "IcebornGauntlet",
+          "UnendingDespair",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "BrambleVest"
+        ],
+        "source": "op.gg ksante top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "IcebornGauntlet",
+          "UnendingDespair",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "BrambleVest"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "IcebornGauntlet",
+          "UnendingDespair",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "BrambleVest"
+        ],
+        "source": "op.gg ksante support"
+      }
+    ],
+    "Leblanc": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "source": "op.gg leblanc mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "source": "op.gg leblanc jungle"
+      }
+    ],
+    "LeeSin": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Eclipse",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "ProfaneHydra",
+          "VoltaicCyclosword"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "Eclipse",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "ProfaneHydra",
+          "VoltaicCyclosword"
+        ],
+        "source": "op.gg leesin jungle"
+      }
+    ],
+    "Leona": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "source": "op.gg leona support"
+      }
+    ],
+    "Lillia": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "Riftmaker",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap",
+          "MejaisSoulstealer"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "Riftmaker",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RylaisCrystalScepter",
+          "RabadonsDeathcap",
+          "MejaisSoulstealer"
+        ],
+        "source": "op.gg lillia jungle"
+      }
+    ],
+    "Lissandra": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Malignance",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "LudensCompanion"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Malignance",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "LudensCompanion"
+        ],
+        "source": "op.gg lissandra mid"
+      }
+    ],
+    "Lucian": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "EssenceReaver",
+          "NavoriFlickerblade",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "EssenceReaver",
+          "NavoriFlickerblade",
+          "InfinityEdge",
+          "HealthPotion",
+          "BlackCleaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg lucian adc"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "EssenceReaver",
+          "NavoriFlickerblade",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "EssenceReaver",
+          "NavoriFlickerblade",
+          "InfinityEdge",
+          "HealthPotion",
+          "BlackCleaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg lucian mid"
+      }
+    ],
+    "Lulu": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "ArdentCenser",
+          "MoonstoneRenewer",
+          "ShurelyasBattlesong"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "MikaelsBlessing"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "ArdentCenser",
+          "MoonstoneRenewer",
+          "ShurelyasBattlesong",
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "MikaelsBlessing"
+        ],
+        "source": "op.gg lulu support"
+      }
+    ],
+    "Lux": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Stormsurge",
+          "Shadowflame",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg lux mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Stormsurge",
+          "Shadowflame",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg lux support"
+      }
+    ],
+    "Malphite": [
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "SunfireAegis",
+          "Thornmail",
+          "FrozenHeart"
+        ],
+        "later": [
+          "HealthPotion",
+          "KaenicRookern",
+          "Malignance",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "SunfireAegis",
+          "Thornmail",
+          "FrozenHeart",
+          "HealthPotion",
+          "KaenicRookern",
+          "Malignance",
+          "Stormsurge"
+        ],
+        "source": "op.gg malphite top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "SunfireAegis",
+          "Thornmail",
+          "FrozenHeart"
+        ],
+        "later": [
+          "HealthPotion",
+          "KaenicRookern",
+          "Malignance",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "SunfireAegis",
+          "Thornmail",
+          "FrozenHeart",
+          "HealthPotion",
+          "KaenicRookern",
+          "Malignance",
+          "Stormsurge"
+        ],
+        "source": "op.gg malphite support"
+      }
+    ],
+    "Malzahar": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "Shadowflame",
+          "Malignance"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "Shadowflame",
+          "Malignance"
+        ],
+        "source": "op.gg malzahar mid"
+      }
+    ],
+    "Maokai": [
+      {
+        "role": "TOP",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "source": "op.gg maokai top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "source": "op.gg maokai support"
+      }
+    ],
+    "MasterYi": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "BladeofTheRuinedKing",
+          "InfinityEdge"
+        ],
+        "items": [
+          "Boots",
+          "BerserkersGreaves",
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "BladeofTheRuinedKing",
+          "InfinityEdge"
+        ],
+        "source": "op.gg masteryi mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "BladeofTheRuinedKing",
+          "InfinityEdge"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "BerserkersGreaves",
+          "KrakenSlayer",
+          "TheCollector",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "GuinsoosRageblade",
+          "BladeofTheRuinedKing",
+          "InfinityEdge"
+        ],
+        "source": "op.gg masteryi jungle"
+      }
+    ],
+    "Milio": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "ArdentCenser"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "ShurelyasBattlesong"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "ArdentCenser",
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "ShurelyasBattlesong"
+        ],
+        "source": "op.gg milio support"
+      }
+    ],
+    "MissFortune": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "Bloodthirster",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BootsofSwiftness",
+          "Bloodthirster",
+          "TheCollector",
+          "InfinityEdge",
+          "HealthPotion",
+          "Hubris",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg missfortune adc"
+      }
+    ],
+    "MonkeyKing": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "source": "op.gg monkeyking jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "source": "op.gg monkeyking top"
+      }
+    ],
+    "Mordekaiser": [
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RylaisCrystalScepter",
+          "Riftmaker",
+          "LiandrysTorment"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "ExperimentalHexplate"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "RylaisCrystalScepter",
+          "Riftmaker",
+          "LiandrysTorment",
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "ExperimentalHexplate"
+        ],
+        "source": "op.gg mordekaiser top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RylaisCrystalScepter",
+          "Riftmaker",
+          "LiandrysTorment"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "ExperimentalHexplate"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "RylaisCrystalScepter",
+          "Riftmaker",
+          "LiandrysTorment",
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "ExperimentalHexplate"
+        ],
+        "source": "op.gg mordekaiser jungle"
+      }
+    ],
+    "Morgana": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "source": "op.gg morgana support"
+      },
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "source": "op.gg morgana mid"
+      }
+    ],
+    "Naafiri": [
+      {
+        "role": "MID",
+        "starter": "ScorchclawPup",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "AxiomArc",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "AxiomArc",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg naafiri mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "AxiomArc",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "AxiomArc",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg naafiri jungle"
+      }
+    ],
+    "Nami": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "ArdentCenser"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "SolsticeSleigh",
+          "StaffofFlowingWater"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "ArdentCenser",
+          "HealthPotion",
+          "DreamMaker",
+          "SolsticeSleigh",
+          "StaffofFlowingWater"
+        ],
+        "source": "op.gg nami support"
+      }
+    ],
+    "Nasus": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TrinityForce",
+          "FrozenHeart",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "IcebornGauntlet",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TrinityForce",
+          "FrozenHeart",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "IcebornGauntlet",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg nasus top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransShield",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TrinityForce",
+          "FrozenHeart",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "IcebornGauntlet",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "IonianBootsofLucidity",
+          "TrinityForce",
+          "FrozenHeart",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "IcebornGauntlet",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg nasus jungle"
+      }
+    ],
+    "Nautilus": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "source": "op.gg nautilus support"
+      }
+    ],
+    "Neeko": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "HextechRocketbelt",
+          "ZhonyasHourglass",
+          "Stormsurge"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ImperialMandate"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "HextechRocketbelt",
+          "ZhonyasHourglass",
+          "Stormsurge",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ImperialMandate"
+        ],
+        "source": "op.gg neeko mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "HextechRocketbelt",
+          "ZhonyasHourglass",
+          "Stormsurge"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ImperialMandate"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "HextechRocketbelt",
+          "ZhonyasHourglass",
+          "Stormsurge",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "ImperialMandate"
+        ],
+        "source": "op.gg neeko support"
+      }
+    ],
+    "Nidalee": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LichBane",
+          "HextechRocketbelt",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "SorcerersShoes",
+          "LichBane",
+          "HextechRocketbelt",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "source": "op.gg nidalee jungle"
+      }
+    ],
+    "Nilah": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "YunTalWildarrows"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "YunTalWildarrows"
+        ],
+        "source": "op.gg nilah top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "YunTalWildarrows"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "YunTalWildarrows"
+        ],
+        "source": "op.gg nilah jungle"
+      }
+    ],
+    "Nocturne": [
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "ProfaneHydra",
+          "AxiomArc",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "ExperimentalHexplate",
+          "Stridebreaker",
+          "BlackCleaver"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "ProfaneHydra",
+          "AxiomArc",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "ExperimentalHexplate",
+          "Stridebreaker",
+          "BlackCleaver"
+        ],
+        "source": "op.gg nocturne jungle"
+      }
+    ],
+    "Nunu": [
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "DeadMansPlate",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "HextechRocketbelt",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "DeadMansPlate",
+          "SpiritVisage",
+          "HealthPotion",
+          "HextechRocketbelt",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "source": "op.gg nunu top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "DeadMansPlate",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "HextechRocketbelt",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "DeadMansPlate",
+          "SpiritVisage",
+          "HealthPotion",
+          "HextechRocketbelt",
+          "Stormsurge",
+          "Shadowflame"
+        ],
+        "source": "op.gg nunu support"
+      }
+    ],
+    "Olaf": [
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "ExperimentalHexplate",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "RavenousHydra",
+          "SteraksGage",
+          "MawofMalmortius"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "ExperimentalHexplate",
+          "DeathsDance",
+          "HealthPotion",
+          "RavenousHydra",
+          "SteraksGage",
+          "MawofMalmortius"
+        ],
+        "source": "op.gg olaf jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "ExperimentalHexplate",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "RavenousHydra",
+          "SteraksGage",
+          "MawofMalmortius"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "ExperimentalHexplate",
+          "DeathsDance",
+          "HealthPotion",
+          "RavenousHydra",
+          "SteraksGage",
+          "MawofMalmortius"
+        ],
+        "source": "op.gg olaf top"
+      }
+    ],
+    "Orianna": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RabadonsDeathcap",
+          "BlackfireTorch"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RabadonsDeathcap",
+          "BlackfireTorch"
+        ],
+        "source": "op.gg orianna mid"
+      }
+    ],
+    "Ornn": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "SunfireAegis",
+          "Thornmail",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "HollowRadiance",
+          "UnendingDespair",
+          "BrambleVest"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "SunfireAegis",
+          "Thornmail",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "HollowRadiance",
+          "UnendingDespair",
+          "BrambleVest"
+        ],
+        "source": "op.gg ornn top"
+      }
+    ],
+    "Pantheon": [
+      {
+        "role": "SUPPORT",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "SerratedDirk",
+          "VoltaicCyclosword",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "Eclipse"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "SerratedDirk",
+          "VoltaicCyclosword",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "Eclipse"
+        ],
+        "source": "op.gg pantheon support"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "SerratedDirk",
+          "VoltaicCyclosword",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "Eclipse"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "SerratedDirk",
+          "VoltaicCyclosword",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "LongSword",
+          "RefillablePotion",
+          "Eclipse"
+        ],
+        "source": "op.gg pantheon mid"
+      }
+    ],
+    "Poppy": [
+      {
+        "role": "TOP",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "DeadMansPlate",
+          "LocketoftheIronSolari",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "ForceofNature"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "DeadMansPlate",
+          "LocketoftheIronSolari",
+          "Thornmail",
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "ForceofNature"
+        ],
+        "source": "op.gg poppy top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "DeadMansPlate",
+          "LocketoftheIronSolari",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "ForceofNature"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "DeadMansPlate",
+          "LocketoftheIronSolari",
+          "Thornmail",
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "ForceofNature"
+        ],
+        "source": "op.gg poppy support"
+      }
+    ],
+    "Pyke": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "UmbralGlaive",
+          "YoumuusGhostblade",
+          "EdgeofNight"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "VoltaicCyclosword"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "UmbralGlaive",
+          "YoumuusGhostblade",
+          "EdgeofNight",
+          "HealthPotion",
+          "CelestialOpposition",
+          "Bloodsong",
+          "VoltaicCyclosword"
+        ],
+        "source": "op.gg pyke support"
+      }
+    ],
+    "Qiyana": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "EdgeofNight"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "EdgeofNight",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg qiyana jungle"
+      },
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "EdgeofNight"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "EdgeofNight",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "SeryldasGrudge",
+          "SerpentsFang"
+        ],
+        "source": "op.gg qiyana mid"
+      }
+    ],
+    "Quinn": [
+      {
+        "role": "BOT",
+        "starter": "ScorchclawPup",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "ProfaneHydra",
+          "TheCollector",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "Hubris",
+          "EdgeofNight",
+          "InfinityEdge"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "ProfaneHydra",
+          "TheCollector",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "Hubris",
+          "EdgeofNight",
+          "InfinityEdge"
+        ],
+        "source": "op.gg quinn adc"
+      }
+    ],
+    "Rakan": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "ZekesConvergence",
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "ShurelyasBattlesong"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "ZekesConvergence",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "ShurelyasBattlesong"
+        ],
+        "source": "op.gg rakan support"
+      }
+    ],
+    "Rammus": [
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Thornmail",
+          "SunfireAegis",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "HollowRadiance",
+          "DeadMansPlate",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Thornmail",
+          "SunfireAegis",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "HollowRadiance",
+          "DeadMansPlate",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg rammus top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Thornmail",
+          "SunfireAegis",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "HollowRadiance",
+          "DeadMansPlate",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "PlatedSteelcaps",
+          "Thornmail",
+          "SunfireAegis",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "HollowRadiance",
+          "DeadMansPlate",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg rammus support"
+      }
+    ],
+    "RekSai": [
+      {
+        "role": "TOP",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "TitanicHydra",
+          "BlackCleaver"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "SteraksGage",
+          "TitanicHydra",
+          "BlackCleaver"
+        ],
+        "source": "op.gg reksai top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "TitanicHydra",
+          "BlackCleaver"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "SteraksGage",
+          "TitanicHydra",
+          "BlackCleaver"
+        ],
+        "source": "op.gg reksai jungle"
+      }
+    ],
+    "Rell": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "ZekesConvergence",
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "ZekesConvergence",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "Thornmail"
+        ],
+        "source": "op.gg rell support"
+      }
+    ],
+    "Renata": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "LocketoftheIronSolari",
+          "ShurelyasBattlesong",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "ImperialMandate"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "LocketoftheIronSolari",
+          "ShurelyasBattlesong",
+          "KnightsVow",
+          "HealthPotion",
+          "CelestialOpposition",
+          "SolsticeSleigh",
+          "ImperialMandate"
+        ],
+        "source": "op.gg renata support"
+      }
+    ],
+    "Renekton": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Eclipse",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "SpearofShojin",
+          "SpiritVisage"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Eclipse",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "SteraksGage",
+          "SpearofShojin",
+          "SpiritVisage"
+        ],
+        "source": "op.gg renekton top"
+      }
+    ],
+    "Rengar": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "UmbralGlaive",
+          "ProfaneHydra",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "VoltaicCyclosword"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "UmbralGlaive",
+          "ProfaneHydra",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "VoltaicCyclosword"
+        ],
+        "source": "op.gg rengar mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "UmbralGlaive",
+          "ProfaneHydra",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "VoltaicCyclosword"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "IonianBootsofLucidity",
+          "UmbralGlaive",
+          "ProfaneHydra",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "VoltaicCyclosword"
+        ],
+        "source": "op.gg rengar jungle"
+      }
+    ],
+    "Riven": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "AxiomArc",
+          "DeathsDance",
+          "Eclipse"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "MawofMalmortius",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "AxiomArc",
+          "DeathsDance",
+          "Eclipse",
+          "HealthPotion",
+          "BlackCleaver",
+          "MawofMalmortius",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg riven top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "AxiomArc",
+          "DeathsDance",
+          "Eclipse"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "MawofMalmortius",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "AxiomArc",
+          "DeathsDance",
+          "Eclipse",
+          "HealthPotion",
+          "BlackCleaver",
+          "MawofMalmortius",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg riven jungle"
+      }
+    ],
+    "Rumble": [
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Morellonomicon",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "Shadowflame",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Morellonomicon",
+          "VoidStaff"
+        ],
+        "source": "op.gg rumble top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Morellonomicon",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "Shadowflame",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "Morellonomicon",
+          "VoidStaff"
+        ],
+        "source": "op.gg rumble jungle"
+      }
+    ],
+    "Ryze": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "MercurysTreads",
+        "core": [
+          "TearoftheGoddess",
+          "RodofAges"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap",
+          "FrozenHeart"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "MercurysTreads",
+          "TearoftheGoddess",
+          "RodofAges",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "RabadonsDeathcap",
+          "FrozenHeart"
+        ],
+        "source": "op.gg ryze mid"
+      }
+    ],
+    "Samira": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "Hubris"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "TheCollector",
+          "InfinityEdge",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "ImmortalShieldbow",
+          "MortalReminder",
+          "Hubris"
+        ],
+        "source": "op.gg samira adc"
+      }
+    ],
+    "Sejuani": [
+      {
+        "role": "JUNGLE",
+        "starter": "MosstomperSeedling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "UnendingDespair",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "KaenicRookern",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "MosstomperSeedling",
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "UnendingDespair",
+          "Thornmail",
+          "HealthPotion",
+          "KaenicRookern",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg sejuani jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "MosstomperSeedling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "UnendingDespair",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "KaenicRookern",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "UnendingDespair",
+          "Thornmail",
+          "HealthPotion",
+          "KaenicRookern",
+          "JakShoTheProtean",
+          "RanduinsOmen"
+        ],
+        "source": "op.gg sejuani top"
+      }
+    ],
+    "Senna": [
+      {
+        "role": "BOT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "BlackCleaver",
+          "StatikkShiv",
+          "RapidFirecannon"
+        ],
+        "later": [
+          "HealthPotion",
+          "Bloodsong",
+          "CelestialOpposition",
+          "InfinityEdge"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "BlackCleaver",
+          "StatikkShiv",
+          "RapidFirecannon",
+          "HealthPotion",
+          "Bloodsong",
+          "CelestialOpposition",
+          "InfinityEdge"
+        ],
+        "source": "op.gg senna adc"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "BlackCleaver",
+          "StatikkShiv",
+          "RapidFirecannon"
+        ],
+        "later": [
+          "HealthPotion",
+          "Bloodsong",
+          "CelestialOpposition",
+          "InfinityEdge"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "BlackCleaver",
+          "StatikkShiv",
+          "RapidFirecannon",
+          "HealthPotion",
+          "Bloodsong",
+          "CelestialOpposition",
+          "InfinityEdge"
+        ],
+        "source": "op.gg senna support"
+      }
+    ],
+    "Seraphine": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "RylaisCrystalScepter"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "RylaisCrystalScepter"
+        ],
+        "source": "op.gg seraphine mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "RylaisCrystalScepter"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "RylaisCrystalScepter"
+        ],
+        "source": "op.gg seraphine support"
+      }
+    ],
+    "Sett": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "BlackCleaver",
+          "OverlordsBloodmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "WarmogsArmor",
+          "SpearofShojin"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "BlackCleaver",
+          "OverlordsBloodmail",
+          "HealthPotion",
+          "SteraksGage",
+          "WarmogsArmor",
+          "SpearofShojin"
+        ],
+        "source": "op.gg sett top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "BlackCleaver",
+          "OverlordsBloodmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "WarmogsArmor",
+          "SpearofShojin"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "BlackCleaver",
+          "OverlordsBloodmail",
+          "HealthPotion",
+          "SteraksGage",
+          "WarmogsArmor",
+          "SpearofShojin"
+        ],
+        "source": "op.gg sett support"
+      }
+    ],
+    "Shaco": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ImperialMandate"
+        ],
+        "later": [
+          "HealthPotion",
+          "VoltaicCyclosword",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ImperialMandate",
+          "HealthPotion",
+          "VoltaicCyclosword",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "source": "op.gg shaco mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ImperialMandate"
+        ],
+        "later": [
+          "HealthPotion",
+          "VoltaicCyclosword",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "IonianBootsofLucidity",
+          "BlackfireTorch",
+          "LiandrysTorment",
+          "ImperialMandate",
+          "HealthPotion",
+          "VoltaicCyclosword",
+          "TheCollector",
+          "InfinityEdge"
+        ],
+        "source": "op.gg shaco jungle"
+      }
+    ],
+    "Shen": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "DeadMansPlate"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "Thornmail",
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "DeadMansPlate"
+        ],
+        "source": "op.gg shen top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "Thornmail"
+        ],
+        "later": [
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "DeadMansPlate"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "Thornmail",
+          "HealthPotion",
+          "RanduinsOmen",
+          "KaenicRookern",
+          "DeadMansPlate"
+        ],
+        "source": "op.gg shen support"
+      }
+    ],
+    "Shyvana": [
+      {
+        "role": "TOP",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "KrakenSlayer",
+          "JakShoTheProtean",
+          "SteraksGage"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "KrakenSlayer",
+          "JakShoTheProtean",
+          "SteraksGage"
+        ],
+        "source": "op.gg shyvana top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SpearofShojin",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "KrakenSlayer",
+          "JakShoTheProtean",
+          "SteraksGage"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SpearofShojin",
+          "DeathsDance",
+          "HealthPotion",
+          "KrakenSlayer",
+          "JakShoTheProtean",
+          "SteraksGage"
+        ],
+        "source": "op.gg shyvana jungle"
+      }
+    ],
+    "Singed": [
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LiandrysTorment",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "DeadMansPlate",
+          "Riftmaker"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BootsofSwiftness",
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "RefillablePotion",
+          "DeadMansPlate",
+          "Riftmaker"
+        ],
+        "source": "op.gg singed top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LiandrysTorment",
+          "RylaisCrystalScepter"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "DeadMansPlate",
+          "Riftmaker"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BootsofSwiftness",
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "HealthPotion",
+          "RefillablePotion",
+          "DeadMansPlate",
+          "Riftmaker"
+        ],
+        "source": "op.gg singed support"
+      }
+    ],
+    "Sion": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "HollowRadiance",
+          "UnendingDespair",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "Heartsteel",
+          "TitanicHydra",
+          "OverlordsBloodmail"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "HollowRadiance",
+          "UnendingDespair",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "Heartsteel",
+          "TitanicHydra",
+          "OverlordsBloodmail"
+        ],
+        "source": "op.gg sion top"
+      }
+    ],
+    "Sivir": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "YunTalWildarrows",
+          "NavoriFlickerblade",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "EssenceReaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "YunTalWildarrows",
+          "NavoriFlickerblade",
+          "InfinityEdge",
+          "HealthPotion",
+          "EssenceReaver",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg sivir adc"
+      }
+    ],
+    "Skarner": [
+      {
+        "role": "TOP",
+        "starter": "MosstomperSeedling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "UnendingDespair",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "UnendingDespair",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "source": "op.gg skarner top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "UnendingDespair",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "UnendingDespair",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "source": "op.gg skarner support"
+      }
+    ],
+    "Smolder": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "EssenceReaver",
+          "BlackCleaver",
+          "SpearofShojin"
+        ],
+        "later": [
+          "HealthPotion",
+          "RapidFirecannon",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "EssenceReaver",
+          "BlackCleaver",
+          "SpearofShojin",
+          "HealthPotion",
+          "RapidFirecannon",
+          "InfinityEdge",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg smolder adc"
+      }
+    ],
+    "Sona": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer"
+        ],
+        "later": [
+          "HealthPotion",
+          "Bloodsong",
+          "DreamMaker",
+          "StaffofFlowingWater"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "TearoftheGoddess",
+          "EchoesofHelia",
+          "MoonstoneRenewer",
+          "HealthPotion",
+          "Bloodsong",
+          "DreamMaker",
+          "StaffofFlowingWater"
+        ],
+        "source": "op.gg sona support"
+      }
+    ],
+    "Soraka": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "MoonstoneRenewer",
+          "Redemption",
+          "Dawncore"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "MikaelsBlessing"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "MoonstoneRenewer",
+          "Redemption",
+          "Dawncore",
+          "HealthPotion",
+          "DreamMaker",
+          "CelestialOpposition",
+          "MikaelsBlessing"
+        ],
+        "source": "op.gg soraka support"
+      }
+    ],
+    "Swain": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "SpiritVisage"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "SpiritVisage"
+        ],
+        "source": "op.gg swain mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "SpiritVisage"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "RylaisCrystalScepter",
+          "LiandrysTorment",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "SpiritVisage"
+        ],
+        "source": "op.gg swain support"
+      }
+    ],
+    "Sylas": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "HextechRocketbelt",
+          "Riftmaker",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "HextechRocketbelt",
+          "Riftmaker",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "Shadowflame",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg sylas mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "HextechRocketbelt",
+          "Riftmaker",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "HextechRocketbelt",
+          "Riftmaker",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "Shadowflame",
+          "LichBane",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg sylas jungle"
+      }
+    ],
+    "Syndra": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "Stormsurge",
+          "BlackfireTorch"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "ZhonyasHourglass",
+          "Stormsurge",
+          "BlackfireTorch"
+        ],
+        "source": "op.gg syndra mid"
+      }
+    ],
+    "TahmKench": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "Thornmail",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "UnendingDespair"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "Thornmail",
+          "SpiritVisage",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "UnendingDespair"
+        ],
+        "source": "op.gg tahmkench support"
+      },
+      {
+        "role": "TOP",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Heartsteel",
+          "Thornmail",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "UnendingDespair"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Heartsteel",
+          "Thornmail",
+          "SpiritVisage",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "UnendingDespair"
+        ],
+        "source": "op.gg tahmkench top"
+      }
+    ],
+    "Taliyah": [
+      {
+        "role": "MID",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "source": "op.gg taliyah mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "ScorchclawPup",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "items": [
+          "ScorchclawPup",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "RabadonsDeathcap",
+          "LudensCompanion",
+          "VoidStaff"
+        ],
+        "source": "op.gg taliyah jungle"
+      }
+    ],
+    "Talon": [
+      {
+        "role": "MID",
+        "starter": "GustwalkerHatchling",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "UmbralGlaive",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "UmbralGlaive",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg talon mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "UmbralGlaive",
+          "VoltaicCyclosword"
+        ],
+        "later": [
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "BootsofSwiftness",
+          "UmbralGlaive",
+          "VoltaicCyclosword",
+          "HealthPotion",
+          "EdgeofNight",
+          "SerpentsFang",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg talon jungle"
+      }
+    ],
+    "Taric": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TearoftheGoddess",
+          "LocketoftheIronSolari",
+          "KnightsVow"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "DreamMaker",
+          "FrozenHeart"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "TearoftheGoddess",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "DreamMaker",
+          "FrozenHeart"
+        ],
+        "source": "op.gg taric support"
+      }
+    ],
+    "Teemo": [
+      {
+        "role": "BOT",
+        "starter": "DoransRing",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "StatikkShiv",
+          "LiandrysTorment",
+          "Malignance"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "NashorsTooth",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BootsofSwiftness",
+          "StatikkShiv",
+          "LiandrysTorment",
+          "Malignance",
+          "HealthPotion",
+          "Shadowflame",
+          "NashorsTooth",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg teemo adc"
+      }
+    ],
+    "Thresh": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "BootsofSwiftness",
+        "core": [
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "ZekesConvergence"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "items": [
+          "Boots",
+          "BootsofSwiftness",
+          "LocketoftheIronSolari",
+          "KnightsVow",
+          "ZekesConvergence",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "CelestialOpposition",
+          "Thornmail"
+        ],
+        "source": "op.gg thresh support"
+      }
+    ],
+    "Tristana": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "YunTalWildarrows",
+          "InfinityEdge",
+          "NavoriFlickerblade"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "YunTalWildarrows",
+          "InfinityEdge",
+          "NavoriFlickerblade",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "source": "op.gg tristana adc"
+      },
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "YunTalWildarrows",
+          "InfinityEdge",
+          "NavoriFlickerblade"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "YunTalWildarrows",
+          "InfinityEdge",
+          "NavoriFlickerblade",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "TheCollector",
+          "MortalReminder"
+        ],
+        "source": "op.gg tristana mid"
+      }
+    ],
+    "Trundle": [
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RavenousHydra",
+          "TrinityForce",
+          "Hullbreaker"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "SpiritVisage"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "RavenousHydra",
+          "TrinityForce",
+          "Hullbreaker",
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "SpiritVisage"
+        ],
+        "source": "op.gg trundle jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "RavenousHydra",
+          "TrinityForce",
+          "Hullbreaker"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "SpiritVisage"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "RavenousHydra",
+          "TrinityForce",
+          "Hullbreaker",
+          "HealthPotion",
+          "DeathsDance",
+          "BladeofTheRuinedKing",
+          "SpiritVisage"
+        ],
+        "source": "op.gg trundle top"
+      }
+    ],
+    "Tryndamere": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "RavenousHydra",
+          "PhantomDancer",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "NavoriFlickerblade"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "RavenousHydra",
+          "PhantomDancer",
+          "InfinityEdge",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "NavoriFlickerblade"
+        ],
+        "source": "op.gg tryndamere top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "RavenousHydra",
+          "PhantomDancer",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "NavoriFlickerblade"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "RavenousHydra",
+          "PhantomDancer",
+          "InfinityEdge",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "YunTalWildarrows",
+          "NavoriFlickerblade"
+        ],
+        "source": "op.gg tryndamere jungle"
+      }
+    ],
+    "TwistedFate": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "RodofAges",
+          "LichBane",
+          "RapidFirecannon"
+        ],
+        "later": [
+          "HealthPotion",
+          "LudensCompanion",
+          "HextechRocketbelt",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "BootsofSwiftness",
+          "RodofAges",
+          "LichBane",
+          "RapidFirecannon",
+          "HealthPotion",
+          "LudensCompanion",
+          "HextechRocketbelt",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg twistedfate mid"
+      }
+    ],
+    "Twitch": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "TheCollector",
+          "InfinityEdge",
+          "RunaansHurricane"
+        ],
+        "later": [
+          "HealthPotion",
+          "YunTalWildarrows",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "TheCollector",
+          "InfinityEdge",
+          "RunaansHurricane",
+          "HealthPotion",
+          "YunTalWildarrows",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg twitch adc"
+      }
+    ],
+    "Udyr": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "BootsofSwiftness",
+        "core": [
+          "SpearofShojin",
+          "ExperimentalHexplate",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SteraksGage",
+          "LiandrysTorment",
+          "DeadMansPlate"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "BootsofSwiftness",
+          "SpearofShojin",
+          "ExperimentalHexplate",
+          "DeathsDance",
+          "HealthPotion",
+          "SteraksGage",
+          "LiandrysTorment",
+          "DeadMansPlate"
+        ],
+        "source": "op.gg udyr jungle"
+      }
+    ],
+    "Urgot": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "BlackCleaver",
+          "SteraksGage",
+          "JakShoTheProtean"
+        ],
+        "later": [
+          "HealthPotion",
+          "DeadMansPlate",
+          "OverlordsBloodmail",
+          "KaenicRookern"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "PlatedSteelcaps",
+          "BlackCleaver",
+          "SteraksGage",
+          "JakShoTheProtean",
+          "HealthPotion",
+          "DeadMansPlate",
+          "OverlordsBloodmail",
+          "KaenicRookern"
+        ],
+        "source": "op.gg urgot top"
+      }
+    ],
+    "Varus": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "EdgeofNight"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "EdgeofNight"
+        ],
+        "source": "op.gg varus adc"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "EdgeofNight"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "StatikkShiv",
+          "GuinsoosRageblade",
+          "Terminus",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "YoumuusGhostblade",
+          "EdgeofNight"
+        ],
+        "source": "op.gg varus top"
+      }
+    ],
+    "Vayne": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "BladeofTheRuinedKing",
+          "GuinsoosRageblade",
+          "Terminus"
+        ],
+        "later": [
+          "HealthPotion",
+          "KrakenSlayer",
+          "EssenceReaver",
+          "InfinityEdge"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "BladeofTheRuinedKing",
+          "GuinsoosRageblade",
+          "Terminus",
+          "HealthPotion",
+          "KrakenSlayer",
+          "EssenceReaver",
+          "InfinityEdge"
+        ],
+        "source": "op.gg vayne adc"
+      }
+    ],
+    "Veigar": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Stormsurge",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RodofAges",
+          "Shadowflame"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "RodofAges",
+          "Shadowflame"
+        ],
+        "source": "op.gg veigar mid"
+      }
+    ],
+    "Velkoz": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg velkoz mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "RabadonsDeathcap"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "RabadonsDeathcap"
+        ],
+        "source": "op.gg velkoz support"
+      }
+    ],
+    "Vex": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "VoidStaff"
+        ],
+        "source": "op.gg vex mid"
+      }
+    ],
+    "Vi": [
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "VoltaicCyclosword",
+          "TheCollector"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "VoltaicCyclosword",
+          "TheCollector"
+        ],
+        "source": "op.gg vi top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "VoltaicCyclosword",
+          "TheCollector"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "VoltaicCyclosword",
+          "TheCollector"
+        ],
+        "source": "op.gg vi jungle"
+      }
+    ],
+    "Viego": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "KrakenSlayer",
+          "TheCollector",
+          "ImmortalShieldbow"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "Hubris",
+          "InfinityEdge"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "PlatedSteelcaps",
+          "KrakenSlayer",
+          "TheCollector",
+          "ImmortalShieldbow",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "Hubris",
+          "InfinityEdge"
+        ],
+        "source": "op.gg viego jungle"
+      }
+    ],
+    "Viktor": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "BlackfireTorch",
+          "LichBane",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "HextechRocketbelt",
+          "LiandrysTorment",
+          "Shadowflame"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "BlackfireTorch",
+          "LichBane",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "HextechRocketbelt",
+          "LiandrysTorment",
+          "Shadowflame"
+        ],
+        "source": "op.gg viktor mid"
+      }
+    ],
+    "Vladimir": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "Riftmaker"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "VoidStaff",
+          "LiandrysTorment"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "Stormsurge",
+          "RabadonsDeathcap",
+          "Riftmaker",
+          "HealthPotion",
+          "RefillablePotion",
+          "VoidStaff",
+          "LiandrysTorment"
+        ],
+        "source": "op.gg vladimir mid"
+      }
+    ],
+    "Volibear": [
+      {
+        "role": "JUNGLE",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "NavoriFlickerblade",
+          "SpiritVisage",
+          "StatikkShiv"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "Thornmail",
+          "ZekesConvergence"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "NavoriFlickerblade",
+          "SpiritVisage",
+          "StatikkShiv",
+          "HealthPotion",
+          "Shadowflame",
+          "Thornmail",
+          "ZekesConvergence"
+        ],
+        "source": "op.gg volibear jungle"
+      },
+      {
+        "role": "TOP",
+        "starter": "DoransRing",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "NavoriFlickerblade",
+          "SpiritVisage",
+          "StatikkShiv"
+        ],
+        "later": [
+          "HealthPotion",
+          "Shadowflame",
+          "Thornmail",
+          "ZekesConvergence"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "PlatedSteelcaps",
+          "NavoriFlickerblade",
+          "SpiritVisage",
+          "StatikkShiv",
+          "HealthPotion",
+          "Shadowflame",
+          "Thornmail",
+          "ZekesConvergence"
+        ],
+        "source": "op.gg volibear top"
+      }
+    ],
+    "Warwick": [
+      {
+        "role": "TOP",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "BladeofTheRuinedKing",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "KrakenSlayer"
+        ],
+        "items": [
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "BladeofTheRuinedKing",
+          "DeathsDance",
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "KrakenSlayer"
+        ],
+        "source": "op.gg warwick top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "Stridebreaker",
+          "BladeofTheRuinedKing",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "KrakenSlayer"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "PlatedSteelcaps",
+          "Stridebreaker",
+          "BladeofTheRuinedKing",
+          "DeathsDance",
+          "HealthPotion",
+          "SpiritVisage",
+          "Thornmail",
+          "KrakenSlayer"
+        ],
+        "source": "op.gg warwick jungle"
+      }
+    ],
+    "Xayah": [
+      {
+        "role": "BOT",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "YunTalWildarrows",
+          "NavoriFlickerblade",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "LordDominiksRegards",
+          "EssenceReaver",
+          "MortalReminder"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "YunTalWildarrows",
+          "NavoriFlickerblade",
+          "InfinityEdge",
+          "HealthPotion",
+          "LordDominiksRegards",
+          "EssenceReaver",
+          "MortalReminder"
+        ],
+        "source": "op.gg xayah adc"
+      }
+    ],
+    "Xerath": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "HorizonFocus",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "HorizonFocus",
+          "Stormsurge"
+        ],
+        "source": "op.gg xerath mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "HorizonFocus",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "RefillablePotion",
+          "HorizonFocus",
+          "Stormsurge"
+        ],
+        "source": "op.gg xerath support"
+      }
+    ],
+    "XinZhao": [
+      {
+        "role": "JUNGLE",
+        "starter": "GustwalkerHatchling",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "items": [
+          "GustwalkerHatchling",
+          "Boots",
+          "PlatedSteelcaps",
+          "TitanicHydra",
+          "BlackCleaver",
+          "DeathsDance",
+          "HealthPotion",
+          "GuardianAngel",
+          "MawofMalmortius",
+          "SunderedSky"
+        ],
+        "source": "op.gg xinzhao jungle"
+      }
+    ],
+    "Yasuo": [
+      {
+        "role": "TOP",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "KrakenSlayer",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance",
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "KrakenSlayer",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg yasuo top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "KrakenSlayer",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "BerserkersGreaves",
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance",
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "KrakenSlayer",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg yasuo jungle"
+      }
+    ],
+    "Yone": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "WitsEnd",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BerserkersGreaves",
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance",
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "WitsEnd",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg yone top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransShield",
+        "boots": "BerserkersGreaves",
+        "core": [
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance"
+        ],
+        "later": [
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "WitsEnd",
+          "LordDominiksRegards"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "BerserkersGreaves",
+          "ImmortalShieldbow",
+          "InfinityEdge",
+          "DeathsDance",
+          "HealthPotion",
+          "BladeofTheRuinedKing",
+          "WitsEnd",
+          "LordDominiksRegards"
+        ],
+        "source": "op.gg yone jungle"
+      }
+    ],
+    "Yorick": [
+      {
+        "role": "TOP",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SpearofShojin",
+          "SeryldasGrudge"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "SteraksGage",
+          "Hullbreaker"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SpearofShojin",
+          "SeryldasGrudge",
+          "HealthPotion",
+          "BlackCleaver",
+          "SteraksGage",
+          "Hullbreaker"
+        ],
+        "source": "op.gg yorick top"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransShield",
+        "boots": "PlatedSteelcaps",
+        "core": [
+          "TrinityForce",
+          "SpearofShojin",
+          "SeryldasGrudge"
+        ],
+        "later": [
+          "HealthPotion",
+          "BlackCleaver",
+          "SteraksGage",
+          "Hullbreaker"
+        ],
+        "items": [
+          "DoransShield",
+          "Boots",
+          "PlatedSteelcaps",
+          "TrinityForce",
+          "SpearofShojin",
+          "SeryldasGrudge",
+          "HealthPotion",
+          "BlackCleaver",
+          "SteraksGage",
+          "Hullbreaker"
+        ],
+        "source": "op.gg yorick jungle"
+      }
+    ],
+    "Yuumi": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "MikaelsBlessing",
+          "ArdentCenser",
+          "MoonstoneRenewer"
+        ],
+        "later": [
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "KnightsVow"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "MikaelsBlessing",
+          "ArdentCenser",
+          "MoonstoneRenewer",
+          "HealthPotion",
+          "DreamMaker",
+          "ZazZaksRealmspike",
+          "KnightsVow"
+        ],
+        "source": "op.gg yuumi support"
+      }
+    ],
+    "Zac": [
+      {
+        "role": "TOP",
+        "starter": "ScorchclawPup",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "HextechRocketbelt",
+          "SunfireAegis",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "HextechRocketbelt",
+          "SunfireAegis",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "source": "op.gg zac top"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "HextechRocketbelt",
+          "SunfireAegis",
+          "SpiritVisage"
+        ],
+        "later": [
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "items": [
+          "WorldAtlas",
+          "Boots",
+          "IonianBootsofLucidity",
+          "HextechRocketbelt",
+          "SunfireAegis",
+          "SpiritVisage",
+          "HealthPotion",
+          "Thornmail",
+          "RanduinsOmen",
+          "JakShoTheProtean"
+        ],
+        "source": "op.gg zac support"
+      }
+    ],
+    "Zed": [
+      {
+        "role": "MID",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "LongSword",
+          "AxiomArc",
+          "SeryldasGrudge"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "LongSword",
+          "AxiomArc",
+          "SeryldasGrudge"
+        ],
+        "source": "op.gg zed mid"
+      },
+      {
+        "role": "JUNGLE",
+        "starter": "DoransBlade",
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "VoltaicCyclosword",
+          "LordDominiksRegards"
+        ],
+        "later": [
+          "HealthPotion",
+          "LongSword",
+          "AxiomArc",
+          "SeryldasGrudge"
+        ],
+        "items": [
+          "DoransBlade",
+          "Boots",
+          "IonianBootsofLucidity",
+          "VoltaicCyclosword",
+          "LordDominiksRegards",
+          "HealthPotion",
+          "LongSword",
+          "AxiomArc",
+          "SeryldasGrudge"
+        ],
+        "source": "op.gg zed jungle"
+      }
+    ],
+    "Zeri": [
+      {
+        "role": "BOT",
+        "starter": null,
+        "boots": "BerserkersGreaves",
+        "core": [
+          "YunTalWildarrows",
+          "RunaansHurricane",
+          "InfinityEdge"
+        ],
+        "later": [
+          "HealthPotion",
+          "BFSword",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "items": [
+          "Boots",
+          "BerserkersGreaves",
+          "YunTalWildarrows",
+          "RunaansHurricane",
+          "InfinityEdge",
+          "HealthPotion",
+          "BFSword",
+          "LordDominiksRegards",
+          "MortalReminder"
+        ],
+        "source": "op.gg zeri adc"
+      }
+    ],
+    "Ziggs": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "HorizonFocus",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "HorizonFocus",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg ziggs mid"
+      },
+      {
+        "role": "BOT",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap"
+        ],
+        "later": [
+          "HealthPotion",
+          "TearoftheGoddess",
+          "HorizonFocus",
+          "ZhonyasHourglass"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "Shadowflame",
+          "RabadonsDeathcap",
+          "HealthPotion",
+          "TearoftheGoddess",
+          "HorizonFocus",
+          "ZhonyasHourglass"
+        ],
+        "source": "op.gg ziggs adc"
+      }
+    ],
+    "Zilean": [
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "IonianBootsofLucidity",
+        "core": [
+          "ShurelyasBattlesong",
+          "ImperialMandate"
+        ],
+        "later": [
+          "HealthPotion",
+          "SolsticeSleigh",
+          "ZazZaksRealmspike",
+          "LocketoftheIronSolari"
+        ],
+        "items": [
+          "Boots",
+          "IonianBootsofLucidity",
+          "ShurelyasBattlesong",
+          "ImperialMandate",
+          "HealthPotion",
+          "SolsticeSleigh",
+          "ZazZaksRealmspike",
+          "LocketoftheIronSolari"
+        ],
+        "source": "op.gg zilean support"
+      }
+    ],
+    "Zoe": [
+      {
+        "role": "MID",
+        "starter": "DoransRing",
+        "boots": "SorcerersShoes",
+        "core": [
+          "LudensCompanion",
+          "LichBane",
+          "Shadowflame"
+        ],
+        "later": [
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "items": [
+          "DoransRing",
+          "Boots",
+          "SorcerersShoes",
+          "LudensCompanion",
+          "LichBane",
+          "Shadowflame",
+          "HealthPotion",
+          "RefillablePotion",
+          "RabadonsDeathcap",
+          "Stormsurge"
+        ],
+        "source": "op.gg zoe mid"
+      }
+    ],
+    "Zyra": [
+      {
+        "role": "MID",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "source": "op.gg zyra mid"
+      },
+      {
+        "role": "SUPPORT",
+        "starter": null,
+        "boots": "SorcerersShoes",
+        "core": [
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "ZhonyasHourglass"
+        ],
+        "later": [
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "items": [
+          "Boots",
+          "SorcerersShoes",
+          "LiandrysTorment",
+          "RylaisCrystalScepter",
+          "ZhonyasHourglass",
+          "HealthPotion",
+          "ZazZaksRealmspike",
+          "CelestialOpposition",
+          "Morellonomicon"
+        ],
+        "source": "op.gg zyra support"
+      }
+    ]
+  }
+}

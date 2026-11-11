@@ -1,5 +1,5 @@
 import { createMatch, type SimulateV2Input } from '../engine';
-import { attackCamp } from '../jungle/jungle-system';
+import { attackCamp, castJungleClearAbilities } from '../jungle/jungle-system';
 import type { ChampionEntity, MonsterEntity } from '../state/entities';
 import type { GameState } from '../state/game-state';
 import { dist } from '../map/pathfinding';
@@ -95,7 +95,7 @@ function roster(side: 'blue' | 'red', junglerId: string) {
       playerId: `${prefix}_sup`,
       gamertag: `${prefix}_sup`,
       position: 'SUPPORT' as const,
-      championId: 'Soraka',
+      championId: 'Leona',
       laning: 55,
       mechanics: 60,
       teamfighting: 70,
@@ -177,7 +177,7 @@ function clearOneCamp(
     const target = focusTarget(state, campId, jungler);
     if (!target) {
       clearSec += WORLD_DT;
-      state.scheduler.setTime(state.scheduler.time + WORLD_DT);
+      state.scheduler.runUntil(state.scheduler.time + WORLD_DT);
       continue;
     }
     if (target.maxHp === target.hp && target.unitKind === 'mini_krug') {
@@ -185,12 +185,13 @@ function clearOneCamp(
     }
     stepToward(jungler, target);
     const beforeHp = target.hp;
+    castJungleClearAbilities(state, jungler, target);
     const hit = attackCamp(state, jungler, target);
-    if (hit && target.hp < beforeHp) {
+    if (target.hp < beforeHp || hit) {
       unitHits += 1;
     }
     clearSec += WORLD_DT;
-    state.scheduler.setTime(state.scheduler.time + WORLD_DT);
+    state.scheduler.runUntil(state.scheduler.time + WORLD_DT);
   }
 
   return {
@@ -202,16 +203,26 @@ function clearOneCamp(
   };
 }
 
+function prepareJunglerForClearAudit(jungler: ChampionEntity): void {
+  for (const spell of jungler.summonerSpells) {
+    spell.cooldownUntil = 0;
+  }
+  for (const ability of jungler.abilities) {
+    ability.cooldownUntil = 0;
+  }
+  jungler.nextAttackAt = 0;
+  jungler.nextSmiteAt = 0;
+}
+
 export function auditJungleClearTimes(junglerId = 'LeeSin'): JungleClearAudit {
   const { state } = createMatch(input(91001, junglerId));
-  state.scheduler.runUntil(175);
+  state.scheduler.runUntil(95);
   const jungler = state.champions.find(
     (champ) => champ.side === 'blue' && champ.positionLabel === 'JUNGLE',
   );
   if (!jungler) {
     throw new Error('missing jungler');
   }
-
   const order = ['blue_buff', 'gromp', 'wolves', 'raptors', 'red_buff', 'krugs'] as const;
   const rows: CampClearRow[] = [];
   let fullClearCombatSec = 0;
@@ -221,6 +232,7 @@ export function auditJungleClearTimes(junglerId = 'LeeSin'): JungleClearAudit {
     if (campAlive(state, campId).length === 0) {
       continue;
     }
+    prepareJunglerForClearAudit(jungler);
     const measured = clearOneCamp(state, jungler, campId);
     fullClearCombatSec += measured.clearSec;
     let status: CampClearRow['status'] = 'ok';
@@ -245,12 +257,13 @@ export function auditJungleClearTimes(junglerId = 'LeeSin'): JungleClearAudit {
 
   {
     const scuttleState = createMatch(input(91002, junglerId)).state;
-    scuttleState.scheduler.runUntil(175);
+    scuttleState.scheduler.runUntil(195);
     const freshJungler = scuttleState.champions.find(
       (champ) => champ.side === 'blue' && champ.positionLabel === 'JUNGLE',
     );
     const expected = REAL_CAMP_CLEAR_SEC['scuttle_top'];
     if (freshJungler && campAlive(scuttleState, 'scuttle_top').length > 0) {
+      prepareJunglerForClearAudit(freshJungler);
       const measured = clearOneCamp(scuttleState, freshJungler, 'scuttle_top');
       let status: CampClearRow['status'] = 'ok';
       if (measured.clearSec < expected.min * 0.75) {

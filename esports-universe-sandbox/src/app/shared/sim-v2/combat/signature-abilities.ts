@@ -1,3 +1,5 @@
+import { dist } from '../map/pathfinding';
+import { camilleState } from './ability-runtime-state';
 import {
   applyArmor,
   applyAs,
@@ -14,72 +16,43 @@ import {
 } from './ability-helpers';
 import { FORM_KIT_ABILITIES } from './form-kits';
 import { SIGNATURE_ABILITIES_MORE } from './signature-abilities-more';
-
-const aatroxQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const sweet = ctx.target.kind === 'champion';
-  const raw = (sweet ? 80 : 55) + (r - 1) * 35 + ctx.caster.ad * (sweet ? 1.1 : 0.75);
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'aatrox:q', ctx.recorder);
-  if (ctx.target.kind === 'champion') {
-    heal(ctx.caster, 35 + r * 18 + ctx.caster.ad * 0.2 + raw * 0.18, ctx.caster);
-    applySlow(ctx.target, 'aatrox:q:slow', 1.25, 25 + r * 4);
-  }
-  return true;
-};
-
-const aatroxW: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const raw = 45 + (r - 1) * 25 + ctx.caster.ad * 0.4;
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'aatrox:w', ctx.recorder);
-  applySlow(ctx.target, 'aatrox:w:slow', 2, 35 + r * 5);
-  return true;
-};
-
-const aatroxE: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyMs(ctx.caster, 'aatrox:e:ms', 2.4, 70 + r * 10);
-  heal(ctx.caster, 25 + r * 12 + ctx.caster.ad * 0.1, ctx.caster);
-  if (ctx.target) {
-    dealToTarget(
-      ctx.state,
-      ctx.caster,
-      ctx.target,
-      30 + (r - 1) * 15 + ctx.caster.ad * 0.35,
-      'physical',
-      'aatrox:e',
-      ctx.recorder,
-    );
-  }
-  return true;
-};
-
-const aatroxR: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyAs(ctx.caster, 'aatrox:r:as', 8, 0.2 + r * 0.05);
-  applyMs(ctx.caster, 'aatrox:r:ms', 8, 50 + r * 10);
-  heal(ctx.caster, 80 + r * 40 + ctx.caster.maxHp * 0.08, ctx.caster);
-  if (ctx.target?.kind === 'champion') {
-    const raw = 120 + (r - 1) * 80 + ctx.caster.ad * 1.2;
-    dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'aatrox:r', ctx.recorder);
-    heal(ctx.caster, raw * 0.25, ctx.caster);
-  }
-  return true;
-};
+import { SIGNATURE_BATCH_A } from './signature-batch-a';
+import { SIGNATURE_BATCH_B } from './signature-batch-b';
+import { SIGNATURE_BATCH_C } from './signature-batch-c';
+import { SIGNATURE_BATCH_D } from './signature-batch-d';
+import { SIGNATURE_BATCH_E } from './signature-batch-e';
+import { SIGNATURE_BATCH_F } from './signature-batch-f';
+import { SIGNATURE_BATCH_G } from './signature-batch-g';
+import { SIGNATURE_BATCH_H } from './signature-batch-h';
+import { SIGNATURE_PARTIAL_SIX } from './signature-partial-six';
 
 const camilleQ: AbilityExecutor = (ctx) => {
   if (!ctx.target) {
     return false;
   }
+  const now = ctx.state.scheduler.time;
+  const bag = camilleState(ctx.caster);
   const r = rank(ctx.level);
-  const raw = 50 + (r - 1) * 25 + ctx.caster.ad * 0.8;
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'camille:q', ctx.recorder);
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw * 0.55, 'true', 'camille:q:true', ctx.recorder);
+  const bonusAd = Math.max(0, ctx.caster.ad - 60);
+  if (bag.qEmpoweredUntil > now) {
+    const raw = 40 + (r - 1) * 20 + bonusAd * (0.4 + r * 0.04);
+    dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'true', 'camille:q2', ctx.recorder);
+    bag.qEmpoweredUntil = 0;
+    const runtime = ctx.caster.abilities.find((ability) => ability.slot === 'Q');
+    if (runtime) {
+      runtime.cooldownUntil = now + Math.max(4.5, 9 - r * 0.6);
+      ctx.caster.abilityBag.customCooldownApplied = true;
+    }
+    return true;
+  }
+  const raw = 20 + (r - 1) * 15 + ctx.caster.ad * 0.4 + bonusAd * 0.2;
+  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'camille:q1', ctx.recorder);
+  bag.qEmpoweredUntil = now + 3.5;
+  const runtime = ctx.caster.abilities.find((ability) => ability.slot === 'Q');
+  if (runtime) {
+    runtime.cooldownUntil = now + 0.75;
+    ctx.caster.abilityBag.customCooldownApplied = true;
+  }
   return true;
 };
 
@@ -89,13 +62,13 @@ const camilleW: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     340,
-    60 + (r - 1) * 30 + ctx.caster.ad * 0.6,
+    55 + (r - 1) * 25 + ctx.caster.ad * 0.55,
     'physical',
     'camille:w',
     ctx.recorder,
   );
   if (hits > 0) {
-    heal(ctx.caster, 30 + r * 15 + hits * 20, ctx.caster);
+    heal(ctx.caster, 18 + r * 8 + hits * 10, ctx.caster);
   }
   return true;
 };
@@ -112,13 +85,13 @@ const camilleE: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     ctx.target,
-    70 + (r - 1) * 35 + ctx.caster.ad * 0.9,
+    60 + (r - 1) * 30 + ctx.caster.ad * 0.75,
     'physical',
     'camille:e',
     ctx.recorder,
   );
   if (ctx.target.kind === 'champion') {
-    applyStun(ctx.target, 'camille:e:stun', 0.9);
+    applyStun(ctx.target, 'camille:e:stun', 0.75);
   }
   return true;
 };
@@ -128,17 +101,17 @@ const camilleR: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  applyStun(ctx.target, 'camille:r:lock', 1.4);
+  applySlow(ctx.target, 'camille:r:lock', 2.2, 45 + r * 5);
   dealToTarget(
     ctx.state,
     ctx.caster,
     ctx.target,
-    50 + (r - 1) * 40 + ctx.caster.ad * 0.6,
+    35 + (r - 1) * 30 + ctx.caster.ad * 0.45,
     'physical',
     'camille:r',
     ctx.recorder,
   );
-  applyAs(ctx.caster, 'camille:r:as', 4, 0.3);
+  applyAs(ctx.caster, 'camille:r:as', 3.5, 0.22);
   return true;
 };
 
@@ -204,67 +177,6 @@ const dariusR: AbilityExecutor = (ctx) => {
   const missing = 1 - ctx.target.hp / Math.max(1, ctx.target.maxHp);
   const raw = 150 + (r - 1) * 100 + ctx.caster.ad * 0.75 + missing * (150 + (r - 1) * 50);
   dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'true', 'darius:r', ctx.recorder);
-  return true;
-};
-
-const ezrealQ: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const raw = 60 + (r - 1) * 30 + ctx.caster.ad * 1.2 + ctx.caster.ap * 0.15;
-  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'ezreal:q', ctx.recorder);
-  return true;
-};
-
-const ezrealW: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    50 + (r - 1) * 30 + ctx.caster.ap * 0.7,
-    'magic',
-    'ezreal:w',
-    ctx.recorder,
-  );
-  return true;
-};
-
-const ezrealE: AbilityExecutor = (ctx) => {
-  const r = rank(ctx.level);
-  applyMs(ctx.caster, 'ezreal:e:ms', 2, 60 + r * 10);
-  if (ctx.target) {
-    dealToTarget(
-      ctx.state,
-      ctx.caster,
-      ctx.target,
-      55 + (r - 1) * 25 + ctx.caster.ad * 0.5 + ctx.caster.ap * 0.4,
-      'magic',
-      'ezreal:e',
-      ctx.recorder,
-    );
-  }
-  return true;
-};
-
-const ezrealR: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    200 + (r - 1) * 125 + ctx.caster.ad * 1 + ctx.caster.ap * 0.9,
-    'magic',
-    'ezreal:r',
-    ctx.recorder,
-  );
   return true;
 };
 
@@ -757,20 +669,69 @@ const gravesQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
+  const raw = 70 + (r - 1) * 35 + ctx.caster.ad * 0.9;
   dealToTarget(
     ctx.state,
     ctx.caster,
     ctx.target,
-    70 + (r - 1) * 35 + ctx.caster.ad * 0.9,
+    raw,
     'physical',
     'graves:q',
     ctx.recorder,
   );
+  const blast = raw * 0.9;
+  const origin = ctx.target.position;
+  for (const enemy of ctx.state.champions) {
+    if (!enemy.alive || enemy.side === ctx.caster.side || enemy.id === ctx.target!.id) {
+      continue;
+    }
+    if (Math.hypot(enemy.position.x - origin.x, enemy.position.y - origin.y) > 280) {
+      continue;
+    }
+    dealToTarget(ctx.state, ctx.caster, enemy, blast * 0.55, 'physical', 'graves:q', ctx.recorder);
+  }
+  for (const minion of ctx.state.minions) {
+    if (!minion.alive || minion.side === ctx.caster.side) {
+      continue;
+    }
+    if (Math.hypot(minion.position.x - origin.x, minion.position.y - origin.y) > 280) {
+      continue;
+    }
+    dealToTarget(ctx.state, ctx.caster, minion, blast * 0.75, 'physical', 'graves:q', ctx.recorder);
+  }
+  for (const monster of ctx.state.monsters) {
+    if (!monster.alive || monster.id === ctx.target!.id) {
+      continue;
+    }
+    if (monster.spawnProtectUntil > ctx.state.scheduler.time) {
+      continue;
+    }
+    if (Math.hypot(monster.position.x - origin.x, monster.position.y - origin.y) > 300) {
+      continue;
+    }
+    dealToTarget(ctx.state, ctx.caster, monster, blast, 'physical', 'graves:q', ctx.recorder);
+  }
   return true;
 };
 
 const gravesW: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
+  if (!ctx.target) {
+    return false;
+  }
+  if (ctx.target.kind === 'monster') {
+    const r = rank(ctx.level);
+    dealToTarget(
+      ctx.state,
+      ctx.caster,
+      ctx.target,
+      45 + (r - 1) * 20 + ctx.caster.ad * 0.6,
+      'magic',
+      'graves:w',
+      ctx.recorder,
+    );
+    return true;
+  }
+  if (ctx.target.kind !== 'champion') {
     return false;
   }
   applySlow(ctx.target, 'graves:w:slow', 2.5, 40);
@@ -805,21 +766,41 @@ const viegoQ: AbilityExecutor = (ctx) => {
     return false;
   }
   const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    55 + (r - 1) * 30 + ctx.caster.ad * 0.7,
-    'physical',
-    'viego:q',
-    ctx.recorder,
-  );
+  const raw = 55 + (r - 1) * 30 + ctx.caster.ad * 0.7;
+  dealToTarget(ctx.state, ctx.caster, ctx.target, raw, 'physical', 'viego:q', ctx.recorder);
+  if (ctx.target.kind === 'monster') {
+    for (const monster of ctx.state.monsters) {
+      if (
+        !monster.alive ||
+        monster.id === ctx.target.id ||
+        monster.campId !== ctx.target.campId
+      ) {
+        continue;
+      }
+      if (monster.spawnProtectUntil > ctx.state.scheduler.time) {
+        continue;
+      }
+      if (dist(ctx.caster.position, monster.position) > 280) {
+        continue;
+      }
+      dealToTarget(
+        ctx.state,
+        ctx.caster,
+        monster,
+        raw * 0.62,
+        'physical',
+        'viego:q:camp',
+        ctx.recorder,
+      );
+      monster.aggroTargetId = ctx.caster.id;
+    }
+  }
   heal(ctx.caster, 20 + r * 10, ctx.caster);
   return true;
 };
 
 const viegoW: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
+  if (!ctx.target) {
     return false;
   }
   const r = rank(ctx.level);
@@ -832,7 +813,9 @@ const viegoW: AbilityExecutor = (ctx) => {
     'viego:w',
     ctx.recorder,
   );
-  applyStun(ctx.target, 'viego:w:stun', 1.1);
+  if (ctx.target.kind === 'champion') {
+    applyStun(ctx.target, 'viego:w:stun', 1.1);
+  }
   return true;
 };
 
@@ -855,25 +838,109 @@ const viegoR: AbilityExecutor = (ctx) => {
   return true;
 };
 
+const gragasQ: AbilityExecutor = (ctx) => {
+  if (!ctx.target) {
+    return false;
+  }
+  const r = rank(ctx.level);
+  dealToTarget(
+    ctx.state,
+    ctx.caster,
+    ctx.target,
+    70 + (r - 1) * 35 + ctx.caster.ap * 0.8,
+    'magic',
+    'gragas:q',
+    ctx.recorder,
+  );
+  if (ctx.target.kind === 'champion') {
+    applySlow(ctx.target, 'gragas:q:slow', 2, 35 + r * 5);
+  }
+  return true;
+};
+
+const gragasW: AbilityExecutor = (ctx) => {
+  const r = rank(ctx.level);
+  applyArmor(ctx.caster, 'gragas:w:dr', 2.5, 18 + r * 6);
+  if (ctx.target) {
+    dealToTarget(
+      ctx.state,
+      ctx.caster,
+      ctx.target,
+      40 + (r - 1) * 25 + ctx.caster.ap * 0.55 + ctx.caster.maxHp * 0.05,
+      'magic',
+      'gragas:w',
+      ctx.recorder,
+    );
+  }
+  return true;
+};
+
+const gragasE: AbilityExecutor = (ctx) => {
+  if (!ctx.target) {
+    return false;
+  }
+  const r = rank(ctx.level);
+  dashCasterTo(ctx.caster, ctx.target, 520, ctx.state);
+  ctx.caster.path = [];
+  ctx.caster.moving = false;
+  dealToTarget(
+    ctx.state,
+    ctx.caster,
+    ctx.target,
+    70 + (r - 1) * 30 + ctx.caster.ap * 0.6,
+    'magic',
+    'gragas:e',
+    ctx.recorder,
+  );
+  if (ctx.target.kind === 'champion') {
+    applyStun(ctx.target, 'gragas:e:knock', 0.85);
+  }
+  return true;
+};
+
+const gragasR: AbilityExecutor = (ctx) => {
+  if (!ctx.target || ctx.target.kind !== 'champion') {
+    return false;
+  }
+  const r = rank(ctx.level);
+  dealToTarget(
+    ctx.state,
+    ctx.caster,
+    ctx.target,
+    150 + (r - 1) * 70 + ctx.caster.ap * 0.8,
+    'magic',
+    'gragas:r',
+    ctx.recorder,
+  );
+  applyStun(ctx.target, 'gragas:r:knock', 1.0);
+  applySlow(ctx.target, 'gragas:r:slow', 1.5, 40);
+  return true;
+};
+
 export const SIGNATURE_ABILITIES: Record<string, AbilityExecutor> = {
   ...SIGNATURE_ABILITIES_MORE,
+  ...SIGNATURE_BATCH_A,
+  ...SIGNATURE_BATCH_B,
+  ...SIGNATURE_BATCH_C,
+  ...SIGNATURE_BATCH_D,
+  ...SIGNATURE_BATCH_E,
+  ...SIGNATURE_BATCH_F,
+  ...SIGNATURE_BATCH_G,
+  ...SIGNATURE_BATCH_H,
   ...FORM_KIT_ABILITIES,
-  'Aatrox:Q': aatroxQ,
-  'Aatrox:W': aatroxW,
-  'Aatrox:E': aatroxE,
-  'Aatrox:R': aatroxR,
+  ...SIGNATURE_PARTIAL_SIX,
   'Camille:Q': camilleQ,
   'Camille:W': camilleW,
   'Camille:E': camilleE,
   'Camille:R': camilleR,
+  'Gragas:Q': gragasQ,
+  'Gragas:W': gragasW,
+  'Gragas:E': gragasE,
+  'Gragas:R': gragasR,
   'Darius:Q': dariusQ,
   'Darius:W': dariusW,
   'Darius:E': dariusE,
   'Darius:R': dariusR,
-  'Ezreal:Q': ezrealQ,
-  'Ezreal:W': ezrealW,
-  'Ezreal:E': ezrealE,
-  'Ezreal:R': ezrealR,
   'Syndra:Q': syndraQ,
   'Syndra:W': syndraW,
   'Syndra:E': syndraE,

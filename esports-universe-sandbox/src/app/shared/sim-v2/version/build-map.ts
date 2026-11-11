@@ -6,7 +6,6 @@ import {
 } from './map-paint';
 
 import { densifyRoadPoints, normalizeRoads } from './map-roads';
-import { FOUNTAIN_ATTACK_RANGE } from './map-walls';
 import type { MapDefinition, Vec2 } from './version-pack';
 
 function struct(id: string): Vec2 {
@@ -71,8 +70,14 @@ export function buildCanonicalMap(): MapDefinition {
     cellSize,
     paintShapes,
     [
-      { point: blueFountain, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
-      { point: redFountain, radius: FOUNTAIN_ATTACK_RANGE * 0.55 },
+      {
+        point: blueFountain,
+        radius: DEFAULT_MAP_LAYOUT.attackRanges.fountain * 0.55,
+      },
+      {
+        point: redFountain,
+        radius: DEFAULT_MAP_LAYOUT.attackRanges.fountain * 0.55,
+      },
     ],
     DEFAULT_MAP_LAYOUT.paintMask,
   );

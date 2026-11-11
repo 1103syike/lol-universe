@@ -8,6 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { announcerToneClass } from '../../sim/announcer';
 import type { MatchReplayIcon, MatchReplayLogEntry } from '../../sim/derive-from-box';
 import type {
   MatchMapChampionFrame,
@@ -15,12 +16,17 @@ import type {
   MatchMapMinionFrame,
   MatchMapMonsterFrame,
   MatchMapStructureFrame,
+  MatchMapWardFrame,
 } from '../../sim/match-stats';
 import {
   buildingIconSize,
+  buildingIconStyle,
   buildingIconUrl,
+  isBuildingIconId,
   structureKindToBuildingIcon,
 } from '../../sim/building-icons';
+import { minionIconStyle } from '../../sim/minion-icons';
+import { monsterIconStyle } from '../../sim/monster-icons';
 import {
   mapObjectiveIcon,
   scoreboardIconStyle,
@@ -101,6 +107,18 @@ function findFrameFloor(frames: MatchMapFrame[], time: number): number {
 
 const TELEPORT_JUMP = 1600;
 
+function flashJustCast(
+  left: MatchMapChampionFrame,
+  right: MatchMapChampionFrame,
+): boolean {
+  const leftFlash = (left.summonerSpells ?? []).find((spell) => spell.id === 'Flash');
+  const rightFlash = (right.summonerSpells ?? []).find((spell) => spell.id === 'Flash');
+  if (!leftFlash || !rightFlash) {
+    return false;
+  }
+  return leftFlash.cooldownRemaining < 8 && rightFlash.cooldownRemaining > 60;
+}
+
 function interpolateChampions(
   from: MatchMapChampionFrame[],
   to: MatchMapChampionFrame[],
@@ -115,9 +133,10 @@ function interpolateChampions(
     const jump = Math.hypot(right.x - left.x, right.y - left.y);
     const leftRecalling = !!left.recalling;
     const rightRecalling = !!right.recalling;
-    const isTeleport =
+    const isRecallTeleport =
       jump >= TELEPORT_JUMP || (leftRecalling && !rightRecalling && jump >= 700);
-    if (isTeleport) {
+    const isFlashJump = !isRecallTeleport && flashJustCast(left, right) && jump >= 180;
+    if (isRecallTeleport) {
       if (u < 0.88) {
         return {
           ...left,
@@ -136,6 +155,7 @@ function interpolateChampions(
           damageTakenFromChamps:
             left.damageTakenFromChamps ?? left.damageTaken ?? 0,
           cs: left.cs ?? 0,
+          visionScore: left.visionScore ?? 0,
         };
       }
       return {
@@ -154,6 +174,45 @@ function interpolateChampions(
         damageTakenFromChamps:
           right.damageTakenFromChamps ?? right.damageTaken ?? 0,
         cs: right.cs ?? 0,
+        visionScore: right.visionScore ?? 0,
+      };
+    }
+    if (isFlashJump) {
+      const snapped = u < 0.55 ? left : right;
+      return {
+        ...right,
+        x: snapped.x,
+        y: snapped.y,
+        hp: lerp(left.hp, right.hp, u),
+        gold: lerp(left.gold, right.gold, u),
+        earnedGold: lerp(left.earnedGold ?? 0, right.earnedGold ?? 0, u),
+        recalling: false,
+        recallProgress: 0,
+        alive: snapped.alive,
+        level: snapped.level,
+        items: snapped.items,
+        kills: snapped.kills ?? 0,
+        deaths: snapped.deaths ?? 0,
+        assists: snapped.assists ?? 0,
+        damageToChamps: lerp(
+          left.damageToChamps ?? 0,
+          right.damageToChamps ?? 0,
+          u,
+        ),
+        damageTaken: lerp(left.damageTaken ?? 0, right.damageTaken ?? 0, u),
+        damageTakenFromChamps: lerp(
+          left.damageTakenFromChamps ?? left.damageTaken ?? 0,
+          right.damageTakenFromChamps ?? right.damageTaken ?? 0,
+          u,
+        ),
+        cs: lerp(left.cs ?? 0, right.cs ?? 0, u),
+        visionScore: lerp(left.visionScore ?? 0, right.visionScore ?? 0, u),
+        mana: lerp(left.mana ?? 0, right.mana ?? 0, u),
+        maxMana: snapped.maxMana ?? right.maxMana ?? left.maxMana,
+        exp: snapped.exp ?? right.exp ?? left.exp,
+        abilities: snapped.abilities ?? right.abilities ?? left.abilities,
+        summonerSpells:
+          snapped.summonerSpells ?? right.summonerSpells ?? left.summonerSpells,
       };
     }
     const stats = u < 0.5 ? left : right;
@@ -181,6 +240,7 @@ function interpolateChampions(
         u,
       ),
       cs: lerp(left.cs ?? 0, right.cs ?? 0, u),
+      visionScore: lerp(left.visionScore ?? 0, right.visionScore ?? 0, u),
       items: stats.items,
       mana: lerp(left.mana ?? 0, right.mana ?? 0, u),
       maxMana: stats.maxMana ?? right.maxMana ?? left.maxMana,
@@ -217,6 +277,8 @@ function interpolateMinions(
         ...right,
         x: lerp(left.x, right.x, u),
         y: lerp(left.y, right.y, u),
+        hp: lerp(left.hp ?? right.hp, right.hp ?? left.hp, u),
+        maxHp: right.maxHp || left.maxHp || 1,
       });
       continue;
     }
@@ -253,10 +315,104 @@ function buildDisplayFrame(frames: MatchMapFrame[], time: number): MatchMapFrame
     t: time,
     champions: interpolateChampions(a.champions, b.champions, u),
     minions: interpolateMinions(a.minions, b.minions, u),
-    monsters: u < 0.5 ? a.monsters : b.monsters,
-    structures: u < 0.5 ? a.structures : b.structures,
-    wards: u < 0.5 ? a.wards : b.wards,
+    monsters: interpolateMonsters(a.monsters, b.monsters, u),
+    structures: interpolateStructures(a.structures, b.structures, u),
+    wards: interpolateWards(a.wards ?? [], b.wards ?? [], u),
   };
+}
+
+function interpolateStructures(
+  from: MatchMapStructureFrame[],
+  to: MatchMapStructureFrame[],
+  u: number,
+): MatchMapStructureFrame[] {
+  const fromById = new Map(from.map((structure) => [structure.id, structure]));
+  const toById = new Map(to.map((structure) => [structure.id, structure]));
+  const out: MatchMapStructureFrame[] = [];
+  for (const id of new Set([...fromById.keys(), ...toById.keys()])) {
+    const left = fromById.get(id);
+    const right = toById.get(id);
+    if (left && right) {
+      out.push({
+        ...right,
+        hp: lerp(left.hp ?? right.hp, right.hp ?? left.hp, u),
+        maxHp: right.maxHp || left.maxHp || 1,
+      });
+      continue;
+    }
+    if (left && u < 0.9) {
+      out.push(left);
+      continue;
+    }
+    if (right && u > 0.1) {
+      out.push(right);
+    }
+  }
+  return out;
+}
+
+function interpolateMonsters(
+  from: MatchMapMonsterFrame[],
+  to: MatchMapMonsterFrame[],
+  u: number,
+): MatchMapMonsterFrame[] {
+  const fromById = new Map(from.map((monster) => [monster.id, monster]));
+  const toById = new Map(to.map((monster) => [monster.id, monster]));
+  const out: MatchMapMonsterFrame[] = [];
+  for (const id of new Set([...fromById.keys(), ...toById.keys()])) {
+    const left = fromById.get(id);
+    const right = toById.get(id);
+    if (left && right) {
+      out.push({
+        ...right,
+        x: lerp(left.x, right.x, u),
+        y: lerp(left.y, right.y, u),
+        hp: lerp(left.hp ?? right.hp, right.hp ?? left.hp, u),
+        maxHp: right.maxHp || left.maxHp || 1,
+      });
+      continue;
+    }
+    if (left && u < 0.9) {
+      out.push(left);
+      continue;
+    }
+    if (right && u > 0.1) {
+      out.push(right);
+    }
+  }
+  return out;
+}
+
+function interpolateWards(
+  from: MatchMapWardFrame[],
+  to: MatchMapWardFrame[],
+  u: number,
+): MatchMapWardFrame[] {
+  const fromById = new Map(from.map((ward) => [ward.id, ward]));
+  const toById = new Map(to.map((ward) => [ward.id, ward]));
+  const out: MatchMapWardFrame[] = [];
+  for (const id of new Set([...fromById.keys(), ...toById.keys()])) {
+    const left = fromById.get(id);
+    const right = toById.get(id);
+    if (left && right) {
+      out.push({
+        ...right,
+        x: lerp(left.x, right.x, u),
+        y: lerp(left.y, right.y, u),
+        hp: lerp(left.hp ?? right.hp, right.hp ?? left.hp, u),
+        maxHp: right.maxHp || left.maxHp || 1,
+      });
+      continue;
+    }
+    if (left && u < 0.9) {
+      out.push(left);
+      continue;
+    }
+    if (right && u > 0.1) {
+      out.push(right);
+    }
+  }
+  return out;
 }
 
 @Component({
@@ -282,10 +438,13 @@ export class MatchMapTrackComponent {
   readonly playbackTime = signal(0);
   readonly selectedPlayerId = signal<string | null>(null);
   readonly playing = signal(false);
-  readonly speed = signal<PlaybackSpeed>(4);
+  readonly speed = signal<PlaybackSpeed>(8);
   readonly speeds = PLAYBACK_SPEEDS;
-  readonly fogSide = signal<FogSide>('blue');
-  readonly fogMaskId = `match-fog-${Math.random().toString(36).slice(2, 9)}`;
+  readonly fogSide = signal<FogSide>('both');
+  private readonly maskUid = Math.random().toString(36).slice(2, 9);
+  readonly fogMaskId = `match-fog-${this.maskUid}`;
+  readonly visionBlueMaskId = `match-vision-blue-${this.maskUid}`;
+  readonly visionRedMaskId = `match-vision-red-${this.maskUid}`;
 
   private rafId: number | null = null;
   private lastRafMs = 0;
@@ -295,10 +454,9 @@ export class MatchMapTrackComponent {
   constructor() {
     this.destroyRef.onDestroy(() => this.stopTimer());
     effect(() => {
-      const list = this.frames();
-      const last = Math.max(0, list.length - 1);
-      this.frameIndex.set(last);
-      this.playbackTime.set(list[last]?.t ?? 0);
+      this.frames();
+      this.frameIndex.set(0);
+      this.playbackTime.set(0);
       this.playing.set(false);
       this.stopTimer();
     });
@@ -322,10 +480,7 @@ export class MatchMapTrackComponent {
 
   readonly currentTime = computed(() => this.playbackTime());
 
-  readonly visibleEvents = computed(() => {
-    const t = this.currentTime();
-    return this.events().filter((entry) => entry.t <= t + 2);
-  });
+  readonly timelineEvents = computed(() => this.events());
 
   readonly mapStructures = computed(() => this.current()?.structures ?? []);
 
@@ -334,6 +489,7 @@ export class MatchMapTrackComponent {
     return (frame?.monsters ?? []).filter(
       (monster) =>
         monster.campId !== 'dragon' &&
+        monster.campId !== 'elder' &&
         monster.campId !== 'baron' &&
         monster.campId !== 'herald',
     );
@@ -344,6 +500,7 @@ export class MatchMapTrackComponent {
     return (frame?.monsters ?? []).filter(
       (monster) =>
         monster.campId === 'dragon' ||
+        monster.campId === 'elder' ||
         monster.campId === 'baron' ||
         monster.campId === 'herald',
     );
@@ -353,6 +510,32 @@ export class MatchMapTrackComponent {
 
   readonly scoreboardBlue = computed(() => this.scoreboardSide('blue'));
   readonly scoreboardRed = computed(() => this.scoreboardSide('red'));
+
+  readonly teamGoldBlue = computed(() =>
+    this.scoreboardBlue().reduce((sum, champ) => sum + (champ.earnedGold ?? 0), 0),
+  );
+  readonly teamGoldRed = computed(() =>
+    this.scoreboardRed().reduce((sum, champ) => sum + (champ.earnedGold ?? 0), 0),
+  );
+  readonly laneGoldDiffs = computed(() => {
+    const blueByRole = new Map(
+      this.scoreboardBlue().map((champ) => [champ.position, champ.earnedGold ?? 0]),
+    );
+    const redByRole = new Map(
+      this.scoreboardRed().map((champ) => [champ.position, champ.earnedGold ?? 0]),
+    );
+    return (['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT'] as const).map((role) => {
+      const blue = blueByRole.get(role) ?? 0;
+      const red = redByRole.get(role) ?? 0;
+      return {
+        role,
+        label: this.roleLabel(role),
+        blue,
+        red,
+        diff: blue - red,
+      };
+    });
+  });
 
   readonly visionBlobs = computed((): VisionBlob[] => {
     const fog = this.fogSide();
@@ -393,7 +576,7 @@ export class MatchMapTrackComponent {
       });
     }
     for (const minion of frame.minions) {
-      if (!minion.alive || !includeSide(minion.side)) {
+      if (!includeSide(minion.side)) {
         continue;
       }
       blobs.push({
@@ -442,11 +625,22 @@ export class MatchMapTrackComponent {
     return blobs;
   });
 
+  readonly visionBlobsBlue = computed(() =>
+    this.visionBlobs().filter((blob) => blob.side === 'blue'),
+  );
+
+  readonly visionBlobsRed = computed(() =>
+    this.visionBlobs().filter((blob) => blob.side === 'red'),
+  );
+
   readonly visibleWards = computed(() => {
     const frame = this.current();
     const wards = frame?.wards ?? [];
     const fog = this.fogSide();
-    if (fog === 'off' || fog === 'both') {
+    if (fog === 'off') {
+      return wards;
+    }
+    if (fog === 'both') {
       return wards;
     }
     return wards.filter(
@@ -476,6 +670,20 @@ export class MatchMapTrackComponent {
       return `${(amount / 1000).toFixed(1)}k`;
     }
     return String(amount);
+  }
+
+  formatGoldDiff(value: number | undefined): string {
+    const amount = Math.round(value ?? 0);
+    if (amount === 0) {
+      return '0';
+    }
+    const sign = amount > 0 ? '+' : '−';
+    const abs = Math.abs(amount);
+    if (abs >= 1000) {
+      const k = abs / 1000;
+      return `${sign}${k >= 10 ? k.toFixed(0) : k.toFixed(1)}K`;
+    }
+    return `${sign}${abs}`;
   }
 
   formatGold(value: number | undefined): string {
@@ -561,6 +769,25 @@ export class MatchMapTrackComponent {
     return this.current()?.champions.find((champ) => champ.playerId === id) ?? null;
   });
 
+  roleTitle(position: string): string {
+    if (position === 'TOP') {
+      return '上路';
+    }
+    if (position === 'JUNGLE') {
+      return '打野';
+    }
+    if (position === 'MID') {
+      return '中路';
+    }
+    if (position === 'BOT') {
+      return '下路';
+    }
+    if (position === 'SUPPORT') {
+      return '輔助';
+    }
+    return position;
+  }
+
   roleLabel(position: string): string {
     if (position === 'TOP') {
       return '上';
@@ -593,8 +820,7 @@ export class MatchMapTrackComponent {
   }
 
   pointVisibleToFog(x: number, y: number): boolean {
-    const side = this.fogSide();
-    if (side === 'off' || side === 'both') {
+    if (this.fogSide() === 'off') {
       return true;
     }
     for (const blob of this.visionBlobs()) {
@@ -607,7 +833,10 @@ export class MatchMapTrackComponent {
 
   isHiddenByFog(side: 'blue' | 'red', x: number, y: number): boolean {
     const fog = this.fogSide();
-    if (fog === 'off' || fog === 'both' || side === fog) {
+    if (fog === 'off') {
+      return false;
+    }
+    if (fog === 'both' || side === fog) {
       return false;
     }
     return !this.pointVisibleToFog(x, y);
@@ -625,6 +854,67 @@ export class MatchMapTrackComponent {
     return Math.max(0, Math.min(100, (champ.hp / Math.max(1, champ.maxHp)) * 100));
   }
 
+  minionHpPct(minion: MatchMapMinionFrame): number {
+    return Math.max(0, Math.min(100, (minion.hp / Math.max(1, minion.maxHp || 1)) * 100));
+  }
+
+  monsterHpPct(monster: MatchMapMonsterFrame): number {
+    return Math.max(0, Math.min(100, (monster.hp / Math.max(1, monster.maxHp || 1)) * 100));
+  }
+
+  wardHpPct(ward: MatchMapWardFrame): number {
+    return Math.max(0, Math.min(100, (ward.hp / Math.max(1, ward.maxHp || 1)) * 100));
+  }
+
+  structureHpPct(structure: MatchMapStructureFrame): number {
+    if (!structure.alive) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, (structure.hp / Math.max(1, structure.maxHp || 1)) * 100));
+  }
+
+  structureTitle(structure: MatchMapStructureFrame): string {
+    if (!structure.alive) {
+      return `${structure.structureId}（已摧毀）`;
+    }
+    return `${structure.structureId} · HP ${Math.round(structure.hp)}/${Math.round(structure.maxHp)}`;
+  }
+
+  minionHpBar(minion: MatchMapMinionFrame): {
+    x: number;
+    y: number;
+    width: number;
+    fill: number;
+  } {
+    const width = minion.role === 'cannon' || minion.role === 'super' ? 2.2 : 1.7;
+    return {
+      x: this.mapX(minion.x) - width / 2,
+      y: this.mapY(minion.y) + (minion.role === 'cannon' || minion.role === 'super' ? 1.15 : 0.85),
+      width,
+      fill: (width * this.minionHpPct(minion)) / 100,
+    };
+  }
+
+  monsterHpBar(monster: MatchMapMonsterFrame): {
+    x: number;
+    y: number;
+    width: number;
+    fill: number;
+  } {
+    const isEpic =
+      monster.campId === 'dragon' ||
+      monster.campId === 'elder' ||
+      monster.campId === 'baron' ||
+      monster.campId === 'herald';
+    const width = isEpic ? 2.6 : 1.9;
+    return {
+      x: this.mapX(monster.x) - width / 2,
+      y: this.mapY(monster.y) + (isEpic ? 1.45 : 1.05),
+      width,
+      fill: (width * this.monsterHpPct(monster)) / 100,
+    };
+  }
+
   structureBuildingSrc(structure: MatchMapStructureFrame): string {
     const kind = structureKindToBuildingIcon(structure.kind);
     return buildingIconUrl(kind, structure.side as 'blue' | 'red');
@@ -634,15 +924,11 @@ export class MatchMapTrackComponent {
     return buildingIconSize(structureKindToBuildingIcon(structure.kind));
   }
 
-  wardTitle(ward: {
-    side: 'blue' | 'red';
-    wardKind: 'stealth' | 'control';
-    ownerGamertag?: string;
-  }): string {
+  wardTitle(ward: MatchMapWardFrame): string {
     const team = ward.side === 'blue' ? '藍' : '紅';
     const kind = ward.wardKind === 'control' ? '紅眼（控制守衛）' : '黃眼（隱身守衛）';
     const owner = ward.ownerGamertag ? ` · ${ward.ownerGamertag}` : '';
-    return `${team}方${kind}${owner}`;
+    return `${team}方${kind}${owner} · HP ${Math.round(ward.hp)}/${Math.round(ward.maxHp)}`;
   }
 
   objectiveIconStyle(monster: MatchMapMonsterFrame): Record<string, string> | null {
@@ -654,22 +940,62 @@ export class MatchMapTrackComponent {
   }
 
   objectiveLabel(monster: MatchMapMonsterFrame): string {
+    const hp = ` · HP ${Math.round(monster.hp)}/${Math.round(monster.maxHp)}`;
     if (monster.campId === 'dragon') {
-      return '龍';
+      return `龍${hp}`;
+    }
+    if (monster.campId === 'elder') {
+      return `遠古龍${hp}`;
     }
     if (monster.campId === 'baron') {
-      return '巴龍';
+      return `巴龍${hp}`;
     }
-    return '先鋒';
+    return `先鋒${hp}`;
   }
 
   feedIconStyle(entry: MatchReplayLogEntry): Record<string, string> | null {
+    if (entry.objectiveIconId) {
+      return monsterIconStyle(entry.objectiveIconId, 34);
+    }
+    if (isBuildingIconId(entry.icon)) {
+      const ownedSide: ScoreboardSide =
+        entry.side === 'blue' ? 'red' : entry.side === 'red' ? 'blue' : 'blue';
+      return buildingIconStyle(entry.icon, ownedSide, 34);
+    }
     const icon = this.toScoreboardIcon(entry.icon);
     if (!icon) {
       return null;
     }
     const side = (entry.side ?? 'blue') as ScoreboardSide;
     return scoreboardIconStyle(icon, side, 28);
+  }
+
+  feedMinionStyle(entry: MatchReplayLogEntry): Record<string, string> | null {
+    const minion = entry.killerMinion;
+    if (!minion) {
+      return null;
+    }
+    return minionIconStyle(minion.role, minion.side, 34);
+  }
+
+  feedMonsterStyle(entry: MatchReplayLogEntry): Record<string, string> | null {
+    const monster = entry.killerMonster;
+    if (!monster) {
+      return null;
+    }
+    return monsterIconStyle(monster.iconId, 34);
+  }
+
+  feedBuildingKillerStyle(entry: MatchReplayLogEntry): Record<string, string> | null {
+    const building = entry.killerBuilding;
+    if (!building) {
+      return null;
+    }
+    return buildingIconStyle(building.kind, building.side, 34);
+  }
+
+  announceToneClass(entry: MatchReplayLogEntry): string {
+    return announcerToneClass(entry.announceTone);
   }
 
   private toScoreboardIcon(icon: MatchReplayIcon): ScoreboardIconId | null {
@@ -698,6 +1024,25 @@ export class MatchMapTrackComponent {
     const index = Math.min(Math.max(0, Math.round(value)), Math.max(0, list.length - 1));
     this.frameIndex.set(index);
     this.playbackTime.set(list[index]?.t ?? 0);
+  }
+
+  seekToTime(time: number): void {
+    if (!Number.isFinite(time)) {
+      return;
+    }
+    const list = this.frames();
+    if (list.length === 0) {
+      return;
+    }
+    this.playing.set(false);
+    const endT = list[list.length - 1]?.t ?? 0;
+    const target = Math.min(Math.max(0, time), endT);
+    this.playbackTime.set(target);
+    this.syncFrameIndex(target);
+  }
+
+  isActiveEvent(time: number): boolean {
+    return Math.abs(time - this.currentTime()) <= 2;
   }
 
   selectChampion(playerId: string): void {

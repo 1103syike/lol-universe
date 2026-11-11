@@ -25,10 +25,20 @@ export { orderMove, orderMoveOnLane, pathAlongLane, tickMovement } from './map/m
 export { createMatch, simulateV2Match } from './engine';
 export type { SimulateV2Input, SimulateV2Result } from './engine';
 export { toMatchReport } from './adapter/to-match-report';
-export { buildV2Input, resolveV2VersionId, toMatchDraftReport } from './adapter/from-legacy-input';
+export {
+  buildV2Input,
+  prepareV2Match,
+  resolveV2VersionId,
+  toMatchDraftReport,
+} from './adapter/from-legacy-input';
+export type { PreparedV2Match } from './adapter/from-legacy-input';
 export { ReplayRecorder } from './replay/recorder';
 export type { ReplayDocument } from './replay/recorder';
-export { runV2MatchAsync } from './worker/sim-worker-client';
+export {
+  runPreparedV2MatchAsync,
+  runV2MatchAsync,
+  runV2MatchBatchAsync,
+} from './worker/sim-worker-client';
 
 export type SimEngineMode = 'v1' | 'v2';
 

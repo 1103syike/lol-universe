@@ -1,4 +1,24 @@
 import { PLAYER_POSITION_LABELS } from '../../core/models/player.model';
+import {
+  environmentalAnnounce,
+  KillAnnouncerTracker,
+  objectiveAnnounce,
+  type AnnouncerTone,
+} from './announcer';
+import type { DragonType } from './match-stats';
+import {
+  isMinionIconRole,
+  minionRoleLabel,
+  type MinionIconRole,
+  type MinionIconSide,
+} from './minion-icons';
+import {
+  dragonTypeLabel,
+  monsterIconLabel,
+  monsterUnitIconId,
+  type MonsterIconId,
+} from './monster-icons';
+import type { BuildingIconKind, BuildingIconSide } from './building-icons';
 import type {
   FightLane,
   KillContext,
@@ -299,7 +319,7 @@ function isObjectiveEvent(event: TimelineEvent): boolean {
 }
 
 function objectiveShortName(event: TimelineEvent): string {
-  if (event.type === 'dragon') return '小龍';
+  if (event.type === 'dragon') return dragonTypeLabel(event.payload?.dragonType);
   if (event.type === 'dragon-soul') return '龍魂';
   if (event.type === 'baron') return '巴龍';
   if (event.type === 'elder') return '遠古龍';
@@ -653,16 +673,30 @@ function replayActor(
   };
 }
 
-function describeReplayKill(event: TimelineEvent, box: MatchBoxScore): string {
-  const killer = roleName(box, event.actorPlayerId);
+function describeReplayKill(
+  event: TimelineEvent,
+  box: MatchBoxScore,
+  announceLabel: string,
+  killerMinion?: MatchReplayMinionKiller | null,
+  killerMonster?: MatchReplayMonsterKiller | null,
+  killerBuilding?: MatchReplayBuildingKiller | null,
+): string {
+  const killer =
+    killerMinion?.label ??
+    killerMonster?.label ??
+    killerBuilding?.label ??
+    roleName(box, event.actorPlayerId);
   const victim = roleName(box, event.victimPlayerId);
   const assists = assistNames(box, event);
   const assistBit = assists.length > 0 ? `（助攻：${assists.join('、')}）` : '';
-  if (event.type === 'first-blood') {
-    return `${clockLabel(event.t)} ${killer} 擊殺 ${victim}${assistBit}，拿下一血`;
+  if (killerMinion || killerMonster || killerBuilding) {
+    return `${clockLabel(event.t)} ${victim} 被 ${killer} 擊殺${assistBit}`;
   }
   if (event.type === 'mistake') {
     return `${clockLabel(event.t)} ${victim} 失誤被 ${killer} 帶走${assistBit}`;
+  }
+  if (announceLabel && announceLabel !== '擊殺') {
+    return `${clockLabel(event.t)} ${announceLabel}｜${killer} 擊殺 ${victim}${assistBit}`;
   }
   return `${clockLabel(event.t)} ${killer} 擊殺 ${victim}${assistBit}`;
 }
@@ -696,6 +730,26 @@ export interface MatchReplayActor {
   side: 'blue' | 'red' | null;
 }
 
+export interface MatchReplayMinionKiller {
+  role: MinionIconRole;
+  side: MinionIconSide;
+  label: string;
+}
+
+export interface MatchReplayMonsterKiller {
+  iconId: MonsterIconId;
+  label: string;
+  campId?: string;
+  unitKind?: string;
+  dragonType?: DragonType;
+}
+
+export interface MatchReplayBuildingKiller {
+  kind: BuildingIconKind;
+  side: BuildingIconSide;
+  label: string;
+}
+
 export interface MatchReplayLogEntry {
   t: number;
   clock: string;
@@ -706,9 +760,17 @@ export interface MatchReplayLogEntry {
   killer: MatchReplayActor | null;
   victim: MatchReplayActor | null;
   assists: MatchReplayActor[];
+  killerMinion?: MatchReplayMinionKiller | null;
+  killerMonster?: MatchReplayMonsterKiller | null;
+  killerBuilding?: MatchReplayBuildingKiller | null;
+  objectiveIconId?: MonsterIconId | null;
+  hideKillerName?: boolean;
+  hideVictimName?: boolean;
   firstBlood?: boolean;
   mistake?: boolean;
   objectiveLabel?: string;
+  announce?: string;
+  announceTone?: AnnouncerTone;
 }
 
 export function buildMatchReplayLog(
@@ -721,17 +783,90 @@ export function buildMatchReplayLog(
     return '該隊';
   };
   const champIds = championIdByPlayer(box);
+  const homePlayers = box.players.filter((player) => player.teamId === box.homeTeamId);
+  const awayPlayers = box.players.filter((player) => player.teamId === box.awayTeamId);
+  const announcer = new KillAnnouncerTracker();
   const timeline = box.timeline
     .slice()
     .sort((left, right) => left.t - right.t || left.id.localeCompare(right.id));
   const entries: MatchReplayLogEntry[] = [];
   for (const event of timeline) {
     if (isKillEvent(event)) {
+      const victim = box.players.find((player) => player.playerId === event.victimPlayerId);
+      const victimTeamIds =
+        victim?.teamId === box.homeTeamId
+          ? homePlayers.map((player) => player.playerId)
+          : victim?.teamId === box.awayTeamId
+            ? awayPlayers.map((player) => player.playerId)
+            : [];
+      const killerMinion =
+        event.payload?.killVia === 'minion' &&
+        isMinionIconRole(event.payload.minionRole) &&
+        (event.payload.minionSide === 'blue' || event.payload.minionSide === 'red')
+          ? {
+              role: event.payload.minionRole,
+              side: event.payload.minionSide,
+              label: minionRoleLabel(event.payload.minionRole),
+            }
+          : null;
+      const monsterIcon = monsterUnitIconId(
+        event.payload?.monsterUnitKind,
+        event.payload?.monsterCampId,
+        event.payload?.dragonType,
+      );
+      const killerMonster =
+        (event.payload?.killVia === 'monster' || event.payload?.killVia === 'camp') && monsterIcon
+          ? {
+              iconId: monsterIcon,
+              label: monsterIconLabel(
+                event.payload?.monsterUnitKind,
+                event.payload?.monsterCampId,
+                event.payload?.dragonType,
+              ),
+              campId: event.payload?.monsterCampId,
+              unitKind: event.payload?.monsterUnitKind,
+              dragonType: event.payload?.dragonType,
+            }
+          : null;
+      const victimSide = sideOfTeam(box, event.victimTeamId);
+      const killerBuilding =
+        event.payload?.killVia === 'tower' &&
+        (event.payload.structureSide === 'blue' || event.payload.structureSide === 'red')
+          ? {
+              kind: 'tower' as const,
+              side: event.payload.structureSide,
+              label: '防禦塔',
+            }
+          : event.payload?.killVia === 'fountain'
+            ? {
+                kind: 'nexus' as const,
+                side: (victimSide === 'blue' ? 'red' : 'blue') as BuildingIconSide,
+                label: '泉水',
+              }
+            : null;
+      const isEnvKill = !!(killerMinion || killerMonster || killerBuilding);
+      const call = announcer.observe({
+        t: event.t,
+        killerId: event.actorPlayerId,
+        victimId: event.victimPlayerId,
+        victimTeamPlayerIds: victimTeamIds,
+        isFirstBlood: event.type === 'first-blood' && !isEnvKill,
+        isMistake: event.type === 'mistake' || (isEnvKill && !event.actorPlayerId),
+      });
+      const envCall = killerMinion
+        ? environmentalAnnounce(`${killerMinion.label}擊殺`)
+        : killerMonster
+          ? environmentalAnnounce(`${killerMonster.label}擊殺`)
+          : killerBuilding
+            ? environmentalAnnounce(`${killerBuilding.label}擊殺`)
+            : null;
+      const announceLabel = envCall?.label ?? call.label;
+      const announceTone = envCall?.tone ?? call.tone;
       entries.push({
         t: event.t,
         clock: clockLabel(event.t),
         kind: 'kill',
-        text: describeReplayKill(event, box),
+        text: describeReplayKill(event, box, announceLabel, killerMinion, killerMonster, killerBuilding),
         side: sideOfTeam(box, event.teamId),
         icon: 'kill',
         killer: replayActor(box, event.actorPlayerId, champIds),
@@ -739,8 +874,14 @@ export function buildMatchReplayLog(
         assists: (event.assistPlayerIds ?? [])
           .map((id) => replayActor(box, id, champIds))
           .filter((actor): actor is MatchReplayActor => Boolean(actor)),
-        firstBlood: event.type === 'first-blood',
-        mistake: event.type === 'mistake',
+        killerMinion,
+        killerMonster,
+        killerBuilding,
+        hideKillerName: isEnvKill,
+        firstBlood: event.type === 'first-blood' && !isEnvKill,
+        mistake: event.type === 'mistake' || isEnvKill,
+        announce: announceLabel,
+        announceTone,
       });
       continue;
     }
@@ -757,33 +898,80 @@ export function buildMatchReplayLog(
           ? `（助攻：${assists.map((actor) => actor.gamertag).join('、')}）`
           : '';
       const takerBit = killer ? `${killer.gamertag}` : team;
+      const objectiveIconId =
+        event.type === 'baron'
+          ? monsterUnitIconId('baron', 'baron')
+          : event.type === 'elder'
+            ? monsterUnitIconId('elder', 'elder')
+            : event.type === 'dragon' || event.type === 'dragon-soul'
+              ? monsterUnitIconId('dragon', 'dragon', event.payload?.dragonType)
+              : event.type === 'herald'
+                ? monsterUnitIconId('herald', 'herald')
+                : null;
+      const takerMinion =
+        event.payload?.viaMinion &&
+        isMinionIconRole(event.payload.minionRole) &&
+        (event.payload.minionSide === 'blue' || event.payload.minionSide === 'red')
+          ? {
+              role: event.payload.minionRole,
+              side: event.payload.minionSide,
+              label: minionRoleLabel(event.payload.minionRole),
+            }
+          : !killer &&
+              (event.payload?.minionSide === 'blue' || event.payload?.minionSide === 'red') &&
+              isMinionIconRole(event.payload?.minionRole ?? 'melee')
+            ? {
+                role: (event.payload?.minionRole ?? 'melee') as MinionIconRole,
+                side: event.payload.minionSide,
+                label: minionRoleLabel((event.payload?.minionRole ?? 'melee') as MinionIconRole),
+              }
+            : null;
       if (event.type === 'nexus') {
+        const call = objectiveAnnounce({
+          objectiveLabel: '主堡',
+          icon,
+          kind: 'end',
+        });
         entries.push({
           t: event.t,
           clock: clockLabel(event.t),
           kind: 'end',
-          text: `${clockLabel(event.t)} ${takerBit} 推掉主堡，比賽結束${assistBit}`,
+          text: `${clockLabel(event.t)} ${call.label}｜${takerMinion?.label ?? takerBit}${assistBit}`,
           side: sideOfTeam(box, event.teamId),
           icon,
           killer,
           victim: null,
           assists,
+          killerMinion: takerMinion,
           objectiveLabel: '主堡',
+          hideKillerName: !!takerMinion,
+          hideVictimName: true,
+          announce: call.label,
+          announceTone: call.tone,
         });
       } else {
-        const verb =
-          event.type === 'tower' || event.type === 'inhibitor' ? '拆除' : '拿下';
+        const call = objectiveAnnounce({
+          objectiveLabel: objName,
+          icon,
+          kind: 'objective',
+        });
         entries.push({
           t: event.t,
           clock: clockLabel(event.t),
           kind: 'objective',
-          text: `${clockLabel(event.t)} ${takerBit} ${verb}${objName}${assistBit}`,
+          text: `${clockLabel(event.t)} ${call.label}｜${takerMinion?.label ?? takerBit}${assistBit}`,
           side: sideOfTeam(box, event.teamId),
           icon,
           killer,
           victim: null,
           assists,
+          killerMinion: takerMinion,
           objectiveLabel: objName,
+          objectiveIconId,
+          hideKillerName: !!takerMinion,
+          hideVictimName: true,
+          announce: call.label,
+          announceTone: call.tone,
         });
       }
     }

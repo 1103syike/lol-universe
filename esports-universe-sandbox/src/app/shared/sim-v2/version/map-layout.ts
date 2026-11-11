@@ -9,6 +9,14 @@ import { normalizeRoads, type MapRoads } from './map-roads';
 
 export type MapPoint = { x: number; y: number };
 
+export const DEFAULT_TOWER_ATTACK_RANGE = 825;
+export const DEFAULT_FOUNTAIN_ATTACK_RANGE = 1050;
+
+export type MapAttackRanges = {
+  tower: number;
+  fountain: number;
+};
+
 export type MapLayout = {
   structures: Record<string, MapPoint>;
   objectives: {
@@ -21,10 +29,26 @@ export type MapLayout = {
     blue: MapPoint;
     red: MapPoint;
   };
+  attackRanges: MapAttackRanges;
   paintShapes: MapPaintShape[];
   paintMask: MapPaintMask | null;
   laneRoads: MapRoads;
 };
+
+function normalizeAttackRanges(ranges: Partial<MapAttackRanges> | undefined): MapAttackRanges {
+  const tower = Number(ranges?.tower);
+  const fountain = Number(ranges?.fountain);
+  return {
+    tower:
+      Number.isFinite(tower) && tower > 0
+        ? Math.round(tower)
+        : DEFAULT_TOWER_ATTACK_RANGE,
+    fountain:
+      Number.isFinite(fountain) && fountain > 0
+        ? Math.round(fountain)
+        : DEFAULT_FOUNTAIN_ATTACK_RANGE,
+  };
+}
 
 export const MAP_LAYOUT_SNAP = 50;
 export const MAP_LAYOUT_MAX = 15000;
@@ -38,6 +62,7 @@ export function ensureMapLayout(layout: MapLayout): MapLayout {
     paintShapes?: MapPaintShape[];
     paintMask?: MapPaintMask | null;
     laneRoads?: Partial<MapRoads>;
+    attackRanges?: Partial<MapAttackRanges>;
   };
   const incomingShapes =
     Array.isArray(next.paintShapes) && next.paintShapes.length > 0
@@ -49,6 +74,7 @@ export function ensureMapLayout(layout: MapLayout): MapLayout {
           : next.paintShapes;
   next.paintShapes = normalizePaintShapes(incomingShapes);
   next.paintMask = normalizePaintMask(next.paintMask ?? undefined);
+  next.attackRanges = normalizeAttackRanges(next.attackRanges);
   const shell = next as MapLayout;
   next.laneRoads = normalizeRoads(next.laneRoads, shell);
   delete next.walls;

@@ -273,26 +273,97 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
       const victim = byEntity.get(event.actorId ?? '');
       const killer = byEntity.get(event.targetId ?? '');
       const assists = (event.payload?.['assistPlayerIds'] as string[] | undefined) ?? [];
+      const killVia = String(event.payload?.['via'] ?? '');
+      const minionRoleRaw = event.payload?.['minionRole'];
+      const minionSideRaw = event.payload?.['minionSide'];
+      const minionRole =
+        minionRoleRaw === 'melee' ||
+        minionRoleRaw === 'caster' ||
+        minionRoleRaw === 'cannon' ||
+        minionRoleRaw === 'super'
+          ? minionRoleRaw
+          : undefined;
+      const minionSide =
+        minionSideRaw === 'blue' || minionSideRaw === 'red' ? minionSideRaw : undefined;
+      const monsterUnitKind = event.payload?.['monsterUnitKind']
+        ? String(event.payload['monsterUnitKind'])
+        : undefined;
+      const monsterCampId = event.payload?.['monsterCampId']
+        ? String(event.payload['monsterCampId'])
+        : undefined;
+      const dragonTypeRaw = event.payload?.['dragonType'];
+      const dragonType =
+        dragonTypeRaw === 'infernal' ||
+        dragonTypeRaw === 'mountain' ||
+        dragonTypeRaw === 'ocean' ||
+        dragonTypeRaw === 'cloud' ||
+        dragonTypeRaw === 'hextech' ||
+        dragonTypeRaw === 'chemtech'
+          ? dragonTypeRaw
+          : undefined;
+      const structureKind = event.payload?.['structureKind']
+        ? String(event.payload['structureKind'])
+        : undefined;
+      const structureSideRaw = event.payload?.['structureSide'];
+      const structureSide =
+        structureSideRaw === 'blue' || structureSideRaw === 'red' ? structureSideRaw : undefined;
+      const isMinionExecute = killVia === 'minion' && !!minionRole && !!minionSide;
+      const isTowerExecute = killVia === 'tower';
+      const isFountainExecute = killVia === 'fountain';
+      const isMonsterExecute = killVia === 'monster' || killVia === 'camp';
+      const isEnvExecute =
+        isMinionExecute || isTowerExecute || isFountainExecute || isMonsterExecute;
       let context = killContextOf(killer, victim, assists, state.champions);
       if (assists.length === 0 && killer && victim && !sameLane(killer.positionLabel, victim.positionLabel)) {
         context = 'mistake';
       }
-      const killerName = killer ? `${killer.positionLabel} ${killer.gamertag}` : '敵方';
+      if (isEnvExecute && !killer) {
+        context = 'mistake';
+      }
+      const minionName =
+        minionRole === 'cannon'
+          ? '砲車'
+          : minionRole === 'super'
+            ? '超級兵'
+            : minionRole === 'caster'
+              ? '遠程兵'
+              : '近戰兵';
+      const envKillerName = isMinionExecute
+        ? minionName
+        : isFountainExecute
+          ? '泉水'
+          : isTowerExecute
+            ? '防禦塔'
+            : isMonsterExecute
+              ? '野怪'
+              : null;
+      const killerName = envKillerName
+        ? envKillerName
+        : killer
+          ? `${killer.positionLabel} ${killer.gamertag}`
+          : '敵方';
       const victimName = victim ? `${victim.positionLabel} ${victim.gamertag}` : '選手';
-      const summary =
-        context === 'mistake'
+      const summary = envKillerName
+        ? `${clock(event.t)} · ${envKillerName}｜${victimName} 被擊殺`
+        : context === 'mistake'
           ? `${clock(event.t)} · 重大失誤｜${victimName} 落單被 ${killerName} 帶走`
           : context === 'gank'
             ? `${clock(event.t)} · 遊走｜${killerName} 擊殺 ${victimName}`
             : context === 'lane'
               ? `${clock(event.t)} · 對線｜${killerName} 擊殺 ${victimName}`
               : `${clock(event.t)} · 擊殺｜${killerName} 擊殺 ${victimName}`;
+      const envTeamId =
+        minionSide === 'blue' || structureSide === 'blue'
+          ? box.homeTeamId
+          : minionSide === 'red' || structureSide === 'red'
+            ? box.awayTeamId
+            : null;
       events.push({
         id: `v2_${seq++}`,
         t: event.t,
         type: context === 'mistake' ? 'mistake' : 'kill',
         phase: phaseAt(event.t),
-        teamId: killer?.teamId ?? null,
+        teamId: killer?.teamId ?? envTeamId,
         actorPlayerId: killer?.playerId,
         assistPlayerIds: assists,
         victimPlayerId: victim?.playerId,
@@ -300,6 +371,14 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
         payload: {
           marker: 'K',
           killContext: context,
+          killVia: killVia || undefined,
+          minionRole,
+          minionSide,
+          monsterUnitKind,
+          monsterCampId,
+          dragonType,
+          structureKind,
+          structureSide,
           fightLane:
             victim?.positionLabel === 'TOP'
               ? 'top'
@@ -326,6 +405,34 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
             ? state.blue.teamId
             : state.red.teamId
           : undefined);
+      const attackerSideRaw = event.payload?.['attackerSide'];
+      const attackerSide =
+        attackerSideRaw === 'blue' || attackerSideRaw === 'red'
+          ? attackerSideRaw
+          : structure
+            ? structure.side === 'blue'
+              ? 'red'
+              : 'blue'
+            : undefined;
+      const viaMinion = Boolean(event.payload?.['viaMinion']) && !actor;
+      const minionRoleRaw = event.payload?.['minionRole'];
+      const minionRole =
+        minionRoleRaw === 'melee' ||
+        minionRoleRaw === 'caster' ||
+        minionRoleRaw === 'cannon' ||
+        minionRoleRaw === 'super'
+          ? minionRoleRaw
+          : viaMinion
+            ? 'melee'
+            : undefined;
+      const takerTeamId =
+        actor?.teamId ??
+        event.teamId ??
+        (attackerSide === 'blue'
+          ? state.blue.teamId
+          : attackerSide === 'red'
+            ? state.red.teamId
+            : null);
       const rawLane =
         (event.payload?.['lane'] as string | null | undefined) ?? structure?.lane ?? undefined;
       const lane =
@@ -336,10 +443,15 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           t: event.t,
           type: 'nexus',
           phase: phaseAt(event.t),
-          teamId: actor?.teamId ?? event.teamId ?? box.winnerTeamId,
+          teamId: takerTeamId ?? box.winnerTeamId,
           actorPlayerId: actor?.playerId,
           assistPlayerIds,
-          payload: { endMethod: 'siege' },
+          payload: {
+            endMethod: 'siege',
+            viaMinion: viaMinion || undefined,
+            minionRole,
+            minionSide: viaMinion ? attackerSide : undefined,
+          },
           summary: `${clock(event.t)} · 推掉主堡`,
         });
       } else if (kind === 'inhibitor') {
@@ -348,10 +460,16 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           t: event.t,
           type: 'inhibitor',
           phase: phaseAt(event.t),
-          teamId: actor?.teamId ?? null,
+          teamId: takerTeamId,
           actorPlayerId: actor?.playerId,
           assistPlayerIds,
-          payload: { defenderTeamId, towerLane: lane },
+          payload: {
+            defenderTeamId,
+            towerLane: lane,
+            viaMinion: viaMinion || undefined,
+            minionRole,
+            minionSide: viaMinion ? attackerSide : undefined,
+          },
           summary: `${clock(event.t)} · 拆除兵營`,
         });
       } else {
@@ -362,7 +480,7 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
             t: event.t,
             type: 'tower',
             phase: phaseAt(event.t),
-            teamId: actor?.teamId ?? null,
+            teamId: takerTeamId,
             actorPlayerId: actor?.playerId,
             assistPlayerIds,
             payload: {
@@ -370,8 +488,13 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
               towerTier: tier,
               towerLane: lane,
               defenderTeamId,
+              viaMinion: viaMinion || undefined,
+              minionRole,
+              minionSide: viaMinion ? attackerSide : undefined,
             },
-            summary: `${clock(event.t)} · 摧毀防禦塔`,
+            summary: viaMinion
+              ? `${clock(event.t)} · 小兵推倒防禦塔`
+              : `${clock(event.t)} · 摧毀防禦塔`,
           });
         }
       }
@@ -394,9 +517,35 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
         ).length;
         const stolen = nearbyDeaths === 0;
         const priorDragons = events.filter(
-          (row) => row.type === 'dragon' && row.teamId === actor?.teamId,
+          (row) =>
+            (row.type === 'dragon' || row.type === 'dragon-soul') &&
+            row.teamId === actor?.teamId,
         ).length;
         const isSoul = priorDragons >= 3;
+        const dragonTypeRaw = event.payload?.['dragonType'];
+        const dragonType =
+          dragonTypeRaw === 'infernal' ||
+          dragonTypeRaw === 'mountain' ||
+          dragonTypeRaw === 'ocean' ||
+          dragonTypeRaw === 'cloud' ||
+          dragonTypeRaw === 'hextech' ||
+          dragonTypeRaw === 'chemtech'
+            ? dragonTypeRaw
+            : undefined;
+        const dragonName =
+          dragonType === 'infernal'
+            ? '煉獄龍'
+            : dragonType === 'mountain'
+              ? '山嶺龍'
+              : dragonType === 'ocean'
+                ? '海洋龍'
+                : dragonType === 'cloud'
+                  ? '雲端龍'
+                  : dragonType === 'hextech'
+                    ? '海克斯龍'
+                    : dragonType === 'chemtech'
+                      ? '煉金龍'
+                      : '小龍';
         events.push({
           id: `v2_${seq++}`,
           t: event.t,
@@ -407,6 +556,7 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           assistPlayerIds,
           payload: {
             marker: dragonMarker(priorDragons + 1),
+            dragonType,
             ...(nearbyFight
               ? {
                   objectiveIntent: 'contest' as const,
@@ -418,20 +568,48 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
             decisionReason: stolen
               ? isSoul
                 ? '空窗偷龍魂'
-                : '換線空檔偷龍'
+                : `換線空檔偷${dragonName}`
               : nearbyFight
                 ? isSoul
                   ? '龍魂團後拿下'
-                  : '龍團後拿下'
+                  : `龍團後拿下${dragonName}`
                 : isSoul
                   ? '拿下龍魂'
-                  : '控龍節奏',
+                  : `控${dragonName}節奏`,
           },
           summary: stolen
-            ? `${clock(event.t)} · ${isSoul ? '偷了龍魂' : '偷了小龍'}`
+            ? `${clock(event.t)} · ${isSoul ? '偷了龍魂' : `偷了${dragonName}`}`
             : nearbyFight
-              ? `${clock(event.t)} · ${isSoul ? '龍魂團後拿下龍魂' : '龍團後拿下小龍'}`
-              : `${clock(event.t)} · ${isSoul ? '拿下龍魂' : '拿下小龍'}`,
+              ? `${clock(event.t)} · ${isSoul ? '龍魂團後拿下龍魂' : `龍團後拿下${dragonName}`}`
+              : `${clock(event.t)} · ${isSoul ? '拿下龍魂' : `拿下${dragonName}`}`,
+        });
+      } else if (campId === 'elder') {
+        const nearbyFight = replay.events.some(
+          (row) => row.type === 'death' && Math.abs(row.t - event.t) <= 55,
+        );
+        events.push({
+          id: `v2_${seq++}`,
+          t: event.t,
+          type: 'elder',
+          phase: phaseAt(event.t),
+          teamId: actor?.teamId ?? null,
+          actorPlayerId: actor?.playerId,
+          assistPlayerIds,
+          payload: {
+            marker: 'E',
+            ...(nearbyFight
+              ? {
+                  objectiveIntent: 'contest' as const,
+                  decisionOutcome: 'fight' as const,
+                }
+              : {
+                  decisionOutcome: 'free-take' as const,
+                }),
+            decisionReason: nearbyFight ? '遠古團後拿下' : '空窗拿遠古',
+          },
+          summary: nearbyFight
+            ? `${clock(event.t)} · 遠古團後拿下遠古龍`
+            : `${clock(event.t)} · 拿下遠古龍`,
         });
       } else if (campId === 'baron') {
         const nearbyFight = replay.events.some(
@@ -490,7 +668,7 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
           teamId: event.teamId ?? box.winnerTeamId,
           payload: { endMethod: timedOut ? 'timeout' : 'siege' },
           summary: timedOut
-            ? `${clock(event.t)} · 時間到，依防禦塔／經濟判定勝方（主堡未被推破）`
+            ? `${clock(event.t)} · 罕見膠著超時，依防禦塔／經濟判定勝方（主堡未被推破）`
             : `${clock(event.t)} · 推掉主堡`,
         });
       }
@@ -505,7 +683,7 @@ function buildTimeline(state: GameState, replay: ReplayDocument, box: MatchBoxSc
       phase: 'late',
       teamId: box.winnerTeamId,
       payload: { endMethod: 'timeout' },
-      summary: `${clock(box.durationSec)} · 時間到，依防禦塔／經濟判定勝方（主堡未被推破）`,
+      summary: `${clock(box.durationSec)} · 罕見膠著超時，依防禦塔／經濟判定勝方（主堡未被推破）`,
     });
   }
 
@@ -730,6 +908,7 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
         champ.damageTakenFromChamps ?? champ.damageTaken ?? 0,
       ),
       cs: champ.cs ?? 0,
+      visionScore: Math.round(champ.visionScore ?? 0),
       items: [...champ.items],
       abilities: (champ.abilities ?? []).map((ability) => ({
         slot: ability.slot,
@@ -745,10 +924,26 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
       recalling: !!champ.recalling,
       recallProgress: champ.recallProgress ?? 0,
     })),
-    minions: (snap.minions ?? []).map((minion) => ({ ...minion })),
-    monsters: (snap.monsters ?? []).map((monster) => ({ ...monster })),
-    structures: (snap.structures ?? []).map((structure) => ({ ...structure })),
-    wards: (snap.wards ?? []).map((ward) => ({ ...ward })),
+    minions: (snap.minions ?? []).map((minion) => ({
+      ...minion,
+      hp: Math.max(0, Math.round(minion.hp ?? minion.maxHp ?? 1)),
+      maxHp: Math.max(1, Math.round(minion.maxHp ?? minion.hp ?? 1)),
+    })),
+    monsters: (snap.monsters ?? []).map((monster) => ({
+      ...monster,
+      hp: Math.max(0, Math.round(monster.hp ?? monster.maxHp ?? 1)),
+      maxHp: Math.max(1, Math.round(monster.maxHp ?? monster.hp ?? 1)),
+    })),
+    structures: (snap.structures ?? []).map((structure) => ({
+      ...structure,
+      hp: Math.max(0, Math.round(structure.hp ?? (structure.alive ? structure.maxHp ?? 1 : 0))),
+      maxHp: Math.max(1, Math.round(structure.maxHp ?? structure.hp ?? 1)),
+    })),
+    wards: (snap.wards ?? []).map((ward) => ({
+      ...ward,
+      hp: Math.max(0, Math.round(ward.hp ?? ward.maxHp ?? 1)),
+      maxHp: Math.max(1, Math.round(ward.maxHp ?? ward.hp ?? 1)),
+    })),
   }));
 
   const boxScore: MatchBoxScore = {
@@ -770,8 +965,10 @@ export function toMatchReport(result: SimulateV2Result): MatchReport {
   away.barons = countSide('baron', away.teamId);
   home.elders = countSide('elder', home.teamId);
   away.elders = countSide('elder', away.teamId);
-  home.dragons = countSide('dragon', home.teamId);
-  away.dragons = countSide('dragon', away.teamId);
+  home.dragons =
+    countSide('dragon', home.teamId) + countSide('dragon-soul', home.teamId);
+  away.dragons =
+    countSide('dragon', away.teamId) + countSide('dragon-soul', away.teamId);
   home.dragonSoul = boxScore.timeline.some(
     (event) => event.type === 'dragon-soul' && event.teamId === home.teamId,
   );

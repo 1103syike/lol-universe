@@ -10,17 +10,27 @@ describe('resolveShopPrefer', () => {
       ownedItems: [],
     });
     expect(prefer).toContain('TrinityForce');
-    expect(prefer).toContain('Manamune');
+    expect(prefer.some((item) => item === 'TearoftheGoddess' || item === 'Manamune' || item === 'Muramana')).toBe(
+      true,
+    );
     expect(prefer).not.toContain('InfinityEdge');
   });
 
-  it('gives Maokai tank items instead of Hydra', () => {
+  it('gives Maokai tank / support tank items instead of Hydra', () => {
     const prefer = resolveShopPrefer({
       championId: 'Maokai',
-      position: 'JUNGLE',
+      position: 'SUPPORT',
       ownedItems: [],
     });
-    expect(prefer.some((item) => item === 'HollowRadiance' || item === 'SunfireAegis')).toBe(true);
+    expect(
+      prefer.some(
+        (item) =>
+          item === 'HollowRadiance' ||
+          item === 'SunfireAegis' ||
+          item === 'LocketoftheIronSolari' ||
+          item === 'Thornmail',
+      ),
+    ).toBe(true);
     expect(prefer).not.toContain('Tiamat');
     expect(prefer).not.toContain('TitanicHydra');
   });
@@ -51,20 +61,15 @@ describe('resolveShopPrefer', () => {
     ).toBe(true);
   });
 
-  it('varies builds across seeds for the same champion', () => {
-    const plans = new Set<string>();
-    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
-      const prefer = resolveShopPrefer({
-        championId: 'Aatrox',
-        position: 'TOP',
-        ownedItems: [],
-        state: { seed, champions: [] } as never,
-        side: 'blue',
-        playerId: `p-${seed}`,
-      });
-      plans.add(prefer.slice(0, 8).join('>'));
-    }
-    expect(plans.size).toBeGreaterThan(1);
+  it('locks Aatrox to the popular op.gg core', () => {
+    const prefer = resolveShopPrefer({
+      championId: 'Aatrox',
+      position: 'TOP',
+      ownedItems: [],
+    });
+    expect(prefer).toContain('Eclipse');
+    expect(prefer).toContain('SunderedSky');
+    expect(prefer).toContain('DeathsDance');
   });
 
   it('keeps high-engage supports off enchanter lines', () => {
@@ -97,20 +102,21 @@ describe('resolveShopPrefer', () => {
     }
   });
 
-  it('gives missing niche champs distinct multi-path diversity', () => {
-    const plans = new Set<string>();
-    for (const seed of [3, 7, 11, 19, 29, 41, 53, 67, 79, 97]) {
-      const prefer = resolveShopPrefer({
-        championId: 'Yasuo',
-        position: 'MID',
-        ownedItems: [],
-        state: { seed, champions: [] } as never,
-        side: 'blue',
-        playerId: `yasuo-${seed}`,
-      });
-      plans.add(prefer.slice(0, 6).join('>'));
-    }
-    expect(plans.size).toBeGreaterThan(1);
+  it('locks Camille and Gragas to popular op.gg cores', () => {
+    const camille = resolveShopPrefer({
+      championId: 'Camille',
+      position: 'TOP',
+      ownedItems: [],
+    });
+    expect(camille).toContain('TrinityForce');
+    expect(camille).toContain('RavenousHydra');
+    const gragas = resolveShopPrefer({
+      championId: 'Gragas',
+      position: 'TOP',
+      ownedItems: [],
+    });
+    expect(gragas).toContain('RodofAges');
+    expect(gragas.some((item) => item === 'CosmicDrive' || item === 'LichBane')).toBe(true);
   });
 
   it('leans armor pen / on-hit when facing many tanks', () => {

@@ -26,6 +26,7 @@ import { RoleIconComponent } from '../../shared/ui/role-icon/role-icon.component
 import { TeamLogoComponent } from '../../shared/ui/team-logo/team-logo.component';
 import { PromotionBoardService } from '../../core/services/promotion-board.service';
 import { MsiBoardService, type MsiHero, type MsiMatchView, type MsiSide, type MsiTable } from '../../core/services/msi-board.service';
+import { getChampionKit } from '../../core/data/champion-kits';
 import { getMsiGuestBundle, msiGuestRosterLines } from '../../core/data/msi-guest-roster';
 import { StorageAdapter } from '../../core/storage/storage.adapter';
 import { calculatePlayerOvr } from '../../shared/utils/player-ovr';
@@ -37,14 +38,22 @@ import {
   PHASE_LABELS,
   pickBubbleWinnerByProfile,
   pickMvpVerdict,
-  simulateGameAsync,
+  prepareV2Match,
+  runPreparedV2MatchAsync,
+  type DraftStep,
   type MatchBoxScore,
   type MatchReplayLogEntry,
   type MatchReport,
   type MatchSideInput,
   type PlayerMatchStats,
+  type PreparedV2Match,
 } from '../../shared/sim';
+import { getVersionPack } from '../../shared/sim-v2/version/registry';
 
+import {
+  buildingIconStyle,
+  isBuildingIconId,
+} from '../../shared/sim/building-icons';
 import {
   markerToIcon,
   scoreboardIconStyle,
@@ -277,6 +286,56 @@ export class DashboardPage {
   readonly simProgress = signal(0);
   readonly simOverlayLabel = signal('模擬比賽中');
   readonly simOverlayLeague = signal<'TCS' | 'TCL' | 'MSI' | null>(null);
+  readonly bpPhase = signal<'idle' | 'animating' | 'ready' | 'matching'>('idle');
+  readonly bpRevealIndex = signal(-1);
+  readonly bpLayoutMode = signal<'slot-order' | 'swapping' | 'final'>('slot-order');
+  readonly bpTurn = signal<{
+    key: number;
+    kind: 'ban' | 'pick' | 'swap';
+    side: 'blue' | 'red' | 'both';
+    label: string;
+    durationMs: number;
+  } | null>(null);
+  readonly bpHover = signal<{
+    kind: 'ban' | 'pick';
+    teamId: string;
+    slotIndex: number;
+    championId: string;
+    settled: boolean;
+  } | null>(null);
+  readonly bpBoard = signal<{
+    homeTeamId: string;
+    awayTeamId: string;
+    home: Array<string | null>;
+    away: Array<string | null>;
+    flash: { side: 'home' | 'away'; a: number; b: number } | null;
+  } | null>(null);
+  readonly pendingBp = signal<{
+    homeTeamId: string;
+    awayTeamId: string;
+    prepared: PreparedV2Match;
+    forceWinnerTeamId?: string;
+    hit: (winnerTeamId: string) => void;
+    onComplete: (report: MatchReport | null) => void;
+    board?: {
+      need: number;
+      slate?: SlateMatch;
+      league?: 'TCS' | 'TCL';
+      competition?: StatsCompetition;
+      readSeries?: () => { home: number; away: number };
+      forceWinnerTeamId?: string;
+    };
+    overlayLeague: 'TCS' | 'TCL' | 'MSI' | null;
+    overlayLabel: string;
+  } | null>(null);
+  private bpRevealTimer: number | null = null;
+  private bpHoverTimer: number | null = null;
+  private readonly bpStepMs = 2800;
+  private readonly bpTurnGapMs = 160;
+  private readonly bpHoverTickMs = 380;
+  private readonly bpHoverSettleMs = 650;
+  private readonly bpSwapPauseMs = 280;
+  private readonly bpSwapPairMs = 480;
   readonly lastSimBoard = signal<{
     foot: string | null;
     league: 'TCS' | 'TCL' | null;
@@ -290,7 +349,6 @@ export class DashboardPage {
     awaySeriesWins: number;
   } | null>(null);
   private pendingReportAdvance = false;
-  private simProgressTimer: ReturnType<typeof setInterval> | null = null;
   readonly phaseLabels = PHASE_LABELS;
 
   seasonTitle(): string {
@@ -390,6 +448,8 @@ export class DashboardPage {
       window.clearTimeout(this.meterTimer);
       window.clearTimeout(this.scoreAdvanceTimer);
       window.clearInterval(this.groupTimer);
+      this.clearBpRevealTimer();
+      this.clearBpHoverTimer();
       document.body.classList.remove('is-scene-swap');
       delete document.body.dataset['scene'];
       delete document.body.dataset['sceneFrom'];
@@ -424,8 +484,181 @@ export class DashboardPage {
     return coach.gamertag || coach.displayName || '';
   }
 
+  stageBpActive(homeTeamId: string, awayTeamId: string): boolean {
+    const pending = this.pendingBp();
+    if (!pending || this.bpPhase() === 'idle') {
+      return false;
+    }
+    return pending.homeTeamId === homeTeamId && pending.awayTeamId === awayTeamId;
+  }
+
+  stageBpTurn(homeTeamId: string, awayTeamId: string): {
+    key: number;
+    kind: 'ban' | 'pick' | 'swap';
+    side: 'blue' | 'red' | 'both';
+    label: string;
+    durationMs: number;
+  } | null {
+    if (!this.stageBpActive(homeTeamId, awayTeamId)) {
+      return null;
+    }
+    return this.bpTurn();
+  }
+
+  private bpTurnTeamId(homeTeamId: string, awayTeamId: string): string | null {
+    const turn = this.stageBpTurn(homeTeamId, awayTeamId);
+    const pending = this.pendingBp();
+    if (!turn || !pending || turn.side === 'both') {
+      return null;
+    }
+    return turn.side === 'blue' ? pending.homeTeamId : pending.awayTeamId;
+  }
+
+  private bpTurnWaiting(): boolean {
+    const turn = this.bpTurn();
+    if (!turn || turn.kind === 'swap') {
+      return false;
+    }
+    return this.bpRevealIndex() < turn.key;
+  }
+
+  stageBpPickTurnPending(
+    homeTeamId: string,
+    awayTeamId: string,
+    teamId: string,
+    position: PlayerPosition,
+  ): boolean {
+    if (!this.bpTurnWaiting() || this.bpLayoutMode() !== 'slot-order') {
+      return false;
+    }
+    const turn = this.stageBpTurn(homeTeamId, awayTeamId);
+    if (!turn || turn.kind !== 'pick') {
+      return false;
+    }
+    if (this.bpTurnTeamId(homeTeamId, awayTeamId) !== teamId) {
+      return false;
+    }
+    const slotIndex = PLAYER_POSITIONS.indexOf(position);
+    if (slotIndex < 0) {
+      return false;
+    }
+    return slotIndex === this.revealedTeamPickChampions(teamId).length;
+  }
+
+  stageBpBanTurnPending(
+    homeTeamId: string,
+    awayTeamId: string,
+    teamId: string,
+    banSlotIndex: number,
+  ): boolean {
+    if (!this.bpTurnWaiting()) {
+      return false;
+    }
+    const turn = this.stageBpTurn(homeTeamId, awayTeamId);
+    if (!turn || turn.kind !== 'ban') {
+      return false;
+    }
+    if (this.bpTurnTeamId(homeTeamId, awayTeamId) !== teamId) {
+      return false;
+    }
+    return banSlotIndex === this.stageDraftBans(homeTeamId, awayTeamId, teamId).length;
+  }
+
+  private revealedBpSteps(): DraftStep[] {
+    const pending = this.pendingBp();
+    if (!pending) {
+      return [];
+    }
+    const upto = this.bpRevealIndex();
+    if (upto < 0) {
+      return [];
+    }
+    return pending.prepared.steps.slice(0, upto + 1);
+  }
+
+  private stagePlayerRole(
+    homeTeamId: string,
+    awayTeamId: string,
+    playerId: string,
+  ): { teamId: string; position: PlayerPosition } | null {
+    for (const teamId of [homeTeamId, awayTeamId]) {
+      for (const line of this.rosterLines(teamId)) {
+        if (line.players[0]?.id === playerId) {
+          return { teamId, position: line.position };
+        }
+      }
+    }
+    const pending = this.pendingBp();
+    if (!pending) {
+      return null;
+    }
+    for (const side of [pending.prepared.draft.home, pending.prepared.draft.away]) {
+      if (side.teamId !== homeTeamId && side.teamId !== awayTeamId) {
+        continue;
+      }
+      for (const pick of side.picks) {
+        if (pick.playerId === playerId) {
+          return { teamId: side.teamId, position: pick.position };
+        }
+      }
+    }
+    return null;
+  }
+
+  private revealedTeamPickChampions(teamId: string): string[] {
+    const champs: string[] = [];
+    for (const step of this.revealedBpSteps()) {
+      if (step.kind === 'pick' && step.teamId === teamId) {
+        champs.push(step.pick.championId);
+      }
+    }
+    return champs;
+  }
+
+  private slotChampArray(pickIds: readonly string[]): Array<string | null> {
+    return PLAYER_POSITIONS.map((_, index) => pickIds[index] ?? null);
+  }
+
+  private finalChampArray(
+    picks: readonly { position: PlayerPosition; championId: string }[],
+  ): Array<string | null> {
+    return PLAYER_POSITIONS.map((position) => {
+      const pick = picks.find((item) => item.position === position && item.championId);
+      return pick?.championId ?? null;
+    });
+  }
+
+  private planPairSwaps(
+    current: Array<string | null>,
+    target: Array<string | null>,
+  ): Array<[number, number]> {
+    const cur = [...current];
+    const swaps: Array<[number, number]> = [];
+    for (let index = 0; index < cur.length; index += 1) {
+      if (cur[index] === target[index]) {
+        continue;
+      }
+      const needed = target[index];
+      if (!needed) {
+        continue;
+      }
+      const from = cur.findIndex((champ, at) => at !== index && champ === needed);
+      if (from < 0) {
+        continue;
+      }
+      swaps.push([index, from]);
+      const temp = cur[index];
+      cur[index] = cur[from];
+      cur[from] = temp;
+    }
+    return swaps;
+  }
+
   stageGameReport(homeTeamId: string, awayTeamId: string): MatchReport | null {
     if (!homeTeamId || !awayTeamId) {
+      return null;
+    }
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
       return null;
     }
     const live = this.lastMatchReport();
@@ -443,12 +676,18 @@ export class DashboardPage {
   }
 
   stagePlayerKda(homeTeamId: string, awayTeamId: string, playerId: string): string | null {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return null;
+    }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
     const stats = report?.boxScore?.players.find((player) => player.playerId === playerId);
     return stats ? this.reportKdaLabel(stats) : null;
   }
 
   stagePlayerGold(homeTeamId: string, awayTeamId: string, playerId: string): number | null {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return null;
+    }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
     const stats = report?.boxScore?.players.find((player) => player.playerId === playerId);
     return stats ? stats.gold : null;
@@ -460,6 +699,9 @@ export class DashboardPage {
   }
 
   stagePlayerCs(homeTeamId: string, awayTeamId: string, playerId: string): number | null {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return null;
+    }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
     const stats = report?.boxScore?.players.find((player) => player.playerId === playerId);
     return stats ? Math.round(stats.cs) : null;
@@ -478,7 +720,7 @@ export class DashboardPage {
     awayTeamId: string,
     playerId: string | null | undefined,
   ): Array<string | null> {
-    if (!playerId) {
+    if (!playerId || this.stageBpActive(homeTeamId, awayTeamId)) {
       return this.reportItemSlots([]);
     }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
@@ -530,7 +772,7 @@ export class DashboardPage {
     text: string;
     lead: 'home' | 'away' | 'even';
   } | null {
-    if (!homePlayerId || !awayPlayerId) {
+    if (this.stageBpActive(homeTeamId, awayTeamId) || !homePlayerId || !awayPlayerId) {
       return null;
     }
     const homeGold = this.stagePlayerGold(homeTeamId, awayTeamId, homePlayerId);
@@ -550,6 +792,9 @@ export class DashboardPage {
     text: string;
     lead: 'home' | 'away' | 'even';
   } | null {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return null;
+    }
     const box = this.stageGameReport(homeTeamId, awayTeamId)?.boxScore;
     if (!box) {
       return null;
@@ -558,23 +803,159 @@ export class DashboardPage {
   }
 
   stagePlayerIsMvp(homeTeamId: string, awayTeamId: string, playerId: string): boolean {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return false;
+    }
     return this.stageGameReport(homeTeamId, awayTeamId)?.mvp?.playerId === playerId;
   }
 
   stagePlayerChampionId(homeTeamId: string, awayTeamId: string, playerId: string): string | null {
+    if (!playerId) {
+      return null;
+    }
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      const role = this.stagePlayerRole(homeTeamId, awayTeamId, playerId);
+      if (!role) {
+        return null;
+      }
+      const slotIndex = PLAYER_POSITIONS.indexOf(role.position);
+      if (slotIndex < 0) {
+        return null;
+      }
+      const board = this.bpBoard();
+      if (
+        board &&
+        board.homeTeamId === homeTeamId &&
+        board.awayTeamId === awayTeamId &&
+        (this.bpLayoutMode() === 'swapping' || this.bpLayoutMode() === 'final')
+      ) {
+        const lane = role.teamId === homeTeamId ? board.home : board.away;
+        return lane[slotIndex] ?? null;
+      }
+      if (this.bpLayoutMode() === 'slot-order') {
+        const filled = this.revealedTeamPickChampions(role.teamId)[slotIndex];
+        if (filled) {
+          return filled;
+        }
+        const hover = this.bpHover();
+        if (
+          hover &&
+          hover.kind === 'pick' &&
+          hover.teamId === role.teamId &&
+          hover.slotIndex === slotIndex
+        ) {
+          return hover.championId;
+        }
+        return null;
+      }
+      for (const step of this.revealedBpSteps()) {
+        if (step.kind === 'pick' && step.pick.playerId === playerId) {
+          return step.pick.championId;
+        }
+      }
+      return null;
+    }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
-    if (!report || !playerId) {
+    if (!report) {
       return null;
     }
     return this.reportPlayerChampionId(report, playerId);
   }
 
+  stageBpSwapFlash(
+    homeTeamId: string,
+    awayTeamId: string,
+    teamId: string,
+    position: PlayerPosition,
+  ): boolean {
+    const board = this.bpBoard();
+    if (
+      !board ||
+      board.homeTeamId !== homeTeamId ||
+      board.awayTeamId !== awayTeamId ||
+      !board.flash
+    ) {
+      return false;
+    }
+    const side = teamId === homeTeamId ? 'home' : teamId === awayTeamId ? 'away' : null;
+    if (!side || board.flash.side !== side) {
+      return false;
+    }
+    const slotIndex = PLAYER_POSITIONS.indexOf(position);
+    return slotIndex === board.flash.a || slotIndex === board.flash.b;
+  }
+
   stageDraftBans(homeTeamId: string, awayTeamId: string, teamId: string): string[] {
+    if (!teamId) {
+      return [];
+    }
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      const bans: string[] = [];
+      for (const step of this.revealedBpSteps()) {
+        if (step.kind === 'ban' && step.teamId === teamId) {
+          bans.push(step.championId);
+        }
+      }
+      return bans;
+    }
     const report = this.stageGameReport(homeTeamId, awayTeamId);
-    if (!report || !teamId) {
+    if (!report) {
       return [];
     }
     return this.reportDraftBans(report, teamId);
+  }
+
+  stageBpBanHoverId(homeTeamId: string, awayTeamId: string, teamId: string): string | null {
+    if (!this.stageBpBanTurnPending(homeTeamId, awayTeamId, teamId, this.stageDraftBans(homeTeamId, awayTeamId, teamId).length)) {
+      return null;
+    }
+    const hover = this.bpHover();
+    if (!hover || hover.kind !== 'ban' || hover.teamId !== teamId) {
+      return null;
+    }
+    return hover.championId;
+  }
+
+  stageShowBanRow(homeTeamId: string, awayTeamId: string): boolean {
+    if (this.stageBpActive(homeTeamId, awayTeamId)) {
+      return true;
+    }
+    return Boolean(this.stageGameReport(homeTeamId, awayTeamId)?.draft);
+  }
+
+  stageBanEmptySlots(homeTeamId: string, awayTeamId: string, teamId: string): number[] {
+    if (!this.stageBpActive(homeTeamId, awayTeamId)) {
+      return [];
+    }
+    const shown = this.stageDraftBans(homeTeamId, awayTeamId, teamId).length;
+    const empty = Math.max(0, 5 - shown);
+    return Array.from({ length: empty }, (_, index) => index);
+  }
+
+  stageBanDisplaySlots(
+    homeTeamId: string,
+    awayTeamId: string,
+    teamId: string,
+  ): Array<{
+    index: number;
+    championId: string | null;
+    isHover: boolean;
+    isPending: boolean;
+  }> {
+    const bans = this.stageDraftBans(homeTeamId, awayTeamId, teamId);
+    const hoverId = this.stageBpBanHoverId(homeTeamId, awayTeamId, teamId);
+    const nextIndex = bans.length;
+    return [0, 1, 2, 3, 4].map((index) => {
+      const filled = bans[index] ?? null;
+      const isHover = !filled && Boolean(hoverId) && index === nextIndex;
+      const isPending = this.stageBpBanTurnPending(homeTeamId, awayTeamId, teamId, index);
+      return {
+        index,
+        championId: filled ?? (isHover ? hoverId : null),
+        isHover,
+        isPending: isPending || isHover,
+      };
+    });
   }
 
   stageLineupRows(
@@ -729,7 +1110,377 @@ export class DashboardPage {
     };
   }
 
-  private async playSimOneGame(
+  private clearBpRevealTimer(): void {
+    if (this.bpRevealTimer != null) {
+      window.clearTimeout(this.bpRevealTimer);
+      this.bpRevealTimer = null;
+    }
+  }
+
+  private clearBpHoverTimer(): void {
+    if (this.bpHoverTimer != null) {
+      window.clearInterval(this.bpHoverTimer);
+      this.bpHoverTimer = null;
+    }
+    this.bpHover.set(null);
+  }
+
+  private takenChampionIds(): Set<string> {
+    const taken = new Set<string>();
+    for (const step of this.revealedBpSteps()) {
+      if (step.kind === 'ban') {
+        taken.add(step.championId);
+      } else {
+        taken.add(step.pick.championId);
+      }
+    }
+    return taken;
+  }
+
+  private shuffleIds(ids: string[]): string[] {
+    const list = [...ids];
+    for (let index = list.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      const temp = list[index];
+      list[index] = list[swap];
+      list[swap] = temp;
+    }
+    return list;
+  }
+
+  private teamUsedHesitationPositions(teamId: string): Set<PlayerPosition> {
+    const used = new Set<PlayerPosition>();
+    let pickCount = 0;
+    for (const step of this.revealedBpSteps()) {
+      if (step.kind !== 'pick' || step.teamId !== teamId) {
+        continue;
+      }
+      const slotPos = PLAYER_POSITIONS[pickCount];
+      if (slotPos) {
+        used.add(slotPos);
+      }
+      used.add(step.pick.position);
+      const kit = getChampionKit(step.pick.championId);
+      if (kit?.positions[0]) {
+        used.add(kit.positions[0]);
+      }
+      pickCount += 1;
+    }
+    return used;
+  }
+
+  private enemyFilledBanPositions(banTeamId: string): Set<PlayerPosition> {
+    const pending = this.pendingBp();
+    if (!pending) {
+      return new Set();
+    }
+    const enemyId =
+      banTeamId === pending.homeTeamId ? pending.awayTeamId : pending.homeTeamId;
+    const filled = new Set<PlayerPosition>();
+    for (const step of this.revealedBpSteps()) {
+      if (step.kind !== 'pick' || step.teamId !== enemyId) {
+        continue;
+      }
+      filled.add(step.pick.position);
+      const kit = getChampionKit(step.pick.championId);
+      if (kit?.positions[0]) {
+        filled.add(kit.positions[0]);
+      }
+    }
+    return filled;
+  }
+
+  private draftProgress01(stepIndex: number): number {
+    const pending = this.pendingBp();
+    const total = pending?.prepared.steps.length ?? 1;
+    if (total <= 1) {
+      return 1;
+    }
+    return Math.min(1, Math.max(0, stepIndex / (total - 1)));
+  }
+
+  private rollHesitationFlashCount(progress01: number): number {
+    const p = Math.min(1, Math.max(0, progress01));
+    const roll = Math.random();
+    const t1 = 0.82 - 0.48 * p;
+    const t2 = t1 + (0.12 + 0.14 * p);
+    const t3 = t2 + (0.04 + 0.14 * p);
+    const t4 = t3 + (0.015 + 0.1 * p);
+    if (roll < t1) {
+      return 1;
+    }
+    if (roll < t2) {
+      return 2;
+    }
+    if (roll < t3) {
+      return 3;
+    }
+    if (roll < t4) {
+      return 4;
+    }
+    return 5;
+  }
+
+  private buildHesitationSequence(
+    finalId: string,
+    position: PlayerPosition | null,
+    teamId: string,
+    kind: 'ban' | 'pick',
+    stepIndex: number,
+  ): string[] {
+    const pending = this.pendingBp();
+    if (!pending) {
+      return [finalId];
+    }
+    const taken = this.takenChampionIds();
+    const usedPositions =
+      kind === 'pick'
+        ? this.teamUsedHesitationPositions(teamId)
+        : this.enemyFilledBanPositions(teamId);
+    const packIds = Object.keys(getVersionPack(pending.prepared.input.versionId).champions);
+    const rolePool: string[] = [];
+    const anyPool: string[] = [];
+    for (const id of packIds) {
+      if (id === finalId || taken.has(id)) {
+        continue;
+      }
+      const kit = getChampionKit(id);
+      const primary = kit?.positions[0] ?? null;
+      if (kind === 'pick' && primary && usedPositions.has(primary)) {
+        continue;
+      }
+      if (
+        kind === 'ban' &&
+        usedPositions.size > 0 &&
+        (!kit || !kit.positions.some((pos) => !usedPositions.has(pos)))
+      ) {
+        continue;
+      }
+      anyPool.push(id);
+      if (position && kit?.positions.includes(position)) {
+        rolePool.push(id);
+      }
+    }
+    let alts = this.shuffleIds(rolePool);
+    if (alts.length < 2) {
+      const filler = this.shuffleIds(anyPool.filter((id) => !alts.includes(id)));
+      alts = [...alts, ...filler];
+    }
+    alts = alts.slice(0, 5);
+    const flashCount = this.rollHesitationFlashCount(this.draftProgress01(stepIndex));
+    if (flashCount <= 1 || alts.length === 0) {
+      return [finalId];
+    }
+    const sequence: string[] = [];
+    const altFlashes = flashCount - 1;
+    for (let index = 0; index < altFlashes; index += 1) {
+      sequence.push(alts[index % alts.length]);
+    }
+    sequence.push(finalId);
+    return sequence;
+  }
+
+  private startBpHesitation(step: DraftStep): void {
+    this.clearBpHoverTimer();
+    const pending = this.pendingBp();
+    if (!pending) {
+      return;
+    }
+    const teamId = step.teamId;
+    const finalId = step.kind === 'ban' ? step.championId : step.pick.championId;
+    const slotIndex =
+      step.kind === 'ban'
+        ? this.stageDraftBans(pending.homeTeamId, pending.awayTeamId, teamId).length
+        : this.revealedTeamPickChampions(teamId).length;
+    const position =
+      step.kind === 'pick'
+        ? (PLAYER_POSITIONS[slotIndex] ?? step.pick.position)
+        : null;
+    const sequence = this.buildHesitationSequence(
+      finalId,
+      position,
+      teamId,
+      step.kind,
+      step.index,
+    );
+    const paint = (championId: string, settled: boolean) => {
+      this.bpHover.set({
+        kind: step.kind,
+        teamId,
+        slotIndex,
+        championId,
+        settled,
+      });
+    };
+    if (sequence.length <= 1) {
+      paint(finalId, true);
+      return;
+    }
+    const thinkMs = Math.max(1000, this.bpStepMs - this.bpHoverSettleMs);
+    const tickMs = Math.max(this.bpHoverTickMs, Math.floor(thinkMs / sequence.length));
+    let cursor = 0;
+    paint(sequence[0] ?? finalId, false);
+    this.bpHoverTimer = window.setInterval(() => {
+      cursor += 1;
+      if (cursor >= sequence.length - 1) {
+        paint(finalId, true);
+        this.clearBpHoverTimerKeepHover();
+        return;
+      }
+      paint(sequence[cursor] ?? finalId, false);
+    }, tickMs);
+  }
+
+  private clearBpHoverTimerKeepHover(): void {
+    if (this.bpHoverTimer != null) {
+      window.clearInterval(this.bpHoverTimer);
+      this.bpHoverTimer = null;
+    }
+  }
+
+  private clearPendingBp(resolveNull = false): void {
+    this.clearBpRevealTimer();
+    this.clearBpHoverTimer();
+    const pending = this.pendingBp();
+    this.pendingBp.set(null);
+    this.bpPhase.set('idle');
+    this.bpRevealIndex.set(-1);
+    this.bpLayoutMode.set('slot-order');
+    this.bpBoard.set(null);
+    this.bpTurn.set(null);
+    if (resolveNull && pending) {
+      pending.onComplete(null);
+    }
+  }
+
+  private startBpPairSwaps(): void {
+    const pending = this.pendingBp();
+    if (!pending) {
+      return;
+    }
+    const homeCurrent = this.slotChampArray(
+      this.revealedTeamPickChampions(pending.homeTeamId),
+    );
+    const awayCurrent = this.slotChampArray(
+      this.revealedTeamPickChampions(pending.awayTeamId),
+    );
+    const homeTarget = this.finalChampArray(pending.prepared.draft.home.picks);
+    const awayTarget = this.finalChampArray(pending.prepared.draft.away.picks);
+    const homeSwaps = this.planPairSwaps(homeCurrent, homeTarget);
+    const awaySwaps = this.planPairSwaps(awayCurrent, awayTarget);
+    const queue: Array<{ side: 'home' | 'away'; a: number; b: number }> = [];
+    const rounds = Math.max(homeSwaps.length, awaySwaps.length);
+    for (let index = 0; index < rounds; index += 1) {
+      if (homeSwaps[index]) {
+        queue.push({ side: 'home', a: homeSwaps[index][0], b: homeSwaps[index][1] });
+      }
+      if (awaySwaps[index]) {
+        queue.push({ side: 'away', a: awaySwaps[index][0], b: awaySwaps[index][1] });
+      }
+    }
+
+    this.bpTurn.set({
+      key: -1,
+      kind: 'swap',
+      side: 'both',
+      label: '調整分路',
+      durationMs: Math.max(this.bpSwapPairMs, queue.length * this.bpSwapPairMs + this.bpSwapPauseMs),
+    });
+    this.bpBoard.set({
+      homeTeamId: pending.homeTeamId,
+      awayTeamId: pending.awayTeamId,
+      home: homeCurrent,
+      away: awayCurrent,
+      flash: null,
+    });
+    this.bpLayoutMode.set('swapping');
+
+    const applyNext = (cursor: number) => {
+      if (!this.pendingBp()) {
+        return;
+      }
+      if (cursor >= queue.length) {
+        const board = this.bpBoard();
+        if (board) {
+          this.bpBoard.set({
+            ...board,
+            home: homeTarget,
+            away: awayTarget,
+            flash: null,
+          });
+        }
+        this.bpTurn.set(null);
+        this.bpLayoutMode.set('final');
+        this.bpPhase.set('ready');
+        this.bpRevealTimer = null;
+        return;
+      }
+      const step = queue[cursor];
+      const board = this.bpBoard();
+      if (!board) {
+        return;
+      }
+      const lane = step.side === 'home' ? [...board.home] : [...board.away];
+      const temp = lane[step.a];
+      lane[step.a] = lane[step.b];
+      lane[step.b] = temp;
+      this.bpBoard.set({
+        ...board,
+        home: step.side === 'home' ? lane : board.home,
+        away: step.side === 'away' ? lane : board.away,
+        flash: { side: step.side, a: step.a, b: step.b },
+      });
+      this.bpRevealTimer = window.setTimeout(() => applyNext(cursor + 1), this.bpSwapPairMs);
+    };
+
+    this.bpRevealTimer = window.setTimeout(() => applyNext(0), this.bpSwapPauseMs);
+  }
+
+  private beginBpTurn(step: DraftStep, index: number): void {
+    const sideLabel = step.side === 'blue' ? '藍方' : '紅方';
+    this.bpTurn.set({
+      key: index,
+      kind: step.kind,
+      side: step.side,
+      label: step.kind === 'ban' ? `${sideLabel}禁用` : `${sideLabel}選角`,
+      durationMs: this.bpStepMs,
+    });
+    this.startBpHesitation(step);
+  }
+
+  private startBpRevealAnimation(): void {
+    this.clearBpRevealTimer();
+    this.clearBpHoverTimer();
+    this.bpRevealIndex.set(-1);
+    this.bpLayoutMode.set('slot-order');
+    this.bpBoard.set(null);
+    this.bpTurn.set(null);
+    this.bpPhase.set('animating');
+    const runTurn = (index: number) => {
+      const pending = this.pendingBp();
+      if (!pending) {
+        return;
+      }
+      if (index >= pending.prepared.steps.length) {
+        this.clearBpHoverTimer();
+        this.startBpPairSwaps();
+        return;
+      }
+      const step = pending.prepared.steps[index];
+      this.beginBpTurn(step, index);
+      this.bpRevealTimer = window.setTimeout(() => {
+        if (!this.pendingBp()) {
+          return;
+        }
+        this.bpRevealIndex.set(index);
+        this.clearBpHoverTimer();
+        this.bpRevealTimer = window.setTimeout(() => runTurn(index + 1), this.bpTurnGapMs);
+      }, this.bpStepMs);
+    };
+    this.bpRevealTimer = window.setTimeout(() => runTurn(0), 180);
+  }
+
+  private playSimOneGame(
     homeTeamId: string,
     awayTeamId: string,
     hit: (winnerTeamId: string) => void,
@@ -742,8 +1493,8 @@ export class DashboardPage {
       forceWinnerTeamId?: string;
     },
   ): Promise<MatchReport | null> {
-    if (!homeTeamId || !awayTeamId || this.simBusy()) {
-      return null;
+    if (!homeTeamId || !awayTeamId || this.simBusy() || this.pendingBp() || this.bpPhase() !== 'idle') {
+      return Promise.resolve(null);
     }
     const league = board?.league ?? board?.slate?.league ?? this.leagueOfTeam(homeTeamId);
     const overlayLeague =
@@ -752,23 +1503,61 @@ export class DashboardPage {
         : league === 'TCS' || league === 'TCL'
           ? league
           : null;
-    this.beginSimOverlay(overlayLeague, board?.need && board.need > 1 ? '系列賽模擬中' : '模擬比賽中');
-    try {
-      const report = await simulateGameAsync({
-        home: this.simSide(homeTeamId),
-        away: this.simSide(awayTeamId),
+    const overlayLabel = board?.need && board.need > 1 ? '系列賽模擬中' : '模擬比賽中';
+    const prepared = prepareV2Match({
+      home: this.simSide(homeTeamId),
+      away: this.simSide(awayTeamId),
+      forceWinnerTeamId: board?.forceWinnerTeamId,
+      dateIso: this.activeUniverse()?.currentDate,
+    });
+    return new Promise<MatchReport | null>((resolve) => {
+      this.pendingBp.set({
+        homeTeamId,
+        awayTeamId,
+        prepared,
         forceWinnerTeamId: board?.forceWinnerTeamId,
-        dateIso: this.activeUniverse()?.currentDate,
+        hit,
+        onComplete: resolve,
+        board,
+        overlayLeague,
+        overlayLabel,
       });
+      this.startBpRevealAnimation();
+    });
+  }
+
+  async commitPendingBpMatch(): Promise<void> {
+    const pending = this.pendingBp();
+    if (!pending || this.bpPhase() !== 'ready' || this.simBusy()) {
+      return;
+    }
+    this.clearBpRevealTimer();
+    this.bpPhase.set('matching');
+    this.beginSimOverlay(pending.overlayLeague, pending.overlayLabel);
+    try {
+      const preparedInput = {
+        ...pending.prepared.input,
+        forceWinnerTeamId:
+          pending.forceWinnerTeamId ?? pending.prepared.input.forceWinnerTeamId,
+      };
+      const report = await runPreparedV2MatchAsync(preparedInput, (progress) =>
+        this.simProgress.set(progress),
+      );
       this.simProgress.set(1);
-      const competition = board?.competition ?? league;
+      const league =
+        pending.board?.league ?? pending.board?.slate?.league ?? this.leagueOfTeam(pending.homeTeamId);
+      const competition = pending.board?.competition ?? league;
       this.recordMatchMvp(report, league);
       this.competitionStats.record(report, competition);
       this.lastMatchReport.set(report);
       this.lastSeriesReports.set([report]);
-      hit(board?.forceWinnerTeamId ?? report.winnerTeamId);
-      this.rememberSimBoard(homeTeamId, awayTeamId, board);
-      return report;
+      pending.hit(pending.forceWinnerTeamId ?? report.winnerTeamId);
+      this.rememberSimBoard(pending.homeTeamId, pending.awayTeamId, pending.board);
+      const onComplete = pending.onComplete;
+      this.clearPendingBp(false);
+      onComplete(report);
+    } catch {
+      this.clearPendingBp(true);
     } finally {
       this.endSimOverlay();
     }
@@ -776,26 +1565,12 @@ export class DashboardPage {
 
   private beginSimOverlay(league: 'TCS' | 'TCL' | 'MSI' | null, label: string): void {
     this.simBusy.set(true);
-    this.simProgress.set(0.06);
+    this.simProgress.set(0.02);
     this.simOverlayLabel.set(label);
     this.simOverlayLeague.set(league);
-    if (this.simProgressTimer) {
-      clearInterval(this.simProgressTimer);
-    }
-    this.simProgressTimer = setInterval(() => {
-      const current = this.simProgress();
-      if (current >= 0.92) {
-        return;
-      }
-      this.simProgress.set(Math.min(0.92, current + (current < 0.4 ? 0.045 : 0.02)));
-    }, 120);
   }
 
   private endSimOverlay(): void {
-    if (this.simProgressTimer) {
-      clearInterval(this.simProgressTimer);
-      this.simProgressTimer = null;
-    }
     this.simProgress.set(1);
     window.setTimeout(() => {
       this.simBusy.set(false);
@@ -1416,12 +2191,15 @@ export class DashboardPage {
         }
         const side: ScoreboardSide = event.teamId === report.homeTeamId ? 'blue' : 'red';
         const point = pointAt(event.t, 0);
+        const style = isBuildingIconId(icon)
+          ? buildingIconStyle(icon, side, icon === 'nexus' ? 22 : 18)
+          : scoreboardIconStyle(icon, side, 20);
         return {
           x: point.x,
           y: midY,
           icon,
           side,
-          style: scoreboardIconStyle(icon, side, 20),
+          style,
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -1455,6 +2233,7 @@ export class DashboardPage {
   continueAfterReport(): void {
     const shouldAdvance = this.pendingReportAdvance;
     this.pendingReportAdvance = false;
+    this.clearPendingBp(true);
     this.lastMatchReport.set(null);
     this.scoreHold.set(null);
     if (shouldAdvance) {
@@ -1465,7 +2244,17 @@ export class DashboardPage {
     }
   }
 
-  homeFab(): { label: string; mode: 'next' | 'fastForward' | 'jump'; iso?: string } | null {
+  homeFab(): {
+    label: string;
+    mode: 'next' | 'fastForward' | 'jump' | 'runMatch';
+    iso?: string;
+  } | null {
+    if (this.bpPhase() === 'ready' && this.pendingBp()) {
+      return { label: '模擬對局', mode: 'runMatch' };
+    }
+    if (this.bpPhase() !== 'idle' || this.pendingBp()) {
+      return null;
+    }
     if (this.lastMatchReport()) {
       return { label: '下一把', mode: 'next' };
     }
@@ -1507,6 +2296,10 @@ export class DashboardPage {
   runHomeFab(): void {
     const fab = this.homeFab();
     if (!fab) {
+      return;
+    }
+    if (fab.mode === 'runMatch') {
+      void this.commitPendingBpMatch();
       return;
     }
     if (fab.mode === 'next') {
@@ -1661,7 +2454,13 @@ export class DashboardPage {
   }
 
   simOneGame(): void {
-    if (this.simBusy() || this.scoreHold() || this.lastMatchReport()) {
+    if (
+      this.simBusy() ||
+      this.scoreHold() ||
+      this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle'
+    ) {
       return;
     }
     const match = this.liveMatch();
@@ -1694,7 +2493,13 @@ export class DashboardPage {
   }
 
   canSimOneGame(): boolean {
-    if (this.simBusy() || this.scoreHold() || this.lastMatchReport()) {
+    if (
+      this.simBusy() ||
+      this.scoreHold() ||
+      this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle'
+    ) {
       return false;
     }
     const match = this.liveMatch();
@@ -1727,6 +2532,8 @@ export class DashboardPage {
       this.simBusy() ||
       this.scoreHold() ||
       this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle' ||
       this.missingLeagues().length > 0 ||
       !this.canScore(match)
     ) {
@@ -1883,7 +2690,13 @@ export class DashboardPage {
   }
 
   playPromotion(match: PlayoffSeriesView, teamId?: string): void {
-    if (this.simBusy() || this.scoreHold() || this.lastMatchReport()) {
+    if (
+      this.simBusy() ||
+      this.scoreHold() ||
+      this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle'
+    ) {
       return;
     }
     const scene = this.postScene();
@@ -2407,7 +3220,13 @@ export class DashboardPage {
   }
 
   playMsi(match: MsiMatchView, sideId?: string): void {
-    if (this.simBusy() || this.scoreHold() || this.lastMatchReport()) {
+    if (
+      this.simBusy() ||
+      this.scoreHold() ||
+      this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle'
+    ) {
       return;
     }
     const scene = this.msiScene();
@@ -2748,7 +3567,13 @@ export class DashboardPage {
   }
 
   playPlayoff(league: PlayoffLeague, match: PlayoffSeriesView, teamId?: string): void {
-    if (this.simBusy() || this.scoreHold() || this.lastMatchReport()) {
+    if (
+      this.simBusy() ||
+      this.scoreHold() ||
+      this.lastMatchReport() ||
+      this.pendingBp() ||
+      this.bpPhase() !== 'idle'
+    ) {
       return;
     }
     const head = this.playoffQueue()[0];

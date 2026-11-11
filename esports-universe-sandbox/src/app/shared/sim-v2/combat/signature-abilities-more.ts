@@ -8,6 +8,7 @@ import {
   dealToTarget,
   heal,
   hitChampionsInRadius,
+  knockbackTargetAway,
   pullTargetTo,
   rank,
   type AbilityExecutor,
@@ -188,41 +189,6 @@ const akaliW: AbilityExecutor = (ctx) => {
   applyMs(ctx.caster, 'akali:w:ms', 3, 90);
   return true;
 };
-const akaliE: AbilityExecutor = (ctx) => {
-  if (!ctx.target) {
-    return false;
-  }
-  const r = rank(ctx.level);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    50 + (r - 1) * 30 + ctx.caster.ap * 0.5 + ctx.caster.ad * 0.5,
-    'magic',
-    'akali:e',
-    ctx.recorder,
-  );
-  dashCasterTo(ctx.caster, ctx.target, undefined, ctx.state);
-  return true;
-};
-const akaliR: AbilityExecutor = (ctx) => {
-  if (!ctx.target || ctx.target.kind !== 'champion') {
-    return false;
-  }
-  const r = rank(ctx.level);
-  const missing = 1 - ctx.target.hp / Math.max(1, ctx.target.maxHp);
-  dealToTarget(
-    ctx.state,
-    ctx.caster,
-    ctx.target,
-    140 + (r - 1) * 90 + ctx.caster.ap * 0.6 + missing * 160,
-    'magic',
-    'akali:r',
-    ctx.recorder,
-  );
-  return true;
-};
-
 const katarinaQ: AbilityExecutor = (ctx) => {
   if (!ctx.target) {
     return false;
@@ -721,6 +687,9 @@ const malphiteE: AbilityExecutor = (ctx) => {
 };
 const malphiteR: AbilityExecutor = (ctx) => {
   const r = rank(ctx.level);
+  if (ctx.target) {
+    dashCasterTo(ctx.caster, ctx.target, 1000, ctx.state);
+  }
   hitChampionsInRadius(
     ctx.state,
     ctx.caster,
@@ -738,6 +707,7 @@ const malphiteR: AbilityExecutor = (ctx) => {
       Math.hypot(enemy.position.x - ctx.caster.position.x, enemy.position.y - ctx.caster.position.y) <=
       400
     ) {
+      knockbackTargetAway(ctx.caster, enemy, 240, ctx.state);
       applyStun(enemy, 'malphite:r:knock', 1.5);
     }
   }
@@ -1215,19 +1185,23 @@ const apheliosQ: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     ctx.target,
-    60 + (r - 1) * 35 + ctx.caster.ad * 0.8,
+    50 + (r - 1) * 28 + ctx.caster.ad * 0.7,
     'physical',
     'aphelios:q',
     ctx.recorder,
   );
+  if (ctx.target.kind === 'champion') {
+    applySlow(ctx.target, 'aphelios:q:slow', 1.2, 20 + r * 3);
+  }
   return true;
 };
 const apheliosW: AbilityExecutor = (ctx) => {
-  applyAs(ctx.caster, 'aphelios:w:as', 3, 0.2);
+  applyAs(ctx.caster, 'aphelios:w:as', 3, 0.18 + rank(ctx.level) * 0.02);
   return true;
 };
 const apheliosE: AbilityExecutor = (ctx) => {
-  applyMs(ctx.caster, 'aphelios:e:ms', 2, 50);
+  applyMs(ctx.caster, 'aphelios:e:ms', 2.2, 45 + rank(ctx.level) * 5);
+  applyArmor(ctx.caster, 'aphelios:e:cover', 2, 10 + rank(ctx.level) * 3);
   return true;
 };
 const apheliosR: AbilityExecutor = (ctx) => {
@@ -1239,9 +1213,21 @@ const apheliosR: AbilityExecutor = (ctx) => {
     ctx.state,
     ctx.caster,
     ctx.target,
-    180 + (r - 1) * 120 + ctx.caster.ad * 1.0 + ctx.caster.ap * 0.8,
+    140 + (r - 1) * 90 + ctx.caster.ad * 0.9 + ctx.caster.ap * 0.5,
     'physical',
     'aphelios:r',
+    ctx.recorder,
+  );
+  if (ctx.target.kind === 'champion') {
+    applySlow(ctx.target, 'aphelios:r:root', 1.4, 45);
+  }
+  hitChampionsInRadius(
+    ctx.state,
+    ctx.caster,
+    280,
+    40 + (r - 1) * 25 + ctx.caster.ad * 0.25,
+    'physical',
+    'aphelios:r:splash',
     ctx.recorder,
   );
   return true;
@@ -1310,8 +1296,6 @@ export const SIGNATURE_ABILITIES_MORE: Record<string, AbilityExecutor> = {
   'Kaisa:R': kaisaR,
   'Akali:Q': akaliQ,
   'Akali:W': akaliW,
-  'Akali:E': akaliE,
-  'Akali:R': akaliR,
   'Katarina:Q': katarinaQ,
   'Katarina:W': katarinaW,
   'Katarina:E': katarinaE,

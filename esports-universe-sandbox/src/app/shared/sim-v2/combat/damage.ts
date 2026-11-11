@@ -1,3 +1,4 @@
+import { CHAMPION_COMBAT_BY_ID } from '../../../core/data/champion-combat';
 import { combatProfile } from '../champion/combat-profile';
 import { combatPowerMult } from '../champion/identity-runtime';
 import {
@@ -7,9 +8,19 @@ import {
   paySharedRichesMinionKill,
   tryPaySharedRichesCombat,
 } from '../economy/economy';
-import type { ChampionEntity, MinionEntity, MonsterEntity, StructureEntity } from '../state/entities';
+import { jungleMonsterDamageMult } from '../jungle/jungle-clear-profile';
+import { finalizeMonsterKill } from '../jungle/jungle-system';
+import type {
+  ChampionEntity,
+  MinionEntity,
+  MonsterEntity,
+  StructureEntity,
+} from '../state/entities';
 import { pushGoldSample, type GameState } from '../state/game-state';
 import type { ReplayRecorder } from '../replay/recorder';
+import { noteAhriChampionTakedown, noteAhriFragmentKill } from './ahri-passives';
+
+type DamageSource = ChampionEntity | MinionEntity | MonsterEntity | StructureEntity | null;
 
 export type Damageable = ChampionEntity | MinionEntity | MonsterEntity | StructureEntity;
 
@@ -91,6 +102,18 @@ function laneOfChampion(champion: ChampionEntity): 'top' | 'mid' | 'bot' | 'jung
   return 'jungle';
 }
 
+const SOFT_LASTHIT_TICK_SLACK = 120;
+
+function softLastHitReach(champ: ChampionEntity, farming: boolean): number {
+  if (champ.positionLabel === 'SUPPORT') {
+    return champ.attackRange + (farming ? 140 : 80);
+  }
+  if (champ.positionLabel === 'JUNGLE') {
+    return champ.attackRange + (farming ? 160 : 100);
+  }
+  return champ.attackRange + (farming ? SOFT_LASTHIT_TICK_SLACK : 50);
+}
+
 function softLastHitFarmer(
   state: GameState,
   minion: MinionEntity,
@@ -101,33 +124,27 @@ function softLastHitFarmer(
     if (!champ.alive || champ.side === minion.side) {
       continue;
     }
-    if (champ.positionLabel === 'JUNGLE') {
-      continue;
-    }
     const lane = laneOfChampion(champ);
-    if (lane !== minion.lane) {
+    if (champ.positionLabel !== 'JUNGLE' && lane !== minion.lane) {
       continue;
     }
     if (
       champ.currentAction === 'dead' ||
       champ.currentAction === 'recall' ||
-      champ.currentAction === 'stunned'
+      champ.currentAction === 'stunned' ||
+      champ.positionLabel === 'SUPPORT'
     ) {
       continue;
     }
-    const d = Math.hypot(champ.position.x - minion.position.x, champ.position.y - minion.position.y);
     const farming =
       champ.currentAction === 'farm' ||
       champ.currentAction === 'lane' ||
-      champ.currentAction === 'siege';
-    const reach =
-      champ.positionLabel === 'SUPPORT'
-        ? champ.attackRange + (farming ? 780 : 520)
-        : champ.attackRange + (farming ? 980 : 720);
-    if (d > reach) {
-      continue;
-    }
-    if (champ.positionLabel === 'SUPPORT') {
+      champ.currentAction === 'wave_freeze' ||
+      champ.currentAction === 'wave_shove' ||
+      champ.currentAction === 'siege' ||
+      champ.currentAction === 'clear';
+    const d = Math.hypot(champ.position.x - minion.position.x, champ.position.y - minion.position.y);
+    if (d > softLastHitReach(champ, farming)) {
       continue;
     }
     const roleBias =
@@ -137,9 +154,11 @@ function softLastHitFarmer(
           ? 32
           : champ.positionLabel === 'TOP'
             ? 34
-            : 8;
+            : champ.positionLabel === 'JUNGLE'
+              ? 18
+              : 8;
     const actionBias = farming ? 36 : 14;
-    const score = champ.skills.laning + actionBias + roleBias - d / 55;
+    const score = champ.skills.laning + actionBias + roleBias - d / 40;
     if (score > bestScore) {
       best = champ;
       bestScore = score;
@@ -151,15 +170,37 @@ function softLastHitFarmer(
   const farming =
     best.currentAction === 'farm' ||
     best.currentAction === 'lane' ||
-    best.currentAction === 'siege';
-  const earlyBoost = state.scheduler.time < 240 ? 0.08 : 0;
+    best.currentAction === 'wave_freeze' ||
+    best.currentAction === 'wave_shove' ||
+    best.currentAction === 'siege' ||
+    best.currentAction === 'clear';
+  const fighting =
+    best.currentAction === 'fight' ||
+    best.currentAction === 'trade' ||
+    best.currentAction === 'gank' ||
+    best.currentAction === 'skirmish' ||
+    best.currentAction === 'roam';
+  const t = state.scheduler.time;
+  const earlyBoost = t < 240 ? 0.03 : 0;
+  const latePenalty = t >= 1200 ? 0.04 : t >= 900 ? 0.02 : 0;
+  const roleBonus =
+    best.positionLabel === 'BOT'
+      ? 0.06
+      : best.positionLabel === 'MID'
+        ? 0.03
+        : best.positionLabel === 'TOP'
+          ? 0.02
+          : 0;
   const chance =
-    0.84 +
-    best.skills.laning / 320 +
-    (farming ? 0.1 : 0.03) +
+    (best.positionLabel === 'JUNGLE' ? 0.22 : 0.52) +
+    best.skills.laning / 420 +
+    (farming ? 0.1 : 0.02) +
     earlyBoost +
-    (best.positionLabel === 'BOT' ? 0.05 : best.positionLabel === 'MID' ? 0.04 : 0.05);
-  return state.rng() < Math.min(0.98, chance) ? best : null;
+    roleBonus -
+    (fighting ? 0.1 : 0) -
+    latePenalty;
+  const cap = best.positionLabel === 'JUNGLE' ? 0.42 : best.positionLabel === 'BOT' ? 0.82 : 0.76;
+  return state.rng() < Math.min(cap, Math.max(0.14, chance)) ? best : null;
 }
 
 function laneOwnerFarmer(
@@ -180,26 +221,35 @@ function laneOwnerFarmer(
   if (!owner) {
     return null;
   }
+  const d = Math.hypot(owner.position.x - minion.position.x, owner.position.y - minion.position.y);
   const farming =
     owner.currentAction === 'farm' ||
     owner.currentAction === 'lane' ||
+    owner.currentAction === 'wave_freeze' ||
+    owner.currentAction === 'wave_shove' ||
     owner.currentAction === 'siege' ||
     owner.currentAction === 'idle';
+  if (d > softLastHitReach(owner, farming)) {
+    return null;
+  }
   const fighting =
     owner.currentAction === 'fight' ||
     owner.currentAction === 'trade' ||
     owner.currentAction === 'gank' ||
     owner.currentAction === 'skirmish' ||
     owner.currentAction === 'roam';
-  const base = role === 'BOT' ? 0.78 : role === 'MID' ? 0.72 : 0.74;
-  const earlyBoost = state.scheduler.time < 240 ? 0.1 : 0;
+  const t = state.scheduler.time;
+  const base = role === 'BOT' ? 0.42 : role === 'MID' ? 0.36 : 0.36;
+  const earlyBoost = t < 240 ? 0.03 : 0;
+  const latePenalty = t >= 1200 ? 0.03 : t >= 900 ? 0.015 : 0;
   const chance =
     base +
-    owner.skills.laning / 450 +
-    (farming ? 0.1 : 0) +
-    earlyBoost +
-    (fighting ? -0.22 : 0);
-  return state.rng() < Math.min(0.96, Math.max(0.28, chance)) ? owner : null;
+    owner.skills.laning / 520 +
+    (farming ? 0.08 : 0) +
+    earlyBoost -
+    (fighting ? 0.28 : 0) -
+    latePenalty;
+  return state.rng() < Math.min(0.62, Math.max(0.1, chance)) ? owner : null;
 }
 
 function creditLaneFarmBonuses(
@@ -209,11 +259,11 @@ function creditLaneFarmBonuses(
   recorder?: ReplayRecorder,
 ): void {
   if (credited.positionLabel === 'BOT') {
-    grantGold(state, credited, Math.round(minionGold * 0.22), 'lane_quest', recorder);
+    grantGold(state, credited, Math.round(minionGold * 0.14), 'lane_quest', recorder);
   } else if (credited.positionLabel === 'MID') {
-    grantGold(state, credited, Math.round(minionGold * 0.06), 'lane_quest', recorder);
-  } else if (credited.positionLabel === 'TOP') {
     grantGold(state, credited, Math.round(minionGold * 0.05), 'lane_quest', recorder);
+  } else if (credited.positionLabel === 'TOP') {
+    grantGold(state, credited, Math.round(minionGold * 0.04), 'lane_quest', recorder);
   }
 }
 
@@ -228,6 +278,10 @@ export function creditMinionKill(
   let creditVia = via;
 
   if (source?.kind === 'champion' && source.positionLabel === 'SUPPORT') {
+    const supportGap = Math.hypot(
+      source.position.x - minion.position.x,
+      source.position.y - minion.position.y,
+    );
     const ally = paySharedRichesMinionKill(state, source, minion.gold, recorder);
     if (ally) {
       source.cs += 1;
@@ -241,6 +295,8 @@ export function creditMinionKill(
           via: 'support_shared_riches',
           cs: source.cs,
           sharedWith: ally.id,
+          gap: Math.round(supportGap),
+          attackRange: source.attackRange,
         },
       });
       shareMinionExp(state, minion, ally, recorder);
@@ -251,12 +307,22 @@ export function creditMinionKill(
       redirect.cs += 1;
       grantGold(state, redirect, minion.gold, 'cs', recorder);
       creditLaneFarmBonuses(state, redirect, minion.gold, recorder);
+      const redirectGap = Math.hypot(
+        redirect.position.x - minion.position.x,
+        redirect.position.y - minion.position.y,
+      );
       recorder?.record(state, {
         type: 'minion_death',
         actorId: redirect.id,
         targetId: minion.id,
         amount: minion.gold,
-        payload: { via: 'support_redirect', cs: redirect.cs, supportId: source.id },
+        payload: {
+          via: 'support_redirect',
+          cs: redirect.cs,
+          supportId: source.id,
+          gap: Math.round(redirectGap),
+          attackRange: redirect.attackRange,
+        },
       });
       shareMinionExp(state, minion, redirect, recorder);
       return;
@@ -281,6 +347,10 @@ export function creditMinionKill(
   }
 
   if (credited) {
+    const creditGap = Math.hypot(
+      credited.position.x - minion.position.x,
+      credited.position.y - minion.position.y,
+    );
     if (credited.positionLabel === 'SUPPORT') {
       const ally = paySharedRichesMinionKill(state, credited, minion.gold, recorder);
       if (ally) {
@@ -295,6 +365,8 @@ export function creditMinionKill(
             via: 'support_shared_riches',
             cs: credited.cs,
             sharedWith: ally.id,
+            gap: Math.round(creditGap),
+            attackRange: credited.attackRange,
           },
         });
         shareMinionExp(state, minion, ally, recorder);
@@ -306,12 +378,18 @@ export function creditMinionKill(
     credited.cs += 1;
     grantGold(state, credited, minion.gold, 'cs', recorder);
     creditLaneFarmBonuses(state, credited, minion.gold, recorder);
+    noteAhriFragmentKill(credited);
     recorder?.record(state, {
       type: 'minion_death',
       actorId: credited.id,
       targetId: minion.id,
       amount: minion.gold,
-      payload: { via: creditVia, cs: credited.cs },
+      payload: {
+        via: creditVia,
+        cs: credited.cs,
+        gap: Math.round(creditGap),
+        attackRange: credited.attackRange,
+      },
     });
   }
   shareMinionExp(state, minion, credited, recorder);
@@ -331,11 +409,43 @@ export function mitigate(
   return Math.max(0, raw * factor);
 }
 
-function noteThreat(victim: ChampionEntity, source: ChampionEntity, amount: number, at: number): void {
+export function damageDrawsMinionCallForHelp(via: string): boolean {
+  if (via === 'auto' || via === 'ignite') {
+    return true;
+  }
+  const match = /^([A-Za-z]+):([QWERPqwerp])(?::|$)/.exec(via);
+  if (!match) {
+    return false;
+  }
+  const championId = match[1];
+  const slot = match[2].toUpperCase() as 'Q' | 'W' | 'E' | 'R' | 'P';
+  if (slot === 'P') {
+    return true;
+  }
+  const combat =
+    CHAMPION_COMBAT_BY_ID[championId] ??
+    Object.values(CHAMPION_COMBAT_BY_ID).find(
+      (entry) => entry.id.toLowerCase() === championId.toLowerCase(),
+    );
+  const ability = combat?.abilities.find((item) => item.slot === slot);
+  if (!ability) {
+    return true;
+  }
+  return !ability.tags.includes('skillshot');
+}
+
+function noteThreat(
+  victim: ChampionEntity,
+  source: ChampionEntity,
+  amount: number,
+  at: number,
+  callHelp: boolean,
+): void {
   const prev = victim.threatTable[source.id];
   victim.threatTable[source.id] = {
     amount: (prev?.amount ?? 0) + amount,
     at,
+    callHelp: Boolean(prev?.callHelp) || callHelp,
   };
 }
 
@@ -388,7 +498,7 @@ function forceRecall(state: GameState, victim: ChampionEntity, recorder?: Replay
 
 export function applyDamage(
   state: GameState,
-  source: ChampionEntity | null,
+  source: DamageSource,
   target: Damageable,
   raw: number,
   damageType: 'physical' | 'magic' | 'true',
@@ -399,30 +509,37 @@ export function applyDamage(
     return 0;
   }
   const armor =
-    'armor' in target && typeof (target as ChampionEntity).armor === 'number'
-      ? (target as ChampionEntity).armor
+    'armor' in target && typeof (target as { armor?: number }).armor === 'number'
+      ? ((target as { armor: number }).armor ?? 0)
       : 0;
   const mr =
-    'mr' in target && typeof (target as ChampionEntity).mr === 'number'
-      ? (target as ChampionEntity).mr
+    'mr' in target && typeof (target as { mr?: number }).mr === 'number'
+      ? ((target as { mr: number }).mr ?? 0)
       : 0;
   let powerScaled = raw;
-  if (source && source.kind === 'champion' && target.kind === 'champion') {
-    const profile = combatProfile(state, source);
-    powerScaled *= combatPowerMult(state, source) * profile.damageDealtMult;
+  const champSource = source?.kind === 'champion' ? source : null;
+  if (champSource && target.kind === 'champion') {
+    const profile = combatProfile(state, champSource);
+    powerScaled *= combatPowerMult(state, champSource) * profile.damageDealtMult;
     if (via === 'auto') {
       powerScaled *= profile.autoMult;
     }
-    const exhausted = source.statuses.find((status) => status.kind === 'exhaust');
+    const exhausted = champSource.statuses.find((status) => status.kind === 'exhaust');
     if (exhausted) {
       powerScaled *= Math.max(0.4, 1 - exhausted.magnitude);
     }
+  }
+  if (champSource && target.kind === 'monster') {
+    powerScaled *= jungleMonsterDamageMult(champSource);
   }
   if (target.kind === 'champion') {
     const takenProfile = combatProfile(state, target);
     powerScaled *= takenProfile.damageTakenMult;
   }
-  const scaledRaw = target.kind === 'champion' ? powerScaled * CHAMPION_DAMAGE_SCALE : powerScaled;
+  const scaledRaw =
+    target.kind === 'champion' && via !== 'minion'
+      ? powerScaled * CHAMPION_DAMAGE_SCALE
+      : powerScaled;
   let dealt = mitigate(scaledRaw, damageType, armor, mr);
   if (target.kind === 'champion') {
     const shield = target.statuses.find((status) => status.kind === 'shield' && status.magnitude > 0);
@@ -436,11 +553,17 @@ export function applyDamage(
     }
   }
   target.hp = Math.max(0, target.hp - dealt);
-  if (source && source.kind === 'champion') {
-    source.damageDealt += dealt;
+  if (champSource) {
+    champSource.damageDealt += dealt;
     if (target.kind === 'champion') {
-      source.damageToChampions += dealt;
-      noteThreat(target, source, dealt, state.scheduler.time);
+      champSource.damageToChampions += dealt;
+      noteThreat(
+        target,
+        champSource,
+        dealt,
+        state.scheduler.time,
+        damageDrawsMinionCallForHelp(via),
+      );
       if (dealt > 0) {
         for (const structure of state.structures) {
           if (
@@ -452,24 +575,24 @@ export function applyDamage(
             continue;
           }
           const towerGap = Math.hypot(
-            source.position.x - structure.position.x,
-            source.position.y - structure.position.y,
+            champSource.position.x - structure.position.x,
+            champSource.position.y - structure.position.y,
           );
           if (towerGap > structure.range) {
             continue;
           }
-          structure.aggroTargetId = source.id;
+          structure.aggroTargetId = champSource.id;
           structure.aggroUntil = state.scheduler.time + 3.2;
         }
       }
-      if (source.positionLabel === 'SUPPORT' && dealt > 0) {
-        tryPaySharedRichesCombat(state, source, recorder);
+      if (champSource.positionLabel === 'SUPPORT' && dealt > 0) {
+        tryPaySharedRichesCombat(state, champSource, recorder);
       }
     }
   }
   if (target.kind === 'champion') {
     target.damageTaken += dealt;
-    if (source && source.kind === 'champion') {
+    if (champSource) {
       target.damageTakenFromChampions += dealt;
     }
     if (
@@ -488,7 +611,19 @@ export function applyDamage(
     actorId: source?.id,
     targetId: target.id,
     amount: dealt,
-    payload: { raw, damageType, via, hpAfter: target.hp },
+    payload: {
+      raw,
+      damageType,
+      via,
+      hpAfter: target.hp,
+      minionRole: source?.kind === 'minion' ? source.role : undefined,
+      minionSide: source?.kind === 'minion' ? source.side : undefined,
+      monsterUnitKind: source?.kind === 'monster' ? source.unitKind : undefined,
+      monsterCampId: source?.kind === 'monster' ? source.campId : undefined,
+      dragonType: source?.kind === 'monster' ? source.dragonType : undefined,
+      structureKind: source?.kind === 'structure' ? source.structureKind : undefined,
+      structureSide: source?.kind === 'structure' ? source.side : undefined,
+    },
   });
   if (target.hp <= 0) {
     if (target.kind === 'champion') {
@@ -496,7 +631,9 @@ export function applyDamage(
       handleChampionDeath(state, source, target, recorder, via);
     } else if (target.kind === 'minion') {
       target.alive = false;
-      creditMinionKill(state, source?.kind === 'champion' ? source : null, target, recorder, via);
+      creditMinionKill(state, champSource, target, recorder, via);
+    } else if (target.kind === 'monster') {
+      finalizeMonsterKill(state, champSource, target, recorder);
     } else {
       target.alive = false;
     }
@@ -506,13 +643,22 @@ export function applyDamage(
 
 function handleChampionDeath(
   state: GameState,
-  source: ChampionEntity | null,
+  source: DamageSource,
   victim: ChampionEntity,
   recorder?: ReplayRecorder,
   via = 'auto',
 ): void {
-  const environmental = via === 'tower' || via === 'minion' || via === 'monster' || via === 'camp';
-  let credited = resolveKiller(state, source, victim);
+  const environmental =
+    via === 'tower' ||
+    via === 'minion' ||
+    via === 'monster' ||
+    via === 'camp' ||
+    via === 'fountain';
+  const champSource = source?.kind === 'champion' ? source : null;
+  const minionSource = source?.kind === 'minion' ? source : null;
+  const monsterSource = source?.kind === 'monster' ? source : null;
+  const structureSource = source?.kind === 'structure' ? source : null;
+  let credited = resolveKiller(state, champSource, victim);
   if (!credited && !environmental) {
     victim.alive = true;
     forceRecall(state, victim, recorder);
@@ -537,6 +683,7 @@ function handleChampionDeath(
     pushGoldSample(state);
     const killXp = 80 + victim.level * 28 + Math.max(0, victim.level - credited.level) * 18;
     grantExp(state, credited, killXp, recorder, 'kill');
+    noteAhriChampionTakedown(credited, t);
     const assisted = new Set<string>();
     for (const [attackerId, threat] of Object.entries(threatSnapshot)) {
       if (t - threat.at > THREAT_WINDOW_SEC || threat.amount <= 0) {
@@ -602,6 +749,7 @@ function handleChampionDeath(
       }
       ally.assists += 1;
       grantGold(state, ally, assistShare, 'assist', recorder);
+      noteAhriChampionTakedown(ally, t);
       assistIds.push(ally.playerId);
     }
   }
@@ -611,7 +759,18 @@ function handleChampionDeath(
     targetId: credited?.id,
     x: victim.position.x,
     y: victim.position.y,
-    payload: { respawnAt: victim.respawnAt, assistPlayerIds: assistIds, via },
+    payload: {
+      respawnAt: victim.respawnAt,
+      assistPlayerIds: assistIds,
+      via,
+      minionRole: minionSource?.role,
+      minionSide: minionSource?.side,
+      monsterUnitKind: monsterSource?.unitKind,
+      monsterCampId: monsterSource?.campId,
+      dragonType: monsterSource?.dragonType,
+      structureKind: structureSource?.structureKind,
+      structureSide: structureSource?.side,
+    },
   });
   state.scheduler.schedule(victim.respawnAt, 'respawn', () => {
     if (state.ended) {

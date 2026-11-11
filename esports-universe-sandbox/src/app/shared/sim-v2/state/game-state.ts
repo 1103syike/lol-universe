@@ -38,6 +38,8 @@ export interface GameState {
   waveIndex: number;
   nextEntitySeq: number;
   goldSamples: Array<{ t: number; blue: number; red: number }>;
+  dragonTypeBag: Array<'ocean' | 'mountain' | 'infernal' | 'cloud' | 'hextech' | 'chemtech'>;
+  fountainNextShotAt: { blue: number; red: number };
 }
 
 export function createEmptyGameState(
@@ -80,6 +82,8 @@ export function createEmptyGameState(
     waveIndex: 0,
     nextEntitySeq: 1,
     goldSamples: [],
+    dragonTypeBag: [],
+    fountainNextShotAt: { blue: 0, red: 0 },
   };
 }
 

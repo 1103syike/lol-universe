@@ -283,14 +283,34 @@ export function castTeleport(
   return true;
 }
 
+export function clearTeleportChannel(champion: ChampionEntity): void {
+  champion.teleportDestination = null;
+  if (champion.currentAction === 'teleport') {
+    champion.currentAction = 'idle';
+  }
+}
+
 export function finishTeleportIfReady(
   state: GameState,
   champion: ChampionEntity,
   recorder?: ReplayRecorder,
 ): boolean {
-  if (champion.currentAction !== 'teleport' || !champion.teleportDestination) {
+  const channelingTp =
+    champion.currentAction === 'teleport' || !!champion.teleportDestination;
+  if (!channelingTp) {
     return false;
   }
+  if (!champion.teleportDestination) {
+    clearTeleportChannel(champion);
+    if (champion.recallPhase === 'moving_home') {
+      champion.recallPhase = 'none';
+      champion.recallChannelUntil = 0;
+      champion.recallChannelDuration = 0;
+      champion.recallHpSnapshot = 0;
+    }
+    return false;
+  }
+  champion.currentAction = 'teleport';
   if (state.scheduler.time < champion.recallChannelUntil) {
     champion.moving = false;
     champion.path = [];
@@ -301,6 +321,7 @@ export function finishTeleportIfReady(
   champion.recallPhase = 'none';
   champion.recallChannelUntil = 0;
   champion.recallChannelDuration = 0;
+  champion.recallHpSnapshot = 0;
   champion.currentAction = 'idle';
   applyMs(champion, 'summoner:tp:ms', 3, 40);
   recorder?.record(state, {

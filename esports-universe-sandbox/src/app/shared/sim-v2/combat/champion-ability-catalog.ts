@@ -104,48 +104,46 @@ export const CHAMPION_ABILITY_CATALOG: Record<string, ChampionAbilityProfile> = 
     "flavor": "flame",
     "Q": {
       "kind": "poke",
-      "base": 86,
-      "perLevel": 31,
-      "ad": 0.15,
-      "ap": 0.8,
+      "base": 70,
+      "perLevel": 50,
+      "ad": 0,
+      "ap": 1,
       "heal": 0,
-      "cc": 0.41
+      "cc": 0
     },
     "W": {
-      "kind": "zone",
-      "base": 53,
-      "perLevel": 23,
-      "ad": 0.1,
-      "ap": 0.45,
-      "heal": 0.05,
-      "shield": 0.27,
-      "cc": 0.23
+      "kind": "strike",
+      "base": 72,
+      "perLevel": 36,
+      "ad": 0,
+      "ap": 0.72,
+      "heal": 0,
+      "ms": 40,
+      "cc": 0
     },
     "E": {
       "kind": "snare",
-      "base": 52,
-      "perLevel": 20,
-      "ad": 0.12,
-      "ap": 0.5,
-      "ms": 65,
-      "cc": 0.83
+      "base": 80,
+      "perLevel": 40,
+      "ad": 0,
+      "ap": 0.85,
+      "cc": 0.9
     },
     "R": {
-      "kind": "teamUlt",
-      "base": 195,
-      "perLevel": 100,
-      "ad": 0.2,
-      "ap": 0.94,
-      "execute": 0.08,
+      "kind": "dash",
+      "base": 75,
+      "perLevel": 50,
+      "ad": 0,
+      "ap": 0.35,
       "aoe": true,
       "heal": 0,
-      "cc": 0.38
+      "cc": 0
     }
   },
   "Akali": {
     "id": "Akali",
     "combatClass": "assassin",
-    "damageType": "physical",
+    "damageType": "magic",
     "flavor": "light",
     "Q": {
       "kind": "gapclose",
@@ -235,46 +233,46 @@ export const CHAMPION_ABILITY_CATALOG: Record<string, ChampionAbilityProfile> = 
   "Alistar": {
     "id": "Alistar",
     "combatClass": "tank",
-    "damageType": "physical",
+    "damageType": "magic",
     "flavor": "blood",
     "Q": {
       "kind": "hook",
       "base": 66,
       "perLevel": 21,
-      "ad": 0.62,
-      "ap": 0.05,
+      "ad": 0.1,
+      "ap": 0.7,
       "heal": 0,
       "cc": 0.83
     },
     "W": {
-      "kind": "guard",
+      "kind": "gapclose",
       "base": 56,
       "perLevel": 24,
-      "ad": 0.35,
-      "ap": 0.1,
-      "heal": 0.15,
-      "shield": 0.34,
-      "cc": 0.46
+      "ad": 0.1,
+      "ap": 0.7,
+      "heal": 0.05,
+      "shield": 0.1,
+      "cc": 0.7
     },
     "E": {
       "kind": "wave",
       "base": 54,
       "perLevel": 18,
-      "ad": 0.55,
-      "ap": 0.08,
+      "ad": 0.05,
+      "ap": 0.4,
       "ms": 66,
-      "cc": 0.98
+      "cc": 0.4
     },
     "R": {
       "kind": "teamUlt",
-      "base": 194,
-      "perLevel": 104,
-      "ad": 1.32,
-      "ap": 0.1,
+      "base": 80,
+      "perLevel": 40,
+      "ad": 0.1,
+      "ap": 0.3,
       "execute": 0.08,
       "aoe": true,
-      "heal": 0.15,
-      "cc": 1.08
+      "heal": 0.25,
+      "cc": 0.2
     }
   },
   "Ambessa": {
@@ -325,46 +323,46 @@ export const CHAMPION_ABILITY_CATALOG: Record<string, ChampionAbilityProfile> = 
   "Amumu": {
     "id": "Amumu",
     "combatClass": "tank",
-    "damageType": "physical",
+    "damageType": "magic",
     "flavor": "iron",
     "Q": {
       "kind": "hook",
-      "base": 64,
-      "perLevel": 22,
-      "ad": 0.64,
-      "ap": 0.05,
+      "base": 70,
+      "perLevel": 30,
+      "ad": 0.05,
+      "ap": 0.85,
       "heal": 0,
-      "cc": 0.83
+      "cc": 0.9
     },
     "W": {
-      "kind": "guard",
-      "base": 56,
-      "perLevel": 25,
-      "ad": 0.35,
-      "ap": 0.1,
-      "heal": 0.15,
-      "shield": 0.34,
-      "cc": 0.46
+      "kind": "zone",
+      "base": 20,
+      "perLevel": 10,
+      "ad": 0.05,
+      "ap": 0.2,
+      "heal": 0.05,
+      "shield": 0.05,
+      "cc": 0.1
     },
     "E": {
       "kind": "wave",
-      "base": 55,
-      "perLevel": 19,
-      "ad": 0.56,
-      "ap": 0.08,
-      "ms": 68,
-      "cc": 0.98
+      "base": 65,
+      "perLevel": 30,
+      "ad": 0.05,
+      "ap": 0.5,
+      "ms": 0,
+      "cc": 0.2
     },
     "R": {
       "kind": "teamUlt",
-      "base": 195,
-      "perLevel": 105,
-      "ad": 1.32,
-      "ap": 0.1,
-      "execute": 0.08,
+      "base": 150,
+      "perLevel": 80,
+      "ad": 0.1,
+      "ap": 0.8,
+      "execute": 0.05,
       "aoe": true,
-      "heal": 0.15,
-      "cc": 1.08
+      "heal": 0.05,
+      "cc": 1.2
     }
   },
   "Anivia": {
@@ -2755,7 +2753,7 @@ export const CHAMPION_ABILITY_CATALOG: Record<string, ChampionAbilityProfile> = 
   "Katarina": {
     "id": "Katarina",
     "combatClass": "assassin",
-    "damageType": "physical",
+    "damageType": "magic",
     "flavor": "frost",
     "Q": {
       "kind": "gapclose",

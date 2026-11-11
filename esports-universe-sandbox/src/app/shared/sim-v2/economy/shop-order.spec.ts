@@ -24,7 +24,7 @@ function makeState(seed: number) {
     blueTeamId: 'blue',
     redTeamId: 'red',
     blue: roster('b', ['Aatrox', 'LeeSin', 'Ahri', 'Jinx', 'Thresh']),
-    red: roster('r', ['Garen', 'Viego', 'Syndra', 'Ashe', 'Lulu']),
+    red: roster('r', ['Garen', 'Viego', 'Syndra', 'Ashe', 'Leona']),
   }).state;
 }
 
